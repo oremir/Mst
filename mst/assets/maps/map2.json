@@ -1,0 +1,12 @@
+{
+    "assets": {
+        "map_tiles": { "type": "image", "source": "assets/images/mapa5v2.png" },
+        "map_tilemap": { "type": "tilemap", "source": "assets/maps/map2_map5v1.json" }
+    },
+    "map": {
+        "key": "map_tilemap",
+        "tileset": "map_tiles"
+    },
+    "objects":[
+    ]
+}
