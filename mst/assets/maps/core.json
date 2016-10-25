@@ -1,0 +1,118 @@
+{
+    "assets": {
+        "player_spritesheet": { "type": "spritesheet", "source": "assets/images/knight2.png", "frame_width": 16, "frame_height": 16, "frames": 14},
+        "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "chest_spritesheet": { "type": "spritesheet", "source": "assets/images/chest_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 4 },
+        "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
+		"sword_image": { "type": "image", "source": "assets/images/sword.png" },
+        "blank_image": { "type": "image", "source": "assets/images/blank_image.png" },
+        "health_image": { "type": "image", "source": "assets/images/heart-health.png" },
+        "weapon_image": { "type": "image", "source": "assets/images/attack-icon.png" },     
+        "shield_image": { "type": "image", "source": "assets/images/shield.png" },
+        "coin_image": { "type": "image", "source": "assets/images/coin.png" }
+    },
+	
+	"groups": [
+        "enemies",
+        "spawners",
+        "chests",        
+        "goouts",
+		"swords",
+        "players",
+        "hud",
+        "chestitems",
+        "items",
+        "stats"
+    ],
+	
+	"objects": { 
+		"sword": { "x": 32, "y": 32, "properties": {"group":"swords", "pool":"swords",  "texture":"sword_image"}, "type": "sword", "name": "sword" }
+	},
+    
+    "hud": {
+        "margins": {"left": 20, "right": 50, "top": 20, "bottom": 30},
+        "elements": {
+            "health": {
+                "type": "show_stat_with_sprite",
+                "region": "top_left",
+                "properties": {
+                    "texture": "health_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "player.health",
+                    "stats_spacing": {"x": 10, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "attack": {
+                "type": "show_stat_with_sprite",
+                "region": "center_bottom",
+                "properties": {
+                    "texture": "weapon_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "player.attack",
+                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "defense": {
+                "type": "show_stat_with_sprite",
+                "region": "center_bottom",
+                "properties": {
+                    "texture": "shield_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "player.defense",
+                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "items": {
+                "type": "show_items",
+                "region": "center_bottom",
+                "properties": {
+                    "texture": "items_spritesheet",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "player.items",
+                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "chestitems": {
+                "type": "show_items",
+                "region": "center",
+                "properties": {
+                    "texture": "items_spritesheet",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "chest.items",
+                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "money": {
+                "type": "show_stat_with_text",
+                "region": "top_right",
+                "properties": {
+                    "texture": "coin_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "stat_to_show": "player.money",
+                    "stats_group": "stats",
+                    "text_style": {
+                        "font": "16px Arial",
+                        "fill": "#FFFFFF"
+                    }
+                }
+            }
+        }
+    }
+}

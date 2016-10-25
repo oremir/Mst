@@ -1,0 +1,13 @@
+{
+    "assets": {
+        "map_tiles": { "type": "image", "source": "assets/images/set2.png" },
+        "map_tilemap": { "type": "tilemap", "source": "assets/maps/map1_map0v1.json" }
+    },
+    "map": {
+        "key": "map_tilemap",
+        "tileset": "map_tiles"
+    },
+    "objects":[        
+{"time":"1477243604168","type":"player","name":"player","usr_id":"1","x":"726","y":"114","properties":{"attack":"1","bouncing":"20","defense":"1","group":"players","health":"43","items":"1-2_2-2_0-7","jumping_speed":"500","money":"0","pool":"players","texture":"player_spritesheet","walking_speed":"90"},"map":{"old":"assets\/maps\/map2.json","new":"assets\/maps\/map1.json","new_int":"1"}}
+    ]
+}
