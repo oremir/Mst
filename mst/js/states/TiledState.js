@@ -90,9 +90,6 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
         this.usr_password.focusOutOnEnter = false;
         
         this.usr_isinput = false;
-        
-        
-        
     }
 };
 
@@ -135,6 +132,17 @@ Mst.TiledState.prototype.create = function () {
                 // create layer objects
                 this.map.objects[object_layer].forEach(this.create_object, this);
             }
+        }
+        
+        this.save = {
+            player: {},
+            objects: this.map_data.objects
+        }
+        
+        for (object_key in this.map_data.objects) {
+            this.create_object(this.map_data.objects[object_key]);
+
+            //console.log(this.core_data.objects[object_key]);
         }
 
         if (typeof(this.prefabs.player) == 'undefined') {
@@ -188,6 +196,7 @@ Mst.TiledState.prototype.update = function () {
                     .done(function(data) {
                         console.log( "success" );
                         usr_output = data;
+                        console.log(data);
                         var usr_id = parseInt(usr_output.usr_id);
                         var map = "assets/maps/map"+parseInt(usr_output.map)+".json";
 //                        console.log(usr_output);
@@ -240,4 +249,27 @@ Mst.TiledState.prototype.create_prefab = function (type, name, position, propert
 Mst.TiledState.prototype.restart_map = function () {
     "use strict";
     this.game.state.restart(true, false, this.core_data, this.map_data, this.root_data);
+};
+
+Mst.TiledState.prototype.save_data = function (go_position, next_map) {
+    "use strict";
+    
+    this.prefabs.player.save_player(go_position, next_map);
+    
+    this.save.player = this.prefabs.player.save;
+    
+    var d = new Date();
+    var n = d.getTime(); 
+
+    $.getJSON("save.php?time="+n, this.save)
+        .done(function(data) {
+            console.log( "save success" );
+            console.log(data);
+        })
+        .fail(function(data) {
+            console.log( "save error" );
+            console.log(data);
+        });
+    
+    console.log("save");
 };

@@ -216,6 +216,10 @@ Mst.ShowItems.prototype.update_item = function (item_index, item_frame, item_qua
     this.stat = this.stat_splited.join("_");
     console.log(this.stat_splited.length + " " + this.stat);
     this.game_state.prefabs[this.prefab_name].stats.items = this.stat;
+
+    if (this.prefab_name != "player") {
+        this.game_state.prefabs[this.prefab_name].updated = true;
+    }
     
     if (is_in_items === false) {
         this.kill_stats();

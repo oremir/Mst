@@ -1,5 +1,5 @@
 <?
-//,1,MONSTER,maki,1
+//,1,MONSTER,maki,2
 //,000002,MELIAN,simmel
 //,000003,GVENEIBLIN,drsnochvost
 //,000004,CAILI,vrba

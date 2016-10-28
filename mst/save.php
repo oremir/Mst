@@ -6,23 +6,44 @@ function zapis_souboru($x) {
   FPutS($fp,$x);
 }
 
+function indexOfUsrID($usr_id,$objects) {
+    $index = -1;
+    Reset($objects);
+    while(Current($objects)):
+        $object = Current($objects);
+        if ($object->usr_id == $usr_id):
+            $index = Key($objects);
+        endif;
+    
+        Next($objects);
+    endwhile;
+    
+    return $index;
+}
+
 $aget = $_GET;
 $apost = $_POST;
 
-$usr_id = $aget["usr_id"];
-$map = $aget["map"]["new_int"];
-$user = $aget;
+$usr_id = $aget["player"]["usr_id"];
+$map_new_int = $aget["player"]["map"]["new_int"];
+$user = $aget["player"];
+$objects = $aget["objects"];
 
 // -------------------------- test write postavy -------------------
 
-$path_log = "./assets/postavy/postavy.json";
+$path_postavy = "./assets/postavy/postavy.json";
 
-$fp = FOpen($path_log, "w");
+$postavy = json_decode(file_get_contents($path_postavy));
 
-FPutS($fp,json_encode($user));
-//FPutS($fp,json_encode($apost));
+$i = indexOfUsrID($usr_id, $postavy);
 
-FClose($fp);
+if ($i != -1):
+    $postavy[$i] = $user;
+else:
+    array_push($postavy, $user);
+endif;
+
+file_put_contents($path_postavy, json_encode($postavy));
 
 // --------------------------- update pswd --------------------------
 
@@ -41,7 +62,7 @@ while(Current($radek)):
   if (StrStr(Current($radek),"//")):
     $ARadek = Explode(",",Current($radek));
     if ($ARadek[1] == $usr_id):
-      $ARadek[4] = $map;
+      $ARadek[4] = $map_new_int;
       $pom_radek = Implode(",",$ARadek);
       $radek_new[] = $pom_radek."\r\n";
     else:
@@ -59,9 +80,35 @@ Array_Walk($radek_new, "zapis_souboru");
 
 FClose($fp);
 
-// --------------------------- udate map user --------------------
 
-$path_map = "./assets/maps/map".$map.".json";
+// --------------------------- udate new map user --------------------
+
+
+
+$path_map = "./assets/maps/map".$map_new_int.".json";
+
+$map = json_decode(file_get_contents($path_map));
+
+$aget["map1"] = $map;
+
+$i = indexOfUsrID($usr_id, $map->objects);
+
+$aget["map2"] = $i;
+
+if ($i != -1):
+    $map->objects[$i] = $user;
+else:
+    array_push($map->objects, $user);
+endif;
+
+$aget["map3"] = $map;
+
+file_put_contents($path_map."1", json_encode($map));
+
+
+
+
+/*$path_map = "./assets/maps/map".$map_new_int.".json";
 
 $fp = FOpen($path_map, "r");
 
@@ -87,7 +134,7 @@ $fp = FOpen($path_map, "w");
 
 Array_Walk($radek_map_new, "zapis_souboru");
 
-FClose($fp);
+FClose($fp);*/
 
 
 

@@ -4,7 +4,9 @@ Mst.Chest = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
-    this.game_state = game_state;    
+    this.game_state = game_state;
+    this.name = name;
+    
     this.game_state.game.physics.arcade.enable(this);
     
     this.stats = {
@@ -14,6 +16,17 @@ Mst.Chest = function (game_state, name, position, properties) {
     this.body.immovable = true;
     this.frame = 0;
     this.anchor.setTo(0.5);
+    
+    this.updated = false;
+    
+    this.save = {
+        type: "chest",
+        name: name,
+        x: position.x,
+        y: position.y,
+        properties: properties
+    }
+    
 };
 
 Mst.Chest.prototype = Object.create(Mst.Prefab.prototype);
@@ -26,7 +39,10 @@ Mst.Chest.prototype.update = function () {
         this.chest_close();
     }
     
-    
+    if (this.updated) {
+        this.game_state.save.objects[this.name] = this.save;
+        this.updated = false;
+    }
 };
 
 Mst.Chest.prototype.chest_close = function () {

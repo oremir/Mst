@@ -33,9 +33,7 @@ $map->objects[2]->usr_id = 5;
 
 //unset($map->objects[0]); // -- v poli se objeví indexy
 
-echo "<code>";
 print_r($map->objects);
-echo "</code>";
 
 file_put_contents('x.json', json_encode($map));
 

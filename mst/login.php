@@ -34,7 +34,7 @@ while(Current($radek)):
     $ARadek = Explode(",",Current($radek));
     if (($ARadek[2] == $jmeno)&&(Trim($ARadek[3]) == $heslo)):
       $usr_id = $ARadek[1];
-      $map = $ARadek[4];
+      $map = Trim($ARadek[4]);
     endif;
   endif;
   Next($radek);

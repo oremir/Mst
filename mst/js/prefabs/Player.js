@@ -3,7 +3,7 @@ var Mst = Mst || {};
 Mst.Player = function (game_state, name, position, properties) {
     "use strict";
     var load_player;
-    Mst.Prefab.call(this, game_state, name, position, properties);
+    Mst.Prefab.call(this, game_state, "player", position, properties);
     
     load_player = JSON.parse(localStorage.getItem("player"));
     if (typeof(load_player) != 'undefined') {
@@ -128,7 +128,9 @@ Mst.Player.prototype.update = function () {
     this.save.x = this.x;
     this.save.y = this.y;
     this.save.properties.health = this.health;
-    this.save.properties.items = this.stats.items;    
+    this.save.properties.items = this.stats.items;
+    
+    this.game_state.save.player = this.save;
 };
 
 Mst.Player.prototype.hit_player = function (player, enemy) {
@@ -141,7 +143,7 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     if (player.health < 1) {
         this.save.properties.health = 100;
         
-        this.save_player({ x: 135, y: 300}, "assets/maps/map2.json");
+        this.game_state.save_data({ x: 135, y: 300}, "assets/maps/map2.json");
         
         this.game_state.game.state.start("BootState", true, false, "assets/maps/map2.json", 1);
     }
@@ -177,19 +179,6 @@ Mst.Player.prototype.save_player = function (go_position, go_map) {
     this.save.map.new_int = parseInt(new_new);
     
     localStorage.setItem("player", JSON.stringify(this.save));
-    
-    var d = new Date();
-    var n = d.getTime(); 
-
-    $.getJSON("save.php?time="+n, this.save)
-        .done(function(data) {
-            console.log( "save success" );
-            console.log(data);
-        })
-        .fail(function(data) {
-            console.log( "save error" );
-            console.log(data);
-        });
     
     console.log(localStorage.player);
 
