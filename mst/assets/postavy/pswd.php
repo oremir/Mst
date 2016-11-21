@@ -40,4 +40,5 @@
 //,000039,ROSALIND,lilie
 //,000040,BROUKAL,verence
 //,000041,CYCLOP,hoblik
+//,42,VOJTA,vojtucha,2
 ?>

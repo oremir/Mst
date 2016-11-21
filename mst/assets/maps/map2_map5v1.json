@@ -43,7 +43,7 @@
                  "properties":
                     {
                      "group":"goouts",
-                     "go_position":{"x": 726, "y": 114},
+                     "go_position":{"x": 718, "y": 114},
                      "next_map":"assets\/maps\/map1.json",
                      "pool":"goouts",
                      "texture":"blank_image"
@@ -62,6 +62,34 @@
                  "width":16,
                  "x":128,
                  "y":335
+            },
+            {
+                 "gid":261,
+                 "height":16,
+                 "id":8,
+                 "name":"goout02",
+                 "properties":
+                    {
+                     "group":"goouts",
+                     "go_position":{"x": 62, "y": 120},
+                     "next_map":"assets\/maps\/map3.json",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "go_position":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":80,
+                 "y":289
             }
          ],
          "opacity":1,

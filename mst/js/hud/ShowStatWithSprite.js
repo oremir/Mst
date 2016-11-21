@@ -11,6 +11,9 @@ Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
     this.stats_group = properties.stats_group;
     // it is necessary to save the initial position because we need it to create the stat sprites
     this.initial_position = new Phaser.Point(this.x, this.y);
+    
+    this.window_opened = false;
+    this.texts = [];
 };
 
 Mst.ShowStatWithSprite.prototype = Object.create(Mst.ShowStat.prototype);
@@ -79,6 +82,67 @@ Mst.ShowStatWithSprite.prototype.create_new_stat_sprite = function () {
     // stat scale and anchor are the same as the prefab
     stat.scale.setTo(this.scale.x, this.scale.y);
     stat.anchor.setTo(this.anchor.x, this.anchor.y);
+    
+    stat.inputEnabled = true;
+    stat.input.useHandCursor = true;
+    stat.events.onInputDown.add(this.show_window, this);
+    
     stat.fixedToCamera = true;
     return stat;
+};
+
+Mst.ShowStatWithSprite.prototype.show_window = function (stat) {
+    "use strict";
+    var key, skill, index, text, text_style, text_value;
+    if (this.window_opened) {
+        this.hide_window_onclick();
+    } else {
+        if (this.name === "health") {
+            this.game_state.prefabs.player.close_state.push("Abilities");
+            this.game_state.prefabs.player.close_context.push(this.name);
+            
+            this.window_opened = true;
+            this.game_state.hud.right_window.show("Vlastnosti:");
+            
+            text_style = {"font": "12px Arial", "fill": "#FFFFFF", tabs: 40 };
+            index = 0;
+            for (key in this.game_state.prefabs.player.stats) {
+                if (key === "skills") {
+                    for (skill in this.game_state.prefabs.player.stats.skills) {
+                        text_value = skill 
+                            + "\t exp:" + this.game_state.prefabs.player.stats.skills[skill].exp 
+                            + "\t lvl:" + this.game_state.prefabs.player.stats.skills[skill].level;
+                        text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                        text.fixedToCamera = true;
+                        this.texts.push(text);
+                        index ++;
+                    }
+                } else {
+                    text_value = key + "\t" + this.game_state.prefabs.player.stats[key];
+                    text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                    text.fixedToCamera = true;
+                    this.texts.push(text);
+                    index ++;
+                }                
+                
+            }
+        }        
+    }
+};
+
+Mst.ShowStatWithSprite.prototype.hide_window_onclick = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.pop();
+    this.game_state.prefabs.player.close_context.pop();
+    this.hide_window();
+};
+
+Mst.ShowStatWithSprite.prototype.hide_window = function () {
+    "use strict";
+    this.window_opened = false;
+    this.texts.forEach(function (text) {
+        text.destroy();
+    });
+    this.texts = [];
+    this.game_state.hud.right_window.hide();
 };

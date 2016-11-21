@@ -6,6 +6,10 @@ Mst.ShowStatWithText = function (game_state, name, position, properties) {
     Mst.ShowStat.call(this, game_state, name, position, properties);
     this.text_style = properties.text_style;
     this.stats_group = properties.stats_group;
+    
+    this.stats = {
+        settings: 1
+    };
 };
 
 Mst.ShowStatWithText.prototype = Object.create(Mst.ShowStat.prototype);

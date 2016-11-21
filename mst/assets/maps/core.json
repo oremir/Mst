@@ -1,16 +1,31 @@
 {
     "assets": {
         "player_spritesheet": { "type": "spritesheet", "source": "assets/images/knight2.png", "frame_width": 16, "frame_height": 16, "frames": 14},
+        "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
-        "chest_spritesheet": { "type": "spritesheet", "source": "assets/images/chest_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 4 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 30 },
+        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
-		"sword_image": { "type": "image", "source": "assets/images/sword.png" },
+        "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
         "blank_image": { "type": "image", "source": "assets/images/blank_image.png" },
+        "black_image": { "type": "image", "source": "assets/images/black_image.png" },
         "health_image": { "type": "image", "source": "assets/images/heart-health.png" },
-        "weapon_image": { "type": "image", "source": "assets/images/attack-icon.png" },     
-        "shield_image": { "type": "image", "source": "assets/images/shield.png" },
-        "coin_image": { "type": "image", "source": "assets/images/coin.png" }
+        "exp_image": { "type": "image", "source": "assets/images/exp.png" },
+        "bubble_spritesheet": { "type": "spritesheet", "source": "assets/images/bubble.png", "frame_width": 16, "frame_height": 16, "frames": 1},
+        "level_image": { "type": "image", "source": "assets/images/level.png" },
+        "settings_image": { "type": "image", "source": "assets/images/settings.png" },
+        "moon_image": { "type": "image", "source": "assets/images/moon.png" },
+        "right_window": { "type": "image", "source": "assets/images/frame-gold-227-300.png" },
+        "alt": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
+        "alt_80_35": { "type": "image", "source": "assets/images/frame-alt-80-35.png" },
+        "frame_item": { "type": "image", "source": "assets/images/frame_item.png" },
+        "frame_bot": { "type": "image", "source": "assets/images/frame-bot.png" },
+        "dialogue": { "type": "image", "source": "assets/images/DialogueBox2.png" },        
+        "dialogue_small": { "type": "image", "source": "assets/images/DialogueBoxSmall2.png" },
+        "alert": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
+        
+        "woosh": { "type": "audio", "source": "assets/sounds/woosh-2.wav" }
     },
 	
 	"groups": [
@@ -20,14 +35,47 @@
         "goouts",
 		"swords",
         "players",
+        "otherplayers",
+        "NPCs",
+        "ren",
         "hud",
+        "bubbles",
         "chestitems",
+        "businessitems",
         "items",
         "stats"
+        
+    ],
+    
+    "items": [
+        { "name": "Sekera", "istool": "true", "properties": { "cut_type": "wood", "tool_fr_left": "1", "tool_fr_right": "2" } },
+        { "name": "Peníze (G)", "istool": "false", "properties": {} },
+        { "name": "Krumpáč", "istool": "true", "properties": { "cut_type": "stone", "tool_fr_left": "3", "tool_fr_right": "3" } },    
+        { "name": "Věci", "istool": "false", "properties": {} },
+		{ "name": "Truhla", "istool": "false", "properties": {} },
+        { "name": "Truhla", "istool": "false", "properties": {} },
+        { "name": "Džbán", "istool": "false", "properties": {} },
+        { "name": "Dřevo", "istool": "false", "properties": {} },
+        { "name": "Stolek", "istool": "false", "properties": {} },
+        { "name": "Stolek", "istool": "false", "properties": {} },
+        { "name": "Stolek", "istool": "false", "properties": {} },
+        { "name": "Stolek", "istool": "false", "properties": {} },
+        { "name": "Židle", "istool": "false", "properties": {} },
+        { "name": "Vozík", "istool": "false", "properties": {} },
+        { "name": "Vozík", "istool": "false", "properties": {} },
+        { "name": "Bedna", "istool": "false", "properties": {} },
+        { "name": "Sud", "istool": "false", "properties": {} },
+        { "name": "Bariéra", "istool": "false", "properties": {} },
+        { "name": "Kostra", "istool": "false", "properties": {} },
+        { "name": "Ohrada", "istool": "false", "properties": {} },
+        { "name": "Křoví", "istool": "false", "properties": {} },
+        { "name": "Kámen", "istool": "false", "properties": {} },
+        { "name": "Pařez", "istool": "false", "properties": {} },
+        { "name": "Gel", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 
-		"sword": { "x": 32, "y": 32, "properties": {"group":"swords", "pool":"swords",  "texture":"sword_image"}, "type": "sword", "name": "sword" }
+		"sword": { "x": 1, "y": 1, "properties": {"group":"swords", "pool":"swords",  "texture":"tools_spritesheet"}, "type": "sword", "name": "sword" }
 	},
     
     "hud": {
@@ -41,48 +89,35 @@
                     "group": "hud",
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
-                    "stat_to_show": "player.health",
+                    "stat_to_show": "player.health_hearts",
                     "stats_spacing": {"x": 10, "y": 0},
                     "stats_group": "stats"
                 }
             },
-            "attack": {
-                "type": "show_stat_with_sprite",
-                "region": "center_bottom",
+            "equip": {
+                "type": "show_equip",
+                "region": "bottom_left",
                 "properties": {
-                    "texture": "weapon_image",
+                    "texture": "frame_item",
                     "group": "hud",
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
-                    "stat_to_show": "player.attack",
-                    "stats_spacing": {"x": 30, "y": 0},
-                    "stats_group": "stats"
-                }
-            },
-            "defense": {
-                "type": "show_stat_with_sprite",
-                "region": "center_bottom",
-                "properties": {
-                    "texture": "shield_image",
-                    "group": "hud",
-                    "scale": {"x": 2, "y": 2},
-                    "anchor": {"x": 0.5, "y": 0.5},
-                    "stat_to_show": "player.defense",
+                    "stat_to_show": "player.equip",
                     "stats_spacing": {"x": 30, "y": 0},
                     "stats_group": "stats"
                 }
             },
             "items": {
                 "type": "show_items",
-                "region": "center_bottom",
+                "region": "bottom_left",
                 "properties": {
                     "texture": "items_spritesheet",
                     "group": "hud",
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
                     "stat_to_show": "player.items",
-                    "stats_spacing": {"x": 30, "y": 0},
-                    "stats_group": "stats"
+                    "stats_spacing": {"x": 32, "y": 0},
+                    "stats_group": "items"
                 }
             },
             "chestitems": {
@@ -94,25 +129,79 @@
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
                     "stat_to_show": "chest.items",
-                    "stats_spacing": {"x": 30, "y": 0},
+                    "stats_spacing": {"x": 32, "y": 0},
+                    "stats_group": "chestitems"
+                }
+            },
+            "businessitems": {
+                "type": "show_business",
+                "region": "right_window",
+                "properties": {
+                    "texture": "items_spritesheet",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "merchant.items",
+                    "stats_spacing": {"x": 0, "y": 20},
+                    "stats_group": "businessitems"
+                }
+            },
+            "moon": {
+                "type": "show_stat_with_sprite",
+                "region": "top_right",
+                "properties": {
+                    "texture": "moon_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "player.moon",
+                    "stats_spacing": {"x": 16, "y": 0},
                     "stats_group": "stats"
                 }
             },
-            "money": {
-                "type": "show_stat_with_text",
+            "settings": {
+                "type": "show_stat_with_sprite",
                 "region": "top_right",
                 "properties": {
-                    "texture": "coin_image",
+                    "texture": "settings_image",
                     "group": "hud",
                     "scale": {"x": 2, "y": 2},
-                    "stat_to_show": "player.money",
+                    "anchor": {"x": 0.5, "y": 0.5},
+                    "stat_to_show": "level.settings",
+                    "stats_spacing": {"x": 10, "y": 0},
+                    "stats_group": "stats"
+                }
+            },
+            "level": {
+                "type": "show_stat_with_text",
+                "region": "center_top",
+                "properties": {
+                    "texture": "level_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "stat_to_show": "player.level",
                     "stats_group": "stats",
                     "text_style": {
-                        "font": "16px Arial",
+                        "font": "12px Arial",
                         "fill": "#FFFFFF"
                     }
                 }
-            }
+            },
+            "exp": {
+                "type": "show_stat_with_text",
+                "region": "center_top",
+                "properties": {
+                    "texture": "exp_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "stat_to_show": "player.exp",
+                    "stats_group": "stats",
+                    "text_style": {
+                        "font": "12px Arial",
+                        "fill": "#FFFFFF"
+                    }
+                }
+            } 
         }
     }
 }

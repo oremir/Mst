@@ -2,10 +2,10 @@ var Mst = Mst || {};
 
 Mst.Chest = function (game_state, name, position, properties) {
     "use strict";
-    Mst.Prefab.call(this, game_state, name, position, properties);
     
-    this.game_state = game_state;
-    this.name = name;
+    //console.log("y: "+position.y)
+    
+    Mst.Prefab.call(this, game_state, name, position, properties);
     
     this.game_state.game.physics.arcade.enable(this);
     
@@ -13,20 +13,28 @@ Mst.Chest = function (game_state, name, position, properties) {
         items: properties.items
     };
     
-    this.body.immovable = true;
-    this.frame = 0;
-    this.anchor.setTo(0.5);
-    
-    this.updated = false;
+    this.closed_frame = parseInt(properties.closed_frame) || 4;
+    this.opened_frame = parseInt(properties.opened_frame) || 5;
     
     this.save = {
         type: "chest",
         name: name,
-        x: position.x,
-        y: position.y,
+        x: position.x - (this.game_state.map.tileHeight / 2),
+        y: position.y + (this.game_state.map.tileHeight / 2),
         properties: properties
     }
     
+    //console.log("y: "+this.save.y)
+    
+    this.body.immovable = true;
+    console.log(this.closed_frame);
+    this.frame = this.closed_frame;
+    this.anchor.setTo(0.5);
+    
+    this.inputEnabled = true;
+    this.events.onInputDown.add(this.get_chest, this);
+    
+    this.updated = false;
 };
 
 Mst.Chest.prototype = Object.create(Mst.Prefab.prototype);
@@ -34,29 +42,108 @@ Mst.Chest.prototype.constructor = Mst.Chest;
 
 Mst.Chest.prototype.update = function () {
     "use strict";
-
-    if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 20) {
-        this.chest_close();
-    }
+    if (this.alive) {
+        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 20 && this.game_state.prefabs.player.opened_chest == this.name) {
+            this.close_chest();
+        }
+    }        
     
     if (this.updated) {
-        this.game_state.save.objects[this.name] = this.save;
+        if (this.stats.items == "") {
+            this.input.useHandCursor = true;
+
+            if (this.closed_frame == 3) {
+                this.get_chest(this);
+            }
+        } else {
+            this.input.useHandCursor = false;
+        }        
+        
+        this.save.properties.items = this.stats.items;
+        this.save.properties.opened_frame = this.opened_frame;
+        this.save.properties.closed_frame = this.closed_frame;
+        
+        var key;
+        
+        key = this.game_state.keyOfName(this.name);
+    
+        //console.log(key);
+
+        if (key != "") {
+            if (this.stats.items == "" && this.closed_frame == 3) {
+                this.game_state.save.objects.splice(key, 1);
+            } else {
+                this.game_state.save.objects[key] = this.save;                
+            }
+        } else {
+            if (!(this.stats.items == "" && this.closed_frame == 3)) {
+                this.game_state.save.objects.push(this.save);
+            }
+        }
+        
+        //console.log(this.game_state.save.objects);
         this.updated = false;
     }
 };
 
-Mst.Chest.prototype.chest_close = function () {
+Mst.Chest.prototype.reset = function (position) {
     "use strict";
     
-    this.frame = 0; 
+    Phaser.Sprite.prototype.reset.call(this, position.x, position.y);
+};
+
+Mst.Chest.prototype.open_chest = function (player) {
+    "use strict";
+    
+    this.frame = this.opened_frame;
+    player.opened_chest = this.name;
+    this.game_state.prefabs.chestitems.show_initial_stats();
+};
+
+Mst.Chest.prototype.close_chest = function () {
+    "use strict";
+    
+    this.frame = this.closed_frame;
     this.game_state.prefabs.chestitems.kill_stats();
     this.game_state.prefabs.player.opened_chest = "";
 };
 
-Mst.Chest.prototype.chest_empty = function () {
+Mst.Chest.prototype.get_chest = function (chest) {
+    "use strict";
+    var chest_name, closed_frame, key;
+    
+    if (chest.stats.items == "") {
+        console.log(chest);
+        chest_name = chest.name;
+        closed_frame = chest.closed_frame;
+
+        if (closed_frame != 3) {
+            this.game_state.prefabs.player.add_item(closed_frame, 1);
+        }
+
+        this.kill();
+        this.game_state.prefabs.player.opened_chest = "";
+
+        key = this.game_state.keyOfName(chest_name);
+
+        console.log(key);
+
+        if (key != "") {
+            this.game_state.save.objects.splice(key, 1);
+        }
+
+        console.log(this.game_state.save.objects);
+    }
+};
+
+Mst.Chest.prototype.add_item = function (item_frame, quantity) {
     "use strict";
     
+    this.game_state.prefabs.chestitems.add_item(item_frame, quantity);
+};
+
+Mst.Chest.prototype.subtract_item = function (item_index, quantity) {
+    "use strict";
     
-    
-    
+    this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
 };

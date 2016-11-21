@@ -24,7 +24,7 @@ Mst.Goout.prototype.constructor = Mst.Goout;
 Mst.Goout.prototype.update = function () {
     "use strict";
     
-    this.game_state.game.physics.arcade.overlap(this, this.game_state.groups.players, this.go_out, null, this);
+    this.game_state.game.physics.arcade.overlap(this, this.game_state.prefabs.player, this.go_out, null, this);
 };
 
 Mst.Goout.prototype.go_out = function () {
@@ -35,7 +35,7 @@ Mst.Goout.prototype.go_out = function () {
         this.notupdated = false;
         this.game_state.save_data(this.go_position, this.next_map);
     
-        this.game_state.game.state.start("BootState", true, false, this.next_map, 1);
+        this.game_state.game.state.start("BootState", true, false, this.next_map, this.game_state.root_data.usr_id);
     }
 };
 

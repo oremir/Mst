@@ -35,47 +35,7 @@
          "height":0,
          "name":"objects",
          "objects":[
-                {
-                 "gid":261,
-                 "height":16,
-                 "id":4,
-                 "name":"player",
-                 "properties":
-                    {
-                     "attack":"1",
-                     "bouncing":"20",
-                     "defense":"1",
-                     "group":"players",
-                     "health":"100",
-                     "items":"1-2_2-3_0-10",
-                     "jumping_speed":"500",
-                     "money":"0",
-                     "pool":"players",
-                     "texture":"player_spritesheet",
-                     "walking_speed":"90"
-                    },
-                 "propertytypes":
-                    {
-                     "attack":"string",
-                     "bouncing":"string",
-                     "defense":"string",
-                     "group":"string",
-                     "health":"string",
-                     "items":"string",
-                     "jumping_speed":"string",
-                     "money":"string",
-                     "pool":"string",
-                     "texture":"string",
-                     "walking_speed":"string"
-                    },
-                 "rotation":0,
-                 "type":"player",
-                 "visible":true,
-                 "width":16,
-                 "x":157,
-                 "y":165
-                }, 
-                {
+               {
                  "gid":261,
                  "height":16,
                  "id":5,
@@ -110,38 +70,12 @@
                 {
                  "gid":261,
                  "height":16,
-                 "id":7,
-                 "name":"chest",
-                 "properties":
-                    {
-                     "group":"chests",
-                     "items":"1-2_2-3_0-10",
-                     "pool":"chests",
-                     "texture":"chest_spritesheet"
-                    },
-                 "propertytypes":
-                    {
-                     "group":"string",
-                     "items":"string",
-                     "pool":"string",
-                     "texture":"string"
-                    },
-                 "rotation":0,
-                 "type":"chest",
-                 "visible":true,
-                 "width":16,
-                 "x":464.666666666667,
-                 "y":272
-                }, 
-                {
-                 "gid":261,
-                 "height":16,
                  "id":8,
                  "name":"goout",
                  "properties":
                     {
                      "group":"goouts",
-                     "go_position":{"x": 135, "y": 300},
+                     "go_position":{"x": 127, "y": 300},
                      "next_map":"assets\/maps\/map2.json",
                      "pool":"goouts",
                      "texture":"blank_image"

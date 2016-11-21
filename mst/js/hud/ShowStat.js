@@ -16,7 +16,7 @@ Mst.ShowStat.prototype.update = function () {
     prefab_name = this.stat_to_show.split(".")[0];
     stat_name = this.stat_to_show.split(".")[1];
     
-    if (typeof(this.game_state.prefabs[prefab_name]) != 'undefined') {
+    if (typeof (this.game_state.prefabs[prefab_name]) !== 'undefined') {
         new_stat = this.game_state.prefabs[prefab_name].stats[stat_name];
         // check if the stat has changed
         if (this.stat !== new_stat) {

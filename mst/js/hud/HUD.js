@@ -50,8 +50,8 @@ Mst.HUD.prototype.init = function (game_state, hud_data) {
             elements: []
         },
         bottom_left: {
-            begin: {x: this.margins.left, y: camera_height - this.margins.bottom},
-            end: {x: (camera_width / 3) - this.margins.right, y: camera_height - this.margins.bottom},
+            begin: {x: this.margins.left, y: camera_height - this.margins.bottom - 12},
+            end: {x: (camera_width / 3) - this.margins.right, y: camera_height - this.margins.bottom - 12},
             elements: []
         },
         center_left: {
@@ -62,6 +62,11 @@ Mst.HUD.prototype.init = function (game_state, hud_data) {
         center: {
             begin: {x: (camera_width / 3) + this.margins.left, y: camera_center.y},
             end: {x: (2 * camera_width / 3) - this.margins.right, y: camera_center.y},
+            elements: []
+        },
+        right_window: {
+            begin: {x: (camera_width / 3) + this.margins.left + 35, y: camera_center.y - 120},
+            end: {x: (2 * camera_width / 3) - this.margins.right + 35, y: camera_center.y - 120},
             elements: []
         }
     };

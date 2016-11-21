@@ -11,8 +11,10 @@ function indexOfUsrID($usr_id,$objects) {
     Reset($objects);
     while(Current($objects)):
         $object = Current($objects);
-        if ($object->usr_id == $usr_id):
-            $index = Key($objects);
+        if ($object->type == "player"):
+            if ($object->usr_id == $usr_id):
+                $index = Key($objects);
+            endif;
         endif;
     
         Next($objects);
@@ -26,8 +28,14 @@ $apost = $_POST;
 
 $usr_id = $aget["player"]["usr_id"];
 $map_new_int = $aget["player"]["map"]["new_int"];
+$path_map_old = $aget["player"]["map"]["old"];
 $user = $aget["player"];
-$objects = $aget["objects"];
+
+if (isset($aget["objects"])):
+    $objects = $aget["objects"];
+else:
+    $objects = array();
+endif;
 
 // -------------------------- test write postavy -------------------
 
@@ -103,7 +111,7 @@ endif;
 
 $aget["map3"] = $map;
 
-file_put_contents($path_map."1", json_encode($map));
+file_put_contents($path_map, json_encode($map));
 
 
 
@@ -135,6 +143,20 @@ $fp = FOpen($path_map, "w");
 Array_Walk($radek_map_new, "zapis_souboru");
 
 FClose($fp);*/
+
+
+// --------------------------- udate old map --------------------
+
+
+$map = json_decode(file_get_contents($path_map_old));
+
+$aget["map old"] = $map;
+
+$map->objects = $objects;
+
+$aget["map4"] = $map;
+
+file_put_contents($path_map_old, json_encode($map));
 
 
 
