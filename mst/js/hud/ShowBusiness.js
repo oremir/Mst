@@ -20,7 +20,7 @@ Mst.ShowBusiness = function (game_state, name, position, properties) {
     // it is necessary to save the initial position because we need it to create the stat sprites
     this.initial_position = new Phaser.Point(this.x, this.y);
     
-    this.create_buy_sel();
+    //this.create_buy_sel();
 };
 
 Mst.ShowBusiness.prototype = Object.create(Mst.ShowStat.prototype);
@@ -43,7 +43,7 @@ Mst.ShowBusiness.prototype.show_initial_stats = function () {
     
     if (this.stat != "") {
         this.game_state.hud.right_window.show("");
-        this.show_buy_sel();
+        //this.show_buy_sel();
         this.game_state.prefabs.items.set_put_type("buy");
         
         this.stat_splited = this.stat.split("_");
@@ -191,14 +191,14 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
     }
 };
 
-Mst.ShowBusiness.prototype.create_buy_sel = function () {
+/*Mst.ShowBusiness.prototype.create_buy_sel = function () {
     "use strict";
     var x, y, text_style;
     
     x = this.game_state.hud.dialogue.x + 8;
     y = this.game_state.hud.dialogue.y + 80;
     
-    text_style = {"font": "12px Arial", "fill": "#BF9F00", wordWrap: true, wordWrapWidth: this.width - 25,};
+    text_style = {"font": "12px Arial", "fill": "#BF9F00", wordWrap: true, wordWrapWidth: this.width - 25};
     //this.text = new Phaser.Text(this.game_state.game, 273 + 10, 52 + 8, "", text_style);
     //this.text = this.addChild(this.game_state.game.make.text(273 + 10, 52 + 8, "", text_style));
     this.text_buy = this.game_state.game.add.text(x, y, "[koupit]", text_style);
@@ -249,7 +249,7 @@ Mst.ShowBusiness.prototype.business_sell = function () {
     
     this.type_buy = false;
     this.game_state.prefabs.items.set_put_type("sell");
-};
+};*/
 
 Mst.ShowBusiness.prototype.put_down_item = function (one_item) {
     "use strict";
@@ -374,7 +374,7 @@ Mst.ShowBusiness.prototype.kill_stats = function () {
     this.texts1 = [];
     this.visible = false;
     
-    this.hide_buy_sel();
+    //this.hide_buy_sel();
     this.game_state.hud.right_window.hide();
     this.game_state.prefabs.items.set_put_type("put");
 };

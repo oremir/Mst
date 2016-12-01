@@ -44,7 +44,8 @@ Mst.Player = function (game_state, name, position, properties) {
     if (typeof (properties.abilities) === 'undefined') {
         properties.abilities = {
             strength: 8,
-            constitution: 8
+            constitution: 8,
+            intelligence: 8
         };
     }
     
@@ -74,7 +75,8 @@ Mst.Player = function (game_state, name, position, properties) {
         },
         abilities: {
             strength: +properties.abilities.strength,
-            constitution: +properties.abilities.constitution
+            constitution: +properties.abilities.constitution,
+            intelligence: +properties.abilities.intelligence
         },
         relations: properties.relations,
         places: properties.places,
@@ -324,7 +326,7 @@ Mst.Player.prototype.open_chest = function (player, chest) {
 Mst.Player.prototype.open_business = function (player, person) {
     "use strict";
     
-    if (this.opened_bussiness === "") {
+    if (this.opened_business === "") {
         person.open_business(player);
     }
 };
@@ -394,7 +396,7 @@ Mst.Player.prototype.add_ability = function (ability, num1, num2) {
     quantity += num2;
     
     this.stats.abilities[ability] += quantity;
-    this.save.properties.abilities[ability] = this.stats.abilities[ability];   
+    this.save.properties.abilities[ability] = this.stats.abilities[ability];
 };
 
 Mst.Player.prototype.update_place = function () {

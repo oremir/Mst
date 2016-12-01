@@ -17,7 +17,7 @@ Mst.NPC = function (game_state, name, position, properties) {
     //console.log(this);
     
     this.p_name = properties.p_name;
-    this.relations_allowed = properties.relations_allowed;
+    this.relations_allowed = (properties.relations_allowed === 'true');
     this.region = properties.region;
     
     this.stats = {
@@ -74,7 +74,7 @@ Mst.NPC.prototype.update = function () {
     if (this.game_state.prefabs.player.killed) {
         this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
         if (this.relations_allowed) {
-            player.update_relation(NPC, "NPC", 5);
+            this.game_state.prefabs.player.update_relation(this, "NPC", 5);
         }
         
         this.game_state.prefabs.player.killed = false;
@@ -113,15 +113,14 @@ Mst.NPC.prototype.save_NPC = function () {
 Mst.NPC.prototype.touch_player = function (NPC, player) {
     "use strict";
     if (!this.ren_sprite.visible) {
-        this.ren_sprite.show();
-        
         if (this.relations_allowed) {
             player.update_relation(NPC, "NPC", 1);
         }
 
         if (player.opened_business === "" && NPC.name === "merchant") {
+            console.log("test");
             player.open_business(player, NPC);
-            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?");
+            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell"]);
         } 
 
         if (NPC.name !== "merchant") {
@@ -133,6 +132,7 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
 Mst.NPC.prototype.open_business = function (player) {
     "use strict";
     player.opened_business = this.name;
+    console.log("Open business");
     this.game_state.prefabs.businessitems.show_initial_stats();
 };
 
