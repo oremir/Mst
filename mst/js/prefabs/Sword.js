@@ -94,8 +94,8 @@ Mst.Sword.prototype.hit_enemy = function (player, enemy) {
         enemy.knockbacki = 10;
         
         if (enemy.health < 1) {
-            player.add_exp("standard", enemy.healthmax);
-            player.add_exp("fighter", enemy.healthmax / 2);
+            player.add_exp("standard", enemy.health_max);
+            player.add_exp("fighter", enemy.health_max / 2);
             player.add_item(23, 1); // gel
             
             enemy.kill();

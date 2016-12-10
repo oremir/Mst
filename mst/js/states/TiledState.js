@@ -294,8 +294,9 @@ Mst.TiledState.prototype.restart_map = function () {
 
 Mst.TiledState.prototype.save_data = function (go_position, next_map) {
     "use strict";
-    
-    var key;
+    var key, game, usr_id;
+    game = this.game;
+    usr_id = this.root_data.usr_id;
     
     this.groups.otherplayers.forEachAlive(function(one_player) {        
         one_player.save_player();
@@ -316,6 +317,13 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map) {
     
     console.log(this.save.objects);
     
+    var stat1 = this.groups.hud.create(this.prefabs.player.x, this.prefabs.player.y, "circle_inv");
+    stat1.scale.setTo(21);
+    stat1.anchor.setTo(0.5);
+                
+    var tween = this.game.add.tween(stat1.scale).to( { x: 0.72, y: 0.72 }, 500, Phaser.Easing.Linear.None);
+    tween.onComplete.add(function() { game.state.start("BootState", true, false, next_map, usr_id)});
+    
     var d = new Date();
     var n = d.getTime(); 
 
@@ -323,6 +331,10 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map) {
         .done(function(data) {
             console.log( "save success" );
             console.log(data);
+        
+            tween.start();
+        
+            //game.state.start("BootState", true, false, next_map, usr_id);
         })
         .fail(function(data) {
             console.log( "save error" );

@@ -18,6 +18,10 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     console.log("other player");
     //console.log(this.game_state.groups["otherplayers"]);
     
+    
+    this.region = properties.region;
+    this.p_name = properties.p_name;
+    
     var key;
     key = this.game_state.keyOfName(this.name);
     

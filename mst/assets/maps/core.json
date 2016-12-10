@@ -24,6 +24,7 @@
         "dialogue": { "type": "image", "source": "assets/images/DialogueBox2.png" },        
         "dialogue_small": { "type": "image", "source": "assets/images/DialogueBoxSmall2.png" },
         "alert": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
+        "circle_inv": { "type": "image", "source": "assets/images/circle_inv.png" },
         
         "woosh": { "type": "audio", "source": "assets/sounds/woosh-2.wav" }
     },
@@ -79,7 +80,7 @@
 	},
     
     "hud": {
-        "margins": {"left": 20, "right": 50, "top": 20, "bottom": 30},
+        "margins": {"left": 20, "right": 50, "top": 15, "bottom": 30},
         "elements": {
             "health": {
                 "type": "show_stat_with_sprite",
@@ -154,7 +155,7 @@
                     "group": "hud",
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
-                    "stat_to_show": "player.moon",
+                    "stat_to_show": "player.moon_moon",
                     "stats_spacing": {"x": 16, "y": 0},
                     "stats_group": "stats"
                 }

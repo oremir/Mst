@@ -4,6 +4,8 @@ var Mst = Mst || {};
 
 Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
     "use strict";
+    var text, text_style;
+    
     Mst.ShowStat.call(this, game_state, name, position, properties);
     this.visible = false;
     this.stats = [];
@@ -14,6 +16,32 @@ Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
     
     this.window_opened = false;
     this.texts = [];
+    
+    text_style = {"font": "11px Arial", "fill": "#FFFFFF"};
+    switch (name) {
+        case "health": 
+            text = this.game_state.prefabs.player.stats.health + "/" + this.game_state.prefabs.player.stats.health_max;
+            this.text_health = this.game_state.game.add.text(this.x + 3, this.y + 13, text, text_style);
+            this.text_health.fixedToCamera = true;
+            break;
+        case "moon": 
+            text = this.game_state.prefabs.player.stats.moon + "/" + this.game_state.prefabs.player.stats.moon_max;
+            
+            this.text_moon = this.game_state.game.add.text(this.x + 3, this.y + 19, text, text_style);
+            this.text_moon.fixedToCamera = true;
+            
+            this.timer_first = {};
+            
+            this.timer_moon = this.game_state.game.time.create(false);
+            
+            console.log(this.timer_moon);
+//            if (this.game_state.prefabs.player.stats.moon_loop < 1) {
+//                console.log("Moon start init");
+//                this.timer_moon.loop(180000, this.update_timer_moon, this);
+//                this.timer_moon.start();
+//            }                   
+            break;
+    }
 };
 
 Mst.ShowStatWithSprite.prototype = Object.create(Mst.ShowStat.prototype);
@@ -36,11 +64,29 @@ Mst.ShowStatWithSprite.prototype.show_initial_stats = function () {
 
 Mst.ShowStatWithSprite.prototype.reset = function (position_x, position_y) {
     "use strict";
+    console.log("Reset " + this.name);
     Phaser.Sprite.prototype.reset.call(this, position_x, position_y);
     // it is necessary to save the initial position because we need it to create the stat sprites
     this.initial_position = new Phaser.Point(this.x, this.y);
     this.show_initial_stats();
     this.visible = false;
+    
+    switch (this.name) {
+        case "health": 
+            this.text_health.fixedToCamera = false;
+            this.text_health.x = position_x + 3;
+            this.text_health.y = position_y + 13;
+            this.text_health.fixedToCamera = true;
+            break;
+        case "moon": 
+            this.text_moon.fixedToCamera = false;
+            this.text_moon.x = position_x + 3;
+            this.text_moon.y = position_y + 19;
+            this.text_moon.fixedToCamera = true;            
+            
+            
+            break;
+    }
 };
 
 Mst.ShowStatWithSprite.prototype.update_stat = function (new_stat) {
@@ -57,7 +103,9 @@ Mst.ShowStatWithSprite.prototype.update_stat = function (new_stat) {
         // if the new stat is lower, we must kill extra stat sprites
         for (stat_index = 0; stat_index < stat_difference; stat_index += 1) {
             stat = this.stats.pop();
-            stat.kill();
+            if (typeof (stat) !== 'undefined') {
+                stat.kill();
+            }
         }
     }
     Mst.ShowStat.prototype.update_stat.call(this, new_stat);
@@ -85,47 +133,75 @@ Mst.ShowStatWithSprite.prototype.create_new_stat_sprite = function () {
     
     stat.inputEnabled = true;
     stat.input.useHandCursor = true;
-    stat.events.onInputDown.add(this.show_window, this);
+    stat.events.onInputDown.add(this.action_onclick, this);
     
     stat.fixedToCamera = true;
     return stat;
 };
 
-Mst.ShowStatWithSprite.prototype.show_window = function (stat) {
+Mst.ShowStatWithSprite.prototype.action_onclick = function (stat) {
     "use strict";
     var key, skill, index, text, text_style, text_value;
     if (this.window_opened) {
         this.hide_window_onclick();
     } else {
-        if (this.name === "health") {
-            this.game_state.prefabs.player.close_state.push("Abilities");
-            this.game_state.prefabs.player.close_context.push(this.name);
-            
-            this.window_opened = true;
-            this.game_state.hud.right_window.show("Vlastnosti:");
-            
-            text_style = {"font": "12px Arial", "fill": "#FFFFFF", tabs: 40 };
-            index = 0;
-            for (key in this.game_state.prefabs.player.stats) {
-                if (key === "skills") {
-                    for (skill in this.game_state.prefabs.player.stats.skills) {
-                        text_value = skill 
-                            + "\t exp:" + this.game_state.prefabs.player.stats.skills[skill].exp 
-                            + "\t lvl:" + this.game_state.prefabs.player.stats.skills[skill].level;
+        switch (this.name) {
+            case "health":
+                this.game_state.prefabs.player.close_state.push("Abilities");
+                this.game_state.prefabs.player.close_context.push(this.name);
+
+                this.window_opened = true;
+                this.game_state.hud.right_window.show("Vlastnosti:");
+
+                text_style = {"font": "12px Arial", "fill": "#FFFFFF", tabs: 40 };
+                index = 0;
+                for (key in this.game_state.prefabs.player.stats) {
+                    if (key === "skills") {
+                        for (skill in this.game_state.prefabs.player.stats.skills) {
+                            text_value = skill 
+                                + "\t exp:" + this.game_state.prefabs.player.stats.skills[skill].exp 
+                                + "\t lvl:" + this.game_state.prefabs.player.stats.skills[skill].level;
+                            text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                            index ++;
+                        }
+                    } else {
+                        text_value = key + "\t" + this.game_state.prefabs.player.stats[key];
                         text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
                         text.fixedToCamera = true;
                         this.texts.push(text);
                         index ++;
-                    }
-                } else {
-                    text_value = key + "\t" + this.game_state.prefabs.player.stats[key];
-                    text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
-                    text.fixedToCamera = true;
-                    this.texts.push(text);
-                    index ++;
-                }                
+                    }                
+
+                }
+                break;
+            case "moon":
+                this.subtract_moon();
+                break;
+            case "settings":
+                /*var stat1 = this.game_state.groups[this.stats_group].create(this.game_state.prefabs.player.x, this.game_state.prefabs.player.y, "circle_inv");
+                stat1.scale.setTo(0.72);
+                stat1.anchor.setTo(0.5);
                 
-            }
+                this.game_state.game.add.tween(stat1.scale).to( { x: 21, y: 21 }, 400, Phaser.Easing.Linear.None, true, 0, 1000, true);*/
+                
+                /*//	A mask is a Graphics object
+                var mask = this.game_state.game.add.graphics(0, 0);
+                
+                //	Shapes drawn to the Graphics object must be filled.
+                
+                mask.drawRect(130, 0, 140, 200);
+                mask.beginFill(0xffffff);
+
+                //	Here we'll draw a circle
+                mask.drawCircle(300, 100, 100);
+                mask.endFill();
+
+                //	And apply it to the Game
+                
+                stat1.mask = mask;*/
+                break;
         }        
     }
 };
@@ -145,4 +221,40 @@ Mst.ShowStatWithSprite.prototype.hide_window = function () {
     });
     this.texts = [];
     this.game_state.hud.right_window.hide();
+};
+
+Mst.ShowStatWithSprite.prototype.subtract_moon = function () {
+    "use strict";
+    this.game_state.prefabs.player.stats.moon--;
+    if (!this.timer_moon.running && this.game_state.prefabs.player.stats.moon_loop < 1) {
+        console.log("Moon start init");
+        this.timer_moon.loop(180000, this.update_timer_moon, this);
+        this.timer_moon.start();
+    }
+};
+
+Mst.ShowStatWithSprite.prototype.update_timer_moon = function () {
+    "use strict";
+    
+    if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {
+        this.game_state.prefabs.player.stats.moon++;
+//        if (this.game_state.prefabs.player.stats.moon_loop > 0) {
+//            console.log("Moon start");
+//            this.game_state.prefabs.moon.timer_moon.loop(180000, this.game_state.prefabs.moon.update_timer_moon, this);
+//            this.game_state.prefabs.moon.timer_moon.start();
+//        }
+        
+        if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {
+            if (this.game_state.prefabs.player.stats.moon_loop > 0) {
+                console.log("Moon start");
+                this.game_state.prefabs.moon.timer_moon.loop(180000, this.game_state.prefabs.moon.update_timer_moon, this);
+                this.game_state.prefabs.moon.timer_moon.start();
+            }
+        } else {
+            this.game_state.prefabs.moon.timer_moon.stop();
+        }
+        this.game_state.prefabs.player.stats.moon_loop = 0;
+    } else {
+        this.game_state.prefabs.moon.timer_moon.stop();
+    }
 };

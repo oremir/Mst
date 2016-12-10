@@ -5,6 +5,11 @@ Mst.Quest = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
+    this.owner = properties.owner;
+    this.starting_conditions = properties.starting_conditions;
+    this.ending_conditions = properties.ending_conditions;
+    this.assigned = properties.assigned;
+    
     
 };
 

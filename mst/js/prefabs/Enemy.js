@@ -7,8 +7,8 @@ Mst.Enemy = function (game_state, name, position, properties) {
     this.walking_speed = +properties.walking_speed;
     this.walking_distance = +properties.walking_distance;
     
-    this.healthmax = 40;
-    this.health = this.healthmax;
+    this.health_max = 40;
+    this.health = this.health_max;
     this.knockbacki = 0;
     
     // saving previous x to keep track of walked distance
@@ -83,7 +83,7 @@ Mst.Enemy.prototype.reset = function (position) {
     this.position_x = position.x;
     this.position_y = position.y;
     
-    Phaser.Sprite.prototype.reset.call(this, this.position_x, this.position_y, this.healthmax);
+    Phaser.Sprite.prototype.reset.call(this, this.position_x, this.position_y, this.health_max);
     
     this.body.velocity.x = this.game_state.game.rnd.between(-40, 50);
     this.body.velocity.y = this.game_state.game.rnd.between(-60, 30);
