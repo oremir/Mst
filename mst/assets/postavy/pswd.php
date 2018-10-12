@@ -41,4 +41,5 @@
 //,000040,BROUKAL,verence
 //,000041,CYCLOP,hoblik
 //,42,VOJTA,vojtucha,2
+//,43,RZXSAN,kubula,2
 ?>

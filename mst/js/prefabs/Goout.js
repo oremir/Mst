@@ -33,7 +33,7 @@ Mst.Goout.prototype.go_out = function () {
     
     if (this.notupdated) {
         this.notupdated = false;
-        this.game_state.save_data(this.go_position, this.next_map);
+        this.game_state.save_data(this.go_position, this.next_map, "goout");
     
         //this.game_state.game.state.start("BootState", true, false, this.next_map, this.game_state.root_data.usr_id);
     }

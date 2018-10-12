@@ -53,6 +53,8 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
         var load_player;
         
         load_player = JSON.parse(localStorage.getItem("player"));
+        console.log("Local Storage Player");
+        console.log(load_player);
         
         if (load_player !== null && typeof (load_player.map) !== 'undefined' && typeof (load_player.logged) !== 'undefined' && load_player.logged) {
             game.state.start("BootState", true, false, load_player.map.new, load_player.usr_id);
@@ -227,7 +229,7 @@ Mst.TiledState.prototype.update = function () {
             //$(document).ready(function(){
                 $.getJSON("login.php", i_param)
                     .done(function (data) {
-                        console.log("success");
+                        console.log("Login success");
                         usr_output = data;
                         console.log(data);
                         var usr_id = parseInt(usr_output.usr_id);
@@ -241,7 +243,7 @@ Mst.TiledState.prototype.update = function () {
                         game.state.start("BootState", true, false, map, usr_id);
                     })
                     .fail(function (data) {
-                        console.log("error");
+                        console.log("Login error");
                         console.log(data);
                     })
             //});
@@ -283,7 +285,7 @@ Mst.TiledState.prototype.create_prefab = function (type, name, position, propert
     if (this.prefab_classes.hasOwnProperty(type)) {
         prefab = new this.prefab_classes[type](this, name, position, properties);
     }
-    this.prefabs[name] = prefab;
+    //this.prefabs[name] = prefab;
     return prefab;
 };
 
@@ -292,7 +294,7 @@ Mst.TiledState.prototype.restart_map = function () {
     this.game.state.restart(true, false, this.core_data, this.map_data, this.root_data);
 };
 
-Mst.TiledState.prototype.save_data = function (go_position, next_map) {
+Mst.TiledState.prototype.save_data = function (go_position, next_map, save_state) {
     "use strict";
     var key, game, usr_id;
     game = this.game;
@@ -322,12 +324,15 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map) {
     stat1.anchor.setTo(0.5);
                 
     var tween = this.game.add.tween(stat1.scale).to( { x: 0.72, y: 0.72 }, 500, Phaser.Easing.Linear.None);
-    tween.onComplete.add(function() { game.state.start("BootState", true, false, next_map, usr_id)});
+    tween.onComplete.add(function() {
+        if (save_state == "logout") { usr_id = 0 };
+        game.state.start("BootState", true, false, next_map, usr_id);
+    });
     
     var d = new Date();
     var n = d.getTime(); 
 
-    $.getJSON("save.php?time="+n, this.save)
+    $.post("save.php?time="+n, this.save)
         .done(function(data) {
             console.log( "save success" );
             console.log(data);
@@ -666,7 +671,7 @@ Mst.hud.prototype.show_alert = function (text) {
     
     console.log(this.text_alert);
     
-    this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.7, this.next_alert, this);
+    this.game_state.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.next_alert, this);
 };
 
 Mst.hud.prototype.hide_alert = function () {

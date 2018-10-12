@@ -26,13 +26,13 @@ function indexOfUsrID($usr_id,$objects) {
 $aget = $_GET;
 $apost = $_POST;
 
-$usr_id = $aget["player"]["usr_id"];
-$map_new_int = $aget["player"]["map"]["new_int"];
-$path_map_old = $aget["player"]["map"]["old"];
-$user = $aget["player"];
+$usr_id = $apost["player"]["usr_id"];
+$map_new_int = $apost["player"]["map"]["new_int"];
+$path_map_old = $apost["player"]["map"]["old"];
+$user = $apost["player"];
 
-if (isset($aget["objects"])):
-    $objects = $aget["objects"];
+if (isset($apost["objects"])):
+    $objects = $apost["objects"];
 else:
     $objects = array();
 endif;
@@ -89,29 +89,48 @@ Array_Walk($radek_new, "zapis_souboru");
 FClose($fp);
 
 
+
+$map_old_int = (int)filter_var ( $path_map_old, FILTER_SANITIZE_STRING);
+
+$path_map = "./assets/maps/map".$map_new_int.".json";
+
+if ((int)$map_new_int != $map_old_int):
+
+// --------------------------- udate old map --------------------
+
+
+  $map = json_decode(file_get_contents($path_map_old));
+
+  $apost["map old"] = $map;
+
+  $map->objects = $objects;
+
+  $apost["map4"] = $map;
+
+  file_put_contents($path_map_old, json_encode($map));
+
+
 // --------------------------- udate new map user --------------------
 
 
 
-$path_map = "./assets/maps/map".$map_new_int.".json";
+  $map = json_decode(file_get_contents($path_map));
 
-$map = json_decode(file_get_contents($path_map));
+  $apost["map1"] = $map;
 
-$aget["map1"] = $map;
+  $i = indexOfUsrID($usr_id, $map->objects);
 
-$i = indexOfUsrID($usr_id, $map->objects);
+  $apost["map2"] = $i;
 
-$aget["map2"] = $i;
+  if ($i != -1):
+      $map->objects[$i] = $user;
+  else:
+      array_push($map->objects, $user);
+  endif;
 
-if ($i != -1):
-    $map->objects[$i] = $user;
-else:
-    array_push($map->objects, $user);
-endif;
+  $apost["map3"] = $map;
 
-$aget["map3"] = $map;
-
-file_put_contents($path_map, json_encode($map));
+  file_put_contents($path_map, json_encode($map));
 
 
 
@@ -144,24 +163,11 @@ Array_Walk($radek_map_new, "zapis_souboru");
 
 FClose($fp);*/
 
+endif;
 
-// --------------------------- udate old map --------------------
-
-
-$map = json_decode(file_get_contents($path_map_old));
-
-$aget["map old"] = $map;
-
-$map->objects = $objects;
-
-$aget["map4"] = $map;
-
-file_put_contents($path_map_old, json_encode($map));
-
-
+echo json_encode($apost);
 
 //echo json_encode($apost);
-echo json_encode($aget);
 
 //echo "<br>";
 

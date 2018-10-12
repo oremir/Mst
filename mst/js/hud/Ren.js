@@ -11,6 +11,7 @@ Mst.Ren = function (game_state, name, position, properties) {
     this.p_name = properties.p_name;
     this.dialogue_name = properties.dialogue_name;
     this.options = [];
+    this.quest = {};
     
 };
 
@@ -37,7 +38,7 @@ Mst.Ren.prototype.show_options = function (options) {
     
     text_style = {"font": "12px Arial", "fill": "#BF9F00"};
     for (key in options) {
-        text = this.game_state.game.add.text(x, y + (30 * key), "", text_style);
+        text = this.game_state.game.add.text(x + (60 * key), y, "", text_style);
         text.fixedToCamera = true;
         text.inputEnabled = true;
         text.input.useHandCursor = true;        
@@ -46,6 +47,14 @@ Mst.Ren.prototype.show_options = function (options) {
             case "buy_sell":
                 text.text = "[prodat]";
                 text.events.onInputDown.add(this.buy_sell, this);
+                break;
+            case "quest":
+                text.text = "[úkol]";
+                text.events.onInputDown.add(this.option_quest, this);
+                break;
+            case "assign":
+                text.text = "[přijmout]";
+                text.events.onInputDown.add(this.option_assign, this);
                 break;
         }
         
@@ -70,6 +79,46 @@ Mst.Ren.prototype.buy_sell = function (option) {
         this.game_state.prefabs.businessitems.type_buy = true;
         this.game_state.prefabs.items.set_put_type("buy");
         option.text = "[prodat]";
+    }
+};
+
+Mst.Ren.prototype.option_quest = function (option) {
+    "use strict";
+    var key, text;
+    this.game_state.hud.dialogue.hide_dialogue_onclick();
+    
+    this.game_state.groups.quests.forEach(function(quest) {
+        console.log(quest);
+        console.log(this.dialogue_name);
+        if (quest.owner.name === this.dialogue_name) {
+            console.log("Quest owner: " + quest.owner.name);
+            this.quest = quest;
+        }
+    }, this);
+    
+    if (typeof (this.quest.quest_text) !== 'undefined') {
+        text = this.quest.quest_text;
+        this.show_dialogue(text, ["assign"]);
+    } else {
+        this.game_state.hud.alert.show_alert("Žádný úkol nemám!");
+    } 
+};
+
+Mst.Ren.prototype.option_assign = function (option) {
+    "use strict";
+    var update_quest;
+//    this.quest.assigned.push({name: this.game_state.prefabs.player.name,
+//                              region: this.game_state.prefabs.player.region
+//                             });
+//    this.quest.save.properties.assigned = this.quest.assigned;
+    
+    this.game_state.prefabs.player.assign_quest(this.quest);
+    
+    this.game_state.hud.dialogue.hide_dialogue_onclick();
+    
+    update_quest = this.game_state.prefabs.player.update_quest("by_quest_name",this.quest.name);
+    if (update_quest.accomplished) {
+        this.game_state.hud.alert.show_alert("Podmínky úkolu jsou splněny!");
     }
 };
 

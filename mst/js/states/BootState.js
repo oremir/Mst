@@ -50,6 +50,9 @@ Mst.BootState.prototype.create = function () {
     }
     
     root_data = { map_file: this.map_file, usr_id: this.usr_id };
+    
+    console.log("Boot State");
+    console.log(root_data);
         
     this.game.state.start("LoadingState", true, false, core_data, map_data, root_data);
 };

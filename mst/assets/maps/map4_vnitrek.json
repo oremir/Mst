@@ -82,6 +82,7 @@
                  "properties":
                     {
                      "group":"NPCs",
+                     "unique_id":"nun0_4_1",
                      "p_name":"Sestra Clara",
                      "relations_allowed":"true",
                      "region":"1",

@@ -71,6 +71,7 @@
                  "properties":
                     {
                      "group":"NPCs",
+                     "unique_id":"merchant_3_1",
                      "pool":"NPCs",
                      "p_name":"Kupec Martin",
                      "relations_allowed":"false",

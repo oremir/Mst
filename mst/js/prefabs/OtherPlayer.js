@@ -82,7 +82,9 @@ Mst.OtherPlayer.prototype.show_bubble = function (type) {
     this.bubble.loadTexture('bubble_spritesheet', type);
     this.bubble.visible = true;
     
-    this.game_state.game.time.events.add(Phaser.Timer.SECOND * 2, this.hide_bubble, this);
+    if (type === 0) {
+        this.game_state.game.time.events.add(Phaser.Timer.SECOND * 2, this.hide_bubble, this);
+    }
 };
 
 Mst.OtherPlayer.prototype.hide_bubble = function () {

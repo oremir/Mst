@@ -364,8 +364,8 @@ Mst.ShowItems.prototype.kill_stats = function () {
     
 Mst.ShowItems.prototype.index_by_frame = function (item_frame) {
     "use strict";
-    var is_in_items, index_frame, index_return, item_quantity;
-    index_frame = -1;
+    var is_in_items, index, index_return, item_quantity;
+    index = -1;
     is_in_items = false;
     item_quantity = 0;
     index_return = {};
@@ -373,21 +373,40 @@ Mst.ShowItems.prototype.index_by_frame = function (item_frame) {
     for (var i = 0; i < this.stat_splited.length; i++) {
         if (this.stat_splited[i].split("-")[0] == item_frame) {
             item_quantity = this.stat_splited[i].split("-")[1];
-            index_frame = i; 
+            index = i; 
             is_in_items = true;
         }
     }
     
-    index_return.index = index_frame;
+    index_return.index = index;
     index_return.is_in = is_in_items;
-    index_return.frame = item_frame;
-    index_return.quantity = item_quantity;
+    index_return.frame = parseInt(item_frame);
+    index_return.quantity = parseInt(item_quantity);
     return index_return;
+};
+
+Mst.ShowItems.prototype.test_player_item = function (frame, quantity) {
+    "use strict";
+    var enough_quantity, item;
+    
+    enough_quantity = -1;
+    
+    if (this.prefab_name == "player") {
+        item = this.index_by_frame(frame);
+        
+        if (item.quantity > quantity) {
+            enough_quantity = item.index;
+        }
+    }
+    
+    return enough_quantity;
 };
 
 Mst.ShowItems.prototype.test_player_gold = function (cost) {
     "use strict";
-    var enough_gold, item, index_frame, index_return, item_quantity;
+    
+    return this.test_player_item(1, cost);
+/*    var enough_gold, item;
     
     enough_gold = -1;
     
@@ -399,7 +418,7 @@ Mst.ShowItems.prototype.test_player_gold = function (cost) {
         }
     }
     
-    return enough_gold;
+    return enough_gold;*/
 };
 
 Mst.ShowItems.prototype.change_put_type = function () {

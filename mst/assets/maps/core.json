@@ -3,19 +3,21 @@
         "player_spritesheet": { "type": "spritesheet", "source": "assets/images/knight2.png", "frame_width": 16, "frame_height": 16, "frames": 14},
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "rzxsan_spritesheet": { "type": "spritesheet", "source": "assets/images/rzxsan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 30 },
-        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 31 },
+        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 11 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
         "blank_image": { "type": "image", "source": "assets/images/blank_image.png" },
         "black_image": { "type": "image", "source": "assets/images/black_image.png" },
         "health_image": { "type": "image", "source": "assets/images/heart-health.png" },
         "exp_image": { "type": "image", "source": "assets/images/exp.png" },
-        "bubble_spritesheet": { "type": "spritesheet", "source": "assets/images/bubble.png", "frame_width": 16, "frame_height": 16, "frames": 1},
+        "bubble_spritesheet": { "type": "spritesheet", "source": "assets/images/bubble.png", "frame_width": 16, "frame_height": 16, "frames": 3},
         "level_image": { "type": "image", "source": "assets/images/level.png" },
         "settings_image": { "type": "image", "source": "assets/images/settings.png" },
         "moon_image": { "type": "image", "source": "assets/images/moon.png" },
+        "arrow_right": { "type": "image", "source": "assets/images/arrow-right.png" },
         "right_window": { "type": "image", "source": "assets/images/frame-gold-227-300.png" },
         "alt": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
         "alt_80_35": { "type": "image", "source": "assets/images/frame-alt-80-35.png" },
@@ -44,6 +46,7 @@
         "chestitems",
         "businessitems",
         "items",
+        "quests",
         "stats"
         
     ],
@@ -72,7 +75,11 @@
         { "name": "Křoví", "istool": "false", "properties": {} },
         { "name": "Kámen", "istool": "false", "properties": {} },
         { "name": "Pařez", "istool": "false", "properties": {} },
-        { "name": "Gel", "istool": "false", "properties": {} }
+        { "name": "Gel", "istool": "false", "properties": {} },
+        { "name": "Hůl", "istool": "false", "properties": {} },
+        { "name": "Bronzový meč", "istool": "false", "properties": {} },
+        { "name": "Železný meč", "istool": "false", "properties": {} },
+        { "name": "Hůlka", "istool": "true", "properties": { "cut_type": "magic", "tool_fr_left": "7", "tool_fr_right": "7" } }
     ],
 	
 	"objects": { 

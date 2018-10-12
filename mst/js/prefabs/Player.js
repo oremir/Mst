@@ -16,6 +16,7 @@ Mst.Player = function (game_state, name, position, properties) {
 
     this.region = properties.region;
     this.p_name = properties.p_name;
+    this.name = name;
     
     this.walking_speed = +properties.walking_speed;
     this.jumping_speed = +properties.jumping_speed;
@@ -23,9 +24,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.direction_sword = {"x": 1, "y": -1};
     this.direction_chest = {"x": 0, "y": 1};
     
-    this.health = +properties.stats.health || 100;
     this.killed = (properties.killed === 'true');
-    
+        
     //console.log(properties.exp);
     
     if (typeof (properties.skills) === 'undefined') {
@@ -44,6 +44,8 @@ Mst.Player = function (game_state, name, position, properties) {
             stress: 0
         };
     }
+
+    this.health = +properties.stats.health || 100;
     
     if (typeof (properties.abilities) === 'undefined') {
         properties.abilities = {
@@ -62,7 +64,7 @@ Mst.Player = function (game_state, name, position, properties) {
     }
     
     if (typeof (properties.quests) === 'undefined') {
-        properties.quests = [];
+        properties.quests = {};
     }
     
 //    var dt = new Date();
@@ -74,7 +76,7 @@ Mst.Player = function (game_state, name, position, properties) {
         health_max: +properties.stats.health_max || 100,
         stress: parseInt(properties.stats.stress),
         moon_moon: 5,
-        moon: parseInt(properties.moon),
+        moon: parseInt(properties.moon) || 5,
         moon_max: 5,
         moon_time: +properties.time || 0,
         moon_loop: +properties.moon_loop || 0,
@@ -98,6 +100,10 @@ Mst.Player = function (game_state, name, position, properties) {
         equip: properties.equip || -1,
         items: properties.items || load_player.properties.items
     };
+
+
+    console.log("parse int moon");
+    console.log(this.stats.moon);
     
     this.save = {
         type: "player",
@@ -157,6 +163,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.action_state = "none";
     
     this.update_place();
+    this.quest_bubble();
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -346,7 +353,7 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
         
         this.game_state.prefabs.moon.subtract_moon();
         
-        this.game_state.save_data({ "x": 432, "y": 272 }, "assets/maps/map4.json");
+        this.game_state.save_data({ "x": 432, "y": 272 }, "assets/maps/map4.json", "dead");
         
         //this.game_state.game.state.start("BootState", true, false, "assets/maps/map4.json", this.game_state.root_data.usr_id);
     }
@@ -507,6 +514,176 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
     //console.log(this.stats.relations);
 };
 
+Mst.Player.prototype.quest_bubble = function () {
+    "use strict";
+    
+    this.game_state.groups.NPCs.forEachAlive(function(NPC) {
+        console.log("Quest bubble: " + NPC.name);
+        NPC.test_quest();
+    }, this);
+};
+
+Mst.Player.prototype.assign_quest = function (quest) {
+    "use strict";
+    var new_quest;
+    new_quest = {
+        name: quest.name,
+        owner: quest.owner,
+        ending_conditions: quest.ending_conditions,
+        accomplished: {},
+        type: "assigned",
+        reward: quest.reward
+    };
+    console.log(new_quest);
+    
+    if (this.test_quest("assign", quest.name)) {
+        console.log("Assigned");
+        this.stats.quests[quest.name] = new_quest;
+    }
+    this.save.properties.quests = this.stats.quests;
+    
+};
+
+Mst.Player.prototype.test_quest = function (type, condition) {
+    "use strict";
+    var key, test;
+    test = false;
+    
+    switch (type) {
+        case "assign":
+            if (typeof (this.stats.quests[condition]) === 'undefined') {
+                test = true;
+            } else {
+                if (this.stats.quests[condition].type === "completed") {
+                    test = true;
+                }
+            }
+            break;
+        case "owner":
+            for (key in this.stats.quests) {
+                console.log(this.stats.quests[key]);
+                if (this.stats.quests[key].type !== "completed") {
+                    if (this.stats.quests[key].owner.unique_id === condition) {
+                        test = true;
+                    }
+                }
+            }
+            break;
+    }
+    
+    console.log(test);
+            
+    return test;
+};
+
+Mst.Player.prototype.update_quest = function (type, condition) {
+    "use strict";
+    var item_frame, item, return_obj;
+    return_obj = {updated: false, accomplished: false};
+    
+    if (type === "by_quest_name") {
+        if(typeof (this.stats.quests[condition].ending_conditions.have) !== 'undefined') {
+            item_frame = parseInt(this.stats.quests[condition].ending_conditions.what);
+            item = this.game_state.prefabs.items.index_by_frame(item_frame);
+            
+            if (parseInt(this.stats.quests[condition].ending_conditions.have) < item.quantity) {
+                this.stats.quests[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
+                return_obj.updated = true;
+                return_obj.accomplished = true;
+            } else {
+                this.stats.quests[condition].accomplished.have = item.quantity;
+                return_obj.updated = true;
+            }
+        }
+    } else {
+        this.stats.quests.forEach(function(quest) {
+            switch (quest.type) {
+                case "assigned":
+                    if (typeof (quest.ending_conditions[type]) !== 'undefined') {
+                        switch (type) {
+                            case "have":
+                                if (typeof (condition) === 'undefined') {
+                                    item_frame = parseInt(quest.ending_conditions.what);
+                                    item = this.game_state.prefabs.items.index_by_frame(item_frame);
+                                    condition = item.quantity;
+                                }
+                                if (parseInt(quest.ending_conditions[type]) <= condition) {
+                                    quest.accomplished[type] = quest.ending_conditions[type];
+                                    return_obj.updated = true;
+                                    return_obj.accomplished = true;
+                                } else {
+                                    quest.accomplished[type] = condition;
+                                    return_obj.updated = true;
+                                }
+                                break;
+                            default: //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                if (typeof (quest.accomplished[type]) !== 'undefined') {
+                                    quest.accomplished[type] = 1;
+
+                                } else {
+                                    quest.accomplished[type] = parseInt(quest.accomplished[type]) + 1;
+                                }
+
+                                if (quest.accomplished[type] > (quest.ending_conditions[type] - 1)) {
+                                    quest.type = "accomplished";
+
+
+                                }
+                        }
+                    }
+                    break;
+                case "accomplished":
+
+                    break;
+            }
+        });  
+    }
+    
+    
+    this.save.properties.quests = this.stats.quests;
+            
+    return return_obj;
+};
+
+Mst.Player.prototype.finish_quest = function (owner) {
+    "use strict";
+    var key, completed, quest_name, item_frame, item, quantity;
+    completed = false;
+    quest_name = "";
+    
+    for (key in this.stats.quests) {
+        console.log(this.stats.quests[key]);
+        if (this.stats.quests[key].type !== "completed") {
+            if (this.stats.quests[key].owner.unique_id === owner) {
+                quest_name = key;
+            }
+        }
+    }
+    
+    if (quest_name !== "") {
+        if(typeof (this.stats.quests[quest_name].ending_conditions.have) !== 'undefined') {
+            item_frame = parseInt(this.stats.quests[quest_name].ending_conditions.what);
+            item = this.game_state.prefabs.items.index_by_frame(item_frame);
+            quantity = parseInt(this.stats.quests[quest_name].ending_conditions.have);
+            
+            if (quantity < item.quantity) {
+                this.stats.quests[quest_name].accomplished.have = quantity;
+                completed = true;
+                
+                this.subtract_item(item.index, quantity);
+                this.game_state.hud.alert.show_alert("-" + quantity + "x " + this.game_state.core_data.items[item_frame].name);
+                this.game_state.hud.alert.show_alert("Úkol byl dokončen!");
+            } else {
+                this.stats.quests[condition].accomplished.have = item.quantity;
+            }
+        }
+    }
+    
+    console.log(completed);
+            
+    return completed;
+};
+
 Mst.Player.prototype.save_player = function (go_position, go_map) {
     "use strict";
     
@@ -531,6 +708,13 @@ Mst.Player.prototype.save_player = function (go_position, go_map) {
     localStorage.setItem("player", JSON.stringify(this.save));
     
     //console.log(localStorage.player);
+
+};
+
+Mst.Player.prototype.set_logoff = function () {
+    "use strict";
+    
+    this.save.logged = false;
 
 };
 

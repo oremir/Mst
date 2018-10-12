@@ -73,7 +73,7 @@ Mst.Chest.prototype.update = function () {
             if (this.stats.items == "" && this.closed_frame == 3) {
                 this.game_state.save.objects.splice(key, 1);
             } else {
-                this.game_state.save.objects[key] = this.save;                
+                this.game_state.save.objects[key] = this.save;
             }
         } else {
             if (!(this.stats.items == "" && this.closed_frame == 3)) {
