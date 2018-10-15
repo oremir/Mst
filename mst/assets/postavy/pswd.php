@@ -1,5 +1,5 @@
 <?
-//,1,MONSTER,maki,2
+//,1,MONSTER,maki,6
 //,000002,MELIAN,simmel
 //,000003,GVENEIBLIN,drsnochvost
 //,000004,CAILI,vrba
@@ -40,6 +40,8 @@
 //,000039,ROSALIND,lilie
 //,000040,BROUKAL,verence
 //,000041,CYCLOP,hoblik
-//,42,VOJTA,vojtucha,6
+//,42,VOJTA,vojtucha,7
 //,43,RZXSAN,kubula,2
+//,44,JOSEFINA,undina,9
+//,45,SOFIA,simmel,8
 ?>

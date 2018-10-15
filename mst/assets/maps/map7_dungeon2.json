@@ -70,9 +70,9 @@
                  "name":"goout02",
                  "properties":
                     {
-                     "go_position":{"x": 330, "y": 224},
+                     "go_position":{"x": 224, "y": 243},
                      "group":"goouts",
-                     "next_map":"assets\/maps\/map5.json",
+                     "next_map":"assets\/maps\/map8.json",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },

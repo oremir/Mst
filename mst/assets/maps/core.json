@@ -4,6 +4,8 @@
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "rzxsan_spritesheet": { "type": "spritesheet", "source": "assets/images/rzxsan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "josefina-a_spritesheet": { "type": "spritesheet", "source": "assets/images/josefina-a_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "sofia-an_spritesheet": { "type": "spritesheet", "source": "assets/images/sofia-an_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 31 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 11 },
