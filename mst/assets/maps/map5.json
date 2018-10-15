@@ -1,0 +1,1 @@
+{"assets":{"map_tiles":{"type":"image","source":"assets\/images\/map5_vnitrek1v2.png"},"map_tilemap":{"type":"tilemap","source":"assets\/maps\/map5_vnitrek1.json"}},"map":{"key":"map_tilemap","tileset":"map_tiles","map_int":"5","region":"1"},"objects":[]}
