@@ -1,7 +1,7 @@
 <?
-//,1,MONSTER,maki,6
+//,1,MONSTER,maki,8
 //,000002,MELIAN,simmel
-//,000003,GVENEIBLIN,drsnochvost
+//,3,GVENEIBLIN,drsnochvost
 //,000004,CAILI,vrba
 //,000005,ADALWOLF,mesic
 //,000006,GEMMA,alzbeta
@@ -30,7 +30,7 @@
 //,000029,AVENTURIN,trpaslik
 //,000030,LOMITKO,odmocnina
 //,000031,ANGELIKA,zmije
-//,000032,HOST,host
+//,32,HOST,host,8
 //,000033,TERMOT,davidek
 //,000034,REBEKA,coruscant
 //,000035,MARIETA,simmel
@@ -44,4 +44,7 @@
 //,43,RZXSAN,kubula,2
 //,44,JOSEFINA,undina,9
 //,45,SOFIA,simmel,8
+//,46,MIRKA,nev46,8
+//,47,PETRONELLA,nev47,8
+//,48,TYGR,nev48,8
 ?>
