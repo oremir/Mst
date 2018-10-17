@@ -1,7 +1,7 @@
 <?
-//,1,MONSTER,maki,8
+//,1,MONSTER,maki,7
 //,000002,MELIAN,simmel
-//,3,GVENEIBLIN,drsnochvost
+//,3,GVENEIBLIN,drsnochvost,8
 //,000004,CAILI,vrba
 //,000005,ADALWOLF,mesic
 //,000006,GEMMA,alzbeta
@@ -42,7 +42,7 @@
 //,000041,CYCLOP,hoblik
 //,42,VOJTA,vojtucha,7
 //,43,RZXSAN,kubula,2
-//,44,JOSEFINA,undina,9
+//,44,JOSEFINA,undina,8
 //,45,SOFIA,simmel,8
 //,46,MIRKA,nev46,8
 //,47,PETRONELLA,nev47,8
