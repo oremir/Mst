@@ -47,6 +47,12 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.bubble.events.onInputDown.add(this.hide_bubble, this);
     this.bubble.visible = false;
     this.bubble_showed = false;
+
+    this.o_type = "otherPlayer";
+    this.inputEnabled = true;
+    this.input.useHandCursor = true;
+    this.events.onInputOver.add(this.game_state.hud.alt.show_alt, this);
+    this.events.onInputOut.add(this.game_state.hud.alt.hide_alt, this);
     
     
     

@@ -147,6 +147,16 @@ Mst.TiledState.prototype.create = function () {
         
         this.create_prefab("chest_creator", "chest_creator", {x: 0, y: 0}, {});
         
+        // ......................... HUD Init 1 ............................
+        
+        this.hud = {};
+        this.hud.right_window = new Mst.hud(this, "right_window");
+        this.hud.alt = new Mst.hud(this, "alt");
+        this.hud.dialogue = new Mst.hud(this, "dialogue");
+        this.hud.alert = new Mst.hud(this, "alert");
+
+        // ......................... Map Objects ............................
+        
         for (object_layer in this.map.objects) {
             if (this.map.objects.hasOwnProperty(object_layer)) {
                 // create layer objects
@@ -154,6 +164,7 @@ Mst.TiledState.prototype.create = function () {
             }
         }
         
+        console.log("Map objects:");
         console.log(this.map.objects);
         
         this.save = {
@@ -161,6 +172,7 @@ Mst.TiledState.prototype.create = function () {
             objects: this.map_data.objects
         };
         
+        console.log("Map data objects:");
         console.log(this.map_data.objects);
         
         for (object_key in this.map_data.objects) {
@@ -175,16 +187,13 @@ Mst.TiledState.prototype.create = function () {
             console.log(load_player.properties);
             this.create_object(load_player);
         }
-
-
-        // ......................... Core Objects a HUD ............................
         
-        this.hud = {};
-        this.hud.right_window = new Mst.hud(this, "right_window");
-        this.hud.alt = new Mst.hud(this, "alt");
-        this.hud.dialogue = new Mst.hud(this, "dialogue");
-        this.hud.alert = new Mst.hud(this, "alert");
-
+        // ......................... HUD Init 2 ..............................
+        
+        this.hud.stats = this.game.plugins.add(Mst.HUD, this, this.core_data.hud);
+        
+        // ......................... Core Objects ............................
+        
         for (object_key in this.core_data.objects) {
             this.create_object(this.core_data.objects[object_key]);
 
@@ -192,8 +201,6 @@ Mst.TiledState.prototype.create = function () {
         }
 
         //console.log(this.core_data.hud);
-
-        this.hud.stats = this.game.plugins.add(Mst.HUD, this, this.core_data.hud);
         
         console.log("Prefabs:");
         console.log(this.prefabs);
@@ -522,6 +529,18 @@ Mst.hud.prototype.show_alt = function (obj) {
             y = obj.y - 30;
             
             break;
+        case "otherPlayer":
+            if (this.name.length < 13) {
+                texture = "alt";
+            } else {
+                texture = "alt_160_20";
+            }
+            
+            text = this.name;
+            x = this.x - 4;
+            y = this.y - 30;
+            
+            break;
         case 1:
             
             break;
@@ -553,8 +572,11 @@ Mst.hud.prototype.hide_alt = function () {
     "use strict";
     console.log("hide alt");
     this.game_state.hud.alt.visible = false;
-    this.visible = false;
-    
+    console.log(this.o_type);
+    if (this.o_type != "otherPlayer") {
+        this.visible = false;
+    }
+        
     if (typeof(this.text_alt) != 'undefined') {
         this.text_alt.text = "";
         this.text_alt.destroy;

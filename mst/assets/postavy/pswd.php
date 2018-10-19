@@ -1,5 +1,5 @@
 <?
-//,1,MONSTER,maki,7
+//,1,MONSTER,maki,8
 //,000002,MELIAN,simmel
 //,3,GVENEIBLIN,drsnochvost,8
 //,000004,CAILI,vrba
@@ -47,4 +47,6 @@
 //,46,MIRKA,nev46,8
 //,47,PETRONELLA,nev47,8
 //,48,TYGR,nev48,8
+//,49,GABRIELA,nev49,8
+//,50,AZIZA,nev50,8
 ?>
