@@ -82,25 +82,14 @@ Mst.Player = function (game_state, name, position, properties) {
         moon_loop: +properties.moon_loop || 0,
         exp: +properties.skills.standard.exp || +properties.exp || 1,
         level: +properties.skills.standard.level || 1,
-        skills: {
-            standard: { exp: +properties.skills.standard.exp || +properties.exp || 1,
-                        level: +properties.skills.standard.level || +properties.level || 1 },
-            fighter: { exp: +properties.skills.fighter.exp || 1, level: +properties.skills.fighter.level || 1 },
-            woodcutter: { exp: +properties.skills.woodcutter.exp || 1, level: +properties.skills.woodcutter.level || 1 },
-            stonebreaker: { exp: +properties.skills.stonebreaker.exp || 1, level: +properties.skills.stonebreaker.level || 1 }
-        },
-        abilities: {
-            strength: +properties.abilities.strength,
-            constitution: +properties.abilities.constitution,
-            intelligence: +properties.abilities.intelligence
-        },
+        skills: properties.skills,
+        abilities: properties.abilities,
         relations: properties.relations,
         places: properties.places,
         quests: properties.quests,
         equip: properties.equip || -1,
         items: properties.items || load_player.properties.items
     };
-
 
     console.log("parse int moon");
     console.log(this.stats.moon);
@@ -417,6 +406,13 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
         }        
     }
     
+    if (typeof(this.stats.skills[skill]) === 'undefined') {
+        this.stats.skills[skill] = { exp: 1, level: 1 };
+    }
+    
+    this.stats.skills[skill].exp = parseInt(this.stats.skills[skill].exp);
+    this.stats.skills[skill].level = parseInt(this.stats.skills[skill].level);
+    
     this.stats.skills[skill].exp += quantity;
     this.stats.skills[skill].level += level_add(skill, this.stats.skills[skill].exp, this.stats.skills[skill].level);
     
@@ -441,6 +437,7 @@ Mst.Player.prototype.add_ability = function (ability, num1, num2) {
     
     quantity += num2;
     
+    this.stats.abilities[ability] = parseInt(this.stats.abilities[ability]);
     this.stats.abilities[ability] += quantity;
     this.save.properties.abilities[ability] = this.stats.abilities[ability];
 };

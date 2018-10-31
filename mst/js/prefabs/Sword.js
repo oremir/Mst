@@ -28,12 +28,13 @@ Mst.Sword = function (game_state, name, position, properties) {
         this.fr_right = 0;
         this.cut_type = "";
     }
-    
-    
+        
         
     this.cut = false;
     
     this.wooshSound = this.game_state.game.add.audio('woosh');
+    
+    this.b_pool = this.game_state.groups.playerbullets;
 };
 
 Mst.Sword.prototype = Object.create(Mst.Prefab.prototype);
@@ -78,11 +79,17 @@ Mst.Sword.prototype.swing = function () {
         this.wooshSound.play();
 
         this.revive();
+        
+        if (this.cut_type === "magic") {
+            this.create_bullet();
+        }
     }
 };
 
 Mst.Sword.prototype.hit_enemy = function (player, enemy) {
     "use strict";
+    
+    var enemy_health_max = parseInt(enemy.health_max);
     
     if (enemy.knockbacki < 1 && enemy.alive){
         enemy.health -= 6;
@@ -94,7 +101,7 @@ Mst.Sword.prototype.hit_enemy = function (player, enemy) {
         enemy.knockbacki = 10;
         
         if (enemy.health < 1) {
-            player.add_exp("standard", enemy.health_max);
+            player.add_exp("standard", enemy_health_max);
             player.add_exp("fighter", enemy.health_max / 2);
             player.add_item(23, 1); // gel
             
@@ -165,4 +172,30 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
     }
     
     this.cut = false;
+};
+
+Mst.Sword.prototype.create_bullet = function () {
+    "use strict";
+    var object_name, object_position, object_properties, object;
+    
+    object_position = {
+        x: (this.game_state.prefabs.player.x + (this.game_state.prefabs.player.direction_chest.x * 10)),
+        y: (this.game_state.prefabs.player.y + (this.game_state.prefabs.player.direction_chest.y * 10))
+    };
+    
+    object_properties = {
+        direction: this.game_state.prefabs.player.direction_chest,
+        texture: "magic1",
+        firstframe: 0,
+        group: "playerbullets"
+    };
+    
+    object = this.b_pool.getFirstDead();
+        
+    if (!object) {
+        object_name = "bullet_" + this.b_pool.countLiving();
+        object = new Mst.Bullet(this.game_state, object_name, object_position, object_properties);
+    } else {
+        object.reset(object_position, object_properties);
+    }
 };
