@@ -18,6 +18,7 @@ if (isset($aget["newuid"])):
     $newuid = $aget["newuid"];
     $uname = $aget["name"];
     $umap = $aget["map"];
+    $upass = $aget["pass"];
 else:
     $newuid = 0;
 endif;
@@ -35,6 +36,7 @@ Select UID: <input type="text" name="uid">
 New User UID: <input type="text" name="newuid">
 Name: <input type="text" name="name">
 Map: <input type="text" name="map">
+Pass: <input type="text" name="pass">
 <input type="submit">
 </form>
 
@@ -50,8 +52,8 @@ if ($mysqli->connect_error) {
 if ($newuid != 0) {
     echo "insert<br>";
     
-    $sql = "INSERT INTO users (UID, login_name, on_map)
-    VALUES ('".$newuid."', '".$uname."', '".$umap."')";
+    $sql = "INSERT INTO users (UID, login_name, on_map, password)
+    VALUES ('".$newuid."', '".$uname."', '".$umap."', '".$upass."')";
 
     if ($mysqli->query($sql) === TRUE) {
         echo "New record created successfully";
@@ -64,11 +66,11 @@ $result = $mysqli->query("SELECT * FROM `users`");
 echo 'Z databáze jsme získali ' . $result->num_rows . ' uživatelů.<br><hr><br>';
 
 if ($result->num_rows > 0) {
-    echo '<table><tr><td>ID</td><td>UID</td><td>login_name</td><td>on_map</td></tr>';
+    echo '<table><tr><td>ID</td><td>UID</td><td>login_name</td><td>pass</td><td>on_map</td></tr>';
 
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td>" . $row["login_name"]. "</td><td>" . $row["on_map"]. "</td></tr>";
+        echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td>" . $row["login_name"]. "</td><td>" . $row["password"]. "</td><td>" . $row["on_map"]. "</td></tr>";
     }
     
     echo '</table><br><hr><br>';

@@ -1,0 +1,10 @@
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Ad hoc #
+##########
+
+pswd.php

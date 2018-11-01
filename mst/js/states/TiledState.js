@@ -237,7 +237,7 @@ Mst.TiledState.prototype.update = function () {
             //$(document).ready(function(){
                 $.getJSON("login.php", i_param)
                     .done(function (data) {
-                        console.log("Login success");
+                        console.log("Login php OK");
                         usr_output = data;
                         console.log(data);
                         var usr_id = parseInt(usr_output.usr_id);
@@ -333,7 +333,11 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map, save_state
                 
     var tween = this.game.add.tween(stat1.scale).to( { x: 0.72, y: 0.72 }, 500, Phaser.Easing.Linear.None);
     tween.onComplete.add(function() {
-        if (save_state == "logout") { usr_id = 0 };
+        if (save_state == "logout") { 
+            usr_id = 0;
+            console.log("logout");
+            location.reload();
+        };
         game.state.start("BootState", true, false, next_map, usr_id);
     });
     
