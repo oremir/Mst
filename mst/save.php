@@ -37,6 +37,42 @@ else:
     $objects = array();
 endif;
 
+// -------------------------- open sql -----------------------------
+
+include "inc.php";
+
+$mysqli = new mysqli($address, $lname, $lpass, 'mst');
+
+if ($mysqli->connect_error) {
+    die('Nepodařilo se připojit k MySQL serveru (' . $mysqli->connect_errno . ') '
+            . $mysqli->connect_error);
+}
+
+$result = $mysqli->query("SELECT * FROM `users` WHERE UID = '".$usr_id."'");
+
+if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+        $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|" . $row["on_map"]. "|" . $map_new_int . "|SAVE\n";
+    }
+    
+    $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".json_encode($user)."' WHERE UID = ".$usr_id;
+
+    if ($mysqli->query($sql) === TRUE) {
+        $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+    } else {
+        $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "/n";
+    }
+} else {
+    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "| 0 results - SAVE\n";
+}
+
+$path_log = "log.log";
+
+$fp = FOpen($path_log, "a");
+FPutS($fp,$radek_l2);
+FClose($fp);
+
 // -------------------------- test write postavy -------------------
 
 $path_postavy = "./assets/postavy/postavy.json";
@@ -166,14 +202,4 @@ FClose($fp);*/
 endif;
 
 echo json_encode($apost);
-
-//echo json_encode($apost);
-
-//echo "<br>";
-
-/*Reset($aget);
-while(Current($aget)):
-    echo Key($aget).": ".Current($aget)."<br>";
-    Next($aget);
-endwhile;*/
 ?>

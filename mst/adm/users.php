@@ -42,7 +42,9 @@ Pass: <input type="text" name="pass">
 
 <?php
 
-$mysqli = new mysqli('127.0.0.1', 'root', '', 'mst');
+include "inc.php";
+
+$mysqli = new mysqli($address, $lname, $lpass, 'mst');
 
 if ($mysqli->connect_error) {
     die('Nepodařilo se připojit k MySQL serveru (' . $mysqli->connect_errno . ') '
@@ -70,7 +72,7 @@ if ($result->num_rows > 0) {
 
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td>" . $row["login_name"]. "</td><td>" . $row["password"]. "</td><td>" . $row["on_map"]. "</td></tr>";
+        echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td>" . $row["login_name"]. "</td><td>" . $row["password"]. "</td><td>" . $row["on_map"]. "</td></tr>";        
     }
     
     echo '</table><br><hr><br>';
@@ -86,6 +88,7 @@ if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
         echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td>" . $row["login_name"]. "</td><td>" . $row["on_map"]. "</td></tr>";
+        $usrJSON = $row["JSON"];
     }
     
     echo '</table><br><hr><br>';
@@ -93,7 +96,11 @@ if ($result->num_rows > 0) {
     echo "0 results<br><hr><br>";
 }
     
-echo "aget> ".json_encode($aget);
+echo "aget> ".json_encode($aget)."<br><hr><br>";
+    
+echo "<textarea> ";
+echo $usrJSON;
+echo "</textarea>";
 
     
 $mysqli->close();
