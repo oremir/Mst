@@ -9,26 +9,25 @@ Mst.BootState = function () {
 Mst.prototype = Object.create(Phaser.State.prototype);
 Mst.prototype.constructor = Mst.BootState;
 
-Mst.BootState.prototype.init = function (map_file, usr_id) {
+Mst.BootState.prototype.init = function (map_int, usr_id) {
     "use strict";
     
     var d = new Date();
     var n = d.getTime(); 
     
     this.core_file = "assets/maps/core.json";
-    this.map_file = map_file;
+    this.map_int = map_int;
+    this.map_file = "map.php?time="+n+"&uid="+usr_id+"&mapi="+map_int; 
+    //this.map_file = "assets/maps/map"+map_int+".json?time="+n+"&uid="+usr_id+"&mapi="+map_int; 
     this.usr_id = usr_id;
 };
 
 Mst.BootState.prototype.preload = function () {
     "use strict";
     
-    var d = new Date();
-    var n = d.getTime(); 
-    
     if (this.usr_id > 0) {
         this.load.text("core", this.core_file);
-        this.load.text("map", this.map_file+"?time="+n);
+        this.load.text("map", this.map_file);
     } else {
         var a = this.load.image("login", "assets/images/loader2.png");
         //console.log(a);
@@ -49,10 +48,10 @@ Mst.BootState.prototype.create = function () {
         core_data = JSON.parse(core_text);
     }
     
-    root_data = { map_file: this.map_file, usr_id: this.usr_id };
+    root_data = { map_int: this.map_int, usr_id: this.usr_id };
     
     console.log("Boot State");
     console.log(root_data);
-        
+
     this.game.state.start("LoadingState", true, false, core_data, map_data, root_data);
 };

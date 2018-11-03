@@ -342,9 +342,7 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
         
         this.game_state.prefabs.moon.subtract_moon();
         
-        this.game_state.save_data({ "x": 432, "y": 272 }, "assets/maps/map4.json", "dead");
-        
-        //this.game_state.game.state.start("BootState", true, false, "assets/maps/map4.json", this.game_state.root_data.usr_id);
+        this.game_state.save_data({ "x": 432, "y": 272 }, 4, "dead"); // "assets/maps/map4.json"
     }
     
     //this.game_state.restart_map();
@@ -681,7 +679,7 @@ Mst.Player.prototype.finish_quest = function (owner) {
     return completed;
 };
 
-Mst.Player.prototype.save_player = function (go_position, go_map) {
+Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     "use strict";
     
     this.save.x = go_position.x;
@@ -691,21 +689,10 @@ Mst.Player.prototype.save_player = function (go_position, go_map) {
     this.save.properties.time = dt.getTime();
     this.save.properties.moon = this.stats.moon;
     
-    this.save.map.old = this.game_state.root_data.map_file;
-    this.save.map.new = go_map;
-    
-    var new_splited = go_map.split("/");
-    var new_new = new_splited[new_splited.length - 1];
-    new_splited = new_new.split(".");
-    new_new = new_splited[0];
-    new_new = new_new.slice(3, new_new.length);
-    
-    this.save.map.new_int = parseInt(new_new);
+    this.save.map.old_int = this.game_state.root_data.map_int;
+    this.save.map.new_int = go_map_int;
     
     localStorage.setItem("player", JSON.stringify(this.save));
-    
-    //console.log(localStorage.player);
-
 };
 
 Mst.Player.prototype.set_logoff = function () {

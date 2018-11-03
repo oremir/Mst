@@ -28,7 +28,7 @@ $apost = $_POST;
 
 $usr_id = $apost["player"]["usr_id"];
 $map_new_int = $apost["player"]["map"]["new_int"];
-$path_map_old = $apost["player"]["map"]["old"];
+$map_old_int = $apost["player"]["map"]["old_int"];
 $user = $apost["player"];
 
 if (isset($apost["objects"])):
@@ -125,10 +125,10 @@ Array_Walk($radek_new, "zapis_souboru");
 FClose($fp);
 
 
-
-$map_old_int = (int)filter_var ( $path_map_old, FILTER_SANITIZE_STRING);
+//$map_old_int = (int)filter_var ( $path_map_old, FILTER_SANITIZE_STRING);
 
 $path_map = "./assets/maps/map".$map_new_int.".json";
+$path_map_old = "./assets/maps/map".$map_old_int.".json";
 
 if ((int)$map_new_int != $map_old_int):
 
@@ -167,37 +167,6 @@ if ((int)$map_new_int != $map_old_int):
   $apost["map3"] = $map;
 
   file_put_contents($path_map, json_encode($map));
-
-
-
-
-/*$path_map = "./assets/maps/map".$map_new_int.".json";
-
-$fp = FOpen($path_map, "r");
-
-while(!FEof($fp)):
-  $radek_map[] = FGetS($fp,250);
-endwhile;
-
-FClose($fp);
-
-Reset($radek_map);
-while(Current($radek_map)):
-  if (StrStr(Current($radek_map),"objects")):
-    $radek_map_new[] = Current($radek_map);
-    $pom_radek = json_encode($user);
-    $radek_map_new[] = $pom_radek."\r\n";
-  else:
-    $radek_map_new[] = Current($radek_map);
-  endif;
-  Next($radek_map);
-endwhile;
-
-$fp = FOpen($path_map, "w");
-
-Array_Walk($radek_map_new, "zapis_souboru");
-
-FClose($fp);*/
 
 endif;
 

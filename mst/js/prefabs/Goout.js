@@ -31,11 +31,16 @@ Mst.Goout.prototype.go_out = function () {
     "use strict";
     // start the next map
     
+    var new_splited = this.next_map.split("/");
+    var new_new = new_splited[new_splited.length - 1];
+    new_splited = new_new.split(".");
+    new_new = new_splited[0];
+    new_new = new_new.slice(3, new_new.length);    
+    var new_int = parseInt(new_new);
+    
     if (this.notupdated) {
         this.notupdated = false;
-        this.game_state.save_data(this.go_position, this.next_map, "goout");
-    
-        //this.game_state.game.state.start("BootState", true, false, this.next_map, this.game_state.root_data.usr_id);
+        this.game_state.save_data(this.go_position, new_int, "goout");
     }
 };
 

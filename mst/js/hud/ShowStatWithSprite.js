@@ -329,12 +329,12 @@ Mst.ShowStatWithSprite.prototype.update_timer_moon = function () {
 
 Mst.ShowStatWithSprite.prototype.logout = function () {
     "use strict";
-    this.map = this.game_state.root_data.map_file;
+    this.map_int = this.game_state.root_data.map_int;
     this.position = {
         x: this.game_state.prefabs.player.x,
         y: this.game_state.prefabs.player.y
     }
 
     this.game_state.prefabs.player.set_logoff();
-    this.game_state.save_data(this.position, this.map, "logout");
+    this.game_state.save_data(this.position, this.map_int, "logout");
 };

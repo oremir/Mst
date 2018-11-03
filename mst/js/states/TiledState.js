@@ -214,11 +214,6 @@ Mst.TiledState.prototype.update = function () {
     "use strict";
     var i_param, usr_output, game;
     
-//    function updt(usr_id, map) {
-//        console.log(usr_id +" "+ map);
-//        //this.game.state.start("BootState", true, false, map, usr_id);
-//    };
-    
     usr_output = {};
     
     if (this.root_data.usr_id < 1 && this.usr_isinput === false) {
@@ -241,7 +236,7 @@ Mst.TiledState.prototype.update = function () {
                         usr_output = data;
                         console.log(data);
                         var usr_id = parseInt(usr_output.usr_id);
-                        var map = "assets/maps/map"+parseInt(usr_output.map)+".json";
+                        var map = parseInt(usr_output.map);
 //                        console.log(usr_output);
 //                        console.log(usr_id);
 //                        console.log(map);
@@ -255,8 +250,6 @@ Mst.TiledState.prototype.update = function () {
                         console.log(data);
                     })
             //});
-            
-            //this.game_state.game.state.start("BootState", true, false, this.next_map, usr_output.);
         }
     }
     
@@ -302,7 +295,7 @@ Mst.TiledState.prototype.restart_map = function () {
     this.game.state.restart(true, false, this.core_data, this.map_data, this.root_data);
 };
 
-Mst.TiledState.prototype.save_data = function (go_position, next_map, save_state) {
+Mst.TiledState.prototype.save_data = function (go_position, next_map_int, save_state) {
     "use strict";
     var key, game, usr_id;
     game = this.game;
@@ -312,7 +305,7 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map, save_state
         one_player.save_player();
     }, this);
     
-    this.prefabs.player.save_player(go_position, next_map);
+    this.prefabs.player.save_player(go_position, next_map_int);
     
     this.save.player = this.prefabs.player.save;
     
@@ -338,7 +331,7 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map, save_state
             console.log("logout");
             location.reload();
         };
-        game.state.start("BootState", true, false, next_map, usr_id);
+        game.state.start("BootState", true, false, next_map_int, usr_id);
     });
     
     var d = new Date();
@@ -350,8 +343,6 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map, save_state
             console.log(data);
         
             tween.start();
-        
-            //game.state.start("BootState", true, false, next_map, usr_id);
         })
         .fail(function(data) {
             console.log( "save error" );
