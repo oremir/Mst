@@ -58,7 +58,7 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
         console.log(load_player);
         
         if (load_player !== null && typeof (load_player.map) !== 'undefined' && typeof (load_player.logged) !== 'undefined' && load_player.logged) {
-            game.state.start("BootState", true, false, load_player.map.new, load_player.usr_id);
+            game.state.start("BootState", true, false, load_player.map.new_int, load_player.usr_id);
         } else {
         
 // ------------------------------------ Login -----------------------------------        

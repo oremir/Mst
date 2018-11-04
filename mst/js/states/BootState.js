@@ -19,6 +19,7 @@ Mst.BootState.prototype.init = function (map_int, usr_id) {
     this.map_int = map_int;
     this.map_file = "map.php?time="+n+"&uid="+usr_id+"&mapi="+map_int; 
     //this.map_file = "assets/maps/map"+map_int+".json?time="+n+"&uid="+usr_id+"&mapi="+map_int; 
+    console.log(this.map_file);
     this.usr_id = usr_id;
 };
 
@@ -40,7 +41,7 @@ Mst.BootState.prototype.create = function () {
 
     if (this.usr_id > 0) {
         map_text = this.game.cache.getText("map");
-        //console.log(map_text);
+        console.log(map_text);
         map_data = JSON.parse(map_text);
         //console.log(map_data);
 

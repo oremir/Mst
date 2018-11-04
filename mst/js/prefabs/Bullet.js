@@ -75,8 +75,8 @@ Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
         player.add_exp("standard", 5);
         player.add_exp("magic", 5);
         player.add_ability("strength", 3, 0);
-        this.game_state.game.physics.arcade.moveToObject(enemy, player, -150);
-        enemy.knockbacki = 10;
+        this.game_state.game.physics.arcade.moveToObject(enemy, player, -60);
+        enemy.knockbacki = 5;
         
         if (enemy.health < 1) {
             player.add_exp("standard", enemy_health_max);

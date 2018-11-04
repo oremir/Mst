@@ -44,7 +44,7 @@ Pass: <input type="text" name="pass">
 
 include "inc.php";
 
-$mysqli = new mysqli($address, $lname, $lpass, 'mst');
+$mysqli = new mysqli($address, $lname, $lpass, $ldb);
 
 if ($mysqli->connect_error) {
     die('Nepodařilo se připojit k MySQL serveru (' . $mysqli->connect_errno . ') '
@@ -98,7 +98,7 @@ if ($result->num_rows > 0) {
     
 echo "aget> ".json_encode($aget)."<br><hr><br>";
     
-echo "<textarea> ";
+echo "<textarea rows='20' cols='120'>";
 echo $usrJSON;
 echo "</textarea>";
 

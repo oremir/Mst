@@ -19,7 +19,7 @@ include "inc.php";
 $usr_id = "0";
 $map = "0";
 
-$mysqli = new mysqli($address, $lname, $lpass, 'mst');
+$mysqli = new mysqli($address, $lname, $lpass, $ldb);
 
 if ($mysqli->connect_error) {
     die('Nepodařilo se připojit k MySQL serveru (' . $mysqli->connect_errno . ') '
@@ -31,16 +31,16 @@ $result = $mysqli->query("SELECT ID, UID, login_name, on_map, password FROM `use
 if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|" . $row["on_map"]. "\n";
+        $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|" . $row["on_map"]. "| login\n";
         if (($row["login_name"] == $jmeno)&&($row["password"] == $heslo)):        
             $usr_id = $row["UID"];
             $map = $row["on_map"];
         else:
-            $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $jmeno . "| Wrong password\n";
+            $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $jmeno . "| SQL - Wrong password\n";
         endif;
     }
 } else {
-    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $jmeno . "| 0 results | INS\n";
+    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $jmeno . "| 0 results";
     
     // ---------------------------------------------------------------------------------
     
@@ -68,14 +68,18 @@ if ($result->num_rows > 0) {
     
     // ---------------------------------------------------------------------------------
     
-    $sql = "INSERT INTO users (UID, login_name, on_map, password)
-    VALUES ('".$usr_id."', '".$jmeno."', '".$map."', '".$heslo."')";
+    if ($usr_id != "0"):
+        $sql = "INSERT INTO users (UID, login_name, on_map, password)
+        VALUES ('".$usr_id."', '".$jmeno."', '".$map."', '".$heslo."')";
 
-    if ($mysqli->query($sql) === TRUE) {
-        $radek_l2 = $radek_l2. "New record created successfully\n";
-    } else {
-        $radek_l2 = $radek_l2. "Error: " . $sql . "<br>" . $mysqli->error . "\n";
-    }
+        if ($mysqli->query($sql) === TRUE) {
+            $radek_l2 = $radek_l2. " | INS - New record created successfully\n";
+        } else {
+            $radek_l2 = $radek_l2. "Error: " . $sql . "<br>" . $mysqli->error . "\n";
+        }
+    else:
+        $radek_l2 = $radek_l2. " | SQL - Wrong password\n";
+    endif;
 }
 
 $path_log = "log.log";
