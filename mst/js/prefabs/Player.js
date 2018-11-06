@@ -17,6 +17,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.region = properties.region;
     this.p_name = properties.p_name;
     this.name = name;
+    this.usr_id = this.game_state.root_data.usr_id;
     
     this.walking_speed = +properties.walking_speed;
     this.jumping_speed = +properties.jumping_speed;
@@ -97,7 +98,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.save = {
         type: "player",
         name: name,
-        usr_id: this.game_state.root_data.usr_id,
+        usr_id: this.usr_id,
         x: this.x,
         y: this.y,
         properties: properties,

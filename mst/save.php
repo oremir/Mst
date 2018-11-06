@@ -84,7 +84,32 @@ while(Current($pobjects)):
     else:
         if (isset($object["obj_id"])):
             $pom_id = $object["obj_id"];
-            $ob_obj[$pom_id] = $object;
+            
+            if ($pom_id != 0):
+                $ob_obj[$pom_id] = $object;
+            else:
+                $index = Key($pobjects);
+
+                $iname = $object["name"];
+                $itype = $object["type"];
+
+                $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
+                VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
+
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $row["name"] . "|" . $row["type"]  . $row["on_map"].  "|OBJ INS|";
+
+                $last_id = 0;
+
+                if ($mysqli->query($sql) === TRUE) {
+                    $last_id = $mysqli->insert_id;
+                    $objects[$index]["obj_id"] = $last_id;
+                    $ob_obj[$last_id] = $object;
+
+                    $radek_l2 = $radek_l2 . "LastID:".$last_id."| New record created successfully.\n";
+                } else {
+                    $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
+                }
+            endif;
         else:
             $index = Key($pobjects);
 

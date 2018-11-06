@@ -37,6 +37,7 @@ Mst.ShowItems.prototype.show_initial_stats = function () {
         this.prefab_name = this.game_state.prefabs.player.opened_chest;
     }
     
+    console.log(this.prefab_name);
     if (this.prefab_name !== "") {
         this.stat = this.game_state.prefabs[this.prefab_name].stats.items;
     }

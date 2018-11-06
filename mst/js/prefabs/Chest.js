@@ -105,21 +105,26 @@ Mst.Chest.prototype.open_chest = function (player) {
     "use strict";
     
     this.frame = this.opened_frame;
-    
-    if (this.obj_id == 0) {        
-        player.opened_chest = this.name;
-        this.game_state.prefabs.chestitems.show_initial_stats();
-    } else {
-        var game_state;
-        game_state = this.game_state;
-        this.save.action = "OPEN";
+    player.opened_chest = this.name;
         
-        $.post("object.php?time="+n, this.save)
+    if (this.obj_id == 0) {
+        this.game_state.prefabs.chestitems.show_initial_stats();
+    } else {        
+        var game_state, name, usr_id, map;
+        game_state = this.game_state;
+        name = this.name;
+        usr_id = player.usr_id;
+        //map = this.game_state.root_data.map_int;
+        this.save.action = "OPEN";
+
+        var d = new Date();
+        var n = d.getTime(); 
+
+        $.post("object.php?time="+n+"&uid="+usr_id, this.save)
             .done(function(data) {
                 console.log( "Chest open success" );
                 console.log(data);
 
-                player.opened_chest = this.name;
                 game_state.prefabs.chestitems.show_initial_stats();
             })
             .fail(function(data) {
@@ -129,11 +134,6 @@ Mst.Chest.prototype.open_chest = function (player) {
 
         console.log("save");
     }
-    
-    
-    this.frame = this.opened_frame;
-    player.opened_chest = this.name;
-    this.game_state.prefabs.chestitems.show_initial_stats();
 };
 
 Mst.Chest.prototype.close_chest = function () {
