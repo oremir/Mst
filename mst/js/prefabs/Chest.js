@@ -139,9 +139,35 @@ Mst.Chest.prototype.open_chest = function (player) {
 Mst.Chest.prototype.close_chest = function () {
     "use strict";
     
-    this.frame = this.closed_frame;
-    this.game_state.prefabs.chestitems.kill_stats();
+    this.frame = this.closed_frame;    
     this.game_state.prefabs.player.opened_chest = "";
+    
+    if (this.obj_id == 0) {
+        this.game_state.prefabs.chestitems.kill_stats();
+    } else {        
+        var game_state, name, usr_id;
+        game_state = this.game_state;
+        name = this.name;
+        usr_id = game_state.prefabs.player.usr_id;
+        this.save.action = "CLOSE";
+
+        var d = new Date();
+        var n = d.getTime(); 
+
+        $.post("object.php?time="+n+"&uid="+usr_id, this.save)
+            .done(function(data) {
+                console.log( "Chest close success" );
+                console.log(data);
+
+                game_state.prefabs.chestitems.kill_stats();
+            })
+            .fail(function(data) {
+                console.log( "Chest close error" );
+                console.log(data);
+            });
+
+        console.log("save");
+    }
     
 };
 

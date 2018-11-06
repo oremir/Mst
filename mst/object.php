@@ -24,20 +24,21 @@ if ($mysqli->connect_error) {
 }
 
 switch ($type) {
-    case "chest":        
-        switch ($action) {
-            case "OPEN":
-                
-                $result = $mysqli->query("SELECT * FROM `objects` WHERE ID = '".$obj_id."'");
+    case "chest":
+        
+        $result = $mysqli->query("SELECT * FROM `objects` WHERE ID = '".$obj_id."'");
 
-                if ($result->num_rows > 0) {
-                    // output data of each row
-                    while($row = $result->fetch_assoc()) {
-                        $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["name"] . "|" . $row["type"] . "|M" . $row["on_map"]. "|OP" . $row["open"]. "|LV" . $row["live"].  "|Chest Open MAP|";
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while($row = $result->fetch_assoc()) {
+                $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["name"] . "|" . $row["type"] . "|M" . $row["on_map"]. "|OP" . $row["open"]. "|LV" . $row["live"].  "|Chest";
 
-                        $open = $row["open"];
-                        $live = $row["live"];
-                        
+                $open = $row["open"];
+                $live = $row["live"];
+    
+                switch ($action) {
+                    case "OPEN":
+                        $radek_l2 =  $radek_l2 . " Open|";
                         if (($open == 0) && ($live == 1)) {
                             $object = $row["JSON"];
                             $sql = "UPDATE `objects` SET open = '".$uid."', time = '".time()."' WHERE ID = ".$obj_id;
@@ -50,18 +51,32 @@ switch ($type) {
                         } else {
                             $radek_l2 =  $radek_l2 . "Record is open or not alive\n";
                         }
-                    }
-                } else {
-                    $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|Chest Open MAP| 0 results\n";
-                }
+                        break;
+                    case "CLOSE":
+                        $radek_l2 =  $radek_l2 . " Close|";
+                        if ($live == 1) {
+                            $object = $row["JSON"];
+                            $sql = "UPDATE `objects` SET open = 0, time = '".time()."' WHERE ID = ".$obj_id;
 
-
-
-
-
-                break;
-        } 
+                            if ($mysqli->query($sql) === TRUE) {
+                                $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                            } else {
+                                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                            }
+                        } else {
+                            $radek_l2 =  $radek_l2 . "Record is not alive\n";
+                        }
+                        break; 
+                    default:
+                        $radek_l2 =  $radek_l2 . "|Unknown Action: ".$action."\n";
+                } // --- end of switch ---
+            }
+        } else {
+            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|Chest Open| 0 results\n";
+        }
         break;
+    default:
+        $radek_l2 =  date(DATE_ATOM) . "|" . time() . "|" . "Object - Unknown Type of Object: ".$type."\n";
 }
 
 $path_log = "log.log";
