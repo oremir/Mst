@@ -353,7 +353,7 @@ Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";
     
     if (this.opened_chest === "") {
-        chest.open_chest(player);
+        chest.open_chest(player, chest);
     }
 };
 

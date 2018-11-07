@@ -23,6 +23,10 @@ if ($mysqli->connect_error) {
             . $mysqli->connect_error);
 }
 
+$items = "";
+$prop = array("items" => $items);
+$object = array("properties" => $prop);
+
 switch ($type) {
     case "chest":
         
@@ -40,7 +44,7 @@ switch ($type) {
                     case "OPEN":
                         $radek_l2 =  $radek_l2 . " Open|";
                         if (($open == 0) && ($live == 1)) {
-                            $object = $row["JSON"];
+                            $object = json_decode($row["JSON"]);
                             $sql = "UPDATE `objects` SET open = '".$uid."', time = '".time()."' WHERE ID = ".$obj_id;
 
                             if ($mysqli->query($sql) === TRUE) {
@@ -55,7 +59,7 @@ switch ($type) {
                     case "CLOSE":
                         $radek_l2 =  $radek_l2 . " Close|";
                         if ($live == 1) {
-                            $object = $row["JSON"];
+                            $object = json_decode($row["JSON"]);
                             $sql = "UPDATE `objects` SET open = 0, time = '".time()."' WHERE ID = ".$obj_id;
 
                             if ($mysqli->query($sql) === TRUE) {
@@ -85,7 +89,7 @@ $fp = FOpen($path_log, "a");
 FPutS($fp,$radek_l2);
 FClose($fp);
 
-$vystup = array("usr_id" => $uid, "obj" => $apost);
+$vystup = array("usr_id" => $uid, "obj" => $object);
 
 echo json_encode($vystup);
 

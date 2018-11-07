@@ -101,7 +101,7 @@ Mst.Chest.prototype.reset = function (position) {
     Phaser.Sprite.prototype.reset.call(this, position.x, position.y);
 };
 
-Mst.Chest.prototype.open_chest = function (player) {
+Mst.Chest.prototype.open_chest = function (player, chest) {
     "use strict";
     
     this.frame = this.opened_frame;
@@ -124,7 +124,11 @@ Mst.Chest.prototype.open_chest = function (player) {
             .done(function(data) {
                 console.log( "Chest open success" );
                 console.log(data);
+                var resp = JSON.parse(data);
+                var items = resp.obj.properties.items;
+                console.log(items);
 
+                chest.set_items(items);
                 game_state.prefabs.chestitems.show_initial_stats();
             })
             .fail(function(data) {
@@ -209,4 +213,10 @@ Mst.Chest.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
     
     this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
+};
+
+Mst.Chest.prototype.set_items = function (items) {
+    "use strict";
+    
+    this.stats.items = items;
 };
