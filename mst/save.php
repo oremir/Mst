@@ -93,6 +93,8 @@ while(Current($pobjects)):
                 $iname = $object["name"];
                 $itype = $object["type"];
 
+                
+
                 $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
                 VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
 

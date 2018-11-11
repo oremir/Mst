@@ -59,8 +59,9 @@ switch ($type) {
                     case "CLOSE":
                         $radek_l2 =  $radek_l2 . " Close|";
                         if ($live == 1) {
-                            $object = json_decode($row["JSON"]);
-                            $sql = "UPDATE `objects` SET open = 0, time = '".time()."' WHERE ID = ".$obj_id;
+                            $object = $apost;
+                            $new_obj = json_encode($apost);
+                            $sql = "UPDATE `objects` SET JSON = '".$new_obj."', open = 0, time = '".time()."' WHERE ID = ".$obj_id;
 
                             if ($mysqli->query($sql) === TRUE) {
                                 $radek_l2 =  $radek_l2 . "Record updated successfully\n";
@@ -70,7 +71,22 @@ switch ($type) {
                         } else {
                             $radek_l2 =  $radek_l2 . "Record is not alive\n";
                         }
-                        break; 
+                        break;
+                    case "GET":
+                        $radek_l2 =  $radek_l2 . " Get|";
+                        if ($live == 1) {
+                            $sql = "UPDATE `objects` SET live = 0, time = '".time()."' WHERE ID = ".$obj_id;
+
+                            if ($mysqli->query($sql) === TRUE) {
+                                $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                            } else {
+                                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                            }
+                        } else {
+                            $radek_l2 =  $radek_l2 . "Record is not alive\n";
+                        }
+                        break;
+                    default:
                     default:
                         $radek_l2 =  $radek_l2 . "|Unknown Action: ".$action."\n";
                 } // --- end of switch ---

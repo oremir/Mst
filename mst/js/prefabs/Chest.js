@@ -179,6 +179,8 @@ Mst.Chest.prototype.get_chest = function (chest) {
     "use strict";
     var chest_name, closed_frame, key;
     
+    
+    
     if (chest.stats.items == "") {
         console.log(chest);
         chest_name = chest.name;
@@ -190,7 +192,7 @@ Mst.Chest.prototype.get_chest = function (chest) {
 
         this.kill();
         this.game_state.prefabs.player.opened_chest = "";
-
+        
         key = this.game_state.keyOfName(chest_name);
 
         console.log(key);
@@ -200,6 +202,27 @@ Mst.Chest.prototype.get_chest = function (chest) {
         }
 
         console.log(this.game_state.save.objects);
+        
+        if (this.obj_id != 0) {
+            var usr_id;
+            usr_id = this.game_state.prefabs.player.usr_id;
+            this.save.action = "GET";
+
+            var d = new Date();
+            var n = d.getTime(); 
+
+            $.post("object.php?time="+n+"&uid="+usr_id, this.save)
+                .done(function(data) {
+                    console.log( "Chest get success" );
+                    console.log(data);
+                })
+                .fail(function(data) {
+                    console.log( "Chest get error" );
+                    console.log(data);
+                });
+
+            console.log("save");
+        }
     }
 };
 
