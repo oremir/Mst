@@ -76,14 +76,21 @@ $ob_obj = array();
 Reset($pobjects);
 while(Current($pobjects)):
     $object = Current($pobjects);
-    $pom = $object["type"];
-    if ($object["type"] == "player"):
-        if ($object["usr_id"] != $usr_id):
-            $ob_usr[$usr_id] = $object;
-        endif;
-    else:
-        if (isset($object["obj_id"])):
-            $pom_id = $object["obj_id"];
+    $type = $object["type"];
+    switch ($type) {
+        case "player":
+            if ($object["usr_id"] != $usr_id):
+                $ob_usr[$usr_id] = $object;
+            endif;
+            break;
+        case "chest":
+
+            break;
+        default:
+            $pom_id = 0;
+            if (isset($object["obj_id"])):
+                $pom_id = $object["obj_id"];
+            endif;
             
             if ($pom_id != 0):
                 $ob_obj[$pom_id] = $object;
@@ -92,8 +99,6 @@ while(Current($pobjects)):
 
                 $iname = $object["name"];
                 $itype = $object["type"];
-
-                
 
                 $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
                 VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
@@ -111,46 +116,22 @@ while(Current($pobjects)):
                 } else {
                     $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
                 }
+
+    //            if ($last_id != 0) {
+    //                $sql = "UPDATE `objects` SET JSON = '".json_encode($objects[$index])."' WHERE ID = ".$last_id;
+    //
+    //                if ($mysqli->query($sql) === TRUE) {
+    //                    $radek_l2 =  $radek_l2 . " | Record updated successfully\n";
+    //                } else {
+    //                    $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+    //                }
+    //            }
             endif;
-        else:
-            $index = Key($pobjects);
-
-            $iname = $object["name"];
-            $itype = $object["type"];
-
-            $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
-            VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
-
-            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $row["name"] . "|" . $row["type"]  . $row["on_map"].  "|OBJ INS|";
-
-            $last_id = 0;
-
-            if ($mysqli->query($sql) === TRUE) {
-                $last_id = $mysqli->insert_id;
-                $objects[$index]["obj_id"] = $last_id;
-                $ob_obj[$last_id] = $object;
-
-                $radek_l2 = $radek_l2 . "LastID:".$last_id."| New record created successfully.\n";
-            } else {
-                $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
-            }
-
-//            if ($last_id != 0) {
-//                $sql = "UPDATE `objects` SET JSON = '".json_encode($objects[$index])."' WHERE ID = ".$last_id;
-//
-//                if ($mysqli->query($sql) === TRUE) {
-//                    $radek_l2 =  $radek_l2 . " | Record updated successfully\n";
-//                } else {
-//                    $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
-//                }
-//            }
-        endif;
-    endif;
-
+    }
     Next($pobjects);
 endwhile;
 
-$result = $mysqli->query("SELECT * FROM `objects` WHERE on_map = '".$map_old_int."'");
+$result = $mysqli->query("SELECT * FROM `objects` WHERE on_map = '".$map_old_int."' AND live = 1");
 
 if ($result->num_rows > 0) {
     // output data of each row

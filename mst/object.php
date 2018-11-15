@@ -87,7 +87,6 @@ switch ($type) {
                         }
                         break;
                     default:
-                    default:
                         $radek_l2 =  $radek_l2 . "|Unknown Action: ".$action."\n";
                 } // --- end of switch ---
             }

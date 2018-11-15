@@ -9,7 +9,7 @@ Mst.TiledState = function () {
         "player": Mst.Player.prototype.constructor,
         "other_player": Mst.OtherPlayer.prototype.constructor,
         "NPC": Mst.NPC.prototype.constructor,
-        "bullet": Mst.EnemySpawner.prototype.constructor,
+        "bullet": Mst.Bullet.prototype.constructor,
         "enemy_spawner": Mst.EnemySpawner.prototype.constructor,
         "chest_creator": Mst.ChestCreator.prototype.constructor,
         "chest": Mst.Chest.prototype.constructor,
