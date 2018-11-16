@@ -103,7 +103,7 @@ while(Current($pobjects)):
                 $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
                 VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
 
-                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $row["name"] . "|" . $row["type"]  . $row["on_map"].  "|OBJ INS|";
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $iname . "|" . $itype . "|" . $map_old_int .  "|OBJ INS|";
 
                 $last_id = 0;
 

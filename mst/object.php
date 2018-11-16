@@ -13,19 +13,21 @@ endif;
 $type = $apost["type"];
 $action = $apost["action"];
 $obj_id = $apost["obj_id"];
+$name = $apost["name"];
+
+$radek_l2 = "";
 
 include "inc.php";
 
 $mysqli = new mysqli($address, $lname, $lpass, $ldb);
 
 if ($mysqli->connect_error) {
-    die('Nepodařilo se připojit k MySQL serveru (' . $mysqli->connect_errno . ') '
-            . $mysqli->connect_error);
+    die('Nepodařilo se připojit k MySQL serveru (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
 }
 
 $items = "";
 $prop = array("items" => $items);
-$object = array("properties" => $prop);
+$object = array("properties" => $prop, "obj_id" => 0);
 
 switch ($type) {
     case "chest":
@@ -35,7 +37,7 @@ switch ($type) {
         if ($result->num_rows > 0) {
             // output data of each row
             while($row = $result->fetch_assoc()) {
-                $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["name"] . "|" . $row["type"] . "|M" . $row["on_map"]. "|OP" . $row["open"]. "|LV" . $row["live"].  "|Chest";
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["name"] . "|" . $row["type"] . "|M" . $row["on_map"]. "|OP" . $row["open"]. "|LV" . $row["live"].  "|Chest";
 
                 $open = $row["open"];
                 $live = $row["live"];
@@ -91,7 +93,53 @@ switch ($type) {
                 } // --- end of switch ---
             }
         } else {
-            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|Chest Open| 0 results\n";
+            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $obj_id . "|Chest| 0 results\n";
+            
+            $object = $apost;
+            $new_map_int = $apost["map_int"];
+            
+            $sel_dead = $mysqli->query("SELECT * FROM `objects` WHERE live = 0 ORDER BY ID ASC LIMIT 1");
+            
+            if ($sel_dead->num_rows < 1) {
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|Chest dead| 0 results\n";
+                
+                $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
+                VALUES ('".$name."', '".$type."', '".$new_map_int."', 0, 1, '".time()."')";
+
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $name . "|" . $type . "|" . $new_map_int .  "|Chest INS|";
+
+                $last_id = 0;
+
+                if ($mysqli->query($sql) === TRUE) {
+                    $last_id = $mysqli->insert_id;
+                    $object["obj_id"] = $last_id;
+                    $new_obj_id = $last_id;
+
+                    $radek_l2 = $radek_l2 . "LastID:".$last_id."|New record created successfully";
+                } else {
+                    $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
+                }
+            } else {
+                $row_dead = $sel_dead->fetch_assoc();
+                
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row_dead["ID"]. "|" . $row_dead["name"] . "|" . $row_dead["type"] . "|M" . $row_dead["on_map"]. "|OP" . $row_dead["open"]. "|LV" . $row_dead["live"].  "|Dead Chest";
+                
+                $new_obj_id = $row_dead["ID"];
+                $object["obj_id"] = $new_obj_id;              
+            }
+            
+            if ($new_obj_id > 0) {
+                $new_obj = json_encode($object);
+                                
+                $sql = "UPDATE `objects` SET on_map = '".$new_map_int."', JSON = '".$new_obj."', time = '".time()."', open = 0, live = 1 WHERE ID = ".$new_obj_id;
+
+                if ($mysqli->query($sql) === TRUE) {
+                    $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
+                } else {
+                    $object["obj_id"] = 0;
+                    $radek_l2 =  $radek_l2 . "|Error updating record: " . $mysqli->error . "\n";
+                }  
+            }
         }
         break;
     default:
