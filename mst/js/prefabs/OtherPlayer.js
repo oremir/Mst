@@ -40,6 +40,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.anchor.setTo(0.5);
     
     this.updated = false;
+    this.num_of_hits = 0;
+    this.player_hit_not_delay = true;
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -73,6 +75,18 @@ Mst.OtherPlayer.prototype.update = function () {
         this.bubble.y = this.y - 16;
     }
     
+    if (Math.abs(this.body.velocity.x) > 7) {
+        this.body.velocity.x *= 0.96;
+    } else {
+        this.body.velocity.x = 0;
+    }
+    
+    if (Math.abs(this.body.velocity.y) > 7) {
+        this.body.velocity.y *= 0.96;
+    } else {
+        this.body.velocity.y = 0;
+    }
+    
     if (this.updated) {
         
         this.save.properties.items = this.stats.items;
@@ -99,6 +113,41 @@ Mst.OtherPlayer.prototype.hide_bubble = function () {
     console.log("Bubble hide");
     
     this.bubble.visible = false;
+};
+
+Mst.OtherPlayer.prototype.collide_with_player = function (player) {
+    "use strict";
+    var pom_hits;
+    
+    if (this.player_hit_not_delay) {
+        this.player_hit_not_delay = false;
+        
+        this.num_of_hits ++;
+        pom_hits = this.num_of_hits % 3;
+        console.log("NoHits:" + this.num_of_hits + " Mod: " + pom_hits);
+        
+        switch (pom_hits) {
+            case 1:
+                this.show_bubble(0); // question
+                break;
+                
+            case 0:
+                player.no_pass_OP = false;
+                break;
+        }
+    
+        
+        
+        this.game_state.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.collide_with_player_delay, this);
+    }
+    
+    
+};
+
+Mst.OtherPlayer.prototype.collide_with_player_delay = function () {
+    "use strict";    
+    this.player_hit_not_delay = true;
+    this.game_state.prefabs.player.no_pass_OP = true;
 };
 
 

@@ -340,7 +340,7 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map_int, save_s
     $.post("save.php?time="+n, this.save)
         .done(function(data) {
             console.log( "save success" );
-            console.log(data);
+            console.log(JSON.parse(data));
         
             tween.start();
         })

@@ -33,7 +33,7 @@ Mst.Chest = function (game_state, name, position, properties) {
         y: position.y + (this.game_state.map.tileHeight / 2),
         properties: properties,
         map_int: this.game_state.root_data.map_int
-    }
+    };
     
     //console.log("y: "+this.save.y)
     
@@ -54,39 +54,39 @@ Mst.Chest.prototype.constructor = Mst.Chest;
 Mst.Chest.prototype.update = function () {
     "use strict";
     if (this.alive) {
-        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 20 && this.game_state.prefabs.player.opened_chest == this.name) {
+        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 20 && this.game_state.prefabs.player.opened_chest === this.name) {
             this.close_chest();
         }
-    }        
+    }
     
     if (this.updated) {
-        if (this.stats.items == "") {
+        if (this.stats.items === "") {
             this.input.useHandCursor = true;
 
-            if (this.closed_frame == 3) {
+            if (this.closed_frame === 3) {
                 this.get_chest(this);
             }
         } else {
             this.input.useHandCursor = false;
-        }        
+        }
         
         this.save.properties.items = this.stats.items;
         this.save.properties.opened_frame = this.opened_frame;
         this.save.properties.closed_frame = this.closed_frame;
         
-        var key;        
+        var key;
         key = this.game_state.keyOfName(this.name);
     
         //console.log(key);
 
-        if (key != "") {
-            if (this.stats.items == "" && this.closed_frame == 3) {
+        if (key !== "") {
+            if (this.stats.items === "" && this.closed_frame === 3) {
                 this.game_state.save.objects.splice(key, 1);
             } else {
                 this.game_state.save.objects[key] = this.save;
             }
         } else {
-            if (!(this.stats.items == "" && this.closed_frame == 3)) {
+            if (!(this.stats.items === "" && this.closed_frame === 3)) {
                 this.game_state.save.objects.push(this.save);
             }
         }
@@ -108,34 +108,35 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
     this.frame = this.opened_frame;
     player.opened_chest = this.name;
         
-    if (this.obj_id == 0) {
+    if (this.obj_id === 0) {
         this.game_state.prefabs.chestitems.show_initial_stats();
-    } else {        
-        var game_state, name, usr_id, map;
+    } else {
+        var game_state, name, usr_id, map, d, n;
         game_state = this.game_state;
         name = this.name;
         usr_id = player.usr_id;
         //map = this.game_state.root_data.map_int;
         this.save.action = "OPEN";
 
-        var d = new Date();
-        var n = d.getTime(); 
+        d = new Date();
+        n = d.getTime();
         
         console.log(this.save);
 
-        $.post("object.php?time="+n+"&uid="+usr_id, this.save)
-            .done(function(data) {
-                console.log( "Chest open success" );
+        $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+            .done(function (data) {
+                console.log("Chest open success");
                 console.log(data);
-                var resp = JSON.parse(data);
-                var items = resp.obj.properties.items;
+                var resp, items;
+                resp = JSON.parse(data);
+                items = resp.obj.properties.items;
                 console.log(items);
 
                 chest.set_items(items);
                 game_state.prefabs.chestitems.show_initial_stats();
             })
-            .fail(function(data) {
-                console.log( "Chest open error" );
+            .fail(function (data) {
+                console.log("Chest open error");
                 console.log(data);
             });
 
@@ -146,36 +147,36 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
 Mst.Chest.prototype.close_chest = function () {
     "use strict";
     
-    this.frame = this.closed_frame;    
+    this.frame = this.closed_frame;
     this.game_state.prefabs.player.opened_chest = "";
     
-    var game_state, chest, name, usr_id;
+    var game_state, chest, name, usr_id, d, n;
     game_state = this.game_state;
     chest = this;
     name = this.name;
     usr_id = game_state.prefabs.player.usr_id;
     this.save.action = "CLOSE";
 
-    var d = new Date();
-    var n = d.getTime(); 
+    d = new Date();
+    n = d.getTime();
     
     console.log(this.save);
 
-    $.post("object.php?time="+n+"&uid="+usr_id, this.save)
-        .done(function(data) {
-            console.log( "Chest close success" );
+    $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+        .done(function (data) {
+            console.log("Chest close success");
             console.log(data);
-
-            var resp = JSON.parse(data);
-            var obj_id = resp.obj.obj_id;
-            console.log("ObjID: "+obj_id);
+            var resp, obj_id;
+            resp = JSON.parse(data);
+            obj_id = resp.obj.obj_id;
+            console.log("ObjID: " + obj_id);
 
             chest.set_obj_id(obj_id);
 
             game_state.prefabs.chestitems.kill_stats();
         })
-        .fail(function(data) {
-            console.log( "Chest close error" );
+        .fail(function (data) {
+            console.log("Chest close error");
             console.log(data);
         });
 
@@ -185,48 +186,47 @@ Mst.Chest.prototype.close_chest = function () {
 
 Mst.Chest.prototype.get_chest = function (chest) {
     "use strict";
-    var chest_name, closed_frame, key;
+    var chest_name, closed_frame, key, usr_id, d, n;
     
     
     
-    if (chest.stats.items == "") {
+    if (chest.stats.items === "") {
         console.log(chest);
         chest_name = chest.name;
         closed_frame = chest.closed_frame;
 
-        if (closed_frame != 3) {
+        if (closed_frame !== 3) {
             this.game_state.prefabs.player.add_item(closed_frame, 1);
         }
 
         this.obj_id = 0;
         this.kill();
-        this.game_state.prefabs.player.opened_chest = "";        
+        this.game_state.prefabs.player.opened_chest = "";
         
         key = this.game_state.keyOfName(chest_name);
 
         console.log(key);
 
-        if (key != "") {
+        if (key !== "") {
             this.game_state.save.objects.splice(key, 1);
         }
 
         console.log(this.game_state.save.objects);
         
-        if (this.obj_id != 0) {
-            var usr_id;
+        if (this.obj_id !== 0) {
             usr_id = this.game_state.prefabs.player.usr_id;
             this.save.action = "GET";
 
-            var d = new Date();
-            var n = d.getTime(); 
+            d = new Date();
+            n = d.getTime();
 
-            $.post("object.php?time="+n+"&uid="+usr_id, this.save)
-                .done(function(data) {
-                    console.log( "Chest get success" );
+            $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+                .done(function (data) {
+                    console.log("Chest get success");
                     console.log(data);
                 })
-                .fail(function(data) {
-                    console.log( "Chest get error" );
+                .fail(function (data) {
+                    console.log("Chest get error");
                     console.log(data);
                 });
 

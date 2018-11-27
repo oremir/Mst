@@ -41,9 +41,9 @@ Mst.BootState.prototype.create = function () {
 
     if (this.usr_id > 0) {
         map_text = this.game.cache.getText("map");
-        console.log(map_text);
+        //console.log(map_text);
         map_data = JSON.parse(map_text);
-        //console.log(map_data);
+        console.log(map_data);
 
         core_text = this.game.cache.getText("core");
         core_data = JSON.parse(core_text);

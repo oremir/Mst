@@ -26,6 +26,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.direction_chest = {"x": 0, "y": 1};
     
     this.killed = (properties.killed === 'true');
+    
+    this.no_pass_OP = true;
         
     //console.log(properties.exp);
     
@@ -161,10 +163,13 @@ Mst.Player.prototype.constructor = Mst.Player;
 
 Mst.Player.prototype.update = function () {
     "use strict";
-    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.collide_other_player, null, this);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);    
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_player, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.open_chest, null, this);
+    
+    if (this.no_pass_OP) {
+        this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.collide_other_player, null, this);
+    }
     
     if (typeof (this.game_state.layers.collision_forrest) !== 'undefined') {
         this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision_forrest);
@@ -180,6 +185,11 @@ Mst.Player.prototype.update = function () {
     else if (this.keys.down.isDown) { this.key_down(); } 
     else {
         // stop
+        this.body.velocity.set(0);
+        this.animations.stop();
+    }
+    
+    if (this.body.immovable) {
         this.body.velocity.set(0);
         this.animations.stop();
     }
@@ -322,7 +332,7 @@ Mst.Player.prototype.key_close_delay = function () {
 Mst.Player.prototype.collide_other_player = function (player, other_player) {
     "use strict";
     
-    other_player.show_bubble(0); // question
+    other_player.collide_with_player(player);
 };
 
 Mst.Player.prototype.hit_player = function (player, enemy) {
@@ -682,11 +692,19 @@ Mst.Player.prototype.finish_quest = function (owner) {
 
 Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     "use strict";
+    var name, dt;
+    
+    this.body.immovable = true;
+    
+    if (this.opened_chest !== "") {
+        name = this.opened_chest;
+        this.game_state.prefabs[name].close_chest();
+    }
     
     this.save.x = go_position.x;
     this.save.y = go_position.y;
     
-    var dt = new Date();
+    dt = new Date();
     this.save.properties.time = dt.getTime();
     this.save.properties.moon = this.stats.moon;
     

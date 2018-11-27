@@ -138,15 +138,19 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["name"] . "|" . $row["type"] . "|" . $row["on_map"].  "|OBJ SAVE|";
         
-        $obj_id = $row["ID"];
-        $object = $ob_obj[$obj_id];
-        $sql = "UPDATE `objects` SET on_map = '".$map_old_int."', JSON = '".json_encode($object)."', time = '".time()."' WHERE ID = ".$obj_id;
+        if ($row["type"] != "chest"):
+            $obj_id = $row["ID"];
+            $object = $ob_obj[$obj_id];
+            $sql = "UPDATE `objects` SET on_map = '".$map_old_int."', JSON = '".json_encode($object)."', time = '".time()."' WHERE ID = ".$obj_id;
 
-        if ($mysqli->query($sql) === TRUE) {
-            $radek_l2 =  $radek_l2 . "Record updated successfully\n";
-        } else {
-            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
-        }
+            if ($mysqli->query($sql) === TRUE) {
+                $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+            } else {
+                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+            }
+        else:
+            $radek_l2 =  $radek_l2 . "Chest is not updated\n";
+        endif;
     }
 } else {
     $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|MAP-OBJ 0 results - SAVE\n";
