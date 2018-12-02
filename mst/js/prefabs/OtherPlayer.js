@@ -22,6 +22,12 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.region = properties.region;
     this.p_name = properties.p_name;
     
+    if (typeof (properties.gender) === 'undefined') {
+        properties.gender = "";
+    }
+    
+    this.gender = properties.gender;
+    
     var key;
     key = this.game_state.keyOfName(this.name);
     
@@ -42,6 +48,27 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.updated = false;
     this.num_of_hits = 0;
     this.player_hit_not_delay = true;
+    
+    // Call Ren
+    
+    var ren_name, ren_texture;
+    
+    ren_name = name+"_ren";
+    
+    if (this.gender === "male") {
+        ren_texture = "male_ren";
+    } else {
+        ren_texture = "female_ren";
+    }
+    
+    this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
+        group: "ren", 
+        texture: ren_texture, 
+        p_name: name, // this.p_name
+        dialogue_name: name
+    });
+
+    this.ren_sprite.visible = false;
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -131,6 +158,12 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player) {
                 this.show_bubble(0); // question
                 break;
                 
+            case 2:
+                if (!this.ren_sprite.visible) {
+                    this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?");
+                }
+                break;
+                
             case 0:
                 player.no_pass_OP = false;
                 break;
@@ -171,4 +204,9 @@ Mst.OtherPlayer.prototype.save_player = function () {
 
     console.log(this.game_state.save.objects);
 
+};
+
+Mst.OtherPlayer.prototype.hide_ren = function () {
+    "use strict";
+    this.ren_sprite.hide();
 };

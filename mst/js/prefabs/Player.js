@@ -31,6 +31,12 @@ Mst.Player = function (game_state, name, position, properties) {
         
     //console.log(properties.exp);
     
+    if (typeof (properties.gender) === 'undefined') {
+        properties.gender = "";
+    }
+    
+    this.gender = properties.gender;
+    
     if (typeof (properties.skills) === 'undefined') {
         properties.skills = {
             standard: { exp: 1, level: 1 },
