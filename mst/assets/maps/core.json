@@ -1,6 +1,5 @@
 {
     "assets": {
-        "player_spritesheet": { "type": "spritesheet", "source": "assets/images/knight2.png", "frame_width": 16, "frame_height": 16, "frames": 14},
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/player/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/player/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "rzxsan_spritesheet": { "type": "spritesheet", "source": "assets/images/player/rzxsan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
@@ -8,7 +7,7 @@
         "sofia-an_spritesheet": { "type": "spritesheet", "source": "assets/images/player/sofia-an_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "mirka_v_spritesheet": { "type": "spritesheet", "source": "assets/images/player/mirka_v_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "petronella_h_spritesheet": { "type": "spritesheet", "source": "assets/images/player/petronella_h_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
-        "boy_gm_spritesheet": { "type": "spritesheet", "source": "assets/images/boy_gm_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "boy_gm_spritesheet": { "type": "spritesheet", "source": "assets/images/player/boy_gm_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "gveneiblin_spritesheet": { "type": "spritesheet", "source": "assets/images/player/gveneiblin_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "ondrej_tygr_spritesheet": { "type": "spritesheet", "source": "assets/images/player/ondrej_tygr_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "gabriela_j_spritesheet": { "type": "spritesheet", "source": "assets/images/player/gabriela_j_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},

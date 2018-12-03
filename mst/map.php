@@ -43,10 +43,10 @@ if (isset($aget["mapi"])):
 
 // -------------------------- open map file -----------------------------
 
-    $path_map = "./assets/maps/map".$map_int.".json";
-
-    $map = json_decode(file_get_contents($path_map));
-    $objects = $map->objects;
+//    $path_map = "./assets/maps/map".$map_int.".json";
+//
+//    $map = json_decode(file_get_contents($path_map));
+//    $objects = $map->objects;
     
     //echo json_encode($map);
 
@@ -54,19 +54,28 @@ if (isset($aget["mapi"])):
 
     $result = $mysqli->query("SELECT * FROM `maps` WHERE ID = ".$map_int);
 
+//    $res = json_encode($result);
+//    echo $res;
+
     if ($result->num_rows > 0) {
         // output data of each row
         while($row = $result->fetch_assoc()) {
             $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" .  $row["ID"] . "|SAVE|";
+        
+        
+        //$map = json_decode($row["JSON"]);
+            $map = json_decode($row["JSON"]);
+            $objects = $map->objects;
+            
         }
 
-        $sql = "UPDATE `maps` SET JSON = '".json_encode($map)."' WHERE ID = ".$map_int;
-
-        if ($mysqli->query($sql) === TRUE) {
-            $radek_l2 =  $radek_l2 . "Record updated successfully\n";
-        } else {
-            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
-        }
+//        $sql = "UPDATE `maps` SET JSON = '".json_encode($map)."' WHERE ID = ".$map_int;
+//
+//        if ($mysqli->query($sql) === TRUE) {
+//            $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+//        } else {
+//            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+//        }
     } else {
         $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - SAVE\n";
     }
@@ -79,12 +88,23 @@ if (isset($aget["mapi"])):
         // output data of each row
         while($row = $result->fetch_assoc()) {
             $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|INS2MAPFile|";
-            
+
             $uid_i = $row["UID"];
             $user_i = json_decode($row["JSON"]);
-            
+
+            //$radek_l2 = $radek_l2 . json_encode($user_i);            
             //echo json_encode($map->objects);
             $i = indexOfUsrID($uid_i, $objects);
+            
+            //$user_n = $map->objects[$i];
+            
+//            $sql = "UPDATE `users` SET on_map = '".$map_int."', JSON = '".json_encode($user_n)."', time = '".time()."' WHERE UID = ".$uid_i;
+//
+//            if ($mysqli->query($sql) === TRUE) {
+//                $radek_l2 =  $radek_l2 . "Record updated successfully|";
+//            } else {
+//                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "|";
+//            }
 
             if ($i != -1):
                 $map->objects[$i] = $user_i;

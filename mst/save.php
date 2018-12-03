@@ -100,7 +100,7 @@ while(Current($pobjects)):
                 $iname = $object["name"];
                 $itype = $object["type"];
 
-                $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
+/*                $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
                 VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
 
                 $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $iname . "|" . $itype . "|" . $map_old_int .  "|OBJ INS|";
@@ -115,7 +115,7 @@ while(Current($pobjects)):
                     $radek_l2 = $radek_l2 . "LastID:".$last_id."| New record created successfully.\n";
                 } else {
                     $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
-                }
+                }*/
 
     //            if ($last_id != 0) {
     //                $sql = "UPDATE `objects` SET JSON = '".json_encode($objects[$index])."' WHERE ID = ".$last_id;

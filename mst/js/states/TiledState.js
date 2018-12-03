@@ -630,6 +630,7 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, options) {
     this.visible = true;
     //this.alpha = 0.7;
     this.text_name.text = p_name;
+    console.log("p_name: " + p_name);
     this.text_dialogue.text = text;
 };
 
