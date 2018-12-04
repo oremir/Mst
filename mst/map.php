@@ -17,6 +17,23 @@ function indexOfUsrID($usr_id,$objects) {
     return $index;
 }
 
+function indexOfObjID($obj_id,$objects) {
+    $index = -1;
+    Reset($objects);
+    while(Current($objects)):
+        $object = Current($objects);
+        if ($object->type != "player"):
+            if ($object->obj_id == $obj_id):
+                $index = Key($objects);
+            endif;
+        endif;
+    
+        Next($objects);
+    endwhile;
+    
+    return $index;
+}
+
 $aget = $_GET;
 
 if (isset($aget["uid"])):
@@ -60,7 +77,7 @@ if (isset($aget["mapi"])):
     if ($result->num_rows > 0) {
         // output data of each row
         while($row = $result->fetch_assoc()) {
-            $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" .  $row["ID"] . "|SAVE|";
+            $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" .  $row["ID"] . "\n"; //|SAVE|";
         
         
         //$map = json_decode($row["JSON"]);
@@ -90,7 +107,7 @@ if (isset($aget["mapi"])):
             $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|INS2MAPFile|";
 
             $uid_i = $row["UID"];
-            $user_i = json_decode($row["JSON"]);
+            $user_i = json_decode(utf8_encode($row["JSON"]));
 
             //$radek_l2 = $radek_l2 . json_encode($user_i);            
             //echo json_encode($map->objects);
@@ -112,6 +129,44 @@ if (isset($aget["mapi"])):
                 $radek_l2 =  $radek_l2 . "Update\n";
             else:
                 array_push($map->objects, $user_i);
+            
+                $radek_l2 =  $radek_l2 . "Insert\n";
+            endif;
+        }
+    } else {
+        $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - SAVE\n";
+    }
+
+    $result = $mysqli->query("SELECT * FROM `objects` WHERE live = 1 and on_map = '".$map_int."'");
+
+    if ($result->num_rows > 0) {
+        // output data of each row
+        while($row = $result->fetch_assoc()) {
+            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|OBJ:" .  $row["ID"]. "|" . $row["name"]. "|INS2MAPFile|";
+
+            $oid_i = $row["ID"];
+            $object_i = json_decode($row["JSON"]);
+
+            //$radek_l2 = $radek_l2 . json_encode($user_i);            
+            //echo json_encode($map->objects);
+            $i = indexOfObjID($oid_i, $objects);
+            
+            //$user_n = $map->objects[$i];
+            
+//            $sql = "UPDATE `users` SET on_map = '".$map_int."', JSON = '".json_encode($user_n)."', time = '".time()."' WHERE UID = ".$uid_i;
+//
+//            if ($mysqli->query($sql) === TRUE) {
+//                $radek_l2 =  $radek_l2 . "Record updated successfully|";
+//            } else {
+//                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "|";
+//            }
+
+            if ($i != -1):
+                $map->objects[$i] = $object_i;
+            
+                $radek_l2 =  $radek_l2 . "Update\n";
+            else:
+                array_push($map->objects, $object_i);
             
                 $radek_l2 =  $radek_l2 . "Insert\n";
             endif;

@@ -28,6 +28,7 @@ if ($mysqli->connect_error) {
 $items = "";
 $prop = array("items" => $items);
 $object = array("properties" => $prop, "obj_id" => 0);
+$status = "ok";
 
 switch ($type) {
     case "chest":
@@ -45,17 +46,24 @@ switch ($type) {
                 switch ($action) {
                     case "OPEN":
                         $radek_l2 =  $radek_l2 . " Open|";
-                        if (($open == 0) && ($live == 1)) {
-                            $object = json_decode($row["JSON"]);
-                            $sql = "UPDATE `objects` SET open = '".$uid."', time = '".time()."' WHERE ID = ".$obj_id;
+                        if ($live == 1) {
+                            if ($open == 0) {
+                                $object = json_decode($row["JSON"]);
+                                $sql = "UPDATE `objects` SET open = '".$uid."', time = '".time()."' WHERE ID = ".$obj_id;
 
-                            if ($mysqli->query($sql) === TRUE) {
-                                $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                                if ($mysqli->query($sql) === TRUE) {
+                                    $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                                } else {
+                                    $status = "error";
+                                    $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                                }
                             } else {
-                                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                                $status = "open";
+                                $radek_l2 =  $radek_l2 . "Record is open\n";
                             }
                         } else {
-                            $radek_l2 =  $radek_l2 . "Record is open or not alive\n";
+                            $status = "dead";
+                            $radek_l2 =  $radek_l2 . "Record is not alive\n";
                         }
                         break;
                     case "CLOSE":
@@ -68,9 +76,11 @@ switch ($type) {
                             if ($mysqli->query($sql) === TRUE) {
                                 $radek_l2 =  $radek_l2 . "Record updated successfully\n";
                             } else {
+                                $status = "error";
                                 $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
                             }
                         } else {
+                            $status = "dead";
                             $radek_l2 =  $radek_l2 . "Record is not alive\n";
                         }
                         break;
@@ -82,13 +92,16 @@ switch ($type) {
                             if ($mysqli->query($sql) === TRUE) {
                                 $radek_l2 =  $radek_l2 . "Record updated successfully\n";
                             } else {
+                                $status = "error";
                                 $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
                             }
                         } else {
+                            $status = "dead";
                             $radek_l2 =  $radek_l2 . "Record is not alive\n";
                         }
                         break;
                     default:
+                        $status = "error";
                         $radek_l2 =  $radek_l2 . "|Unknown Action: ".$action."\n";
                 } // --- end of switch ---
             }
@@ -117,6 +130,7 @@ switch ($type) {
 
                     $radek_l2 = $radek_l2 . "LastID:".$last_id."|New record created successfully";
                 } else {
+                    $status = "error";
                     $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
                 }
             } else {
@@ -136,6 +150,7 @@ switch ($type) {
                 if ($mysqli->query($sql) === TRUE) {
                     $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
                 } else {
+                    $status = "error";
                     $object["obj_id"] = 0;
                     $radek_l2 =  $radek_l2 . "|Error updating record: " . $mysqli->error . "\n";
                 }  
@@ -152,7 +167,7 @@ $fp = FOpen($path_log, "a");
 FPutS($fp,$radek_l2);
 FClose($fp);
 
-$vystup = array("usr_id" => $uid, "obj" => $object);
+$vystup = array("usr_id" => $uid, "obj" => $object, "stat" => $status);
 
 echo json_encode($vystup);
 

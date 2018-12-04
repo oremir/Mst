@@ -56,7 +56,10 @@ if ($result->num_rows > 0) {
         $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|X" . $user["x"] . "|Y" . $user["y"] . "|" . $row["on_map"]. "|" . $map_new_int . "|SAVE|";
     }
     
-    $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".json_encode($user)."', time = '".time()."' WHERE UID = ".$usr_id;
+    //$user_en1 = array_map('htmlentities',$user);
+    $user_en2 = html_entity_decode(json_encode($user));
+    
+    $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".$user_en2."', time = '".time()."' WHERE UID = ".$usr_id;
 
     if ($mysqli->query($sql) === TRUE) {
         $radek_l2 =  $radek_l2 . "Record updated successfully\n";
@@ -69,36 +72,36 @@ if ($result->num_rows > 0) {
 
 // -------------------------- Update Objects -----------------------
 
-$pobjects = $objects;
-$ob_usr = array();
-$ob_obj = array();
-
-Reset($pobjects);
-while(Current($pobjects)):
-    $object = Current($pobjects);
-    $type = $object["type"];
-    switch ($type) {
-        case "player":
-            if ($object["usr_id"] != $usr_id):
-                $ob_usr[$usr_id] = $object;
-            endif;
-            break;
-        case "chest":
-
-            break;
-        default:
-            $pom_id = 0;
-            if (isset($object["obj_id"])):
-                $pom_id = $object["obj_id"];
-            endif;
-            
-            if ($pom_id != 0):
-                $ob_obj[$pom_id] = $object;
-            else:
-                $index = Key($pobjects);
-
-                $iname = $object["name"];
-                $itype = $object["type"];
+//$pobjects = $objects;
+//$ob_usr = array();
+//$ob_obj = array();
+//
+//Reset($pobjects);
+//while(Current($pobjects)):
+//    $object = Current($pobjects);
+//    $type = $object["type"];
+//    switch ($type) {
+//        case "player":
+//            if ($object["usr_id"] != $usr_id):
+//                $ob_usr[$usr_id] = $object;
+//            endif;
+//            break;
+//        case "chest":
+//
+//            break;
+//        default:
+//            $pom_id = 0;
+//            if (isset($object["obj_id"])):
+//                $pom_id = $object["obj_id"];
+//            endif;
+//            
+//            if ($pom_id != 0):
+//                $ob_obj[$pom_id] = $object;
+//            else:
+//                $index = Key($pobjects);
+//
+//                $iname = $object["name"];
+//                $itype = $object["type"];
 
 /*                $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
                 VALUES ('".$iname."', '".$itype."', '".$map_old_int."', 0, 1, '".time()."')";
@@ -126,12 +129,12 @@ while(Current($pobjects)):
     //                    $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
     //                }
     //            }
-            endif;
-    }
-    Next($pobjects);
-endwhile;
+//            endif;
+//    }
+//    Next($pobjects);
+//endwhile;
 
-$result = $mysqli->query("SELECT * FROM `objects` WHERE on_map = '".$map_old_int."' AND live = 1");
+/*$result = $mysqli->query("SELECT * FROM `objects` WHERE on_map = '".$map_old_int."' AND live = 1");
 
 if ($result->num_rows > 0) {
     // output data of each row
@@ -160,7 +163,7 @@ $path_log = "log.log";
 
 $fp = FOpen($path_log, "a");
 FPutS($fp,$radek_l2);
-FClose($fp);
+FClose($fp);*/
 
 // -------------------------- test write postavy -------------------
 
@@ -180,7 +183,7 @@ file_put_contents($path_postavy, json_encode($postavy));
 
 // --------------------------- update pswd --------------------------
 
-$path_postava = "./assets/postavy/pswd.php";
+/*$path_postava = "./assets/postavy/pswd.php";
 
 $fp = FOpen($path_postava, "r");
 
@@ -211,12 +214,12 @@ $fp = FOpen($path_postava, "w");
 
 Array_Walk($radek_new, "zapis_souboru");
 
-FClose($fp);
+FClose($fp);*/
 
 
 //$map_old_int = (int)filter_var ( $path_map_old, FILTER_SANITIZE_STRING);
 
-$path_map = "./assets/maps/map".$map_new_int.".json";
+/*$path_map = "./assets/maps/map".$map_new_int.".json";
 $path_map_old = "./assets/maps/map".$map_old_int.".json";
 
 if ((int)$map_new_int != $map_old_int):
@@ -281,7 +284,7 @@ else:
 
   file_put_contents($path_map, json_encode($map));
 
-endif;
+endif;*/
 
 echo json_encode($apost);
 ?>

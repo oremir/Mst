@@ -46,6 +46,7 @@ Mst.Chest = function (game_state, name, position, properties) {
     this.events.onInputDown.add(this.get_chest, this);
     
     this.updated = false;
+    this.stat = "";
 };
 
 Mst.Chest.prototype = Object.create(Mst.Prefab.prototype);
@@ -111,7 +112,7 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
     if (this.obj_id === 0) {
         this.game_state.prefabs.chestitems.show_initial_stats();
     } else {
-        var game_state, name, usr_id, map, d, n;
+        var game_state, name, usr_id, map, d, n, stat;
         game_state = this.game_state;
         name = this.name;
         usr_id = player.usr_id;
@@ -130,9 +131,11 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                 var resp, items;
                 resp = JSON.parse(data);
                 items = resp.obj.properties.items;
+                stat = resp.stat;
                 console.log(items);
 
                 chest.set_items(items);
+                chest.set_stat(stat);
                 game_state.prefabs.chestitems.show_initial_stats();
             })
             .fail(function (data) {
@@ -157,30 +160,34 @@ Mst.Chest.prototype.close_chest = function () {
     usr_id = game_state.prefabs.player.usr_id;
     this.save.action = "CLOSE";
 
-    d = new Date();
-    n = d.getTime();
-    
-    console.log(this.save);
+    if (this.stat !== "open") {
+        d = new Date();
+        n = d.getTime();
 
-    $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
-        .done(function (data) {
-            console.log("Chest close success");
-            console.log(data);
-            var resp, obj_id;
-            resp = JSON.parse(data);
-            obj_id = resp.obj.obj_id;
-            console.log("ObjID: " + obj_id);
+        console.log(this.save);
 
-            chest.set_obj_id(obj_id);
+        $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+            .done(function (data) {
+                console.log("Chest close success");
+                console.log(data);
+                var resp, obj_id;
+                resp = JSON.parse(data);
+                obj_id = resp.obj.obj_id;
+                console.log("ObjID: " + obj_id);
 
-            game_state.prefabs.chestitems.kill_stats();
-        })
-        .fail(function (data) {
-            console.log("Chest close error");
-            console.log(data);
-        });
+                chest.set_obj_id(obj_id);
 
-    console.log("save chest close");
+                game_state.prefabs.chestitems.kill_stats();
+            })
+            .fail(function (data) {
+                console.log("Chest close error");
+                console.log(data);
+            });
+
+        console.log("save chest close");
+    } else {
+        game_state.prefabs.chestitems.kill_stats();
+    }
     
 };
 
@@ -199,7 +206,7 @@ Mst.Chest.prototype.get_chest = function (chest) {
             this.game_state.prefabs.player.add_item(closed_frame, 1);
         }
 
-        this.obj_id = 0;
+        //this.obj_id = 0;
         this.kill();
         this.game_state.prefabs.player.opened_chest = "";
         
@@ -251,6 +258,12 @@ Mst.Chest.prototype.set_items = function (items) {
     "use strict";
     
     this.stats.items = items;
+};
+
+Mst.Chest.prototype.set_stat = function (stat) {
+    "use strict";
+    
+    this.stat = stat;
 };
 
 Mst.Chest.prototype.set_obj_id = function (obj_id) {
