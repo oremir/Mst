@@ -72,7 +72,7 @@ if ($result->num_rows > 0) {
 
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td>" . $row["login_name"]. "</td><td>" . $row["password"]. "</td><td>" . $row["on_map"]. "</td></tr>";        
+        echo "<tr><td>" . $row["ID"]. "</td><td>" . $row["UID"]. "</td><td><a href='users.php?uid=".$row["UID"]."'>" . $row["login_name"]. "</a></td><td>" . $row["password"]. "</td><td>" . $row["on_map"]. "</td></tr>";        
     }
     
     echo '</table><br><hr><br>';
