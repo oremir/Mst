@@ -17,10 +17,13 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     
     console.log("other player");
     //console.log(this.game_state.groups["otherplayers"]);
-    
-    
+        
     this.region = properties.region;
     this.p_name = properties.p_name;
+    
+    if (typeof (properties.ren_texture) === 'undefined') {
+        properties.ren_texture = "";
+    }
     
     if (typeof (properties.gender) === 'undefined') {
         properties.gender = "";
@@ -55,11 +58,16 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     
     ren_name = name+"_ren";
     
-    if (this.gender === "male") {
-        ren_texture = "male_ren";
+    if (properties.ren_texture === "") {
+        if (this.gender === "male") {
+            ren_texture = "male_ren";
+        } else {
+            ren_texture = "female_ren";
+        }  
     } else {
-        ren_texture = "female_ren";
+        ren_texture = properties.ren_texture;
     }
+    
     
     this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
         group: "ren", 
@@ -160,7 +168,13 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player) {
                 
             case 2:
                 if (!this.ren_sprite.visible) {
-                    this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?");
+                    player.set_opened_ren(this.name);
+                    console.log("Op.ren: " + this.name);
+                    if (player.gender === "male") {                        
+                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?");
+                    } else {
+                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřebovala?");
+                    }
                 }
                 break;
                 

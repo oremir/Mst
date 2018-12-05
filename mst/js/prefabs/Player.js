@@ -31,6 +31,10 @@ Mst.Player = function (game_state, name, position, properties) {
         
     //console.log(properties.exp);
     
+    if (typeof (properties.ren_texture) === 'undefined') {
+        properties.ren_texture = "";
+    }
+    
     if (typeof (properties.gender) === 'undefined') {
         properties.gender = "";
     }
@@ -118,6 +122,7 @@ Mst.Player = function (game_state, name, position, properties) {
     
     this.opened_chest = "";
     this.opened_business = "";
+    this.opened_ren = "";
     
     //console.log(properties.items);
     //console.log(this.stats.items);
@@ -338,7 +343,15 @@ Mst.Player.prototype.key_close_delay = function () {
 Mst.Player.prototype.collide_other_player = function (player, other_player) {
     "use strict";
     
-    other_player.collide_with_player(player);
+    if (this.opened_ren === "") {
+        other_player.collide_with_player(player);
+    }
+};
+
+Mst.Player.prototype.set_opened_ren = function (name) {
+    "use strict";
+    
+    this.opened_ren = name;
 };
 
 Mst.Player.prototype.hit_player = function (player, enemy) {
