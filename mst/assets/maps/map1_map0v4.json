@@ -113,8 +113,9 @@
                  "properties":
                     {
                      "group":"goouts",
-                     "go_position":{"x": 127, "y": 300},
-                     "next_map":"assets\/maps\/map2.json",
+                     "go_position_x": 127,
+                     "go_position_y": 300,
+                     "next_map":2,
                      "pool":"goouts",
                      "texture":"blank_image"
                     },

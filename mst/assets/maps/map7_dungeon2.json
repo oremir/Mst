@@ -42,9 +42,10 @@
                  "name":"goout01",
                  "properties":
                     {
-                     "go_position":{"x": 688, "y": 147},
+                     "go_position_x": 688,
+                     "go_position_y": 147,
                      "group":"goouts",
-                     "next_map":"assets\/maps\/map6.json",
+                     "next_map":6,
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
@@ -70,9 +71,10 @@
                  "name":"goout02",
                  "properties":
                     {
-                     "go_position":{"x": 224, "y": 243},
+                     "go_position_x": 224,
+                     "go_position_y": 243,
                      "group":"goouts",
-                     "next_map":"assets\/maps\/map8.json",
+                     "next_map":8,
                      "pool":"goouts",
                      "texture":"blank_image"
                     },

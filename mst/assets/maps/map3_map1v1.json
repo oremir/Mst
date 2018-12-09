@@ -42,9 +42,10 @@
                  "name":"goout",
                  "properties":
                     {
-                     "go_position":{"x": 80, "y": 301},
+                     "go_position_x": 80,
+                     "go_position_y": 301,
                      "group":"goouts",
-                     "next_map":"assets\/maps\/map2.json",
+                     "next_map":2,
                      "pool":"goouts",
                      "texture":"blank_image"
                     },

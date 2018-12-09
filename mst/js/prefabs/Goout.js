@@ -4,8 +4,11 @@ Mst.Goout = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
-    this.next_map = properties.next_map;
-    this.go_position = properties.go_position;
+    this.next_map = +properties.next_map;
+    this.go_position = {
+        x: +properties.go_position_x,
+        y: +properties.go_position_y
+    };
     
     this.game_state = game_state;
     
@@ -31,12 +34,7 @@ Mst.Goout.prototype.go_out = function () {
     "use strict";
     // start the next map
     
-    var new_splited = this.next_map.split("/");
-    var new_new = new_splited[new_splited.length - 1];
-    new_splited = new_new.split(".");
-    new_new = new_splited[0];
-    new_new = new_new.slice(3, new_new.length);    
-    var new_int = parseInt(new_new);
+    var new_int = parseInt(this.next_map);
     
     if (this.notupdated) {
         this.notupdated = false;
