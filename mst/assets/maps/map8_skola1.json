@@ -42,16 +42,17 @@
                  "name":"goout01",
                  "properties":
                     {
-                     "go_position_x": 304,
-                     "go_position_y": 98,
+                     "go_position_x":"304",
+                     "go_position_y":"98",
                      "group":"goouts",
-                     "next_map":7,
+                     "next_map":"7",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -71,16 +72,17 @@
                  "name":"goout02",
                  "properties":
                     {
-                     "go_position_x": 729,
-                     "go_position_y": 424,
+                     "go_position_x":"729",
+                     "go_position_y":"424",
                      "group":"goouts",
-                     "next_map":8,
+                     "next_map":"8",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -100,16 +102,17 @@
                  "name":"goout03",
                  "properties":
                     {
-                     "go_position_x": 278,
-                     "go_position_y": 424,
+                     "go_position_x":"278",
+                     "go_position_y":"424",
                      "group":"goouts",
-                     "next_map":8,
+                     "next_map":"8",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -129,16 +132,17 @@
                  "name":"goout04",
                  "properties":
                     {
-                     "go_position_x": 272,
-                     "go_position_y": 185,
+                     "go_position_x":"272",
+                     "go_position_y":"185",
                      "group":"goouts",
-                     "next_map":9,
+                     "next_map":"9",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -150,6 +154,36 @@
                  "width":16,
                  "x":160,
                  "y":130
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":5,
+                 "name":"goout05",
+                 "properties":
+                    {
+                     "go_position_x":"208",
+                     "go_position_y":"396",
+                     "group":"goouts",
+                     "next_map":"10",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":225
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -157,7 +191,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":5,
+ "nextobjectid":7,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -166,7 +200,7 @@
         {
          "columns":46,
          "firstgid":1,
-         "image":"map8_skola1.png",
+         "image":"..\/images\/map8_skola1.png",
          "imageheight":688,
          "imagewidth":736,
          "margin":0,

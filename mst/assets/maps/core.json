@@ -15,6 +15,7 @@
         "caithlen-c_spritesheet": { "type": "spritesheet", "source": "assets/images/player/caithlen-c_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "f-black_spritesheet": { "type": "spritesheet", "source": "assets/images/player/f-black_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "layla-b_spritesheet": { "type": "spritesheet", "source": "assets/images/player/layla-b_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+		"smith_e_spritesheet": { "type": "spritesheet", "source": "assets/images/player/smith_e_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 31 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 11 },
