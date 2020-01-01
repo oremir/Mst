@@ -1,5 +1,7 @@
 var Phaser = Phaser || {};
 var Mst = Mst || {};
+var game = game || {};
+var PhaserInput = PhaserInput || {};
 
 Mst.TiledState = function () {
     "use strict";
@@ -69,7 +71,7 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
             //console.log(this.root_data);
 
             Phaser.Device.whenReady(function () {
-                game.plugins.add(Fabrique.Plugins.InputField);
+                game.plugins.add(PhaserInput.Plugin);
             });
 
             this.usr_name = this.game.add.inputField(this.game.world.centerX - 175, this.game.world.centerY - 171, {
@@ -100,7 +102,7 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
                     borderRadius: 6,
                     placeHolder: 'Password',
                     textAlign: 'left',
-                    type: Fabrique.InputType.password,
+                    type: PhaserInput.InputType.password,
                     zoom: true
             });
             this.usr_password.blockInput = false;
