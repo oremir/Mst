@@ -1,4 +1,6 @@
 var Mst = Mst || {};
+var Phaser = Phaser || {};
+var console = console || {};
 
 Mst.Player = function (game_state, name, position, properties) {
     "use strict";
@@ -12,7 +14,7 @@ Mst.Player = function (game_state, name, position, properties) {
     if (typeof(load_player) != 'undefined') {
         this.x = load_player.x;
         this.y = load_player.y;
-    }*/    
+    }*/
 
     this.region = properties.region;
     this.p_name = properties.p_name;
@@ -149,16 +151,16 @@ Mst.Player = function (game_state, name, position, properties) {
     this.anchor.setTo(0.5);
     
     this.cursors = this.game_state.game.input.keyboard.createCursorKeys();
-    this.keys = this.game_state.game.input.keyboard.addKeys( { 
-        'up': Phaser.KeyCode.W, 
-        'down': Phaser.KeyCode.S, 
-        'left': Phaser.KeyCode.A, 
+    this.keys = this.game_state.game.input.keyboard.addKeys({
+        'up': Phaser.KeyCode.W,
+        'down': Phaser.KeyCode.S,
+        'left': Phaser.KeyCode.A,
         'right': Phaser.KeyCode.D,
         'action': Phaser.KeyCode.X,
         'close': Phaser.KeyCode.C,
         'attack': Phaser.KeyCode.F,
         'attack_alt': Phaser.Keyboard.ENTER
-    } );
+    });
     
     this.close_state = [];
     this.close_context = [];
@@ -174,7 +176,7 @@ Mst.Player.prototype.constructor = Mst.Player;
 
 Mst.Player.prototype.update = function () {
     "use strict";
-    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);    
+    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_player, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.open_chest, null, this);
     
@@ -186,14 +188,14 @@ Mst.Player.prototype.update = function () {
         this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision_forrest);
     }
     
-    if (this.cursors.right.isDown) { this.key_right(); } 
-    else if (this.cursors.left.isDown) { this.key_left(); } 
-    else if (this.cursors.up.isDown) { this.key_up(); } 
-    else if (this.cursors.down.isDown) { this.key_down(); } 
-    else if (this.keys.right.isDown) { this.key_right(); } 
-    else if (this.keys.left.isDown) { this.key_left(); } 
-    else if (this.keys.up.isDown) { this.key_up(); } 
-    else if (this.keys.down.isDown) { this.key_down(); } 
+    if (this.cursors.right.isDown) { this.key_right(); }
+        else if (this.cursors.left.isDown) { this.key_left(); }
+        else if (this.cursors.up.isDown) { this.key_up(); }
+        else if (this.cursors.down.isDown) { this.key_down(); }
+        else if (this.keys.right.isDown) { this.key_right(); }
+        else if (this.keys.left.isDown) { this.key_left(); }
+        else if (this.keys.up.isDown) { this.key_up(); }
+        else if (this.keys.down.isDown) { this.key_down(); }
     else {
         // stop
         this.body.velocity.set(0);
@@ -205,7 +207,7 @@ Mst.Player.prototype.update = function () {
         this.animations.stop();
     }
     
-    if (this.keys.action.isDown) { this.key_action(); }    
+    if (this.keys.action.isDown) { this.key_action(); }
     if (this.keys.close.isDown) { this.key_close(); }
     
     if (this.keys.attack.isDown) { this.game_state.prefabs.sword.swing(); }
@@ -229,8 +231,8 @@ Mst.Player.prototype.update = function () {
     
     this.stats.moon_moon = Math.ceil(this.stats.moon / Math.ceil(this.stats.moon_max / 5));
     if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {
-        if (this.stats.moon_loop > 0 ) {
-            if (typeof (this.game_state.prefabs.moon.timer_first.timer) == 'undefined') {
+        if (this.stats.moon_loop > 0) {
+            if (typeof (this.game_state.prefabs.moon.timer_first.timer) === 'undefined') {
                 console.log("und");
                 this.game_state.prefabs.moon.timer_first = this.game_state.game.time.events.add(this.stats.moon_loop, this.game_state.prefabs.moon.update_timer_moon, this);
             }
@@ -335,7 +337,7 @@ Mst.Player.prototype.key_close = function () {
 };
 
 Mst.Player.prototype.key_close_delay = function () {
-    "use strict";    
+    "use strict";
     this.close_not_delay = true;
 };
 
@@ -358,13 +360,27 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     "use strict";
     
     player.add_exp("standard", 1);
-    player.add_ability("constitution", 5, 0);
-    player.health--;
-    player.stats.stress += 5;
-    this.game_state.prefabs.health.text_health.text = player.health + "/" + player.stats.health_max;
+    player.add_exp("fighter", 1);
+    player.add_ability("constitution", 3, 0);
+    player.add_stress(player, 4);
+    
     this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
     enemy.knockbacki = 10;
     
+    player.subtract_health(player, 1);
+};
+
+Mst.Player.prototype.subtract_health = function (player, quantity) {
+    "use strict";
+    
+    player.health -= quantity;
+    
+    player.add_exp("standard", 1);
+    player.add_ability("constitution", 3, 0);
+    player.stats.stress += 1;
+    
+    this.game_state.prefabs.health.text_health.text = player.health + "/" + player.stats.health_max;
+
     if (player.health < 1) {
         this.save.properties.killed = true;
         this.save.properties.stats.stress = 0;
@@ -374,8 +390,17 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
         
         this.game_state.save_data({ "x": 432, "y": 272 }, 4, "dead"); // "assets/maps/map4.json"
     }
+};
+
+Mst.Player.prototype.add_stress = function (player, quantity) {
+    "use strict";
     
-    //this.game_state.restart_map();
+    player.add_ability("constitution", 2, 0);
+    player.stats.stress += quantity;
+
+    if (player.stats.stress > (50 + this.stats.abilities.constitution)) {
+        player.subtract_health(player, 1);
+    }
 };
 
 Mst.Player.prototype.open_chest = function (player, chest) {
@@ -431,10 +456,10 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
             return 1;
         } else {
             return 0;
-        }        
+        }
     }
     
-    if (typeof(this.stats.skills[skill]) === 'undefined') {
+    if (typeof (this.stats.skills[skill]) === 'undefined') {
         this.stats.skills[skill] = { exp: 1, level: 1 };
     }
     
@@ -450,22 +475,46 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
     if (skill === "standard") {
         this.stats.exp = this.stats.skills[skill].exp;
         this.stats.level = this.stats.skills[skill].level;
-    }    
+    }
 };
 
 Mst.Player.prototype.add_ability = function (ability, num1, num2) {
     "use strict";
     var quantity, rnd_test;
     
+    this.stats.abilities[ability] = parseInt(this.stats.abilities[ability]);
+    
     quantity = 0;
-    rnd_test = Math.floor(Math.random() * 100);
+    
+    if (this.stats.abilities[ability] < 100) {
+        rnd_test = Math.floor(Math.random() * 200);
+    } else {
+        if (this.stats.abilities[ability] < 500) {
+            rnd_test = Math.floor(Math.random() * 1000);
+        } else {
+            if (this.stats.abilities[ability] < 900) {
+                rnd_test = Math.floor(Math.random() * 5000);
+            } else {
+                if (this.stats.abilities[ability] < 999) {
+                    rnd_test = Math.floor(Math.random() * 10000);
+                } else {
+                    rnd_test = 10000;
+                    this.stats.abilities[ability] = 999;
+                }
+            }
+        }
+    }
+    
     if (rnd_test < num1) {
         quantity = 1;
     }
     
-    quantity += num2;
+    if (this.stats.abilities[ability] < 999) {
+        quantity += num2;
+    } else {
+        this.stats.abilities[ability] = 999;
+    }
     
-    this.stats.abilities[ability] = parseInt(this.stats.abilities[ability]);
     this.stats.abilities[ability] += quantity;
     this.save.properties.abilities[ability] = this.stats.abilities[ability];
 };
@@ -493,7 +542,7 @@ Mst.Player.prototype.update_place = function () {
             map_int: map.map_int,
             region: map.region,
             visit: 1
-        }
+        };
         this.stats.places.push(place_selected);
         //console.log(place_selected);
     } else {
@@ -512,9 +561,9 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
     for (key in this.stats.relations) {
         //console.log(this.stats.relations[key]);
         //if (parseInt(relation.map_int) === parseInt(map.map_int) && parseInt(relation.region) === parseInt(map.region)) {
-        if (this.stats.relations[key].name === person.name 
-            && this.stats.relations[key].region === person.region
-            && this.stats.relations[key].type === type) {
+        if (this.stats.relations[key].name === person.name
+                && this.stats.relations[key].region === person.region
+                && this.stats.relations[key].type === type) {
             relation_selected = this.stats.relations[key];
         }
     }
@@ -528,7 +577,7 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
             region: person.region,
             type: type,
             exp: 1
-        }
+        };
         this.stats.relations.push(relation_selected);
         console.log(relation_selected);
     } else {
@@ -542,7 +591,7 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
 Mst.Player.prototype.quest_bubble = function () {
     "use strict";
     
-    this.game_state.groups.NPCs.forEachAlive(function(NPC) {
+    this.game_state.groups.NPCs.forEachAlive(function (NPC) {
         console.log("Quest bubble: " + NPC.name);
         NPC.test_quest();
     }, this);
