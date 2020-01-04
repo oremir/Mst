@@ -211,17 +211,18 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
 
 Mst.ShowItems.prototype.put_down_item = function (one_item) {
     "use strict";
-    var item_index, item_frame, item_quantity, other_item_prefab, is_not_new_chest, chest_new;
+    var item_index, item_frame, item_quantity, other_item_prefab, is_not_new_chest, chest_new, player;
     
     console.log("put down");
     console.log(one_item);
+    player = this.game_state.prefabs.player;
     
     item_index = one_item.stat_index;
     item_frame = this.stats[item_index].frame;
     
     switch (this.put_type) {
         case "put":
-            if (this.game_state.prefabs.player.opened_business === "") {
+            if (player.opened_business === "") {
 
                 // ------------------------------------- - item -----------------------------------------
                 
@@ -230,7 +231,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                 // ------------------------------------- + item -----------------------------------------
     
                 if (this.prefab_name === "player") {
-                    if (this.game_state.prefabs.player.opened_chest === "") {
+                    if (player.opened_chest === "") {
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
                         
@@ -249,6 +250,24 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
             this.game_state.prefabs.equip.equip(item_index, item_frame);
             break;
         case "use":
+            var use_sub = (this.game_state.core_data.items[item_frame].properties.use_sub === 'true');
+    
+            console.log(this.game_state.core_data.items[item_frame]);
+
+            if (use_sub) {
+                this.subtract_item(item_index, 1);
+            }
+            
+            switch(item_frame) {
+                case 33:
+                    player.add_health(player, 5);
+                    player.subtract_stress(player, 8);
+                    break;
+                case 40:
+                    player.add_health(player, 3);
+                    player.subtract_stress(player, 7);
+                    break;
+            }
             break;
         case "sell":
             break;

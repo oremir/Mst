@@ -131,7 +131,7 @@ Mst.Sword.prototype.reequip = function (ef) {
 
 Mst.Sword.prototype.cut_wood = function (tool, wood) {
     "use strict";
-    var x, y, tile, player;
+    var x, y, tile, player, rnd_test;
     player = this.game_state.prefabs.player;
     
     x = player.direction_chest.x + wood.x;
@@ -148,6 +148,11 @@ Mst.Sword.prototype.cut_wood = function (tool, wood) {
         player.add_exp("standard", 2);
         player.add_exp("woodcutter", 1);
         player.add_ability("strength", 3, 0);
+        
+        rnd_test = Math.floor(Math.random() * 20);
+        if (rnd_test < 2) {
+            player.add_item(33, 1); // apple
+        }
     }
     
     this.cut = false;
@@ -155,7 +160,7 @@ Mst.Sword.prototype.cut_wood = function (tool, wood) {
 
 Mst.Sword.prototype.cut_stone = function (tool, stone) {
     "use strict";
-    var x, y, tile, player, pom_exp;
+    var x, y, tile, player, rnd_test;
     player = this.game_state.prefabs.player;
     
     x = player.direction_chest.x + stone.x;
@@ -171,6 +176,11 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
         player.add_exp("standard", 2);
         player.add_exp("stonebreaker", 1);
         player.add_ability("strength", 3, 0);
+        
+        rnd_test = Math.floor(Math.random() * 20);
+        if (rnd_test < 2) {
+            player.add_item(40, 1); // lichen
+        }
     }
     
     this.cut = false;

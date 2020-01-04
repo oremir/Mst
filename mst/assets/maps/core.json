@@ -19,7 +19,7 @@
         "kratos_spritesheet": { "type": "spritesheet", "source": "assets/images/player/kratos_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "jaga_spritesheet": { "type": "spritesheet", "source": "assets/images/player/jaga_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 31 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 42 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 11 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
@@ -106,7 +106,20 @@
         { "name": "Hůl", "istool": "false", "properties": {} },
         { "name": "Bronzový meč", "istool": "false", "properties": {} },
         { "name": "Železný meč", "istool": "false", "properties": {} },
-        { "name": "Hůlka", "istool": "true", "properties": { "cut_type": "magic", "tool_fr_left": "7", "tool_fr_right": "7" } }
+        { "name": "Hůlka", "istool": "true", "properties": { "cut_type": "magic", "tool_fr_left": "7", "tool_fr_right": "7" } },
+        { "name": "Zbroj", "istool": "false", "properties": {} },
+        { "name": "Prac. stůl", "istool": "false", "properties": {} },
+        { "name": "Kmen", "istool": "false", "properties": {} },
+        { "name": "Kulan", "istool": "false", "properties": {} },
+        { "name": "Prkno", "istool": "false", "properties": {} },
+        { "name": "Jablko", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Žampion", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Muchomůrka", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Maso", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Peč. maso", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Palice", "istool": "false", "properties": {} },
+        { "name": "Kůže", "istool": "false", "properties": {} },
+        { "name": "Lišejník", "istool": "false", "properties": { "use_sub": "true" } }
     ],
 	
 	"objects": { 

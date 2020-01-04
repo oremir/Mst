@@ -370,6 +370,15 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     player.subtract_health(player, 1);
 };
 
+Mst.Player.prototype.add_health = function (player, quantity) {
+    "use strict";
+    
+    player.health += quantity;
+    
+    if (player.health > player.stats.health_max) {player.health = player.stats.health_max}
+    this.game_state.prefabs.health.text_health.text = player.health + "/" + player.stats.health_max;
+};
+
 Mst.Player.prototype.subtract_health = function (player, quantity) {
     "use strict";
     
@@ -402,6 +411,17 @@ Mst.Player.prototype.add_stress = function (player, quantity) {
         player.subtract_health(player, 1);
     }
 };
+
+Mst.Player.prototype.subtract_stress = function (player, quantity) {
+    "use strict";
+    
+    player.stats.stress -= quantity;
+
+    if (player.stats.stress < 0) {
+        player.stats.stress = 0;
+    }
+};
+
 
 Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";

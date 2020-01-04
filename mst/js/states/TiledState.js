@@ -35,8 +35,7 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
     "use strict";
     this.core_data = core_data;
     this.map_data = map_data;
-    this.root_data = root_data;
-    
+    this.root_data = root_data;    
     
     this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     this.scale.pageAlignHorizontally = true;

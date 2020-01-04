@@ -42,16 +42,17 @@
                  "name":"goout",
                  "properties":
                     {
-                     "go_position_x": 718,
-                     "go_position_y": 114,
+                     "go_position_x":"718",
+                     "go_position_y":"114",
                      "group":"goouts",
-                     "next_map":1,
+                     "next_map":"1",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -70,17 +71,18 @@
                  "id":8,
                  "name":"goout02",
                  "properties":
-                    {            
-                     "go_position_x": 62,
-                     "go_position_y": 120,
+                    {
+                     "go_position_x":"62",
+                     "go_position_y":"120",
                      "group":"goouts",
-                     "next_map":3,
+                     "next_map":"3",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -100,16 +102,17 @@
                  "name":"goout03",
                  "properties":
                     {
-                     "go_position_x": 224,
-                     "go_position_y": 299,
+                     "go_position_x":"224",
+                     "go_position_y":"299",
                      "group":"goouts",
-                     "next_map":4,
+                     "next_map":"4",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -129,10 +132,40 @@
                  "name":"goout04",
                  "properties":
                     {
-                     "go_position_x": 304,
-                     "go_position_y": 378,
+                     "go_position_x":"304",
+                     "go_position_y":"378",
                      "group":"goouts",
-                     "next_map":5,
+                     "next_map":"5",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":32,
+                 "y":193
+                }, 
+                {
+                 "gid":652,
+                 "height":16,
+                 "id":3,
+                 "name":"goout05",
+                 "properties":
+                    {
+                     "go_position_x": 496,
+                     "go_position_y": 540,
+                     "group":"goouts",
+                     "next_map":12,
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
@@ -148,8 +181,8 @@
                  "type":"goout",
                  "visible":true,
                  "width":16,
-                 "x":32,
-                 "y":193
+                 "x":176,
+                 "y":273
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -157,7 +190,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":3,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
