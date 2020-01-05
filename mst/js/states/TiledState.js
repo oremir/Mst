@@ -609,29 +609,48 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, options) {
         this.text_dialogue.fixedToCamera = true;
         
     } else {
-        this.game_state.prefabs.items.kill_stats();
-        this.game_state.prefabs.equip.hide();
-        
-        this.fixedToCamera = false;
-        this.reset(8, 285);
-        this.loadTexture("dialogue");
-        this.fixedToCamera = true;
-        
-        this.text_name.fixedToCamera = false;
-        this.text_name.x = 16;
-        this.text_name.y = 289;
-        this.text_name.fixedToCamera = true;
-        
-        this.text_dialogue.fixedToCamera = false;
-        this.text_dialogue.x = 16;
-        this.text_dialogue.y = 315;
-        this.text_dialogue.fixedToCamera = true;
+        if ( name == "hospod") {
+            this.fixedToCamera = false;
+            this.reset(8, 240);
+            this.loadTexture("dialogue_small");
+            this.fixedToCamera = true;
+
+            this.text_name.fixedToCamera = false;
+            this.text_name.x = 16;
+            this.text_name.y = 244;
+            this.text_name.fixedToCamera = true;
+
+            this.text_dialogue.fixedToCamera = false;
+            this.text_dialogue.x = 16;
+            this.text_dialogue.y = 270;
+            this.text_dialogue.fixedToCamera = true;
+        } else {
+            this.game_state.prefabs.items.kill_stats();
+            this.game_state.prefabs.equip.hide();
+
+            this.fixedToCamera = false;
+            this.reset(8, 285);
+            this.loadTexture("dialogue");
+            this.fixedToCamera = true;
+
+            this.text_name.fixedToCamera = false;
+            this.text_name.x = 16;
+            this.text_name.y = 289;
+            this.text_name.fixedToCamera = true;
+
+            this.text_dialogue.fixedToCamera = false;
+            this.text_dialogue.x = 16;
+            this.text_dialogue.y = 315;
+            this.text_dialogue.fixedToCamera = true;
+        }
+            
+
     }
     
     this.visible = true;
     //this.alpha = 0.7;
     this.text_name.text = p_name;
-    console.log("p_name: " + p_name);
+    console.log("name: " + name + " p_name: " + p_name);
     this.text_dialogue.text = text;
 };
 

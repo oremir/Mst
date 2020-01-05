@@ -22,6 +22,7 @@ Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
     switch (name) {
         case "health": 
             text = this.game_state.prefabs.player.stats.health + "/" + this.game_state.prefabs.player.stats.health_max;
+            text += " S:" + this.game_state.prefabs.player.stats.stress;
             this.text_health = this.game_state.game.add.text(this.x + 3, this.y + 13, text, text_style);
             this.text_health.fixedToCamera = true;
             
@@ -42,6 +43,7 @@ Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
             
             this.timer_moon = this.game_state.game.time.create(false);
             
+            console.log("timer_moon>");
             console.log(this.timer_moon);
 //            if (this.game_state.prefabs.player.stats.moon_loop < 1) {
 //                console.log("Moon start init");
@@ -293,11 +295,22 @@ Mst.ShowStatWithSprite.prototype.hide_window = function () {
 
 Mst.ShowStatWithSprite.prototype.subtract_moon = function () {
     "use strict";
+    var moon_num;
+    
     this.game_state.prefabs.player.stats.moon--;
+    moon_num = this.game_state.prefabs.player.stats.moon;
+    
+    if (moon_num < 1) {
+        this.game_state.prefabs.player.stats.moon = 0;
+    }
+    
     if (!this.timer_moon.running && this.game_state.prefabs.player.stats.moon_loop < 1) {
         console.log("Moon start init");
         this.timer_moon.loop(180000, this.update_timer_moon, this);
         this.timer_moon.start();
+        this.game_state.prefabs.player.stats.moon_loop = 180000;
+    } else {
+        this.game_state.prefabs.player.stats.moon_loop = this.game_state.prefabs.moon.timer_moon.duration.toFixed(0);
     }
 };
 
@@ -320,10 +333,12 @@ Mst.ShowStatWithSprite.prototype.update_timer_moon = function () {
             }
         } else {
             this.game_state.prefabs.moon.timer_moon.stop();
+            this.game_state.prefabs.player.stats.moon_loop = 0;
         }
         this.game_state.prefabs.player.stats.moon_loop = 0;
     } else {
         this.game_state.prefabs.moon.timer_moon.stop();
+        this.game_state.prefabs.player.stats.moon_loop = 0;
     }
 };
 

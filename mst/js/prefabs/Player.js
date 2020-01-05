@@ -105,9 +105,27 @@ Mst.Player = function (game_state, name, position, properties) {
         equip: properties.equip || -1,
         items: properties.items || load_player.properties.items
     };
+    
+    var dt = new Date();
+    var tt = dt.getTime();
+    console.log("Time: " + properties.time + " " + tt + " " + (tt - properties.time));
+    
+    this.stats.moon_loop -= (tt - properties.time);
+    if (this.stats.moon_loop < 1) {
+        var p_loop = - this.stats.moon_loop;
+        var new_moon = Math.floor(p_loop/180000);
+        new_moon += this.stats.moon;
+        if (new_moon >= this.stats.moon_max) {
+            this.stats.moon = this.stats.moon_max;
+            this.stats.moon_loop = 0;
+        } else {
+            this.stats.moon = new_moon;
+            this.stats.moon_loop = 180000 - (p_loop % 180000);
+        }
+    }
 
     console.log("parse int moon");
-    console.log(this.stats.moon);
+    console.log(this.stats.moon + " loop:" + this.stats.moon_loop);
     
     this.save = {
         type: "player",
@@ -233,7 +251,7 @@ Mst.Player.prototype.update = function () {
     if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {
         if (this.stats.moon_loop > 0) {
             if (typeof (this.game_state.prefabs.moon.timer_first.timer) === 'undefined') {
-                console.log("und");
+                console.log("moon und");
                 this.game_state.prefabs.moon.timer_first = this.game_state.game.time.events.add(this.stats.moon_loop, this.game_state.prefabs.moon.update_timer_moon, this);
             }
             //console.log("Timer: ")
@@ -247,6 +265,7 @@ Mst.Player.prototype.update = function () {
         this.save.properties.moon_loop = time_str;
     } else {
         this.game_state.prefabs.moon.text_moon.text = this.stats.moon + "/" + this.stats.moon_max;
+        this.save.properties.moon_loop = 0;
     }
     
     this.save.x = this.x;
@@ -362,37 +381,40 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     player.add_exp("standard", 1);
     player.add_exp("fighter", 1);
     player.add_ability("constitution", 3, 0);
-    player.add_stress(player, 4);
+    player.add_stress(4);
     
     this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
     enemy.knockbacki = 10;
     
-    player.subtract_health(player, 1);
+    player.subtract_health(1);
 };
 
-Mst.Player.prototype.add_health = function (player, quantity) {
+Mst.Player.prototype.add_health = function (quantity) {
     "use strict";
     
-    player.health += quantity;
+    this.health += quantity;
     
-    if (player.health > player.stats.health_max) {player.health = player.stats.health_max}
-    this.game_state.prefabs.health.text_health.text = player.health + "/" + player.stats.health_max;
+    if (this.health > this.stats.health_max) {this.health = this.stats.health_max}
+    this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 };
 
-Mst.Player.prototype.subtract_health = function (player, quantity) {
+Mst.Player.prototype.subtract_health = function (quantity) {
     "use strict";
     
-    player.health -= quantity;
+    this.health -= quantity;
     
-    player.add_exp("standard", 1);
-    player.add_ability("constitution", 3, 0);
-    player.stats.stress += 1;
+    this.add_exp("standard", 1);
+    this.add_ability("constitution", 3, 0);
+    this.stats.stress += 1;
     
-    this.game_state.prefabs.health.text_health.text = player.health + "/" + player.stats.health_max;
+    this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 
-    if (player.health < 1) {
+    if (this.health < 1) {
         this.save.properties.killed = true;
+        this.stats.stress = 0
         this.save.properties.stats.stress = 0;
+        this.health = this.stats.health_max;
+        this.stats.health = this.stats.health_hearts;
         this.save.properties.stats.health = this.stats.health_max;
         
         this.game_state.prefabs.moon.subtract_moon();
@@ -401,25 +423,29 @@ Mst.Player.prototype.subtract_health = function (player, quantity) {
     }
 };
 
-Mst.Player.prototype.add_stress = function (player, quantity) {
+Mst.Player.prototype.add_stress = function (quantity) {
     "use strict";
     
-    player.add_ability("constitution", 2, 0);
-    player.stats.stress += quantity;
+    this.add_ability("constitution", 2, 0);
+    this.stats.stress += quantity;
 
-    if (player.stats.stress > (50 + this.stats.abilities.constitution)) {
-        player.subtract_health(player, 1);
+    if (this.stats.stress > (50 + this.stats.abilities.constitution)) {
+        this.subtract_health(1);
     }
+
+    this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 };
 
-Mst.Player.prototype.subtract_stress = function (player, quantity) {
+Mst.Player.prototype.subtract_stress = function (quantity) {
     "use strict";
     
-    player.stats.stress -= quantity;
+    this.stats.stress -= quantity;
 
-    if (player.stats.stress < 0) {
-        player.stats.stress = 0;
+    if (this.stats.stress < 0) {
+        this.stats.stress = 0;
     }
+    
+    this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 };
 
 
@@ -464,7 +490,7 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
           case "woodcutter":
             pom_exp = Math.pow(1.4, level) * 350;
             break;
-          case "stonbreaker":
+          case "stonebreaker":
             pom_exp = Math.pow(1.4, level) * 350;
             break;
           default:
@@ -792,12 +818,21 @@ Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     this.save.x = go_position.x;
     this.save.y = go_position.y;
     
+    this.save.properties.stats.health = this.health;
+    this.save.properties.stats.health_max = this.stats.health_max;
+    this.save.properties.stats.stress = this.stats.stress;
+    this.save.properties.items = this.stats.items;
+    this.save.properties.equip = this.stats.equip;
+    
     dt = new Date();
     this.save.properties.time = dt.getTime();
     this.save.properties.moon = this.stats.moon;
+    console.log("moon> " + this.stats.moon);
     
     this.save.map.old_int = this.game_state.root_data.map_int;
     this.save.map.new_int = go_map_int;
+    
+    this.game_state.save.player = this.save;
     
     localStorage.setItem("player", JSON.stringify(this.save));
 };

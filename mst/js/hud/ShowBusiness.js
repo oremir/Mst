@@ -159,7 +159,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
 
             console.log("Index gold:" + index_gold);
 
-            if (item_cost != -1) {
+            if (index_gold != -1) {
 
                 // ------------------------------------- Player - gold ---------------------------------------
 

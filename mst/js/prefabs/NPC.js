@@ -144,9 +144,14 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
         }
 
         if (player.opened_business === "" && NPC.name === "merchant") {
-            console.log("test");
+            console.log("merchant");
             player.open_business(player, NPC);
             this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"]);
+        } 
+        
+        if (NPC.name === "hospod") {
+            console.log("hospod");
+            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"]);
         } 
 
         if (NPC.name !== "merchant") {

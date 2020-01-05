@@ -70,17 +70,23 @@ Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
     var player = this.game_state.prefabs.player;
     
     if (enemy.knockbacki < 1 && enemy.alive){
-        enemy.health -= 5;
-        player.stats.stress += 1;
-        player.add_exp("standard", 5);
-        player.add_exp("magic", 5);
+        var damage = 2 + (player.stats.abilities.intelligence/2);
+        damage += (player.stats.skills.standard.level*2) + (player.stats.skills.magic.level*3);
+        console.log("DM: " + damage);
+        enemy.health -= Math.floor(damage);
+        
+        var axp = Math.floor(damage/2);
+        if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
+        
+        player.add_exp("standard", axp);
+        player.add_exp("magic", axp);
         player.add_ability("strength", 3, 0);
         this.game_state.game.physics.arcade.moveToObject(enemy, player, -60);
         enemy.knockbacki = 5;
         
         if (enemy.health < 1) {
             player.add_exp("standard", enemy_health_max);
-            player.add_exp("magic", enemy.health_max / 2);
+            player.add_exp("magic", enemy_health_max / 2);
             player.add_item(23, 1); // gel
             
             enemy.kill();

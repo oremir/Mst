@@ -58,6 +58,12 @@ Mst.Chest.prototype.update = function () {
         if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 20 && this.game_state.prefabs.player.opened_chest === this.name) {
             this.close_chest();
         }
+        
+        if (this.game_state.prefabs.sword.alive && this.game_state.prefabs.sword.cut) {
+            if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.sword) < 18) {
+                this.game_state.prefabs.sword.cut_chest(this);
+            }
+        }
     }
     
     if (this.updated) {
@@ -252,6 +258,15 @@ Mst.Chest.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
     
     this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
+};
+
+Mst.Chest.prototype.test_item = function (item_frame, quantity) {
+    "use strict";
+    var index;
+    
+    index = this.game_state.prefabs.chestitems.test_item(item_frame, quantity);
+    console.log(index);
+    return index;
 };
 
 Mst.Chest.prototype.set_items = function (items) {

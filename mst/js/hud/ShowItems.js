@@ -260,12 +260,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
             
             switch(item_frame) {
                 case 33:
-                    player.add_health(player, 5);
-                    player.subtract_stress(player, 8);
+                    player.add_health(5);
+                    player.subtract_stress(8);
                     break;
                 case 40:
-                    player.add_health(player, 3);
-                    player.subtract_stress(player, 7);
+                    player.add_health(3);
+                    player.subtract_stress(7);
                     break;
             }
             break;
@@ -282,6 +282,7 @@ Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {
     
     console.log("Subtract: " + this.prefab_name + " " + this.name + " " + this.stat);
     
+    console.log(this.stats);
     item_frame = this.stats[item_index].frame;
     item_quantity = parseInt(this.stats[item_index].quantity);
         
@@ -403,6 +404,22 @@ Mst.ShowItems.prototype.index_by_frame = function (item_frame) {
     index_return.frame = parseInt(item_frame);
     index_return.quantity = parseInt(item_quantity);
     return index_return;
+};
+
+Mst.ShowItems.prototype.test_item = function (frame, quantity) {
+    "use strict";
+    var enough_quantity, item;
+    
+    enough_quantity = -1;
+    
+    item = this.index_by_frame(frame);
+    console.log(item);
+
+    if (item.quantity >= quantity) {
+        enough_quantity = item.index;
+    }
+        
+    return enough_quantity;
 };
 
 Mst.ShowItems.prototype.test_player_item = function (frame, quantity) {

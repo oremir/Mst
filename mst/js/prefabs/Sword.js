@@ -81,7 +81,10 @@ Mst.Sword.prototype.swing = function () {
         this.revive();
         
         if (this.cut_type === "magic") {
-            this.game_state.prefabs.player.add_stress(this.game_state.prefabs.player, 1);
+            this.game_state.prefabs.player.add_stress(1);
+            this.game_state.prefabs.player.add_exp("standard", 1);
+            this.game_state.prefabs.player.add_exp("magic", 1);
+            this.game_state.prefabs.player.add_ability("intelligence", 3, 0);
             
             this.create_bullet();
         }
@@ -94,17 +97,24 @@ Mst.Sword.prototype.hit_enemy = function (player, enemy) {
     var enemy_health_max = parseInt(enemy.health_max);
     
     if (enemy.knockbacki < 1 && enemy.alive) {
-        enemy.health -= 6;
-        player.add_stress(player, 1);
-        player.add_exp("standard", 6);
-        player.add_exp("fighter", 6);
+        var damage = 2 + (player.stats.abilities.strength/2);
+        damage += (player.stats.skills.standard.level*2) + (player.stats.skills.fighter.level*3);
+        console.log("DM: " + damage);
+        enemy.health -= Math.floor(damage);
+        
+        var axp = Math.floor(damage/2);
+        if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
+
+        player.add_stress(1);
+        player.add_exp("standard", axp);
+        player.add_exp("fighter", axp);
         player.add_ability("strength", 3, 0);
         this.game_state.game.physics.arcade.moveToObject(enemy, player, -90);
         enemy.knockbacki = 10;
         
         if (enemy.health < 1) {
             player.add_exp("standard", enemy_health_max);
-            player.add_exp("fighter", enemy.health_max / 2);
+            player.add_exp("fighter", enemy_health_max / 2);
             player.add_item(23, 1); // gel
             
             enemy.kill();
@@ -143,8 +153,8 @@ Mst.Sword.prototype.cut_wood = function (tool, wood) {
     if (this.game_state.map.getTile(x, y, "collision_forrest") !== null) {
         console.log("Cut wood");
         
-        player.add_stress(player, 1);
-        player.add_item(7, 1); // wood
+        player.add_stress(1);
+        player.add_item(30, 1); // wood
         player.add_exp("standard", 2);
         player.add_exp("woodcutter", 1);
         player.add_ability("strength", 3, 0);
@@ -171,7 +181,7 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
     if (this.game_state.map.getTile(x, y, "collision_rock") !== null) {
         console.log("Cut stone");
         
-        player.add_stress(player, 1);
+        player.add_stress(1);
         player.add_item(21, 1); // stone
         player.add_exp("standard", 2);
         player.add_exp("stonebreaker", 1);
@@ -183,6 +193,42 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
         }
     }
     
+    this.cut = false;
+};
+
+Mst.Sword.prototype.cut_chest = function (chest) {
+    "use strict";
+    console.log("Cut chest");
+    console.log(chest);
+    
+    var player = this.game_state.prefabs.player;
+    
+    if (player.opened_chest !== "") {
+        if (player.opened_chest === chest.name) {
+            console.log(chest.closed_frame);
+            switch (chest.closed_frame) {
+                case 30:
+                    chest.closed_frame = 31;
+                    chest.opened_frame = 31;
+                    chest.frame = 31;
+                    chest.add_item(31,1);
+                    chest.updated = true;
+                break;
+                case 31:
+                    var index = chest.test_item(31,1);
+                    console.log(index);
+                    if (index > -1) {
+                        chest.subtract_item(index,1);
+                        chest.add_item(32,2);
+                        chest.updated = true;
+                    }
+                default:
+                break;
+            }
+        }
+    } else {
+        
+    }
     this.cut = false;
 };
 

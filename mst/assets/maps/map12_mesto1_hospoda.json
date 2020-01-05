@@ -94,6 +94,36 @@
                  "width":16,
                  "x":687,
                  "y":528
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":4,
+                 "name":"hospod",
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"hospod_12_1",
+                     "pool":"NPCs",
+                     "p_name":"Recepční Petra",
+                     "relations_allowed":"false",
+                     "region":"1",
+                     "offset":"18",
+                     "items":"6-21-1_2-5-1_0-19-1_4-5-1_23-21-1",
+                     "texture":"hospod"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":503,
+                 "y":480
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -101,7 +131,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

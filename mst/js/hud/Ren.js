@@ -56,6 +56,10 @@ Mst.Ren.prototype.show_options = function (options) {
                 text.text = "[přijmout]";
                 text.events.onInputDown.add(this.option_assign, this);
                 break;
+            case "lodging":
+                text.text = "[přespat]";
+                text.events.onInputDown.add(this.option_lodging, this);
+                break;
         }
         
         this.options.push(text);
@@ -119,6 +123,37 @@ Mst.Ren.prototype.option_assign = function (option) {
     update_quest = this.game_state.prefabs.player.update_quest("by_quest_name",this.quest.name);
     if (update_quest.accomplished) {
         this.game_state.hud.alert.show_alert("Podmínky úkolu jsou splněny!");
+    }
+};
+
+Mst.Ren.prototype.option_lodging = function () {
+    "use strict";
+    var index_gold, cost, constitution, player;
+    
+    cost = 10;
+    player = this.game_state.prefabs.player;
+    constitution = parseInt(player.stats.abilities.constitution)/2 + 50;
+    if (constitution < 100) {constitution = 100;}
+    
+    // ------------------------------------- test player gold --------------------------------------
+
+    index_gold = this.game_state.prefabs.items.test_player_gold(cost);
+
+    console.log("Index gold:" + index_gold);
+
+    if (index_gold != -1 && player.stats.moon > 0) {
+
+        // ------------------------------------- Player - gold ---------------------------------------
+
+        player.subtract_item(index_gold, cost);
+        
+        player.add_health(constitution);
+        player.subtract_stress(constitution);
+        this.game_state.prefabs.moon.subtract_moon();
+        this.game_state.save_data({ "x": 503, "y": 512 }, 12, "lodging");
+
+    } else {
+        // Na to nemas
     }
 };
 
