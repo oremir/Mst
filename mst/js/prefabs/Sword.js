@@ -206,21 +206,30 @@ Mst.Sword.prototype.cut_chest = function (chest) {
     if (player.opened_chest !== "") {
         if (player.opened_chest === chest.name) {
             console.log(chest.closed_frame);
+            console.log(this.frame);
             switch (chest.closed_frame) {
                 case 30:
                     chest.closed_frame = 31;
                     chest.opened_frame = 31;
                     chest.frame = 31;
-                    chest.add_item(31,1);
+                    chest.add_item(31, 1);
                     chest.updated = true;
                 break;
                 case 31:
-                    var index = chest.test_item(31,1);
+                    var index = chest.test_item(31, 1);
                     console.log(index);
                     if (index > -1) {
-                        chest.subtract_item(index,1);
+                        chest.subtract_item(index, 1);
                         chest.add_item(32,2);
                         chest.updated = true;
+                    } else {
+                        index = chest.test_item(32, 1);
+                        console.log(index);
+                        if (index > -1) {
+                            chest.subtract_item(index, 1);
+                            chest.add_item(24, 2);
+                            chest.updated = true;    
+                        }
                     }
                 default:
                 break;
