@@ -406,6 +406,28 @@ Mst.ShowItems.prototype.index_by_frame = function (item_frame) {
     return index_return;
 };
 
+Mst.ShowItems.prototype.in_chest_ord = function () {
+    "use strict";
+    var item_frame, item_quantity;
+    var item = {};
+    var output = [];
+    
+    for (var i = 0; i < this.stat_splited.length; i++) {
+        item_frame = parseInt(this.stat_splited[i].split("-")[0]);
+        item_quantity = parseInt(this.stat_splited[i].split("-")[1]);
+        item = {
+            f: item_frame,
+            q: item_quantity
+        };
+        output.push(item);
+    }
+    
+    output.sort(function(a, b){return a.f - b.f});
+    console.log(output);
+    
+    return output;
+};
+
 Mst.ShowItems.prototype.test_item = function (frame, quantity) {
     "use strict";
     var enough_quantity, item;

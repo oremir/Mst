@@ -119,6 +119,9 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
         this.game_state.prefabs.chestitems.show_initial_stats();
     } else {
         var game_state, name, usr_id, map, d, n, stat;
+        
+        var t = this;
+        
         game_state = this.game_state;
         name = this.name;
         usr_id = player.usr_id;
@@ -143,6 +146,16 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                 chest.set_items(items);
                 chest.set_stat(stat);
                 game_state.prefabs.chestitems.show_initial_stats();
+            
+            
+            
+        var ffa = t.in_chest_ord();
+        
+        var ffi = [{f: 7, q: 3}, {f: 21, q: 3}, {f: 23, q: 2}];
+        console.log(t.chest_compare(ffa, ffi));      
+            
+            
+            
             })
             .fail(function (data) {
                 console.log("Chest open error");
@@ -150,6 +163,7 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
             });
 
         console.log("save chest open");
+        
     }
 };
 
@@ -258,6 +272,35 @@ Mst.Chest.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
     
     this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
+};
+
+Mst.Chest.prototype.in_chest_ord = function () {
+    "use strict";
+    var output;
+    
+    output = this.game_state.prefabs.chestitems.in_chest_ord();
+    return output;
+};
+
+Mst.Chest.prototype.chest_compare = function (a, b) {
+    "use strict";
+    var output;
+    output = false;
+    
+    console.log(a); console.log(b);
+    
+    if (typeof (a) !== 'undefined' || typeof (b) !== 'undefined') {
+          if (a.length == b.length) {
+            for (var i = 0; i < a.length; i++) {
+                if (a.f == b.f) {
+                    output = (a.q == b.q);
+                }
+            } 
+        } 
+    }
+    
+ 
+    return output;
 };
 
 Mst.Chest.prototype.test_item = function (item_frame, quantity) {

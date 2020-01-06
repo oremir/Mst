@@ -119,7 +119,10 @@
         { "name": "Peč. maso", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Palice", "istool": "false", "properties": { "cut_type": "uni", "tool_fr_left": "8", "tool_fr_right": "8" } },
         { "name": "Kůže", "istool": "false", "properties": {} },
-        { "name": "Lišejník", "istool": "false", "properties": { "use_sub": "true" } }
+        { "name": "Lišejník", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Batoh", "istool": "false", "properties": {} },
+        { "name": "Odpad", "istool": "false", "properties": {} },
+        { "name": "Větev", "istool": "false", "properties": { "cut_type": "uni", "tool_fr_left": "9", "tool_fr_right": "9" } }
     ],
 	
 	"objects": { 
