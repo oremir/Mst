@@ -241,6 +241,20 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                 break;
                 case 4: //hul
                     switch (chest.closed_frame) {
+                        case 21: //kámen
+                            in_chest = chest.in_chest_ord();
+                            console.log(in_chest.length);
+                            
+                            if (in_chest.length < 1) {
+                                chest.get_chest(chest);
+                                index = player.test_item(21, 1);
+                                player.subtract_item(index, 1);
+                                index = player.unequip();
+                                player.subtract_item(index, 1);
+                                index = player.add_item(44, 1); // sekeromlat
+                                player.equip(index, 44);
+                            }
+                        break;
                         case 31: //špalek
                             in_chest = chest.in_chest_ord();
                             console.log(in_chest.length);

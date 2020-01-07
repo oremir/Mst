@@ -19,8 +19,8 @@
         "kratos_spritesheet": { "type": "spritesheet", "source": "assets/images/player/kratos_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "jaga_spritesheet": { "type": "spritesheet", "source": "assets/images/player/jaga_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 42 },
-        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 11 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 60 },
+        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 12 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
         "male_ren": { "type": "image", "source": "assets/images/ren/ren_male.png" },
@@ -122,7 +122,21 @@
         { "name": "Lišejník", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Batoh", "istool": "false", "properties": {} },
         { "name": "Odpad", "istool": "false", "properties": {} },
-        { "name": "Větev", "istool": "false", "properties": { "cut_type": "uni", "tool_fr_left": "9", "tool_fr_right": "9" } }
+        { "name": "Větev", "istool": "true", "properties": { "cut_type": "uni", "tool_fr_left": "9", "tool_fr_right": "9" } },
+        { "name": "Sekeromlat", "istool": "true", "properties": { "cut_type": "uni", "tool_fr_left": "10", "tool_fr_right": "11" } },
+        { "name": "Křesadlo", "istool": "false", "properties": {} },
+        { "name": "Hmoždíř", "istool": "false", "properties": {} },
+        { "name": "Měď. ruda", "istool": "false", "properties": {} },
+        { "name": "Cín. ruda", "istool": "false", "properties": {} },
+        { "name": "Uhlí", "istool": "false", "properties": {} },
+        { "name": "Měď", "istool": "false", "properties": {} },
+        { "name": "Cín", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 
