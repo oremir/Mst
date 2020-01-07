@@ -198,42 +198,68 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
 
 Mst.Sword.prototype.cut_chest = function (chest) {
     "use strict";
+    var player, index, in_chest;
+    
     console.log("Cut chest");
     console.log(chest);
     
-    var player = this.game_state.prefabs.player;
+    player = this.game_state.prefabs.player;
     
     if (player.opened_chest !== "") {
         if (player.opened_chest === chest.name) {
-            console.log(chest.closed_frame);
-            console.log(this.frame);
-            switch (chest.closed_frame) {
-                case 30:
-                    chest.closed_frame = 31;
-                    chest.opened_frame = 31;
-                    chest.frame = 31;
-                    chest.add_item(31, 1);
-                    chest.updated = true;
+            console.log("Chest frame: " + chest.closed_frame);
+            console.log("Tool frame: " + this.frame);
+            switch (this.frame) {
+                case 1: //sekera                    
+                    switch (chest.closed_frame) {
+                        case 30: //kmen
+                            chest.closed_frame = 31;
+                            chest.opened_frame = 31;
+                            chest.frame = 31;
+                            chest.add_item(31, 1); //špalek
+                            chest.updated = true;
+                        break;
+                        case 31: //špalek
+                            index = chest.test_item(31, 1);
+                            console.log(index);
+                            if (index > -1) {
+                                chest.subtract_item(index, 1);
+                                chest.add_item(32,2); //prkno
+                                chest.updated = true;
+                            } else {
+                                index = chest.test_item(32, 1);
+                                console.log(index);
+                                if (index > -1) {
+                                    chest.subtract_item(index, 1);
+                                    chest.add_item(24, 2); // hůl
+                                    chest.updated = true;    
+                                }
+                            }
+                        default:
+                        break;
+                    }                    
                 break;
-                case 31:
-                    var index = chest.test_item(31, 1);
-                    console.log(index);
-                    if (index > -1) {
-                        chest.subtract_item(index, 1);
-                        chest.add_item(32,2);
-                        chest.updated = true;
-                    } else {
-                        index = chest.test_item(32, 1);
-                        console.log(index);
-                        if (index > -1) {
-                            chest.subtract_item(index, 1);
-                            chest.add_item(24, 2);
-                            chest.updated = true;    
-                        }
+                case 4: //hul
+                    switch (chest.closed_frame) {
+                        case 31: //špalek
+                            in_chest = chest.in_chest_ord();
+                            console.log(in_chest.length);
+                            
+                            if (in_chest.length < 1) {
+                                chest.get_chest(chest);
+                                index = player.test_item(31, 1);
+                                player.subtract_item(index, 1);
+                                index = player.unequip();
+                                player.subtract_item(index, 1);
+                                index = player.add_item(38, 1); // palice
+                                player.equip(index, 38);
+                            }
+                        break;
                     }
-                default:
                 break;
+                
             }
+            
         }
     } else {
         

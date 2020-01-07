@@ -55,28 +55,32 @@ Mst.ShowEquip.prototype.equip = function (item_index, item_frame) {
     
     item_frame = parseInt(item_frame);
     
-    if(this.game_state.core_data.items[item_frame].istool) {
+    console.log(this.game_state.core_data.items[item_frame].istool === 'true');
+    
+    if(this.game_state.core_data.items[item_frame].istool === 'true') {
         this.game_state.prefabs.player.subtract_item(item_index, 1);
         
         this.unequip();
         this.game_state.prefabs.player.stats.equip = item_frame;
         this.game_state.prefabs.sword.reequip(item_frame);
-    }    
+    }
 };
 
 Mst.ShowEquip.prototype.unequip = function () {
     "use strict";
-    var item_frame;
+    var item_frame, item_index;
     console.log("Unequip: " + this.game_state.prefabs.player.stats.equip);
     
-    item_frame = parseInt(this.game_state.prefabs.player.stats.equip);    
+    item_index = -1;
+    item_frame = parseInt(this.game_state.prefabs.player.stats.equip);
     
     if (item_frame != -1) {
-        this.game_state.prefabs.player.add_item(item_frame, 1);
+        item_index = this.game_state.prefabs.player.add_item(item_frame, 1);
         
         this.game_state.prefabs.player.stats.equip = -1;
         this.game_state.prefabs.sword.reequip(-1);
-    }    
+    }
+    return item_index;
 };
 
 Mst.ShowEquip.prototype.hide = function () {

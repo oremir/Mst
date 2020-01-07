@@ -247,7 +247,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
             }
             break;
         case "equip":
-            this.game_state.prefabs.equip.equip(item_index, item_frame);
+            player.equip(item_index, item_frame);
             break;
         case "use":
             var use_sub = (this.game_state.core_data.items[item_frame].properties.use_sub === 'true');
@@ -314,8 +314,8 @@ Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
         item_quantity = parseInt(quantity);
     }
 
-    this.update_item(item_index, item_frame, item_quantity);
-    
+    item_index = this.update_item(item_index, item_frame, item_quantity);
+    return item_index;
 };
 
 Mst.ShowItems.prototype.update_item = function (item_index, item_frame, item_quantity) {
@@ -332,10 +332,12 @@ Mst.ShowItems.prototype.update_item = function (item_index, item_frame, item_qua
         } else {
             is_in_items = false;
             this.stat_splited.push(item_updated);
+            item_index = this.stat_splited.length - 1;
         }
     } else {
         is_in_items = false;
         this.stat_splited.splice(item_index, 1);
+        item_index = -1;
     }
     
     //console.log(this.stat_splited);
@@ -358,6 +360,8 @@ Mst.ShowItems.prototype.update_item = function (item_index, item_frame, item_qua
         this.kill_stats();
         this.show_initial_stats();
     }
+    
+    return item_index;
 };
 
 Mst.ShowItems.prototype.kill_stats = function () {

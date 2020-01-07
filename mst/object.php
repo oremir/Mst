@@ -47,7 +47,7 @@ switch ($type) {
                     case "OPEN":
                         $radek_l2 =  $radek_l2 . " Open|";
                         if ($live == 1) {
-                            if ($open == 0) {
+                            if ($open == 0 || $open == $uid) {
                                 $object = json_decode($row["JSON"]);
                                 $sql = "UPDATE `objects` SET open = '".$uid."', time = '".time()."' WHERE ID = ".$obj_id;
 

@@ -468,13 +468,34 @@ Mst.Player.prototype.open_business = function (player, person) {
 Mst.Player.prototype.add_item = function (item_frame, quantity) {
     "use strict";
     
-    this.game_state.prefabs.items.add_item(item_frame, quantity);
+    return this.game_state.prefabs.items.add_item(item_frame, quantity);
 };
 
 Mst.Player.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
     
     this.game_state.prefabs.items.subtract_item(item_index, quantity);
+};
+
+Mst.Player.prototype.test_item = function (item_frame, quantity) {
+    "use strict";
+    var index;
+    
+    index = this.game_state.prefabs.items.test_item(item_frame, quantity);
+    console.log(index);
+    return index;
+};
+
+Mst.Player.prototype.equip = function (item_index, item_frame) {
+    "use strict";
+    
+    this.game_state.prefabs.equip.equip(item_index, item_frame);
+};
+
+Mst.Player.prototype.unequip = function () {
+    "use strict";
+    
+    return this.game_state.prefabs.equip.unequip();
 };
 
 Mst.Player.prototype.add_exp = function (skill, quantity) {
