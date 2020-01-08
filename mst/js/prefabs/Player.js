@@ -477,6 +477,25 @@ Mst.Player.prototype.subtract_item = function (item_index, quantity) {
     this.game_state.prefabs.items.subtract_item(item_index, quantity);
 };
 
+Mst.Player.prototype.subtract_all = function (item_index) {
+    "use strict";
+    
+    return this.game_state.prefabs.items.subtract_all(item_index);
+};
+
+Mst.Player.prototype.put_all = function (content) {
+    "use strict";
+    var frame, quantity;
+    
+    if (content.length > 0) {
+        for (var i = 0; i < content.length; i++) {
+            frame = content[i].f;
+            quantity = content[i].q;
+            this.add_item(frame, quantity);
+        }
+    }
+};
+
 Mst.Player.prototype.test_item = function (item_frame, quantity) {
     "use strict";
     var index;

@@ -226,7 +226,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
 
                 // ------------------------------------- - item -----------------------------------------
                 
-                this.subtract_item(item_index, 1);
+                item_quantity = this.subtract_item(item_index, 1);
 
                 // ------------------------------------- + item -----------------------------------------
     
@@ -235,8 +235,27 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
                         
-                        if (chest_new.closed_frame == 3) {
-                            chest_new.add_item(item_frame, 1);
+                        switch (chest_new.closed_frame) {
+                            case 3: //věci - obecně
+                                chest_new.add_item(item_frame, 1);
+                            break;
+                            case 7: //dřevo
+                                if (item_quantity > 0) {
+                                    item_quantity = this.subtract_all(item_index);
+                                    chest_new.add_item(item_frame, item_quantity);
+                                }
+                            break;
+                                if (item_quantity > 0) {
+                                    item_quantity = this.subtract_all(item_index);
+                                    chest_new.add_item(item_frame, item_quantity);
+                                }
+                            break;
+                            case 30: //kmen
+                                if (item_quantity > 0) {
+                                    item_quantity = this.subtract_all(item_index);
+                                    chest_new.add_item(item_frame, item_quantity);
+                                }
+                            break;
                         }
                     } else {
                         this.game_state.prefabs.chestitems.add_item(item_frame, 1);
@@ -258,7 +277,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                 this.subtract_item(item_index, 1);
             }
             
-            switch(item_frame) {
+            switch (item_frame) {
                 case 33:
                     player.add_health(5);
                     player.subtract_stress(8);
@@ -292,6 +311,24 @@ Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {
     this.texts[item_index].text = item_quantity;
     
     this.update_item(item_index, item_frame, item_quantity);
+    
+    return item_quantity;
+};
+
+Mst.ShowItems.prototype.subtract_all = function (item_index) {
+    "use strict";
+    var item_frame, item_quantity;
+    
+    console.log("Subtract all: " + this.prefab_name + " " + this.name + " " + this.stat);    
+    console.log(this.stats);
+    console.log(this.stats[item_index]);
+    
+    item_frame = this.stats[item_index].frame;
+    item_quantity = parseInt(this.stats[item_index].quantity);
+    
+    this.update_item(item_index, item_frame, 0);
+    
+    return item_quantity;
 };
 
 Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
@@ -410,7 +447,7 @@ Mst.ShowItems.prototype.index_by_frame = function (item_frame) {
     return index_return;
 };
 
-Mst.ShowItems.prototype.in_chest_ord = function () {
+Mst.ShowItems.prototype.in_chest = function () {
     "use strict";
     var item_frame, item_quantity;
     var item = {};
@@ -426,6 +463,15 @@ Mst.ShowItems.prototype.in_chest_ord = function () {
         output.push(item);
     }
     
+    return output;
+};
+
+Mst.ShowItems.prototype.in_chest_ord = function () {
+    "use strict";
+    var output;
+    
+    output = this.in_chest();
+        
     output.sort(function(a, b){return a.f - b.f});
     console.log(output);
     

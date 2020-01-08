@@ -198,43 +198,102 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
 
 Mst.Sword.prototype.cut_chest = function (chest) {
     "use strict";
-    var player, index, in_chest;
+    var player, index, in_chest, tool_frame, recipe;
     
     console.log("Cut chest");
     console.log(chest);
     
     player = this.game_state.prefabs.player;
+    tool_frame = this.frame;
+    if (tool_frame == 2) {tool_frame = 1;}
     
     if (player.opened_chest !== "") {
         if (player.opened_chest === chest.name) {
             console.log("Chest frame: " + chest.closed_frame);
-            console.log("Tool frame: " + this.frame);
-            switch (this.frame) {
+            console.log("Tool frame: " + tool_frame);
+            switch (tool_frame) {
                 case 1: //sekera                    
                     switch (chest.closed_frame) {
+                        case 7: //dřevo
+                            in_chest = chest.in_chest_ord();
+                            chest.take_all();
+                            player.put_all(in_chest);
+                            chest.get_chest(chest);
+                        break;
                         case 30: //kmen
-                            chest.closed_frame = 31;
-                            chest.opened_frame = 31;
-                            chest.frame = 31;
-                            chest.add_item(31, 1); //špalek
-                            chest.updated = true;
+                            in_chest = chest.in_chest_ord();
+                            console.log(in_chest.length);
+                            
+                            if (in_chest.length < 1) {
+                                chest.closed_frame = 31;
+                                chest.opened_frame = 31;
+                                chest.frame = 31;
+                                chest.add_item(31, 1); //špalek
+                                chest.updated = true;
+                            }  else {
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
+                            }
                         break;
                         case 31: //špalek
-                            index = chest.test_item(31, 1);
+                            index = chest.test_item(30, 1); //kmen
                             console.log(index);
                             if (index > -1) {
                                 chest.subtract_item(index, 1);
-                                chest.add_item(32,2); //prkno
-                                chest.updated = true;
+                                chest.add_item(31, 2); //špalek
+                                chest.updated = true;  
                             } else {
-                                index = chest.test_item(32, 1);
+                                index = chest.test_item(31, 1);
                                 console.log(index);
                                 if (index > -1) {
                                     chest.subtract_item(index, 1);
-                                    chest.add_item(24, 2); // hůl
-                                    chest.updated = true;    
+                                    chest.add_item(32,2); //prkno
+                                    chest.updated = true;
+                                } else {
+                                    index = chest.test_item(32, 1);
+                                    console.log(index);
+                                    if (index > -1) {
+                                        chest.subtract_item(index, 1);
+                                        chest.add_item(24, 2); // hůl
+                                        chest.updated = true;    
+                                    } 
                                 }
                             }
+                        default:
+                        break;
+                    }                    
+                break;
+                case 3: //krumpáč                    
+                    switch (chest.closed_frame) {
+                        case 21: //kámen
+                            in_chest = chest.in_chest_ord();
+                            console.log(in_chest.length);
+                            
+                            if (in_chest.length < 1) {
+                                chest.closed_frame = 58;
+                                chest.opened_frame = 58;
+                                chest.frame = 58; //op. kámen
+                                chest.updated = true;
+                            }  else {
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
+                            }
+                        break;
+                        case 58: //op. kámen
+                            chest.closed_frame = 59;
+                            chest.opened_frame = 59;
+                            chest.frame = 59;
+                            chest.add_item(59, 1); //kam. blok
+                            chest.updated = true;
+                        break;
+                        case 59: //kam. blok
+                            chest.closed_frame = 60;
+                            chest.opened_frame = 60;
+                            chest.frame = 60; //kam. nádoba
+                            chest.updated = true;
+                        break;
                         default:
                         break;
                     }                    
@@ -253,6 +312,10 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                 player.subtract_item(index, 1);
                                 index = player.add_item(44, 1); // sekeromlat
                                 player.equip(index, 44);
+                            } else {
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
                             }
                         break;
                         case 31: //špalek
@@ -267,8 +330,33 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                 player.subtract_item(index, 1);
                                 index = player.add_item(38, 1); // palice
                                 player.equip(index, 38);
+                            } else {
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
                             }
                         break;
+                    }
+                break;
+                case 8: //palice
+                    switch (chest.closed_frame) {
+                        case 31: //špalek
+                            in_chest = chest.in_chest_ord();
+                            console.log(in_chest.length);
+                            
+                            if (in_chest.length > 0) {
+                                recipe = [{f: 24, q: 4}, {f: 32, q: 2}]; //4 hole, 2 prkna
+                                if (chest.chest_compare(in_chest, recipe)) {
+                                    index = chest.test_item(24, 4);
+                                    chest.subtract_item(index, 4);
+                                    index = chest.test_item(32, 2);
+                                    chest.subtract_item(index, 2);
+                                    chest.add_item(29, 1); // prac. stůl
+                                    chest.updated = true;
+                                }
+                            }
+                        break;
+                            
                     }
                 break;
                 

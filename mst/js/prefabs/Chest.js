@@ -154,16 +154,6 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                         chest.close_chest();
                         success = false;
                     }
-
-
-
-            var ffa = t.in_chest_ord();
-
-            var ffi = [{f: 7, q: 3}, {f: 21, q: 3}, {f: 23, q: 2}];
-            console.log(t.chest_compare(ffa, ffi));      
-
-
-
                 })
                 .fail(function (data) {
                     console.log("Chest open error");
@@ -237,8 +227,19 @@ Mst.Chest.prototype.get_chest = function (chest) {
             chest_name = chest.name;
             closed_frame = chest.closed_frame;
 
-            if (closed_frame !== 3) {
-                this.game_state.prefabs.player.add_item(closed_frame, 1);
+            switch(closed_frame) {
+                case 3: //věci 
+                
+                break;
+                case 7: //dřevo
+                    this.game_state.prefabs.player.add_item(32, 1); //prkno
+                break;
+                case 19: //ohrada
+                    this.game_state.prefabs.player.add_item(24, 1); //hůl
+                break;
+                default: //ostatní bedny
+                    this.game_state.prefabs.player.add_item(closed_frame, 1);
+                break;
             }
 
             //this.obj_id = 0;
@@ -303,12 +304,33 @@ Mst.Chest.prototype.subtract_item = function (item_index, quantity) {
     this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
 };
 
+Mst.Chest.prototype.subtract_all = function (item_index) {
+    "use strict";
+    
+    this.game_state.prefabs.chestitems.subtract_all(item_index);
+};
+
+Mst.Chest.prototype.take_all = function () {
+    "use strict";
+    var content;
+    
+    content = this.game_state.prefabs.chestitems.in_chest();
+    
+    if (content.length > 0) {
+        for (var i = content.length - 1; i > -1; i--) {
+            this.subtract_all(i);            
+        }
+    }
+    
+    return content;
+};
+
 Mst.Chest.prototype.in_chest_ord = function () {
     "use strict";
-    var output;
+    var content;
     
-    output = this.game_state.prefabs.chestitems.in_chest_ord();
-    return output;
+    content = this.game_state.prefabs.chestitems.in_chest_ord();
+    return content;
 };
 
 Mst.Chest.prototype.chest_compare = function (a, b) {

@@ -94,9 +94,21 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
             chest_new.closed_frame = 6;
             chest_new.opened_frame = 6;
             break;
+        case 7:
+            chest_new.closed_frame = 7;
+            chest_new.opened_frame = 7;
+            break;
         case 21:
             chest_new.closed_frame = 21;
             chest_new.opened_frame = 21;
+            break;
+        case 24:
+            chest_new.closed_frame = 19;
+            chest_new.opened_frame = 19;
+            break;
+        case 29:
+            chest_new.closed_frame = 29;
+            chest_new.opened_frame = 29;
             break;
         case 30:
             chest_new.closed_frame = 30;
@@ -105,6 +117,22 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
         case 31:
             chest_new.closed_frame = 31;
             chest_new.opened_frame = 31;
+            break;
+        case 32:
+            chest_new.closed_frame = 7;
+            chest_new.opened_frame = 7;
+            break;
+        case 58:
+            chest_new.closed_frame = 58;
+            chest_new.opened_frame = 58;
+            break;
+        case 59:
+            chest_new.closed_frame = 59;
+            chest_new.opened_frame = 59;
+            break;
+        case 60:
+            chest_new.closed_frame = 60;
+            chest_new.opened_frame = 60;
             break;
         default:
             chest_new.closed_frame = 3;
