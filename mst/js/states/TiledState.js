@@ -395,9 +395,16 @@ Mst.TiledState.prototype.keyOfName = function (name) {
 
 Mst.hud = function (game_state, name) {
     "use strict";
-    var text_style;
+    var text_style, name_img;
     
-    Phaser.Image.call(this, game_state.game, 273, 47, name);
+    console.log(name + " " + name.substr(0, 6));
+    if (name.substr(0, 6) == "alert_") {
+        name_img = "alert";
+    } else {
+        name_img = name;
+    }
+    
+    Phaser.Image.call(this, game_state.game, 273, 47, name_img);
     
     this.game_state = game_state;    
     this.game_state.groups.hud.add(this);    
@@ -446,12 +453,21 @@ Mst.hud = function (game_state, name) {
             this.fixedToCamera = true;
             
             this.alerts = [];
-            this.n_alert = 0;
+            this.alert_sprites = [];
             this.show_running = false;
+            this.timer_alert = this.game_state.game.time.create(false);
             
             break;
         default:
+            if (name.substr(0, 5) == "alert") {
+                console.log(name);
+
+                text_style = {"font": "12px Arial", "fill": "#FFFFFF"};
+                this.text_alert = this.game_state.game.add.text(275, 53, "", text_style);
+            }
+            
             this.fixedToCamera = true;
+            
             
     }
     
@@ -677,33 +693,77 @@ Mst.hud.prototype.hide_dialogue = function () {
     this.game_state.prefabs[this.dialogue_name].hide_ren();
 };
 
-Mst.hud.prototype.add_alert = function (text) {
+Mst.hud.prototype.show_alert = function (text) {
     "use strict";
     this.alerts.push(text);
+    console.log("Add alert:" + text);
+    console.log(this.alerts);
+    
+    if (this.alerts.length > 14) {
+        this.alerts.shift();
+    }
     
     if (!this.show_running) {
         this.show_running = true;
-        this.next_alert();
+    } else {
+        this.kill_alerts;
+    }
+    
+    this.show_initial_alerts();
+    
+    if (!this.timer_alert.running) {
+        //console.log("start timer alert");
+        this.timer_alert.loop(Phaser.Timer.SECOND * 1.6, this.next_alert, this);
+        this.timer_alert.start();
     }
 };
 
 Mst.hud.prototype.next_alert = function () {
     "use strict";
     var text;
-    text = this.alerts.shift();
-    this.hide_alert();
+    //console.log("next alert");
     
-    if (typeof (text) !== 'undefined') {
-        this.show_alert(text);
+    this.alerts.shift();
+    
+    this.kill_alerts();
+    
+    if (this.alerts.length > 0) {
+        this.show_initial_alerts();
     } else {
         this.show_running = false;
-        this.n_alert = 0;
+        this.timer_alert.stop();
     }
 };
 
-Mst.hud.prototype.show_alert = function (text) {
+Mst.hud.prototype.show_initial_alerts = function () {
+    var alert, i;
+    //console.log("show initial alerts");
+    alert = this;
+    i = 0;
+    
+    this.alerts.forEach(function (alert_text) {
+        alert.create_new_alert(i, alert_text);
+        i++;
+    });    
+};
+
+Mst.hud.prototype.kill_alerts = function () {
+    //console.log("kill alerts");
+    //console.log(this.alert_sprites);
+    this.alert_sprites.forEach(function (alert_sprite) {
+        //console.log(alert_sprite);
+        alert_sprite.text_alert.text = "";
+        alert_sprite.visible = false;
+        alert_sprite.kill();
+    });
+    
+    this.alert_sprites = [];
+};
+
+
+Mst.hud.prototype.create_new_alert = function (i, text) {
     "use strict";
-    var x, y, texture;
+    var x, y, texture, alert, length;
     x = this.orig_pos.x;
     y = this.orig_pos.y;
     
@@ -713,23 +773,37 @@ Mst.hud.prototype.show_alert = function (text) {
         texture = "alt_160_20";
     }
     
-    this.fixedToCamera = false;
-    this.reset(x, y); //this.reset(x, y + 20*this.n_alert);
-    this.loadTexture(texture);
-    this.fixedToCamera = true;
-    this.visible = true;
-    this.alpha = 0.7;
-    this.text_alert.fixedToCamera = false;
-    this.text_alert.x = x + 8;
-    this.text_alert.y = y + 2; //this.text_alert.y = y + 2 + 20*this.n_alert;
-    this.text_alert.fixedToCamera = true;
-    this.text_alert.text = text;
+    //console.log(this.game_state.groups.alerts);
+    alert = this.game_state.groups.alerts.getFirstDead();
+    //console.log(alert);
     
-    console.log(this.text_alert);
+    if (alert) {
+        // if there is a dead stat, just reset it
+        
+    } else {
+        // if there are no dead stats, create a new one
+        // stat sprite uses the same texture as the ShowStatWithSprite prefab
+        length = this.game_state.groups.alerts.length;
+        alert = new Mst.hud(this.game_state, "alert_" + length);
+        this.game_state.groups.alerts.add(alert);
+    }
     
-    this.n_alert++;
     
-    this.game_state.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.next_alert, this);
+    
+    alert.fixedToCamera = false;
+    alert.reset(x, y + 20*i); //this.reset(x, y + 20*this.n_alert);
+    alert.loadTexture(texture);
+    alert.fixedToCamera = true;
+    alert.visible = true;
+    alert.alpha = 0.7;
+    alert.text_alert.fixedToCamera = false;
+    alert.text_alert.x = x + 8;
+    alert.text_alert.y = y + 2 + 20*i; //this.text_alert.y = y + 2 + 20*this.n_alert;
+    alert.text_alert.fixedToCamera = true;
+    alert.text_alert.text = text;
+    
+    //console.log(alert.text_alert);
+    this.alert_sprites.push(alert);
 };
 
 Mst.hud.prototype.hide_alert = function () {

@@ -74,7 +74,8 @@
         "businessitems",
         "items",
         "quests",
-        "stats"
+        "stats",
+        "alerts"
         
     ],
     
