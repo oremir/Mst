@@ -1,6 +1,6 @@
 {
     "assets": {
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 62 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 82 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 12 },
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/player/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/player/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
@@ -139,7 +139,26 @@
         { "name": "Žel. kotlík", "istool": "false", "properties": {} },
         { "name": "Opr. kámen", "istool": "false", "properties": {} },
         { "name": "Kam. blok", "istool": "false", "properties": {} },
-        { "name": "Kam. nádoba", "istool": "false", "properties": {} }
+        { "name": "Kam. nádoba", "istool": "false", "properties": {} },
+        { "name": "Zlato", "istool": "false", "properties": {} },
+        { "name": "Konev prázd.", "istool": "true", "properties": {} },
+        { "name": "Konev pln.", "istool": "true", "properties": {} },
+        { "name": "Kam. pec", "istool": "false", "properties": {} },
+        { "name": "Kam. pec", "istool": "false", "properties": {} },
+        { "name": "Kam. pec", "istool": "false", "properties": {} },
+        { "name": "Čutora prázd.", "istool": "false", "properties": {} },
+        { "name": "Čutora pln.", "istool": "false", "properties": {} },
+        { "name": "Džbán pln.", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík pln.", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík pln.", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík pln.", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík pln.", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík pln.", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík pln.", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík na dř.", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík na dř.", "istool": "false", "properties": {} },
+        { "name": "Měď. kotlík pln. na dř.", "istool": "false", "properties": {} },
+        { "name": "Žel. kotlík pln. na dř.", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 

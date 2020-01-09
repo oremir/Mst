@@ -519,6 +519,7 @@ Mst.Player.prototype.unequip = function () {
 
 Mst.Player.prototype.add_exp = function (skill, quantity) {
     "use strict";
+    var text;
     
     function level_add(skill, exp, level) {
         var pom_exp;
@@ -562,6 +563,9 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
         this.stats.exp = this.stats.skills[skill].exp;
         this.stats.level = this.stats.skills[skill].level;
     }
+    
+    text = skill + " exp: +" + quantity;
+    this.game_state.hud.alert.show_alert(text);
 };
 
 Mst.Player.prototype.add_ability = function (ability, num1, num2) {

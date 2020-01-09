@@ -438,13 +438,15 @@ Mst.hud = function (game_state, name) {
             
             break;
         case "alert":
-            text_style = {"font": "12px Arial", "fill": "#FFFFFF", align: "center"};
+            this.orig_pos = {x: 8, y: 50};
+            text_style = {"font": "12px Arial", "fill": "#FFFFFF"};
             this.text_alert = this.game_state.game.add.text(275, 53, "", text_style);
-            this.text_alert.anchor.set(0.5);
-            this.anchor.set(0.5);
+            //this.text_alert.anchor.set(0.5);
+            //this.anchor.set(0.5);
             this.fixedToCamera = true;
             
             this.alerts = [];
+            this.n_alert = 0;
             this.show_running = false;
             
             break;
@@ -688,27 +690,44 @@ Mst.hud.prototype.add_alert = function (text) {
 Mst.hud.prototype.next_alert = function () {
     "use strict";
     var text;
-    text = this.alerts.shift(text);
+    text = this.alerts.shift();
     this.hide_alert();
     
     if (typeof (text) !== 'undefined') {
         this.show_alert(text);
     } else {
         this.show_running = false;
+        this.n_alert = 0;
     }
 };
 
 Mst.hud.prototype.show_alert = function (text) {
     "use strict";
+    var x, y, texture;
+    x = this.orig_pos.x;
+    y = this.orig_pos.y;
+    
+    if (text.length < 13) {
+        texture = "alt";
+    } else {
+        texture = "alt_160_20";
+    }
+    
     this.fixedToCamera = false;
-    this.reset(275, 50);
-    this.loadTexture("alt");
+    this.reset(x, y); //this.reset(x, y + 20*this.n_alert);
+    this.loadTexture(texture);
     this.fixedToCamera = true;
     this.visible = true;
     this.alpha = 0.7;
+    this.text_alert.fixedToCamera = false;
+    this.text_alert.x = x + 8;
+    this.text_alert.y = y + 2; //this.text_alert.y = y + 2 + 20*this.n_alert;
+    this.text_alert.fixedToCamera = true;
     this.text_alert.text = text;
     
     console.log(this.text_alert);
+    
+    this.n_alert++;
     
     this.game_state.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.next_alert, this);
 };
