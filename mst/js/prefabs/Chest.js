@@ -381,3 +381,22 @@ Mst.Chest.prototype.set_obj_id = function (obj_id) {
     this.obj_id = parseInt(obj_id);
     this.save.obj_id = this.obj_id;
 };
+
+Mst.Chest.prototype.collide_test = function () {
+    "use strict";
+//    var x, y;
+//    
+//    x = Math.round(this.x/16)*16;
+//    y = Math.round(this.y/16)*16;
+//    console.log(this.x + ":" + x + "|" + this.y + ":" + y);
+    //this.reset(x, y);
+    //this.game_state.game.physics.arcade.moveToXY(this, x, y, 10000, 1);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_tile(), null, this);
+    //console.log("Collision dist: " + dist);
+};
+
+Mst.Chest.prototype.collide_tile = function () {
+    "use strict";
+
+    console.log("Collision dist: " );
+};

@@ -234,6 +234,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     if (player.opened_chest === "") {
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
+                        chest_new.collide_test();
                         
                         switch (chest_new.closed_frame) {
                             case 3: //věci - obecně
@@ -293,6 +294,14 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
         case "buy":
             break;
     }
+};
+
+Mst.ShowItems.prototype.collide_tile = function () {
+    "use strict";
+    
+    console.log("chest collision");
+    var dist = this.game_state.game.physics.arcade.distanceBetween(chest, tile);
+    console.log("Collision dist: " + dist);
 };
 
 Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {

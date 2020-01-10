@@ -62,8 +62,8 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     var position_new, chest_new, name_new;
     
     position_new = {
-        x: (this.game_state.prefabs.player.x + (this.game_state.prefabs.player.direction_chest.x * 16)),
-        y: (this.game_state.prefabs.player.y + (this.game_state.prefabs.player.direction_chest.y * 16))
+        x: Math.round((this.game_state.prefabs.player.x - 8 + (this.game_state.prefabs.player.direction_chest.x * 16))/16)*16 + 8,
+        y: Math.round((this.game_state.prefabs.player.y + 8 + (this.game_state.prefabs.player.direction_chest.y * 16))/16)*16 - 8
     };
     
     console.log("create chest " + item_frame);
