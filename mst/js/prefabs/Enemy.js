@@ -9,6 +9,12 @@ Mst.Enemy = function (game_state, name, position, properties) {
     
     this.health_max = 40;
     this.health = this.health_max;
+    
+    this.en_attack = 2;
+    
+    
+    
+    
     this.knockbacki = 0;
     
     // saving previous x to keep track of walked distance
@@ -23,10 +29,44 @@ Mst.Enemy = function (game_state, name, position, properties) {
     
     this.scale.setTo(-properties.direction, 1);
 
-    this.animations.add("go", [0, 1], 5, true);
-    this.animations.play("go");
+    switch (properties.texture) {
+        case "slime_spritesheet":
+            this.animations.add("go", [0, 1], 5, true);
+            this.animations.play("go");
     
-    this.anchor.setTo(0.5);
+            this.anchor.setTo(0.5);
+        break;
+        case "rabite_spritesheet":
+            this.health_max = 100;
+            this.health = this.health_max;
+    
+            this.en_attack = 10;
+            
+            this.animations.add("go", [0, 1, 2, 3, 4, 5, 6], 10, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.7);
+        break;
+        case "wasp_spritesheet":
+            this.health_max = 150;
+            this.health = this.health_max;
+    
+            this.en_attack = 15;
+            
+            this.animations.add("go", [0, 1], 5, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);
+            
+            this.timer_sting = this.game_state.game.time.create(false);
+            this.timer_sting.loop(Phaser.Timer.SECOND * 0.6, this.create_bullet, this);
+            this.timer_sting.start();
+        break;
+    }
+    
+    this.b_pool = this.game_state.groups.enemybullets;
+
+
 };
 
 Mst.Enemy.prototype = Object.create(Mst.Prefab.prototype);
@@ -34,12 +74,17 @@ Mst.Enemy.prototype.constructor = Mst.Enemy;
 
 Mst.Enemy.prototype.update = function () {
     "use strict";
+    var direction;
+    
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
     //this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies.forEachAlive(null, this));
     this.game_state.groups.enemies.forEachAlive(function(one_enemy) {
-        this.game_state.game.physics.arcade.collide(this, one_enemy, this.knockback_enemy, null, this);
-    }, this)
+        this.game_state.game.physics.arcade.collide(this, one_enemy, this.knockback_by_other_enemy, null, this);
+    }, this);
+    
+    //console.log(this.name + " " + this.body.facing + " " + Math.sign(this.body.velocity.x));
+    this.scale.setTo(Math.sign(this.body.velocity.x), 1);
     
     if (this.knockbacki > 0) {
         this.knockbacki--;
@@ -65,16 +110,82 @@ Mst.Enemy.prototype.update = function () {
     
     if (this.game_state.prefabs.sword.alive) {
         if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.sword) < 18) {
-            this.game_state.prefabs.sword.hit_enemy(this.game_state.prefabs.player, this);
+            this.hit_enemy_sword(this.game_state.prefabs.player, this);
         }
     }
 };
 
-Mst.Enemy.prototype.knockback_enemy = function () {
+Mst.Enemy.prototype.knockback_by_other_enemy = function (enemy, o_enemy) {
     "use strict";
     
-    this.game_state.game.physics.arcade.moveToObject(this, this.game_state.prefabs.player, -100);
+    this.game_state.game.physics.arcade.moveToObject(enemy, this.game_state.prefabs.player, -100);
     this.knockbacki = 10;
+};
+
+Mst.Enemy.prototype.knockback_by_player = function (enemy, player) {
+    "use strict";
+    
+    this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
+    this.knockbacki = 10;
+};
+
+Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
+    "use strict";
+    
+    if (type === "magic") {
+        this.game_state.game.physics.arcade.moveToObject(enemy, player, -60);
+        enemy.knockbacki = 5;
+    } else {
+        this.game_state.game.physics.arcade.moveToObject(enemy, player, -90);
+        this.knockbacki = 10;
+    }
+
+};
+
+Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
+    var damage = 2 + (player.stats.abilities.strength/2);
+    damage += (player.stats.skills.standard.level*2) + (player.stats.skills.fighter.level*3);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    
+    this.hit_enemy(player, enemy, "fighter", "strength", damage);
+};
+
+Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
+    var damage = 2 + (player.stats.abilities.intelligence/2);
+    damage += (player.stats.skills.standard.level*2) + (player.stats.skills.magic.level*3);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    
+    this.hit_enemy(player, enemy, "magic", "intelligence", damage);
+};
+
+Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) {
+    "use strict";
+    
+    var enemy_health_max = parseInt(enemy.health_max);
+    
+    if (enemy.knockbacki < 1 && enemy.alive) {
+        enemy.health -= damage;
+        
+        var axp = Math.floor(damage/2);
+        if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
+
+        player.add_stress(1);
+        player.add_exp("standard", axp);
+        player.add_exp(type, axp);
+        player.add_ability(ability, 3, 0);
+        
+        enemy.knockback_by_hit(enemy, player, type);
+        
+        if (enemy.health < 1) {
+            player.add_exp("standard", enemy_health_max);
+            player.add_exp(type, enemy_health_max / 2);
+            player.add_item(23, 1); // gel
+            
+            enemy.kill();
+        }
+    }
 };
 
 Mst.Enemy.prototype.reset = function (position) {
@@ -95,5 +206,31 @@ Mst.Enemy.prototype.detect_player = function () {
     distance_to_player = this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player);
 
     return distance_to_player <= 200;
+};
+
+Mst.Enemy.prototype.create_bullet = function () {
+    "use strict";
+    var object_name, object_position, object_properties, object;
+    
+    object_position = {
+        x: (this.x + (Math.sign(this.body.velocity.x) * 10)),
+        y: (this.y )
+    };
+    
+    object_properties = {
+        direction: {"x": Math.sign(this.body.velocity.x), "y": 0},
+        texture: "sting",
+        firstframe: 0,
+        group: "enemybullets"
+    };
+    
+    object = this.b_pool.getFirstDead();
+        
+    if (!object) {
+        object_name = "bullet_" + this.b_pool.countLiving();
+        object = new Mst.Bullet(this.game_state, object_name, object_position, object_properties);
+    } else {
+        object.reset(object_position, object_properties);
+    }
 };
 

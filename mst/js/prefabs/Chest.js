@@ -77,9 +77,16 @@ Mst.Chest.prototype.update = function () {
             this.input.useHandCursor = false;
         }
         
+        console.log("Update1:");
+        console.log(this.name);
+        console.log(this.save);
+        
         this.save.properties.items = this.stats.items;
         this.save.properties.opened_frame = this.opened_frame;
         this.save.properties.closed_frame = this.closed_frame;
+        
+        console.log("Update2:");
+        console.log(this.save);
         
         var key;
         key = this.game_state.keyOfName(this.name);
@@ -113,44 +120,50 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
     "use strict";
     var success = true;
     
-    if (this.stat !== "open") {
-        this.frame = this.opened_frame;
-        player.opened_chest = this.name;
+    console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: " + chest.stats);
+    
+    if (chest.stat !== "open") {
+        chest.frame = chest.opened_frame;
+        player.opened_chest = chest.name;
 
-        if (this.obj_id === 0) {
-            this.game_state.prefabs.chestitems.show_initial_stats();
+        if (chest.obj_id === 0) {
+            chest.game_state.prefabs.chestitems.show_initial_stats();
         } else {
             var game_state, name, usr_id, map, d, n, stat;
 
-            var t = this;
-
-            game_state = this.game_state;
-            name = this.name;
+            //game_state = this.game_state;
+            //name = this.name;
             usr_id = player.usr_id;
             //map = this.game_state.root_data.map_int;
-            this.save.action = "OPEN";
+            
+            chest.save.properties.items = chest.stats.items;
+            chest.save.properties.opened_frame = chest.opened_frame;
+            chest.save.properties.closed_frame = chest.closed_frame;
+            chest.save.action = "OPEN";
 
             d = new Date();
             n = d.getTime();
 
-            console.log(this.save);
+            console.log(chest.save);
 
-            $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+            $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
                 .done(function (data) {
                     console.log("Chest open success");
                     console.log(data);
-                    var resp, items;
+                    var resp, items, properties;
                     resp = JSON.parse(data);
+                    properties = resp.obj.properties;
                     items = resp.obj.properties.items;
                     stat = resp.stat;
                     console.log(items);
 
-                    chest.set_items(items);
+                    chest.load_chest(properties, stat);
                     chest.set_stat(stat);
-                    game_state.prefabs.chestitems.show_initial_stats();
+                    chest.game_state.prefabs.chestitems.show_initial_stats();
                 
                     if (stat == 'open') {
                         console.log("Chest is open by other player");
+                        this.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
                         chest.close_chest();
                         success = false;
                     }
@@ -183,6 +196,9 @@ Mst.Chest.prototype.close_chest = function () {
     chest = this;
     name = this.name;
     usr_id = game_state.prefabs.player.usr_id;
+    this.save.properties.items = this.stats.items;
+    this.save.properties.opened_frame = this.opened_frame;
+    this.save.properties.closed_frame = this.closed_frame;
     this.save.action = "CLOSE";
 
     if (this.stat !== "open") {
@@ -258,12 +274,12 @@ Mst.Chest.prototype.get_chest = function (chest) {
 
             if (this.obj_id !== 0) {
                 usr_id = this.game_state.prefabs.player.usr_id;
-                this.save.action = "GET";
+                chest.save.action = "GET";
 
                 d = new Date();
                 n = d.getTime();
 
-                $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+                $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
                     .done(function (data) {
                         console.log("Chest get success");
                         console.log(data);
@@ -363,10 +379,13 @@ Mst.Chest.prototype.test_item = function (item_frame, quantity) {
     return index;
 };
 
-Mst.Chest.prototype.set_items = function (items) {
+Mst.Chest.prototype.load_chest = function (properties, stat) {
     "use strict";
     
-    this.stats.items = items;
+    this.stats.items = properties.items;
+    this.save.properties.items = this.stats.items;
+    
+    this.stat = stat;
 };
 
 Mst.Chest.prototype.set_stat = function (stat) {
@@ -384,19 +403,26 @@ Mst.Chest.prototype.set_obj_id = function (obj_id) {
 
 Mst.Chest.prototype.collide_test = function () {
     "use strict";
-//    var x, y;
-//    
-//    x = Math.round(this.x/16)*16;
-//    y = Math.round(this.y/16)*16;
-//    console.log(this.x + ":" + x + "|" + this.y + ":" + y);
-    //this.reset(x, y);
-    //this.game_state.game.physics.arcade.moveToXY(this, x, y, 10000, 1);
+    var test = false;
+    this.collide_t = false;
+
+    //console.log("Collision dist: ");
+    
+//    this.game_state.layers.collision.layer.data.forEach(function(tile) {
+//        console.log(tile);
+//    });
+    
+    //console.log(this.game_state.layers.collision.layer.data);
+    
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_tile(), null, this);
-    //console.log("Collision dist: " + dist);
+    console.log(this.collide_t);
+    return this.collide_t;
+    
 };
 
 Mst.Chest.prototype.collide_tile = function () {
     "use strict";
 
+    this.collide_t = true;
     console.log("Collision dist: " );
 };

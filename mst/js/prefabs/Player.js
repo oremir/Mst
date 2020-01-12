@@ -82,6 +82,10 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.quests = {};
     }
     
+    if (typeof (properties.keys) === 'undefined') {
+        properties.keys = [];
+    }
+    
 //    var dt = new Date();
 //    var tm = dt.getTime();
     
@@ -103,7 +107,8 @@ Mst.Player = function (game_state, name, position, properties) {
         places: properties.places,
         quests: properties.quests,
         equip: properties.equip || -1,
-        items: properties.items || load_player.properties.items
+        items: properties.items || load_player.properties.items,
+        keys: properties.keys
     };
     
     var dt = new Date();
@@ -381,12 +386,22 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     player.add_exp("standard", 1);
     player.add_exp("fighter", 1);
     player.add_ability("constitution", 3, 0);
-    player.add_stress(4);
+    player.add_stress(enemy.en_attack + 2);
     
-    this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
-    enemy.knockbacki = 10;
+    enemy.knockback_by_player(enemy, player);
     
-    player.subtract_health(1);
+    player.subtract_health(enemy.en_attack);
+};
+
+Mst.Player.prototype.hit_player_by_bullet = function (bullet, player) {
+    "use strict";
+    
+    player.add_exp("standard", 1);
+    player.add_exp("fighter", 1);
+    player.add_ability("constitution", 3, 0);
+    player.add_stress(bullet.en_attack + 2);
+    
+    player.subtract_health(bullet.en_attack);
 };
 
 Mst.Player.prototype.add_health = function (quantity) {

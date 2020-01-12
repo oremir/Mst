@@ -91,37 +91,6 @@ Mst.Sword.prototype.swing = function () {
     }
 };
 
-Mst.Sword.prototype.hit_enemy = function (player, enemy) {
-    "use strict";
-    
-    var enemy_health_max = parseInt(enemy.health_max);
-    
-    if (enemy.knockbacki < 1 && enemy.alive) {
-        var damage = 2 + (player.stats.abilities.strength/2);
-        damage += (player.stats.skills.standard.level*2) + (player.stats.skills.fighter.level*3);
-        console.log("DM: " + damage);
-        enemy.health -= Math.floor(damage);
-        
-        var axp = Math.floor(damage/2);
-        if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
-
-        player.add_stress(1);
-        player.add_exp("standard", axp);
-        player.add_exp("fighter", axp);
-        player.add_ability("strength", 3, 0);
-        this.game_state.game.physics.arcade.moveToObject(enemy, player, -90);
-        enemy.knockbacki = 10;
-        
-        if (enemy.health < 1) {
-            player.add_exp("standard", enemy_health_max);
-            player.add_exp("fighter", enemy_health_max / 2);
-            player.add_item(23, 1); // gel
-            
-            enemy.kill();
-        }
-    }
-};
-
 Mst.Sword.prototype.reequip = function (ef) {
     "use strict";
     this.equip_frame = parseInt(ef);
@@ -282,11 +251,29 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             }
                         break;
                         case 58: //op. kámen
-                            chest.closed_frame = 59;
-                            chest.opened_frame = 59;
-                            chest.frame = 59;
-                            chest.add_item(59, 1); //kam. blok
-                            chest.updated = true;
+                            index = chest.test_item(21, 1); //kámen
+                            console.log(index);
+                            if (index > -1) {
+                                chest.subtract_item(index, 1);
+                                chest.add_item(58, 2); //op. kámen
+                                chest.updated = true;  
+                            } else {
+                                index = chest.test_item(58, 1);
+                                console.log(index);
+                                if (index > -1) {
+                                    chest.subtract_item(index, 1);
+                                    chest.add_item(59,2); //kam. blok
+                                    chest.updated = true;
+                                } else {
+                                    index = chest.test_item(59, 1);
+                                    console.log(index);
+                                    if (index > -1) {
+                                        chest.subtract_item(index, 1);
+                                        chest.add_item(60, 1); //kam. nádoba
+                                        chest.updated = true;    
+                                    } 
+                                }
+                            }
                         break;
                         case 59: //kam. blok
                             chest.closed_frame = 60;
@@ -340,6 +327,20 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                 break;
                 case 8: //palice
                     switch (chest.closed_frame) {
+                        case 29: //prac. stůl
+                            in_chest = chest.in_chest_ord();
+                            console.log(in_chest.length);
+                            
+                            if (in_chest.length > 0) {
+                                recipe = [{f: 59, q: 20}]; //20 kam. blok
+                                if (chest.chest_compare(in_chest, recipe)) {
+                                    index = chest.test_item(59, 20);
+                                    chest.subtract_item(index, 20);
+                                    chest.add_item(64, 1); // kam. pec
+                                    chest.updated = true;
+                                }
+                            }
+                        break;
                         case 31: //špalek
                             in_chest = chest.in_chest_ord();
                             console.log(in_chest.length);

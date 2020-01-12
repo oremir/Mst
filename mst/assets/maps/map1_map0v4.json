@@ -84,7 +84,7 @@
                      "group":"spawners",
                      "pool":"enemies",
                      "spawn_time":{"min": 1, "max": 8},
-                     "texture":"slime_spritesheet",
+                     "texture":"rabite_spritesheet",
                      "walking_distance":100,
                      "walking_speed":50
                     },

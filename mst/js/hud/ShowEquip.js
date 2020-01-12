@@ -63,6 +63,8 @@ Mst.ShowEquip.prototype.equip = function (item_index, item_frame) {
         this.unequip();
         this.game_state.prefabs.player.stats.equip = item_frame;
         this.game_state.prefabs.sword.reequip(item_frame);
+    } else {
+        this.game_state.hud.alert.show_alert("To nejde uchopit!");
     }
 };
 

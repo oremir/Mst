@@ -21,6 +21,8 @@
         "kratos_spritesheet": { "type": "spritesheet", "source": "assets/images/player/kratos_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "jaga_spritesheet": { "type": "spritesheet", "source": "assets/images/player/jaga_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "rabite_spritesheet": { "type": "spritesheet", "source": "assets/images/rabite_spritesheet.png", "frame_width": 16, "frame_height": 32, "frames": 7 },
+        "wasp_spritesheet": { "type": "spritesheet", "source": "assets/images/wasp_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
         "male_ren": { "type": "image", "source": "assets/images/ren/ren_male.png" },
@@ -33,6 +35,7 @@
         "mirka_v_ren": { "type": "image", "source": "assets/images/ren/ren_mirka.png" },
         "aziza_a_ren": { "type": "image", "source": "assets/images/ren/ren_aziza.png" },
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
+        "sting": { "type": "image", "source": "assets/images/sting.png" },
         "blank_image": { "type": "image", "source": "assets/images/blank_image.png" },
         "black_image": { "type": "image", "source": "assets/images/black_image.png" },
         "health_image": { "type": "image", "source": "assets/images/heart-health.png" },
@@ -210,7 +213,7 @@
             },
             "chestitems": {
                 "type": "show_items",
-                "region": "center",
+                "region": "center_top_left",
                 "properties": {
                     "texture": "items_spritesheet",
                     "group": "hud",

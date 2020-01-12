@@ -97,14 +97,22 @@ Mst.ShowItems.prototype.update_stat = function (new_stat) {
 
 Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, quantity) {
     "use strict";
-    var stat_position, gframe, stat, stat_property, frame_int, text, text_style, text_dist_x, dupl_stat;
+    var stat_position, gframe, stat, stat_property, frame_int, text, text_style, text_dist_x, dupl_stat, stats_spacing_y, new_stats_length;
     dupl_stat = {};
     
     text_style = {"font": "12px Arial", "fill": "#FFFFFF"};
     // calculate the next stat position
     stat_position = new Phaser.Point(this.initial_position.x + (this.stats.length * this.stats_spacing.x),
                                      this.initial_position.y + (this.stats.length * this.stats_spacing.y));
-    //console.log(this.stats.length);
+    
+    //console.log(this.prefab_name);
+    if (this.prefab_name.substr(0, 5) === "chest") {
+        stats_spacing_y = Math.floor(this.stats.length/12) * this.stats_spacing.x;
+        new_stats_length = this.stats.length % 12;
+        stat_position = new Phaser.Point(this.initial_position.x + (new_stats_length * this.stats_spacing.x),
+                                         this.initial_position.y + stats_spacing_y);
+    }
+    //console.log(new_stats_length);
     //console.log(this.initial_position);
     //console.log(stat_position);
     
@@ -211,7 +219,7 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
 
 Mst.ShowItems.prototype.put_down_item = function (one_item) {
     "use strict";
-    var item_index, item_frame, item_quantity, other_item_prefab, is_not_new_chest, chest_new, player;
+    var item_index, item_frame, item_quantity, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
     
     console.log("put down");
     console.log(one_item);
@@ -234,29 +242,49 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     if (player.opened_chest === "") {
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
-                        chest_new.collide_test();
-                        
-                        switch (chest_new.closed_frame) {
-                            case 3: //věci - obecně
-                                chest_new.add_item(item_frame, 1);
-                            break;
-                            case 7: //dřevo
-                                if (item_quantity > 0) {
-                                    item_quantity = this.subtract_all(item_index);
-                                    chest_new.add_item(item_frame, item_quantity);
-                                }
-                            break;
-                                if (item_quantity > 0) {
-                                    item_quantity = this.subtract_all(item_index);
-                                    chest_new.add_item(item_frame, item_quantity);
-                                }
-                            break;
-                            case 30: //kmen
-                                if (item_quantity > 0) {
-                                    item_quantity = this.subtract_all(item_index);
-                                    chest_new.add_item(item_frame, item_quantity);
-                                }
-                            break;
+                        //this.game_state.game.physics.arcade.collide(chest_new, this.game_state.layers.collision, console.log("kolidy kolidy"), null, this);
+                        var a = this.game_state.layers.collision.getTiles(chest_new.x, chest_new.y, 3, 3);
+                        var b = false;
+                        console.log(a);
+                        a.forEach(function(tile) {
+                            console.log(tile.canCollide);
+                            if (tile.canCollide !== null) {
+                                b = true;
+                            }
+                        });
+                        console.log(b);
+                        //var testik = chest_new.collide_test();
+                        if (!b) {                        
+                            switch (chest_new.closed_frame) {
+                                case 3: //věci - obecně
+                                    chest_new.add_item(item_frame, 1);
+                                break;
+                                case 7: //dřevo
+                                    if (item_quantity > 0) {
+                                        item_quantity = this.subtract_all(item_index);
+                                        chest_new.add_item(item_frame, item_quantity);
+                                    }
+                                break;
+                                case 21: //kámen
+                                    if (item_quantity > 0) {
+                                        item_quantity = this.subtract_all(item_index);
+                                        chest_new.add_item(item_frame, item_quantity);
+                                    }
+                                break;
+                                case 30: //kmen
+                                    if (item_quantity > 0) {
+                                        item_quantity = this.subtract_all(item_index);
+                                        chest_new.add_item(item_frame, item_quantity);
+                                    }
+                                break;
+                            }
+                        } else {
+                            console.log("Sem to nejde polozit");
+                            this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                            if (chest_new.closed_frame == 3) {
+                                this.add_item(item_frame, 1);
+                            }
+                            chest_new.get_chest(chest_new);
                         }
                     } else {
                         this.game_state.prefabs.chestitems.add_item(item_frame, 1);

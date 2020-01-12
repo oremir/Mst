@@ -9,6 +9,8 @@ Mst.Bullet = function (game_state, name, position, properties) {
     this.health_max = 40;
     this.health = this.health_max;
     this.knockbacki = 0;
+    
+    this.en_attack = 2;
         
     this.game_state.game.physics.arcade.enable(this);
     this.body.bounce.setTo(1);
@@ -19,8 +21,18 @@ Mst.Bullet = function (game_state, name, position, properties) {
     
     this.anchor.setTo(0.5);
     
+    this.b_type = 2;
     this.angle = -45 * Math.abs(properties.direction.x) - 90 * properties.direction.x + 45 * Math.abs(properties.direction.y) - 90 * properties.direction.y;
+    
+    console.log(properties.texture);
+    if (properties.texture === "sting") {
+        this.b_type = 1;
+        this.angle = 0;
+        this.scale.setTo(Math.sign(this.body.velocity.x), 1);
+    }
     console.log("C " + properties.direction.x + ":" + properties.direction.y + " Bullet angle: " + this.angle);
+    
+    console.log(this.group);
 };
 
 Mst.Bullet.prototype = Object.create(Mst.Prefab.prototype);
@@ -31,7 +43,12 @@ Mst.Bullet.prototype.update = function () {
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.kill, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.hit_chest, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.hit_other_player, null, this);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_enemy, null, this);
+    if (this.group == "enemybullets") {
+        this.game_state.game.physics.arcade.collide(this, this.game_state.prefabs.player, this.hit_player, null, this);
+    } else {
+        this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_enemy, null, this);
+    }
+    
     
     
 };
@@ -48,6 +65,10 @@ Mst.Bullet.prototype.reset = function (position, properties) {
     this.body.velocity.y = properties.direction.y * this.walking_speed;
     
     this.angle = -45 * Math.abs(properties.direction.x) - 90 * properties.direction.x + 45 * Math.abs(properties.direction.y) - 90 * properties.direction.y;
+    if (this.b_type == 1) {
+        this.angle = 0;
+        this.scale.setTo(Math.sign(this.body.velocity.x), 1);
+    }
     console.log("R " + properties.direction.x + ":" + properties.direction.y + " Bullet angle: " + this.angle);
 };
 
@@ -63,35 +84,18 @@ Mst.Bullet.prototype.hit_other_player = function (bullet, other_player) {
     bullet.kill();
 };
 
+Mst.Bullet.prototype.hit_player = function (bullet, player) {
+    "use strict";
+    
+    player.hit_player_by_bullet(bullet, player);
+    bullet.kill();
+};
+
 Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
     "use strict";
     
-    var enemy_health_max = parseInt(enemy.health_max);
     var player = this.game_state.prefabs.player;
-    
-    if (enemy.knockbacki < 1 && enemy.alive){
-        var damage = 2 + (player.stats.abilities.intelligence/2);
-        damage += (player.stats.skills.standard.level*2) + (player.stats.skills.magic.level*3);
-        console.log("DM: " + damage);
-        enemy.health -= Math.floor(damage);
-        
-        var axp = Math.floor(damage/2);
-        if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
-        
-        player.add_exp("standard", axp);
-        player.add_exp("magic", axp);
-        player.add_ability("strength", 3, 0);
-        this.game_state.game.physics.arcade.moveToObject(enemy, player, -60);
-        enemy.knockbacki = 5;
-        
-        if (enemy.health < 1) {
-            player.add_exp("standard", enemy_health_max);
-            player.add_exp("magic", enemy_health_max / 2);
-            player.add_item(23, 1); // gel
-            
-            enemy.kill();
-        }
-    }
+    enemy.hit_enemy_magic(player, enemy);
     
     bullet.kill();
 };
