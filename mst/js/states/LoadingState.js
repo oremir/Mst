@@ -9,9 +9,10 @@ Mst.LoadingState = function () {
 Mst.prototype = Object.create(Phaser.State.prototype);
 Mst.prototype.constructor = Mst.LoadingState;
 
-Mst.LoadingState.prototype.init = function (core_data, map_data, root_data) {
+Mst.LoadingState.prototype.init = function (core_data, map_data, root_data, quest_data) {
     "use strict";
     this.core_data = core_data;
+    this.quest_data = quest_data;
     this.map_data = map_data;
     this.root_data = root_data;
 };
@@ -62,5 +63,5 @@ Mst.LoadingState.prototype.create = function () {
 //    console.log(this.login);
 //    alert(1);
     
-    this.game.state.start("GameState", true, false, this.core_data, this.map_data, this.root_data);
+    this.game.state.start("GameState", true, false, this.core_data, this.map_data, this.root_data, this.quest_data);
 };

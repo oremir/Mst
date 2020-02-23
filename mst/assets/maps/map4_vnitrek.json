@@ -79,12 +79,13 @@
                  "gid":10,
                  "height":16,
                  "id":5,
-                 "name":"nun",
+                 "name":"nun_1",
                  "properties":
                     {
                      "group":"NPCs",
-                     "unique_id":"nun0_4_1",
-                     "p_name":"Sestra Clara",
+                     "unique_id":"1",
+                     "p_name":"Sestra Clara",                        
+                     "stype":"nun",
                      "relations_allowed":"true",
                      "region":"1",
                      "pool":"NPCs",

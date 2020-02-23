@@ -16,10 +16,12 @@ Mst.NPC = function (game_state, name, position, properties) {
     console.log("NPC");
     //console.log(this);
     
-    this.unique_id = properties.unique_id;
+    this.unique_id = parseInt(properties.unique_id);
     this.p_name = properties.p_name;
+    this.stype = properties.stype;
     this.relations_allowed = (properties.relations_allowed === 'true');
     this.region = properties.region;
+    this.o_type = "NPC";
     
     this.stats = {
         items: properties.items || ""
@@ -45,12 +47,13 @@ Mst.NPC = function (game_state, name, position, properties) {
     
     var ren_name;
     
-    ren_name = name+"_ren";
+    ren_name = this.stype + "_ren";
     
     this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
         group: "ren", 
         texture: ren_name, 
         p_name: this.p_name, 
+        p_id: this.unique_id,
         dialogue_name: this.name
     });
 
@@ -62,6 +65,8 @@ Mst.NPC = function (game_state, name, position, properties) {
     this.bubble.events.onInputDown.add(this.hide_bubble, this);
     this.bubble.visible = false;
     this.bubble_showed = false;
+    
+    //this.test_quest();
 };
 
 Mst.NPC.prototype = Object.create(Mst.Prefab.prototype);
@@ -138,23 +143,27 @@ Mst.NPC.prototype.save_NPC = function () {
 
 Mst.NPC.prototype.touch_player = function (NPC, player) {
     "use strict";
+    var open = false;
+    
     if (!this.ren_sprite.visible) {
         if (this.relations_allowed) {
             player.update_relation(NPC, "NPC", 1);
         }
 
-        if (player.opened_business === "" && NPC.name === "merchant") {
+        if (player.opened_business === "" && NPC.stype === "merchant") {
             console.log("merchant");
             player.open_business(player, NPC);
-            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"]);
+            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"], "item");
+            open = true;
         } 
         
-        if (NPC.name === "hospod") {
+        if (NPC.stype === "hospod") {
             console.log("hospod");
-            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"]);
+            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"], "item");
+            open = true;
         } 
 
-        if (NPC.name !== "merchant") {
+        if (!open) {
             this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?");
         }
     }
@@ -173,11 +182,57 @@ Mst.NPC.prototype.close_business = function () {
     this.game_state.prefabs.player.opened_business = "";
 };
 
-Mst.NPC.prototype.test_quest = function () {
+Mst.NPC.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
-    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
-        this.show_bubble(1); // ! exclamation mark - quest
+    
+    var quests, owner_id, player, test_q, is_quest;
+    //console.log(this.game_state.quest_data);
+    quests = this.game_state.quest_data.quests;
+    player = this.game_state.prefabs.player;
+    is_quest = false;
+//    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
+//        this.show_bubble(3); // ! exclamation mark - quest
+//    }
+
+    for (var i = 0; i < quests.length; i++) {
+        owner_id = parseInt(quests[i].properties.owner);
+        console.log(quests[i]);
+        console.log("NPC ID: " + this.unique_id);
+        if (quests[i].properties.owner_type === "NPC" && owner_id === this.unique_id) {
+            console.log(quests[i]);
+            
+            test_q = player.test_quest("idfin", quests[i].qid);
+            
+            if (!test_q) {                
+                test_q = player.test_quest("idass", quests[i].name);
+                
+                if (test_q) {
+                    this.ren_sprite.quest = quests[i];
+                    this.ren_sprite.quest.state = "ass";
+                    this.show_bubble(4); // ! exclamation mark - quest assigned
+                    is_quest = true;
+                    break;
+                } else {
+                    test_q = player.test_quest("idacc", quests[i].name);
+                    if (test_q) {
+                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.quest.state = "acc";
+                        this.show_bubble(5); // ! question mark - quest accomplished
+                        is_quest = true;
+                        break;            
+                    } else {
+                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.quest.state = "pre";
+                        this.show_bubble(3); // ! exclamation mark - quest ready
+                        is_quest = true;
+                        break;            
+                    }
+                }
+            }
+        }
     }
+    
+    return is_quest;
 };
 
 Mst.NPC.prototype.hide_ren = function () {
@@ -188,9 +243,7 @@ Mst.NPC.prototype.hide_ren = function () {
         this.close_business();
     }
     
-    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
-        this.show_bubble(1); // ! exclamation mark - quest
-    } else {
+    if (typeof (this.ren_sprite.quest.state) === 'undefined') {
         this.hide_bubble();
     }
 };

@@ -104,7 +104,7 @@ switch ($type) {
                         $status = "error";
                         $radek_l2 =  $radek_l2 . "|Unknown Action: ".$action."\n";
                 } // --- end of switch ---
-            }
+            } // --- end of while ---
         } else {
             $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $obj_id . "|Chest| 0 results\n";
             
@@ -145,7 +145,7 @@ switch ($type) {
             if ($new_obj_id > 0) {
                 $new_obj = json_encode($object);
                                 
-                $sql = "UPDATE `objects` SET on_map = '".$new_map_int."', JSON = '".$new_obj."', time = '".time()."', open = 0, live = 1 WHERE ID = ".$new_obj_id;
+                $sql = "UPDATE `objects` SET on_map = '".$new_map_int."', name = '".$name."', JSON = '".$new_obj."', time = '".time()."', open = 0, live = 1 WHERE ID = ".$new_obj_id;
 
                 if ($mysqli->query($sql) === TRUE) {
                     $radek_l2 =  $radek_l2 . "|Record updated successfully\n";

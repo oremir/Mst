@@ -13,6 +13,7 @@ Mst.TiledState = function () {
         "NPC": Mst.NPC.prototype.constructor,
         "bullet": Mst.Bullet.prototype.constructor,
         "enemy_spawner": Mst.EnemySpawner.prototype.constructor,
+        "item_spawner": Mst.ItemSpawner.prototype.constructor,
         "chest_creator": Mst.ChestCreator.prototype.constructor,
         "chest": Mst.Chest.prototype.constructor,
         "sword": Mst.Sword.prototype.constructor,
@@ -31,11 +32,14 @@ Mst.TiledState = function () {
 Mst.TiledState.prototype = Object.create(Phaser.State.prototype);
 Mst.TiledState.prototype.constructor = Mst.TiledState;
 
-Mst.TiledState.prototype.init = function (core_data, map_data, root_data) {
+Mst.TiledState.prototype.init = function (core_data, map_data, root_data, quest_data) {
     "use strict";
     this.core_data = core_data;
+    this.quest_data = quest_data;
     this.map_data = map_data;
-    this.root_data = root_data;    
+    this.root_data = root_data;
+    
+    console.log(quest_data);
     
     this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     this.scale.pageAlignHorizontally = true;
@@ -159,15 +163,15 @@ Mst.TiledState.prototype.create = function () {
 
         // ......................... Map Objects ............................
         
+        console.log("Map objects:");
+        console.log(this.map.objects);
+        
         for (object_layer in this.map.objects) {
             if (this.map.objects.hasOwnProperty(object_layer)) {
                 // create layer objects
                 this.map.objects[object_layer].forEach(this.create_object, this);
             }
         }
-        
-        console.log("Map objects:");
-        console.log(this.map.objects);
         
         this.save = {
             player: {},
@@ -189,6 +193,16 @@ Mst.TiledState.prototype.create = function () {
             console.log(load_player.properties);
             this.create_object(load_player);
         }
+        
+        this.groups.NPCs.forEachAlive(function (NPC) {
+            console.log("Quest bubble: " + NPC.name);
+            NPC.test_quest();
+        }, this);
+        
+        this.groups.otherplayers.forEachAlive(function (otherplayer) {
+            console.log("Quest bubble: " + otherplayer.name);
+            otherplayer.test_quest();
+        }, this);
         
         // ......................... HUD Init 2 ..............................
         
@@ -277,7 +291,12 @@ Mst.TiledState.prototype.create_object = function (object) {
         }
     }
     
-    this.create_prefab(type, object.name, position, object.properties);
+    console.log("Prefab exist? " + object.name);
+    console.log(this.prefabs[object.name]);
+    
+    if (typeof(this.prefabs[object.name]) === 'undefined') {
+        this.create_prefab(type, object.name, position, object.properties);
+    }
 };
 
 Mst.TiledState.prototype.create_prefab = function (type, name, position, properties) {
@@ -353,19 +372,48 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map_int, save_s
     console.log("save");
 };
 
+Mst.TiledState.prototype.playerOfUsrID = function (usr_id) {
+    "use strict";
+    
+    console.log("playerOfUsrID:" + usr_id);
+    
+    var key, object_key, uid;
+    key = "";
+    for (object_key in this.prefabs) {
+//            console.log(object_key);
+//            console.log(objects[object_key]);
+//            console.log(usr_id);
+        if (typeof(this.prefabs[object_key].usr_id) != 'undefined') {
+            usr_id = parseInt(usr_id);
+            uid = parseInt(this.prefabs[object_key].usr_id);
+            if (uid == usr_id) {
+                key = object_key;
+                console.log(key);
+            }
+        }
+    }
+
+    return key;
+};
+
 Mst.TiledState.prototype.keyOfUsrID = function (usr_id) {
     "use strict";
     
-    var key, object_key;
+    console.log("keyOfUsrID:" + usr_id);
+    console.log(this.save.objects);
+    
+    var key, object_key, uid;
     key = "";
     for (object_key in this.save.objects) {
 //            console.log(object_key);
 //            console.log(objects[object_key]);
 //            console.log(usr_id);
         if (typeof(this.save.objects[object_key].usr_id) != 'undefined') {
-            if (this.save.objects[object_key].usr_id == usr_id) {
+            usr_id = parseInt(usr_id);
+            uid = parseInt(this.save.objects[object_key].usr_id);
+            if (uid == usr_id) {
                 key = object_key;
-//                    console.log(key);
+                console.log(key);
             }
         }
     }
@@ -376,16 +424,22 @@ Mst.TiledState.prototype.keyOfUsrID = function (usr_id) {
 Mst.TiledState.prototype.keyOfName = function (name) {
     "use strict";
     
+    console.log("keyOfName:" + name);
+    console.log(this.save.objects);
+    
     var key, object_key;
     key = "";
-    for (object_key in this.save.objects) {
-//            console.log(object_key);
-//            console.log(objects[object_key]);
-//            console.log(usr_id);
-        if (typeof(this.save.objects[object_key].name) != 'undefined') {
-            if (this.save.objects[object_key].name == name) {
-                key = object_key;
-//                    console.log(key);
+    
+    if (typeof(this.save) != 'undefined') {
+        for (object_key in this.save.objects) {
+    //            console.log(object_key);
+    //            console.log(objects[object_key]);
+    //            console.log(usr_id);
+            if (typeof(this.save.objects[object_key].name) != 'undefined') {
+                if (this.save.objects[object_key].name == name) {
+                    key = object_key;
+    //                    console.log(key);
+                }
             }
         }
     }
@@ -397,7 +451,7 @@ Mst.hud = function (game_state, name) {
     "use strict";
     var text_style, name_img;
     
-    console.log(name + " " + name.substr(0, 6));
+    //console.log(name + " " + name.substr(0, 6));
     if (name.substr(0, 6) == "alert_") {
         name_img = "alert";
     } else {
@@ -455,15 +509,20 @@ Mst.hud = function (game_state, name) {
             this.alerts = [];
             this.alert_sprites = [];
             this.show_running = false;
-            this.timer_alert = this.game_state.game.time.create(false);
             
             break;
         default:
             if (name.substr(0, 5) == "alert") {
-                console.log(name);
+                //console.log(name);
 
                 text_style = {"font": "12px Arial", "fill": "#FFFFFF"};
                 this.text_alert = this.game_state.game.add.text(275, 53, "", text_style);
+            
+                this.timer_alert = this.game_state.game.time.create(false);
+                this.i_pos = 0;
+
+                console.log("New alert!");
+                console.log(this);
             }
             
             this.fixedToCamera = true;
@@ -603,14 +662,14 @@ Mst.hud.prototype.hide_alt = function () {
     }   */ 
 };
 
-Mst.hud.prototype.show_dialogue = function (name, p_name, text, options) {
+Mst.hud.prototype.show_dialogue = function (name, p_name, text, type) {
     "use strict";
     this.game_state.prefabs.player.close_state.push("Dialogue");
     this.game_state.prefabs.player.close_context.push(this.name);
     
     this.dialogue_name = name;
     
-    if (this.game_state.hud.right_window.visible) {
+    if (type === 'item') {
         this.fixedToCamera = false;
         this.reset(8, 240);
         this.loadTexture("dialogue_small");
@@ -626,22 +685,22 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, options) {
         this.text_dialogue.y = 270;
         this.text_dialogue.fixedToCamera = true;
         
-    } else {
-        if ( name == "hospod") {
-            this.fixedToCamera = false;
-            this.reset(8, 240);
-            this.loadTexture("dialogue_small");
-            this.fixedToCamera = true;
-
-            this.text_name.fixedToCamera = false;
-            this.text_name.x = 16;
-            this.text_name.y = 244;
-            this.text_name.fixedToCamera = true;
-
-            this.text_dialogue.fixedToCamera = false;
-            this.text_dialogue.x = 16;
-            this.text_dialogue.y = 270;
-            this.text_dialogue.fixedToCamera = true;
+//    } else {
+//        if ( name == "hospod") {
+//            this.fixedToCamera = false;
+//            this.reset(8, 240);
+//            this.loadTexture("dialogue_small");
+//            this.fixedToCamera = true;
+//
+//            this.text_name.fixedToCamera = false;
+//            this.text_name.x = 16;
+//            this.text_name.y = 244;
+//            this.text_name.fixedToCamera = true;
+//
+//            this.text_dialogue.fixedToCamera = false;
+//            this.text_dialogue.x = 16;
+//            this.text_dialogue.y = 270;
+//            this.text_dialogue.fixedToCamera = true;
         } else {
             this.game_state.prefabs.items.kill_stats();
             this.game_state.prefabs.equip.hide();
@@ -660,7 +719,7 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, options) {
             this.text_dialogue.x = 16;
             this.text_dialogue.y = 315;
             this.text_dialogue.fixedToCamera = true;
-        }
+        //}
             
 
     }
@@ -686,6 +745,7 @@ Mst.hud.prototype.hide_dialogue = function () {
     this.text_dialogue.text = "";
     
     if (!this.game_state.hud.right_window.visible) {
+        this.game_state.prefabs.items.kill_stats();
         this.game_state.prefabs.items.show_initial_stats();
         this.game_state.prefabs.equip.show();
     }
@@ -699,71 +759,95 @@ Mst.hud.prototype.show_alert = function (text) {
     console.log("Add alert:" + text);
     console.log(this.alerts);
     
-    if (this.alerts.length > 14) {
-        this.alerts.shift();
-    }
+    this.next_alert();
     
-    if (!this.show_running) {
-        this.show_running = true;
-    } else {
-        this.kill_alerts;
-    }
-    
-    this.show_initial_alerts();
-    
-    if (!this.timer_alert.running) {
-        //console.log("start timer alert");
-        this.timer_alert.loop(Phaser.Timer.SECOND * 1.6, this.next_alert, this);
-        this.timer_alert.start();
-    }
+//    if (this.alerts.length > 14) {
+//        this.alerts.shift();
+//    }
+//
+//    if (!this.show_running) {
+//        this.show_running = true;
+//    } else {
+//        this.kill_alerts;
+//    }
+//
+//    this.show_initial_alerts();
+//
+//    if (!this.timer_alert.running) {
+//        //console.log("start timer alert");
+//        this.timer_alert.loop(Phaser.Timer.SECOND * 1.6, this.next_alert, this);
+//        this.timer_alert.start();
+//    }
 };
 
 Mst.hud.prototype.next_alert = function () {
     "use strict";
     var text;
-    //console.log("next alert");
+    console.log("next alert");
     
-    this.alerts.shift();
-    
-    this.kill_alerts();
-    
-    if (this.alerts.length > 0) {
-        this.show_initial_alerts();
-    } else {
-        this.show_running = false;
-        this.timer_alert.stop();
+    if (this.alert_sprites.length < 13) {
+        if (this.alerts.length > 0) {
+            text = this.alerts.shift();
+            this.create_new_alert(text);
+        }
     }
-};
-
-Mst.hud.prototype.show_initial_alerts = function () {
-    var alert, i;
-    //console.log("show initial alerts");
-    alert = this;
-    i = 0;
     
-    this.alerts.forEach(function (alert_text) {
-        alert.create_new_alert(i, alert_text);
-        i++;
-    });    
+//    
+//    this.alerts.shift();
+//    
+//    this.kill_alerts();
+//    
+//    if (this.alerts.length > 0) {
+//        this.show_initial_alerts();
+//    } else {
+//        this.show_running = false;
+//        this.timer_alert.stop();
+//    }
 };
 
-Mst.hud.prototype.kill_alerts = function () {
-    //console.log("kill alerts");
-    //console.log(this.alert_sprites);
-    this.alert_sprites.forEach(function (alert_sprite) {
-        //console.log(alert_sprite);
-        alert_sprite.text_alert.text = "";
-        alert_sprite.visible = false;
-        alert_sprite.kill();
-    });
+//Mst.hud.prototype.show_initial_alerts = function () {
+//    var alert, i;
+//    //console.log("show initial alerts");
+//    alert = this;
+//    i = 0;
+//    
+//    this.alerts.forEach(function (alert_text) {
+//        alert.create_new_alert(i, alert_text);
+//        i++;
+//    });    
+//};
+
+Mst.hud.prototype.kill_alert = function () {
     
-    this.alert_sprites = [];
+    this.text_alert.text = "";
+    this.visible = false;
+    this.timer_alert.stop();
+    this.kill();
+    
+    this.game_state.hud.alert.alert_sprites.splice(this);
+    console.log(this.game_state.hud.alert.alert_sprites);
+    
+    this.game_state.hud.alert.next_alert();
 };
 
 
-Mst.hud.prototype.create_new_alert = function (i, text) {
+//Mst.hud.prototype.kill_alerts = function () {
+//    //console.log("kill alerts");
+//    //console.log(this.alert_sprites);
+//    this.alert_sprites.forEach(function (alert_sprite) {
+//        //console.log(alert_sprite);
+//        alert_sprite.text_alert.text = "";
+//        alert_sprite.visible = false;
+//        alert_sprite.kill();
+//    });
+//    
+//    this.alert_sprites = [];
+//};
+
+
+Mst.hud.prototype.create_new_alert = function (text) {
     "use strict";
-    var x, y, texture, alert, length;
+    var i, x, y, texture, alert, length;
     x = this.orig_pos.x;
     y = this.orig_pos.y;
     
@@ -772,6 +856,14 @@ Mst.hud.prototype.create_new_alert = function (i, text) {
     } else {
         texture = "alt_160_20";
     }
+    
+    if (this.alert_sprites.length < 1) {
+        i = 0;
+    } else {
+        i = this.i_pos_cast() + 1;
+    }
+    
+    console.log("Alert i: " + i);
     
     //console.log(this.game_state.groups.alerts);
     alert = this.game_state.groups.alerts.getFirstDead();
@@ -788,7 +880,7 @@ Mst.hud.prototype.create_new_alert = function (i, text) {
         this.game_state.groups.alerts.add(alert);
     }
     
-    
+    console.log(alert);
     
     alert.fixedToCamera = false;
     alert.reset(x, y + 20*i); //this.reset(x, y + 20*this.n_alert);
@@ -801,16 +893,54 @@ Mst.hud.prototype.create_new_alert = function (i, text) {
     alert.text_alert.y = y + 2 + 20*i; //this.text_alert.y = y + 2 + 20*this.n_alert;
     alert.text_alert.fixedToCamera = true;
     alert.text_alert.text = text;
+    alert.i_pos = i;
+    
+    alert.timer_alert.add(Phaser.Timer.SECOND * 1.6, this.kill_alert, alert);
+    alert.timer_alert.start();
     
     //console.log(alert.text_alert);
     this.alert_sprites.push(alert);
+    console.log(this.alert_sprites);
 };
 
-Mst.hud.prototype.hide_alert = function () {
+Mst.hud.prototype.i_pos_cast = function () {
     "use strict";
-    this.visible = false;
-    this.text_alert.text = "";
+    var i_pom = 0;
+    var i_pos = 0;
+    
+    console.log(this.alert_sprites);
+
+    for (var i; i < this.alert_sprites.length; i++) {
+        i_pom = this.alert_sprites[i].i_pos;
+        if (i_pom > i_pos) {
+            i_pos = i_pom;
+        }
+    }
+    
+    console.log("i_pos " + i_pos);
+    
+    if (i_pos > 12) {
+        i_pos = 0;
+        
+        for (var i; i < this.alert_sprites.length; i++) {
+            i_pom = this.alert_sprites[i].i_pos;
+            if (i_pom == i_pos) {
+                i_pos++;
+            }
+        }
+    }
+    
+    console.log("i_pos " + i_pos);
+    
+    return i_pos;
 };
+
+
+//Mst.hud.prototype.hide_alert = function () {
+//    "use strict";
+//    this.visible = false;
+//    this.text_alert.text = "";
+//};
 
 /*Mst.hud.prototype.show_alt_act = function () {
     "use strict";

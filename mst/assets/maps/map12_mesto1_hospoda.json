@@ -99,13 +99,14 @@
                  "gid":1,
                  "height":16,
                  "id":4,
-                 "name":"hospod",
+                 "name":"hospod_2",
                  "properties":
                     {
                      "group":"NPCs",
-                     "unique_id":"hospod_12_1",
+                     "unique_id":"2",
                      "pool":"NPCs",
-                     "p_name":"Recepční Petra",
+                     "p_name":"Recepční Petra",                                                
+                     "stype":"hospod",
                      "relations_allowed":"false",
                      "region":"1",
                      "offset":"18",

@@ -1,0 +1,6 @@
+{
+    "quests" : [
+        {"type":"quest","name":"quest_0","x":"0","y":"0","properties":{"group":"quests","owner":"0","owner_type":"NPC","quest_text":"Získej 5 prken. Odměna: 20exp a 10zl","ending_conditions":{"type":"have","quantity":"5","what":"32"}, "reward":["exp_20","itm_1_10"]},"qid":"0"},
+        {"type":"quest","name":"quest_1","x":"0","y":"0","properties":{"group":"quests","owner":"45","owner_type":"player","quest_text":"Získej 5 kůží. Odměna: 20exp a 10zl","ending_conditions":{"type":"have","quantity":"5","what":"39"}, "reward":["exp_20","itm_1_10"]},"qid":"1"}
+    ]
+}

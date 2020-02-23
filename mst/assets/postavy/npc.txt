@@ -1,0 +1,60 @@
+{
+	"gid":360,
+	"height":16,
+	"id":1,
+	"name":"merchant_0",
+	"properties":
+	{
+		"group":"NPCs",
+		"unique_id":"0",
+		"pool":"NPCs",
+		"p_name":"Kupec Martin",
+		"relations_allowed":"false",
+		"region":"1",
+		"offset":"18",
+		"items":"6-21-1_2-5-1_0-19-1_4-5-1_23-21-1_53-21-1_45-21-1_94-21-1",
+		"texture":"merchant"
+	},
+	"propertytypes":
+	{
+		"group":"string",
+		"pool":"string",
+		"texture":"string"
+	},
+	"rotation":0,
+	"type":"NPC",
+	"visible":true,
+	"width":16,
+	"x":64,
+	"y":62
+},
+{
+	 "gid":10,
+	 "height":16,
+	 "id":5,
+	 "name":"nun_1",
+	 "properties":
+		{
+		 "group":"NPCs",
+		 "unique_id":"1",
+		 "p_name":"Sestra Clara",                        
+		 "stype":"nun",
+		 "relations_allowed":"true",
+		 "region":"1",
+		 "pool":"NPCs",
+		 "offset":"0",
+		 "texture":"nun"
+		},
+	 "propertytypes":
+		{
+		 "group":"string",
+		 "pool":"string",
+		 "texture":"string"
+		},
+	 "rotation":0,
+	 "type":"NPC",
+	 "visible":true,
+	 "width":16,
+	 "x":448,
+	 "y":236
+},

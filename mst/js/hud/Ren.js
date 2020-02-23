@@ -10,6 +10,7 @@ Mst.Ren = function (game_state, name, position, properties) {
     
     this.p_name = properties.p_name;
     this.dialogue_name = properties.dialogue_name;
+    this.p_id = properties.p_id;
     this.options = [];
     this.quest = {};
     
@@ -18,11 +19,11 @@ Mst.Ren = function (game_state, name, position, properties) {
 Mst.Ren.prototype = Object.create(Mst.Prefab.prototype);
 Mst.Ren.prototype.constructor = Mst.Ren;
 
-Mst.Ren.prototype.show_dialogue = function (text, options) {
+Mst.Ren.prototype.show_dialogue = function (text, options, type) {
     "use strict";
     this.show();
     
-    this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text);
+    this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text, type);
     
     if (typeof(options) !== 'undefined') {
         this.show_options(options);
@@ -91,20 +92,35 @@ Mst.Ren.prototype.option_quest = function (option) {
     var key, text;
     this.game_state.hud.dialogue.hide_dialogue_onclick();
     
-    this.game_state.groups.quests.forEach(function(quest) {
-        console.log(quest);
-        console.log(this.dialogue_name);
-        if (quest.owner.name === this.dialogue_name) {
-            console.log("Quest owner: " + quest.owner.name);
-            this.quest = quest;
-        }
-    }, this);
+//    this.game_state.groups.quests.forEach(function(quest) {
+//        console.log(quest);
+//        console.log(this.dialogue_name);
+//        if (quest.owner === this.p_id) {
+//            console.log("Quest owner: " + quest.owner);
+//            this.quest = quest;
+//        }
+//    }, this);
     
-    if (typeof (this.quest.quest_text) !== 'undefined') {
-        text = this.quest.quest_text;
-        this.show_dialogue(text, ["assign"]);
+    if (typeof (this.quest.state) !== 'undefined') {
+        if (this.quest.state === "pre") {
+            text = this.quest.properties.quest_text;
+            this.show_dialogue(text, ["assign"]);
+            this.game_state.prefabs[this.dialogue_name].show_bubble(3); // ! exclamation mark - quest ready
+        } else {
+            if (this.quest.state === "ass") {
+                this.show_dialogue("Tento  úkol není dosud dokončen!");
+                this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+            } else {
+                if (this.quest.state === "acc") {
+                    this.show_dialogue("Výborně! Tady máte odměnu!", [], "item");
+                    this.game_state.prefabs.player.finish_quest(this.quest);
+                    this.game_state.prefabs[this.dialogue_name].hide_bubble();
+                }
+            }
+        }
+
     } else {
-        this.game_state.hud.alert.show_alert("Žádný úkol nemám!");
+        this.show_dialogue("Žádný úkol nemám!");
     } 
 };
 
@@ -120,10 +136,12 @@ Mst.Ren.prototype.option_assign = function (option) {
     
     this.game_state.hud.dialogue.hide_dialogue_onclick();
     
-    update_quest = this.game_state.prefabs.player.update_quest("by_quest_name",this.quest.name);
-    if (update_quest.accomplished) {
-        this.game_state.hud.alert.show_alert("Podmínky úkolu jsou splněny!");
-    }
+    this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+    
+//    update_quest = this.game_state.prefabs.player.update_quest("by_quest_name",this.quest.name);
+//    if (update_quest.accomplished) {
+//        this.game_state.hud.alert.show_alert("Podmínky úkolu jsou splněny!");
+//    }
 };
 
 Mst.Ren.prototype.option_lodging = function () {

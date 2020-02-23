@@ -79,7 +79,10 @@ Mst.Player = function (game_state, name, position, properties) {
     }
     
     if (typeof (properties.quests) === 'undefined') {
-        properties.quests = {};
+        properties.quests = {
+            ass: {},
+            fin: []
+        };
     }
     
     if (typeof (properties.keys) === 'undefined') {
@@ -132,6 +135,13 @@ Mst.Player = function (game_state, name, position, properties) {
     console.log("parse int moon");
     console.log(this.stats.moon + " loop:" + this.stats.moon_loop);
     
+    this.o_exp_alert = {
+        timer: {},
+        alerts: {}
+    };
+    
+    this.o_exp_alert.timer = this.game_state.time.create(false);
+    
     this.save = {
         type: "player",
         name: name,
@@ -181,9 +191,14 @@ Mst.Player = function (game_state, name, position, properties) {
         'right': Phaser.KeyCode.D,
         'action': Phaser.KeyCode.X,
         'close': Phaser.KeyCode.C,
+        'change_type': Phaser.KeyCode.L,
         'attack': Phaser.KeyCode.F,
         'attack_alt': Phaser.Keyboard.ENTER
     });
+    
+    this.keys.action.onDown.add(this.key_action, this);
+    this.keys.close.onDown.add(this.key_close, this);
+    this.keys.change_type.onDown.add(this.key_change_type, this);
     
     this.close_state = [];
     this.close_context = [];
@@ -191,7 +206,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.action_state = "none";
     
     this.update_place();
-    this.quest_bubble();
+    //this.quest_bubble();
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -230,8 +245,9 @@ Mst.Player.prototype.update = function () {
         this.animations.stop();
     }
     
-    if (this.keys.action.isDown) { this.key_action(); }
-    if (this.keys.close.isDown) { this.key_close(); }
+    //if (this.keys.action.isDown) { this.key_action(); }
+    //if (this.keys.close.isDown) { this.key_close(); }
+    //if (this.keys.change_type.isDown) { this.key_change_type(); }
     
     if (this.keys.attack.isDown) { this.game_state.prefabs.sword.swing(); }
     if (this.keys.attack_alt.isDown) { this.game_state.prefabs.sword.swing(); }
@@ -335,6 +351,17 @@ Mst.Player.prototype.key_down = function () {
 
 Mst.Player.prototype.key_action = function () {
     "use strict";
+    var opened_chest = this.opened_chest;    
+    console.log(opened_chest);    
+    
+    if (opened_chest !== "") {
+        var chest = this.game_state.prefabs[opened_chest];
+        console.log(chest);
+        
+        if (chest.stats.items == "") {
+            chest.get_chest(chest);
+        }
+    }
     
 };
 
@@ -342,8 +369,8 @@ Mst.Player.prototype.key_close = function () {
     "use strict";
     var close_state, close_context;
     
-    if (this.close_not_delay) {
-        this.close_not_delay = false;
+    //if (this.close_not_delay) {
+        //this.close_not_delay = false;
         close_state = this.close_state.pop();
         close_context = this.close_context.pop();
         console.log(close_state);
@@ -356,21 +383,30 @@ Mst.Player.prototype.key_close = function () {
             break;
         }
 
-        this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.5, this.key_close_delay, this);
-    }
+        //this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.5, this.key_close_delay, this);
+    //}
 };
 
-Mst.Player.prototype.key_close_delay = function () {
+Mst.Player.prototype.key_change_type = function () {
     "use strict";
-    this.close_not_delay = true;
+    
+    if (this.game_state.prefabs.items.text_bot.text !== "") {
+        this.game_state.prefabs.items.change_put_type();
+    }    
 };
+
+
+//Mst.Player.prototype.key_close_delay = function () {
+//    "use strict";
+//    this.close_not_delay = true;
+//};
 
 
 Mst.Player.prototype.collide_other_player = function (player, other_player) {
     "use strict";
     
     if (this.opened_ren === "") {
-        other_player.collide_with_player(player);
+        other_player.collide_with_player(player, other_player);
     }
 };
 
@@ -382,11 +418,9 @@ Mst.Player.prototype.set_opened_ren = function (name) {
 
 Mst.Player.prototype.hit_player = function (player, enemy) {
     "use strict";
+    var stress = enemy.en_attack + 2;
     
-    player.add_exp("standard", 1);
-    player.add_exp("fighter", 1);
-    player.add_ability("constitution", 3, 0);
-    player.add_stress(enemy.en_attack + 2);
+    player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
     
     enemy.knockback_by_player(enemy, player);
     
@@ -395,11 +429,9 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
 
 Mst.Player.prototype.hit_player_by_bullet = function (bullet, player) {
     "use strict";
+    var stress = bullet.en_attack + 2;
     
-    player.add_exp("standard", 1);
-    player.add_exp("fighter", 1);
-    player.add_ability("constitution", 3, 0);
-    player.add_stress(bullet.en_attack + 2);
+    player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
     
     player.subtract_health(bullet.en_attack);
 };
@@ -549,6 +581,12 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
           case "stonebreaker":
             pom_exp = Math.pow(1.4, level) * 350;
             break;
+          case "forager":
+            pom_exp = Math.pow(1.4, level) * 340;
+            break;
+          case "magic":
+            pom_exp = Math.pow(1.4, level) * 380;
+            break;
           default:
             pom_exp = Math.pow(1.6, level) * 500;
             break;
@@ -579,13 +617,80 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
         this.stats.level = this.stats.skills[skill].level;
     }
     
-    text = skill + " exp: +" + quantity;
-    this.game_state.hud.alert.show_alert(text);
+    this.alert_exp(skill, quantity);
 };
+
+Mst.Player.prototype.level = function (skill) {
+    return parseInt(this.stats.skills[skill].level);
+};
+
+Mst.Player.prototype.work_rout = function (skill, ability, stress, stand_exp, skill_exp, abil_p) {
+    "use strict";
+
+    this.add_stress(stress);
+    this.add_exp("standard", stand_exp);
+    this.add_exp(skill, skill_exp);
+    this.add_ability(ability, abil_p, 0);
+};
+
+Mst.Player.prototype.alert_exp = function (skill, quantity) {
+    "use strict";
+    var text = skill + " exp: +" + quantity;
+    console.log(text);
+
+    if (!this.o_exp_alert.timer.running) {
+        console.log("Timer is not running");
+        this.game_state.hud.alert.show_alert(text);
+        
+        this.o_exp_alert.timer.loop(Phaser.Timer.SECOND * 1.8, this.alert_exp_done, this);
+        this.o_exp_alert.timer.start();
+    } else {
+        console.log("Timer is running");
+        if (this.o_exp_alert.alerts[skill] !== undefined) {
+            this.o_exp_alert.alerts[skill].q += quantity;
+        } else {
+            eval("this.o_exp_alert.alerts." + skill + " = {}");
+            this.o_exp_alert.alerts[skill].s = skill;
+            this.o_exp_alert.alerts[skill].q = quantity;
+        }
+    }
+};
+
+Mst.Player.prototype.alert_exp_done = function () {
+    "use strict";
+    var text, skill, iz;
+    
+    console.log("Timer end");
+    
+    var eal = Object.values(this.o_exp_alert.alerts);
+    iz = 0;
+    
+    for (var i = 0; i < eal.length; i++) {
+        if (eal[i].q > 0) {
+            skill = eal[i].s;
+            text =  skill + " exp: +" + eal[i].q;
+            this.game_state.hud.alert.show_alert(text);
+            iz += eal[i].q;
+            this.o_exp_alert.alerts[skill].q = 0;
+        }
+    }
+    
+    if (iz < 1) {
+        this.o_exp_alert.timer.stop();
+    }
+    
+    //this.o_exp_alert.timer.add(Phaser.Timer.SECOND * 3.5, this.alert_exp_done, this);
+    //this.o_exp_alert.timer.start();
+};
+
 
 Mst.Player.prototype.add_ability = function (ability, num1, num2) {
     "use strict";
     var quantity, rnd_test;
+    
+    if (typeof (this.stats.abilities[ability]) === 'undefined') {
+        this.stats.abilities[ability] = 8;
+    }
     
     this.stats.abilities[ability] = parseInt(this.stats.abilities[ability]);
     
@@ -660,26 +765,48 @@ Mst.Player.prototype.update_place = function () {
 
 Mst.Player.prototype.update_relation = function (person, type, exp) {
     "use strict";
-    var key, relation_selected;
+    var key, relation_selected, uid, ruid, rname;
     console.log("Update relation");
+    console.log(person);
+    
+    if (person.o_type === 'NPC') {
+        uid = person.unique_id;
+    } else {
+        uid = person.usr_id;
+    }
     
     for (key in this.stats.relations) {
         //console.log(this.stats.relations[key]);
         //if (parseInt(relation.map_int) === parseInt(map.map_int) && parseInt(relation.region) === parseInt(map.region)) {
-        if (this.stats.relations[key].name === person.name
-                && this.stats.relations[key].region === person.region
-                && this.stats.relations[key].type === type) {
-            relation_selected = this.stats.relations[key];
+        if (typeof (this.stats.relations[key].uid) === 'undefined') { // jen docasne !!!!!!!!
+            if (person.name === 'nun_1') {
+                rname = "nun";
+            }
+            if (this.stats.relations[key].name === rname
+                    && this.stats.relations[key].region === person.region
+                    && this.stats.relations[key].type === type) {
+                relation_selected = {
+                    name: person.p_name,
+                    uid: uid,
+                    type: type,
+                    exp: this.stats.relations[key].exp
+                };
+            }
+        } else {
+            ruid = parseInt(this.stats.relations[key].uid);
+            if (this.stats.relations[key].type === person.o_type && ruid === uid) {
+                relation_selected = this.stats.relations[key];
+            }
         }
+
     }
     
     //console.log(relation_selected);
     
     if (typeof (relation_selected) === 'undefined') {
         relation_selected = {
-            name: person.name,
-            p_name: person.p_name,
-            region: person.region,
+            name: person.p_name,
+            uid: uid,
             type: type,
             exp: 1
         };
@@ -693,31 +820,41 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
     //console.log(this.stats.relations);
 };
 
-Mst.Player.prototype.quest_bubble = function () {
-    "use strict";
-    
-    this.game_state.groups.NPCs.forEachAlive(function (NPC) {
-        console.log("Quest bubble: " + NPC.name);
-        NPC.test_quest();
-    }, this);
-};
+//Mst.Player.prototype.quest_bubble = function () {
+//    "use strict";
+//    
+//    this.game_state.groups.NPCs.forEachAlive(function (NPC) {
+//        console.log("Quest bubble: " + NPC.name);
+//        NPC.test_quest();
+//    }, this);
+//};
 
 Mst.Player.prototype.assign_quest = function (quest) {
     "use strict";
-    var new_quest;
+    var new_quest, key;
     new_quest = {
         name: quest.name,
-        owner: quest.owner,
-        ending_conditions: quest.ending_conditions,
-        accomplished: {},
-        type: "assigned",
-        reward: quest.reward
+        qid: quest.qid,
+        owner: quest.properties.owner,
+        ot: quest.properties.owner_type,
+        endc: quest.properties.ending_conditions,
+        acc: {
+            is: false,
+            q: 0
+        }
     };
     console.log(new_quest);
     
-    if (this.test_quest("assign", quest.name)) {
+    if (this.test_quest("notassign", quest)) {
         console.log("Assigned");
-        this.stats.quests[quest.name] = new_quest;
+        
+        if (typeof (this.stats.quests.ass) === 'undefined') {
+            this.stats.quests.ass = {};
+        }
+        this.stats.quests.ass[quest.name] = new_quest;
+        
+        key = this.game_state.playerOfUsrID(new_quest.owner);
+        this.game_state.prefabs[key].ren_sprite.quest.state = "ass";
     }
     this.save.properties.quests = this.stats.quests;
     
@@ -729,12 +866,22 @@ Mst.Player.prototype.test_quest = function (type, condition) {
     test = false;
     
     switch (type) {
-        case "assign":
-            if (typeof (this.stats.quests[condition]) === 'undefined') {
-                test = true;
-            } else {
-                if (this.stats.quests[condition].type === "completed") {
+        case "notassign":
+            if (typeof (this.stats.quests.ass) !== 'undefined') {
+                if (typeof (this.stats.quests.ass[condition.name]) === 'undefined') {
                     test = true;
+                    
+                    if (typeof (this.stats.quests.fin) !== 'undefined') {
+                        key = this.stats.quests.fin.indexOf(condition.qid);
+                        test = (key < 0);
+                    }
+                }
+            } else {
+                test = true;
+                 
+                if (typeof (this.stats.quests.fin) !== 'undefined') {
+                    key = this.stats.quests.fin.indexOf(condition.qid);
+                    test = (key < 0);
                 }
             }
             break;
@@ -742,10 +889,32 @@ Mst.Player.prototype.test_quest = function (type, condition) {
             for (key in this.stats.quests) {
                 console.log(this.stats.quests[key]);
                 if (this.stats.quests[key].type !== "completed") {
-                    if (this.stats.quests[key].owner.unique_id === condition) {
+                    if (this.stats.quests[key].owner === condition) {
                         test = true;
                     }
                 }
+            }
+            break;
+        case "idass":
+            if (typeof (this.stats.quests.ass) !== 'undefined') {
+                if (typeof (this.stats.quests.ass[condition]) !== 'undefined') {
+                    if (this.stats.quests.ass[condition].acc.is !== 'true') {
+                        test = true;
+                    }
+                }
+            } 
+            break;
+        case "idacc":
+            if (typeof (this.stats.quests.ass) !== 'undefined') {
+                if (typeof (this.stats.quests.ass[condition]) !== 'undefined') {
+                    test = (this.stats.quests.ass[condition].acc.is === 'true');
+                }
+            }
+            break;
+        case "idfin":
+            if (typeof (this.stats.quests.fin) !== 'undefined') {
+                key = this.stats.quests.fin.indexOf(condition);
+                test = (key > -1);
             }
             break;
     }
@@ -757,16 +926,16 @@ Mst.Player.prototype.test_quest = function (type, condition) {
 
 Mst.Player.prototype.update_quest = function (type, condition) {
     "use strict";
-    var item_frame, item, return_obj;
+    var item_frame, quantity, item, return_obj, quest, key;
     return_obj = {updated: false, accomplished: false};
     
     if (type === "by_quest_name") {
-        if(typeof (this.stats.quests[condition].ending_conditions.have) !== 'undefined') {
-            item_frame = parseInt(this.stats.quests[condition].ending_conditions.what);
+        if(typeof (this.stats.quests.ass[condition].ending_conditions.have) !== 'undefined') {
+            item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
             item = this.game_state.prefabs.items.index_by_frame(item_frame);
             
-            if (parseInt(this.stats.quests[condition].ending_conditions.have) < item.quantity) {
-                this.stats.quests[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
+            if (parseInt(this.stats.quests.ass[condition].ending_conditions.have) < item.quantity) {
+                this.stats.quests.ass[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
                 return_obj.updated = true;
                 return_obj.accomplished = true;
             } else {
@@ -775,92 +944,162 @@ Mst.Player.prototype.update_quest = function (type, condition) {
             }
         }
     } else {
-        this.stats.quests.forEach(function(quest) {
-            switch (quest.type) {
-                case "assigned":
-                    if (typeof (quest.ending_conditions[type]) !== 'undefined') {
-                        switch (type) {
-                            case "have":
-                                if (typeof (condition) === 'undefined') {
-                                    item_frame = parseInt(quest.ending_conditions.what);
-                                    item = this.game_state.prefabs.items.index_by_frame(item_frame);
-                                    condition = item.quantity;
-                                }
-                                if (parseInt(quest.ending_conditions[type]) <= condition) {
-                                    quest.accomplished[type] = quest.ending_conditions[type];
+        console.log(this.stats.quests.ass);
+        for (var q_name in this.stats.quests.ass) {
+            quest = this.stats.quests.ass[q_name];
+            console.log(quest);
+        //this.stats.quests.ass.forEach(function(quest) {
+            if (quest.acc.is !== 'true') {
+                switch (type) {
+                    case "have":
+                        if (quest.endc.type === 'have') {
+                            item_frame = parseInt(quest.endc.what);
+                            if (item_frame === condition.f) {
+                                quantity = parseInt(quest.endc.quantity);
+                                if (condition.q < quantity) {
+                                    return_obj.updated = true;
+                                    quest.acc.q = condition.q;
+                                } else {
                                     return_obj.updated = true;
                                     return_obj.accomplished = true;
-                                } else {
-                                    quest.accomplished[type] = condition;
-                                    return_obj.updated = true;
+                                    
+                                    quest.acc.is = 'true';
+                                    quest.acc.q = condition.q;
+                                    
+                                    key = this.game_state.playerOfUsrID(quest.owner);
+                                    if (key !== "") {
+                                        this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                        this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                    }
+                                    
+                                    //this.quest_bubble();
+                                    
+                                    this.game_state.hud.alert.show_alert("Úkol byl splněn!");
                                 }
-                                break;
-                            default: //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                if (typeof (quest.accomplished[type]) !== 'undefined') {
-                                    quest.accomplished[type] = 1;
-
-                                } else {
-                                    quest.accomplished[type] = parseInt(quest.accomplished[type]) + 1;
-                                }
-
-                                if (quest.accomplished[type] > (quest.ending_conditions[type] - 1)) {
-                                    quest.type = "accomplished";
-
-
-                                }
+                            }
                         }
-                    }
                     break;
-                case "accomplished":
-
-                    break;
+                }
             }
-        });  
+            console.log(quest);
+            
+//            switch (quest.type) {
+//                case "assigned":
+//                    if (typeof (quest.endc[type]) !== 'undefined') {
+//                        switch (type) {
+//                            case "have":
+//                                if (typeof (condition) === 'undefined') {
+//                                    item_frame = parseInt(quest.ending_conditions.what);
+//                                    item = this.game_state.prefabs.items.index_by_frame(item_frame);
+//                                    condition = item.quantity;
+//                                }
+//                                if (parseInt(quest.ending_conditions[type]) <= condition) {
+//                                    quest.accomplished[type] = quest.ending_conditions[type];
+//                                    return_obj.updated = true;
+//                                    return_obj.accomplished = true;
+//                                } else {
+//                                    quest.accomplished[type] = condition;
+//                                    return_obj.updated = true;
+//                                }
+//                                break;
+//                            default: //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//                                if (typeof (quest.accomplished[type]) !== 'undefined') {
+//                                    quest.accomplished[type] = 1;
+//
+//                                } else {
+//                                    quest.accomplished[type] = parseInt(quest.accomplished[type]) + 1;
+//                                }
+//
+//                                if (quest.accomplished[type] > (quest.ending_conditions[type] - 1)) {
+//                                    quest.type = "accomplished";
+//
+//
+//                                }
+//                        }
+//                    }
+//                    break;
+//                case "accomplished":
+//
+//                    break;
+//            }
+                
+        //});
+        }
     }
     
     
     this.save.properties.quests = this.stats.quests;
+    console.log(this.stats.quests);
             
     return return_obj;
 };
 
-Mst.Player.prototype.finish_quest = function (owner) {
+Mst.Player.prototype.finish_quest = function (quest) {
     "use strict";
-    var key, completed, quest_name, item_frame, item, quantity;
+    var key, completed, quest_name, qid, reward, rewa, item_frame, item, quantity;
     completed = false;
-    quest_name = "";
+    quest_name = quest.name;
+    qid = quest.qid;
+    reward = quest.properties.reward;
     
-    for (key in this.stats.quests) {
-        console.log(this.stats.quests[key]);
-        if (this.stats.quests[key].type !== "completed") {
-            if (this.stats.quests[key].owner.unique_id === owner) {
-                quest_name = key;
-            }
+    delete this.stats.quests.ass[quest_name];
+    if (typeof (this.stats.quests.fin) !== 'undefined') {
+        this.stats.quests.fin.push(qid);
+    } else {
+        this.stats.quests.fin = [];
+        this.stats.quests.fin.push(qid);
+    }
+    
+    console.log(this.stats.quests);
+    
+    for (var i = 0; i < reward.length; i++) {
+        rewa = reward[i].split("_");
+        
+        switch (rewa[0]) {
+            case 'exp':
+                quantity = parseInt(rewa[1]);
+                this.add_exp("standard", quantity);
+            break;
+            case 'itm':
+                item_frame = parseInt(rewa[1]);
+                quantity = parseInt(rewa[2]);
+                this.add_item(item_frame, quantity);
+            break;
         }
     }
     
-    if (quest_name !== "") {
-        if(typeof (this.stats.quests[quest_name].ending_conditions.have) !== 'undefined') {
-            item_frame = parseInt(this.stats.quests[quest_name].ending_conditions.what);
-            item = this.game_state.prefabs.items.index_by_frame(item_frame);
-            quantity = parseInt(this.stats.quests[quest_name].ending_conditions.have);
-            
-            if (quantity < item.quantity) {
-                this.stats.quests[quest_name].accomplished.have = quantity;
-                completed = true;
-                
-                this.subtract_item(item.index, quantity);
-                this.game_state.hud.alert.show_alert("-" + quantity + "x " + this.game_state.core_data.items[item_frame].name);
-                this.game_state.hud.alert.show_alert("Úkol byl dokončen!");
-            } else {
-                this.stats.quests[condition].accomplished.have = item.quantity;
-            }
-        }
-    }
-    
-    console.log(completed);
-            
-    return completed;
+        
+//    for (key in this.stats.quests) {
+//        console.log(this.stats.quests[key]);
+//        if (this.stats.quests[key].type !== "completed") {
+//            if (this.stats.quests[key].owner.unique_id === owner) {
+//                quest_name = key;
+//            }
+//        }
+//    }
+//    
+//    if (quest_name !== "") {
+//        if(typeof (this.stats.quests[quest_name].ending_conditions.have) !== 'undefined') {
+//            item_frame = parseInt(this.stats.quests[quest_name].ending_conditions.what);
+//            item = this.game_state.prefabs.items.index_by_frame(item_frame);
+//            quantity = parseInt(this.stats.quests[quest_name].ending_conditions.have);
+//            
+//            if (quantity < item.quantity) {
+//                this.stats.quests[quest_name].accomplished.have = quantity;
+//                completed = true;
+//                
+//                this.subtract_item(item.index, quantity);
+//                this.game_state.hud.alert.show_alert("-" + quantity + "x " + this.game_state.core_data.items[item_frame].name);
+//                this.game_state.hud.alert.show_alert("Úkol byl dokončen!");
+//            } else {
+//                this.stats.quests[condition].accomplished.have = item.quantity;
+//            }
+//        }
+//    }
+//    
+//    console.log(completed);
+//            
+//    return completed;
 };
 
 Mst.Player.prototype.save_player = function (go_position, go_map_int) {

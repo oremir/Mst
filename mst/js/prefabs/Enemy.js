@@ -28,13 +28,18 @@ Mst.Enemy = function (game_state, name, position, properties) {
     this.body.velocity.y = this.game_state.game.rnd.between(-20, 20);
     
     this.scale.setTo(-properties.direction, 1);
-
+    
+    console.log("Enemy texture:");
+    console.log(this.key);
+    
     switch (properties.texture) {
         case "slime_spritesheet":
             this.animations.add("go", [0, 1], 5, true);
             this.animations.play("go");
     
             this.anchor.setTo(0.5);
+            this.monster_type = "slime";
+            this.monster_loot = this.game_state.core_data.creatures["slime"].loot;
         break;
         case "rabite_spritesheet":
             this.health_max = 100;
@@ -46,6 +51,8 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.animations.play("go");
     
             this.anchor.setTo(0.7);
+            this.monster_type = "rabite";
+            this.monster_loot = this.game_state.core_data.creatures["rabite"].loot;
         break;
         case "wasp_spritesheet":
             this.health_max = 150;
@@ -61,6 +68,8 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.timer_sting = this.game_state.game.time.create(false);
             this.timer_sting.loop(Phaser.Timer.SECOND * 0.6, this.create_bullet, this);
             this.timer_sting.start();
+            this.monster_type = "wasp";
+            this.monster_loot = this.game_state.core_data.creatures["wasp"].loot;
         break;
     }
     
@@ -143,8 +152,8 @@ Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
 };
 
 Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
-    var damage = 2 + (player.stats.abilities.strength/2);
-    damage += (player.stats.skills.standard.level*2) + (player.stats.skills.fighter.level*3);
+    var damage = 2 + (player.stats.abilities.strength/5);
+    damage += player.stats.skills.standard.level + (player.stats.skills.fighter.level*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -152,8 +161,8 @@ Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
 };
 
 Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
-    var damage = 2 + (player.stats.abilities.intelligence/2);
-    damage += (player.stats.skills.standard.level*2) + (player.stats.skills.magic.level*3);
+    var damage = 2 + (player.stats.abilities.intelligence/5);
+    damage += player.stats.skills.standard.level + (player.stats.skills.magic.level*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -171,19 +180,26 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
         var axp = Math.floor(damage/2);
         if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
 
-        player.add_stress(1);
-        player.add_exp("standard", axp);
-        player.add_exp(type, axp);
-        player.add_ability(ability, 3, 0);
+        player.work_rout(type, ability, 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
         
         enemy.knockback_by_hit(enemy, player, type);
         
         if (enemy.health < 1) {
             player.add_exp("standard", enemy_health_max);
             player.add_exp(type, enemy_health_max / 2);
-            player.add_item(23, 1); // gel
             
+            var i_frame;
+            var m_length = this.monster_loot.length;
+            for (var i = 0; i < m_length; i++) {
+                i_frame = this.monster_loot[i];
+                player.add_item(i_frame, 1); // loot
+            }
+                        
             enemy.kill();
+            if (enemy.key == "wasp_spritesheet") {
+                enemy.timer_sting.stop();
+            }
+            
         }
     }
 };
@@ -198,6 +214,13 @@ Mst.Enemy.prototype.reset = function (position) {
     
     this.body.velocity.x = this.game_state.game.rnd.between(-40, 50);
     this.body.velocity.y = this.game_state.game.rnd.between(-60, 30);
+
+    console.log("Reset Enemy key: " + this.key);
+    if (this.key == "wasp_spritesheet") {
+        this.timer_sting.loop(Phaser.Timer.SECOND * 0.6, this.create_bullet, this);
+        this.timer_sting.start();
+        console.log(this.timer_sting);
+    }
 };
 
 Mst.Enemy.prototype.detect_player = function () {

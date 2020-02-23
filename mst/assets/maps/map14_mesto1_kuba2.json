@@ -42,16 +42,17 @@
                  "name":"goout01",
                  "properties":
                     {
-                     "go_position_x": 544,
-                     "go_position_y": 547,
+                     "go_position_x":"544",
+                     "go_position_y":"547",
                      "group":"goouts",
-                     "next_map":13,
+                     "next_map":"13",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -75,6 +76,74 @@
                  "width":16,
                  "x":232,
                  "y":854
+                }, 
+                {
+                 "gid":769,
+                 "height":16,
+                 "id":4,
+                 "name":"voda01",
+                 "properties":
+                    {
+                     "group":"chests",
+                     "pool":"chests",
+                     "items":"",
+                     "obj_id":"18",
+                     "is_takeable":"false",
+                     "closed_frame":"80",
+                     "opened_frame":"80",
+                     "texture":"items_spritesheet"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "pool":"string",
+                     "items":"string",
+                     "obj_id":"string",
+                     "is_takeable":"string",
+                     "closed_frame":"string",
+                     "opened_frame":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"chest",
+                 "visible":true,
+                 "width":16,
+                 "x":369,
+                 "y":653
+                }, 
+                {
+                 "gid":769,
+                 "height":16,
+                 "id":6,
+                 "name":"voda02",
+                 "properties":
+                    {
+                     "group":"chests",
+                     "pool":"chests",
+                     "items":"",
+                     "obj_id":"19",
+                     "is_takeable":"false",
+                     "closed_frame":"80",
+                     "opened_frame":"80",
+                     "texture":"items_spritesheet"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "pool":"string",
+                     "items":"string",
+                     "obj_id":"string",
+                     "is_takeable":"string",
+                     "closed_frame":"string",
+                     "opened_frame":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"chest",
+                 "visible":true,
+                 "width":16,
+                 "x":287,
+                 "y":651
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -82,7 +151,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":4,
+ "nextobjectid":7,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -104,13 +173,13 @@
         {
          "columns":42,
          "firstgid":1682,
-         "image":"map13_mesto1_kuba1.png",
+         "image":"..\/images\/map13_mesto1_kuba1.png",
          "imageheight":352,
          "imagewidth":672,
          "margin":0,
          "name":"map13_mesto1_kuba1",
          "spacing":0,
-         "tilecount":0,
+         "tilecount":924,
          "tileheight":16,
          "tilewidth":16
         }],

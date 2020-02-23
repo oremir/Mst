@@ -59,14 +59,24 @@ Mst.ChestCreator.prototype.create_new_chest_name = function () {
 
 Mst.ChestCreator.prototype.create_new_chest = function (item_frame) { 
     "use strict";    
-    var position_new, chest_new, name_new;
+    var position_new, position_new_player, chest_new, name_new;
     
     position_new = {
         x: Math.round((this.game_state.prefabs.player.x - 8 + (this.game_state.prefabs.player.direction_chest.x * 16))/16)*16 + 8,
         y: Math.round((this.game_state.prefabs.player.y + 8 + (this.game_state.prefabs.player.direction_chest.y * 16))/16)*16 - 8
     };
     
+    position_new_player = {
+        x: Math.round((this.game_state.prefabs.player.x - 8 )/16)*16 + 8,
+        y: Math.round((this.game_state.prefabs.player.y + 8 )/16)*16 - 8
+    };
+    
     console.log("create chest " + item_frame);
+    console.log(position_new);
+    console.log(position_new_player);
+    
+    this.game_state.prefabs.player.x = position_new_player.x
+    this.game_state.prefabs.player.y = position_new_player.y;
     
     chest_new = this.pool.getFirstDead();
     
@@ -83,7 +93,7 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     
     chest_new.stats.items = "";
     
-    console.log(chest_new.stats.items);
+    console.log("Items: " + chest_new.stats.items);
     
     switch (item_frame) {
         case 4:
@@ -122,6 +132,10 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
             chest_new.closed_frame = 7;
             chest_new.opened_frame = 7;
             break;
+        case 43:
+            chest_new.closed_frame = 19;
+            chest_new.opened_frame = 19;
+            break;
         case 58:
             chest_new.closed_frame = 58;
             chest_new.opened_frame = 58;
@@ -134,6 +148,10 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
             chest_new.closed_frame = 60;
             chest_new.opened_frame = 60;
             break;
+        case 71:
+            chest_new.closed_frame = 71;
+            chest_new.opened_frame = 71;
+            break;
         default:
             chest_new.closed_frame = 3;
             chest_new.opened_frame = 3;
@@ -141,6 +159,7 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     }
     
     chest_new.frame = chest_new.opened_frame;
+    chest_new.is_opened = true;
     chest_new.updated = true;
     
     this.game_state.prefabs.player.opened_chest = name_new;

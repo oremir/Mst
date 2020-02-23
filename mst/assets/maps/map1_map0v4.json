@@ -108,6 +108,34 @@
                 {
                  "gid":261,
                  "height":16,
+                 "id":5,
+                 "name":"itemspawner0",
+                 "properties":
+                    {
+                     "group":"spawners",
+                     "pool":"chests",
+                     "texture":"items_spritesheet",
+                     "stype":"wild",
+                     "sskill":"forager"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "pool":"string",
+                     "texture":"string",
+                     "stype":"string",
+                     "sskill":"string"
+                    },
+                 "rotation":0,
+                 "type":"item_spawner",
+                 "visible":true,
+                 "width":16,
+                 "x":272,
+                 "y":277
+                }, 
+                {
+                 "gid":261,
+                 "height":16,
                  "id":8,
                  "name":"goout",
                  "properties":

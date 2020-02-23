@@ -18,8 +18,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     console.log("other player");
     //console.log(this.game_state.groups["otherplayers"]);
         
-    this.region = properties.region;
-    this.p_name = properties.p_name;
+    this.region = 0;
+    this.p_name = name;
     
     if (typeof (properties.ren_texture) === 'undefined') {
         properties.ren_texture = "";
@@ -42,6 +42,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
         y: (position.y + (this.game_state.map.tileHeight / 2)),
         properties: properties
     }
+    
+    this.usr_id = parseInt(this.game_state.save.objects[key].usr_id);
     
     //this.body.immovable = true;
     this.frame = 0;
@@ -72,7 +74,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
         group: "ren", 
         texture: ren_texture, 
-        p_name: name, // this.p_name
+        p_name: name, // this.p_name 
+        p_id: this.usr_id,
         dialogue_name: name
     });
 
@@ -104,6 +107,9 @@ Mst.OtherPlayer.prototype.update = function () {
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
+    this.game_state.groups.otherplayers.forEachAlive(function(one_player) {
+        this.game_state.game.physics.arcade.collide(this, one_player);
+    }, this);
     
     if (this.bubble_showed) {
         this.bubble.x = this.x;
@@ -150,9 +156,11 @@ Mst.OtherPlayer.prototype.hide_bubble = function () {
     this.bubble.visible = false;
 };
 
-Mst.OtherPlayer.prototype.collide_with_player = function (player) {
+Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) {
     "use strict";
-    var pom_hits;
+    var pom_hits, options;
+    
+    options = [];
     
     if (this.player_hit_not_delay) {
         this.player_hit_not_delay = false;
@@ -168,12 +176,16 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player) {
                 
             case 2:
                 if (!this.ren_sprite.visible) {
+                    player.update_relation(other_player, "player", 1);
                     player.set_opened_ren(this.name);
                     console.log("Op.ren: " + this.name);
+                    if (typeof (this.ren_sprite.quest.state) !== 'undefined') {
+                        options = ["quest"];
+                    }
                     if (player.gender === "male") {                        
-                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?");
+                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?", options);
                     } else {
-                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřebovala?");
+                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřebovala?", options);
                     }
                 }
                 break;
@@ -198,6 +210,58 @@ Mst.OtherPlayer.prototype.collide_with_player_delay = function () {
 };
 
 
+Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    "use strict";
+    
+    var quests, owner_id, player, test_q, is_quest;
+    //console.log(this.game_state.quest_data);
+    quests = this.game_state.quest_data.quests;
+    player = this.game_state.prefabs.player;
+    is_quest = false;
+//    if (this.game_state.prefabs.player.test_quest("owner", this.usr_id)) {
+//        this.show_bubble(3); // ! exclamation mark - quest
+//    }
+
+    for (var i = 0; i < quests.length; i++) {
+        owner_id = parseInt(quests[i].properties.owner);
+        console.log(quests[i]);
+        console.log("Other Player ID: " + this.usr_id);
+        if (quests[i].properties.owner_type === "player" && owner_id === this.usr_id) {
+            console.log(quests[i]);
+            
+            test_q = player.test_quest("idfin", quests[i].qid);
+            
+            if (!test_q) {                
+                test_q = player.test_quest("idass", quests[i].name);
+                
+                if (test_q) {
+                    this.ren_sprite.quest = quests[i];
+                    this.ren_sprite.quest.state = "ass";
+                    this.show_bubble(4); // ! exclamation mark - quest assigned
+                    is_quest = true;
+                    break;
+                } else {
+                    test_q = player.test_quest("idacc", quests[i].name);
+                    if (test_q) {
+                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.quest.state = "acc";
+                        this.show_bubble(5); // ! question mark - quest accomplished
+                        is_quest = true;
+                        break;            
+                    } else {
+                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.quest.state = "pre";
+                        this.show_bubble(3); // ! exclamation mark - quest ready
+                        is_quest = true;
+                        break;            
+                    }
+                }
+            }
+        }
+    }
+    
+    return is_quest;
+};
 
 Mst.OtherPlayer.prototype.save_player = function () {
     "use strict";

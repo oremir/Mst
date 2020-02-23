@@ -5,12 +5,13 @@ Mst.Quest = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
+    this.quest_id = properties.qid;
     this.owner = properties.owner;
+    this.owner_type = properties.owner_type;
     this.quest_text = properties.quest_text;
-    this.starting_conditions = properties.starting_conditions;
-    this.ending_conditions = properties.ending_conditions;
+    this.starting_conditions = properties.start_cond;
+    this.ending_conditions = properties.end_cond;
     this.reward = properties.reward;
-    this.assigned = properties.assigned;
     
     this.save = {
         type: "quest",
