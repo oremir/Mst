@@ -121,6 +121,11 @@ Mst.TiledState.prototype.create = function () {
     var group_name, object_layer, object_key, collision_tiles, load_player;
     
     if (this.root_data.usr_id > 0) {
+        this.save = {
+            player: {},
+            objects: this.map_data.objects
+        };
+        
         // create map layers
         this.layers = {};
         this.map.layers.forEach(function (layer) {
@@ -172,11 +177,6 @@ Mst.TiledState.prototype.create = function () {
                 this.map.objects[object_layer].forEach(this.create_object, this);
             }
         }
-        
-        this.save = {
-            player: {},
-            objects: this.map_data.objects
-        };
         
         console.log("Map data objects:");
         console.log(this.map_data.objects);

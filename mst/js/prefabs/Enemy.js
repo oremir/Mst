@@ -153,7 +153,7 @@ Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
 
 Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.strength/5);
-    damage += player.stats.skills.standard.level + (player.stats.skills.fighter.level*1.5);
+    damage += player.level("standard") + (player.level("fighter")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -162,7 +162,7 @@ Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.intelligence/5);
-    damage += player.stats.skills.standard.level + (player.stats.skills.magic.level*1.5);
+    damage += player.level("standard") + (player.level("magic")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     

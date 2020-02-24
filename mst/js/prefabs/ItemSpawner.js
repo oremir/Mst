@@ -28,6 +28,8 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     //console.log(this.items);
     this.b_test = false;
     
+    this.j = 0;
+    
     this.spawn();
 };
 
@@ -51,7 +53,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
     
     //console.log("Item count living:" + this.pool.countLiving());
     
-    if (this.pool.countLiving() < 20) {
+    if (this.j < 20) {
         if (!object) {
             // if there is no dead object, create a new one            
             
@@ -126,6 +128,9 @@ Mst.ItemSpawner.prototype.spawn = function () {
             if (object.closed_frame == 22) {
                 object.is_takeable = false;
                 object.save.properties.is_takeable = false;
+            } else {
+                object.is_takeable = true;
+                object.save.properties.is_takeable = true;              
             }
 
 
@@ -162,8 +167,8 @@ Mst.ItemSpawner.prototype.create_name = function () {
     "use strict";
     var name, a;
     var names = [];
-    var j = this.pool.countLiving();
-    var object_name = "item_" + j;
+    //var j = this.pool.countLiving();
+    var object_name = "item_" + this.j;
     
     //console.log(this.game_state.map_data.objects);
     //console.log(this.game_state.map_data.objects.length);
@@ -180,20 +185,28 @@ Mst.ItemSpawner.prototype.create_name = function () {
       
     //console.log(names);
     
-    for (var i = 0; i < this.game_state.map_data.objects.length; i++) {
-        //console.log(object_name + " " + names[i]);
-        if (j == names[i]) {
-            //console.log(object_name);
-            j++;
-            object_name = "item_" + j;
-            console.log("Prefab exist? " + object_name);
-            console.log(this.game_state.prefabs[object_name]);
-            if (typeof(this.game_state.prefabs[object_name] !== 'undefined')) {
-                j++;
-                object_name = "item_" + j;
-            }
-        }
+    while (names.indexOf(this.j) > -1) {
+        this.j++;
     }
+    
+    var object_name = "item_" + this.j;
+    
+//    for (var i = 0; i < names.length; i++) {
+//        //console.log(object_name + " " + names[i]);
+//        if (j == names[i]) {
+//            //console.log(object_name);
+//            j++;
+//            object_name = "item_" + j;
+//            console.log("Prefab exist? " + object_name);
+//            console.log(this.game_state.prefabs[object_name]);
+//            if (typeof(this.game_state.prefabs[object_name] !== 'undefined')) {
+//                j++;
+//                object_name = "item_" + j;
+//            }
+//        }
+//    }
+    
+    this.j++;
     
     return object_name;
 };

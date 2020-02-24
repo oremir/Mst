@@ -20,7 +20,7 @@ Mst.Chest = function (game_state, name, position, properties) {
     key = this.game_state.keyOfName(name);
         
     if (key === "") {
-        if (typeof(properties.obj_id) != 'undefined') {
+        if (typeof(properties.obj_id) !== 'undefined') {
             this.obj_id = parseInt(properties.obj_id);
         } else {
             this.obj_id = 0;
