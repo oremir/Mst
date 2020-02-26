@@ -62,13 +62,15 @@ Mst.Sword.prototype.update = function () {
 Mst.Sword.prototype.swing = function () {
     "use strict";
     
+    var player = this.game_state.prefabs.player;
+    
     if (this.alive === false) {
         this.hit.animations.play("r_hit");
         
         this.body.rotation = -135;
-        this.body.angularVelocity = this.game_state.prefabs.player.direction_sword.x * 500;
+        this.body.angularVelocity = player.direction_sword.x * 500;
         
-        if (this.game_state.prefabs.player.direction_sword.x === 1) {
+        if (player.direction_sword.x === 1) {
             this.frame = this.fr_right;
         } else {
             this.frame = this.fr_left;

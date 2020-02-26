@@ -83,6 +83,7 @@ Mst.NPC.prototype.update = function () {
     //console.log(this.game_state.prefabs.player.killed);
     
     if (this.game_state.prefabs.player.killed) {
+        this.game_state.prefabs.player.set_opened_ren(this.name);
         this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
         if (this.relations_allowed) {
             this.game_state.prefabs.player.update_relation(this, "NPC", 5);
@@ -145,7 +146,7 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
     "use strict";
     var open = false;
     
-    if (!this.ren_sprite.visible) {
+    if (!this.ren_sprite.visible && player.opened_ren === "") {
         if (this.relations_allowed) {
             player.update_relation(NPC, "NPC", 1);
         }

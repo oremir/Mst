@@ -46,6 +46,7 @@
         "moon_image": { "type": "image", "source": "assets/images/moon.png" },
         "arrow_right": { "type": "image", "source": "assets/images/arrow-right.png" },
         "right_window": { "type": "image", "source": "assets/images/frame-gold-227-300.png" },
+        "middle_window": { "type": "image", "source": "assets/images/frame-gold-300-180.png" },
         "alt": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
         "alt_80_35": { "type": "image", "source": "assets/images/frame-alt-80-35.png" },
         "alt_160_20": { "type": "image", "source": "assets/images/frame-alt-160-20.png" },

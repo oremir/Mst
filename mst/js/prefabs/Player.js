@@ -499,8 +499,27 @@ Mst.Player.prototype.subtract_stress = function (quantity) {
 Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";
     
+    console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");
+    console.log(chest.stats);
+    
     if (this.opened_chest === "") {
-        chest.open_chest(player, chest);
+        player.opened_chest = chest.name;
+        
+        if (chest.stat !== "open") {
+            if (chest.owner !== 0) {
+                if (chest.owner === player.usr_id) {
+                    chest.open_chest(player, chest);
+                } else {
+                    console.log("Chest is owned by other player");
+                    chest.game_state.hud.alert.show_alert("To patří jinému!"); 
+                }
+            } else {
+                chest.open_chest(player, chest);
+            }
+        } else {
+            console.log("Chest is open by other player");
+            chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
+        }
     }
 };
 

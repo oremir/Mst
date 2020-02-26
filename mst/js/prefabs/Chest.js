@@ -51,6 +51,11 @@ Mst.Chest = function (game_state, name, position, properties) {
         this.sskill = properties.sskill;
     }
     
+    this.owner = 0;
+    if (typeof (properties.owner) !== 'undefined') {
+        this.owner = properties.owner;
+    }
+        
     console.log("Chest " + this.name + " takable:" + this.is_takeable);
     
     this.is_opened = false;
@@ -107,7 +112,7 @@ Mst.Chest.prototype.constructor = Mst.Chest;
 Mst.Chest.prototype.update = function () {
     "use strict";
     if (this.alive) {
-        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 21 && this.game_state.prefabs.player.opened_chest === this.name) {
+        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 22 && this.game_state.prefabs.player.opened_chest === this.name) {
             console.log(this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player));
             console.log("Chest is too far!");
             this.close_chest();
@@ -306,95 +311,84 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
     "use strict";
     var success = true;
     
-    console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");
-    console.log(chest.stats);
-    
-    if (chest.stat !== "open") {
-        chest.frame = chest.opened_frame;
-        player.opened_chest = chest.name;
+    chest.frame = chest.opened_frame;
 
-        if (chest.obj_id === 0) {
-            chest.game_state.prefabs.chestitems.show_initial_stats();
-            
-            chest.is_opened = true;
-            chest.updated = true;
-            
-            var nloop = chest.chest_loop;
-            var ltype = chest.chest_loop_frame;
-            chest.loops_done(nloop, ltype);
-            
-            console.log("Chest is open!");
-            chest.game_state.hud.alert.show_alert("Otevřena!");
-        } else {
-            var game_state, name, usr_id, map, d, n, stat;
+    if (chest.obj_id === 0) {
+        chest.game_state.prefabs.chestitems.show_initial_stats();
 
-            //game_state = this.game_state;
-            //name = this.name;
-            usr_id = player.usr_id;
-            //map = this.game_state.root_data.map_int;
-            
-            chest.save.properties.items = chest.stats.items;
-            chest.save.properties.opened_frame = chest.opened_frame;
-            chest.save.properties.closed_frame = chest.closed_frame;
-            chest.save.action = "OPEN";
+        chest.is_opened = true;
+        chest.updated = true;
 
-            d = new Date();
-            n = d.getTime();
+        var nloop = chest.chest_loop;
+        var ltype = chest.chest_loop_frame;
+        chest.loops_done(nloop, ltype);
 
-            console.log(chest.save);
-
-            $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
-                .done(function (data) {
-                    console.log("Chest open success");
-                    console.log(data);
-                    var resp, items, properties;
-                    resp = JSON.parse(data);
-                    properties = resp.obj.properties;
-                    items = resp.obj.properties.items;
-                    stat = resp.stat;
-                    console.log(items);
-
-                    chest.load_chest(properties, stat);
-                    chest.set_stat(stat);
-                    chest.game_state.prefabs.chestitems.show_initial_stats();
-                
-                    if (stat == 'open') {
-                        console.log("Chest is open by other player");
-                        chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
-                        
-                        chest.close_chest();
-                        success = false;
-                    } else {
-                        chest.is_opened = true;
-                        chest.updated = true;
-                        
-                        console.log("Chest is open!");
-                        chest.game_state.hud.alert.show_alert("Otevřena!");
-                        
-                        var nloop = chest.chest_loop;
-                        var ltype = chest.chest_loop_frame;
-                        chest.loops_done(nloop, ltype);
-                    }
-                
-                    console.log("Is opened? " + chest.is_opened);
-                })
-                .fail(function (data) {
-                    console.log("Chest open error");
-                    console.log(data);
-                
-                    success = false;
-                });
-
-            console.log("save chest open");
-
-        }
+        console.log("Chest is open!");
+        chest.game_state.hud.alert.show_alert("Otevřena!");
     } else {
-        success = false;
-        
-        console.log("Chest is open by other player");
-        chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
+        var game_state, name, usr_id, map, d, n, stat;
+
+        //game_state = this.game_state;
+        //name = this.name;
+        usr_id = player.usr_id;
+        //map = this.game_state.root_data.map_int;
+
+        chest.save.properties.items = chest.stats.items;
+        chest.save.properties.opened_frame = chest.opened_frame;
+        chest.save.properties.closed_frame = chest.closed_frame;
+        chest.save.action = "OPEN";
+
+        d = new Date();
+        n = d.getTime();
+
+        console.log(chest.save);
+
+        $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
+            .done(function (data) {
+                console.log("Chest open success");
+                console.log(data);
+                var resp, items, properties;
+                resp = JSON.parse(data);
+                properties = resp.obj.properties;
+                items = resp.obj.properties.items;
+                stat = resp.stat;
+                console.log(items);
+
+                chest.load_chest(properties, stat);
+                chest.set_stat(stat);
+                chest.game_state.prefabs.chestitems.show_initial_stats();
+
+                if (stat == 'open') {
+                    console.log("Chest is open by other player");
+                    chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
+
+                    chest.close_chest();
+                    success = false;
+                } else {
+                    chest.is_opened = true;
+                    chest.updated = true;
+
+                    console.log("Chest is open!");
+                    chest.game_state.hud.alert.show_alert("Otevřena!");
+
+                    var nloop = chest.chest_loop;
+                    var ltype = chest.chest_loop_frame;
+                    chest.loops_done(nloop, ltype);
+                }
+
+                console.log("Is opened? " + chest.is_opened);
+            })
+            .fail(function (data) {
+                console.log("Chest open error");
+                console.log(data);
+
+                success = false;
+            });
+
+        console.log("save chest open");
+
     }
-    
+
     console.log("Is opened? " + chest.is_opened);
     
     return success;
@@ -405,7 +399,6 @@ Mst.Chest.prototype.close_chest = function () {
     
     this.frame = this.closed_frame;
     this.game_state.prefabs.player.opened_chest = "";
-    this.is_opened = false;
     
     var game_state, chest, name, usr_id, d, n;
     game_state = this.game_state;
@@ -417,7 +410,7 @@ Mst.Chest.prototype.close_chest = function () {
     this.save.properties.closed_frame = this.closed_frame;
     this.save.action = "CLOSE";
 
-    if (this.stat !== "open") {
+    if (this.stat !== "open" && chest.is_opened) {
         d = new Date();
         n = d.getTime();
 
@@ -450,6 +443,8 @@ Mst.Chest.prototype.close_chest = function () {
     } else {
         game_state.prefabs.chestitems.kill_stats();
     }
+        
+    this.is_opened = false;
     
 };
 
@@ -637,6 +632,13 @@ Mst.Chest.prototype.set_stat = function (stat) {
     "use strict";
     
     this.stat = stat;
+};
+
+Mst.Chest.prototype.set_owner = function (owner) {
+    "use strict";
+    
+    this.owner = owner;
+    this.save.properties.owner = owner;
 };
 
 Mst.Chest.prototype.set_obj_id = function (obj_id) {

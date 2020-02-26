@@ -162,10 +162,11 @@ Mst.TiledState.prototype.create = function () {
         
         this.hud = {};
         this.hud.right_window = new Mst.hud(this, "right_window");
+        this.hud.middle_window = new Mst.hud(this, "middle_window");
         this.hud.alt = new Mst.hud(this, "alt");
         this.hud.dialogue = new Mst.hud(this, "dialogue");
         this.hud.alert = new Mst.hud(this, "alert");
-
+        
         // ......................... Map Objects ............................
         
         console.log("Map objects:");
@@ -581,6 +582,11 @@ Mst.hud.prototype.show_alt = function (obj) {
     type = obj.o_type;
     switch(type) {
         case "items":
+            if (this.game_state.core_data.items[obj.frame].name.length < 13) {
+                texture = "alt";
+            } else {
+                texture = "alt_160_20";
+            }
             texture = "alt";
             text = this.game_state.core_data.items[obj.frame].name;
             x = obj.x - 4;
@@ -597,6 +603,11 @@ Mst.hud.prototype.show_alt = function (obj) {
             }*/
             break;
         case "chestitems":
+            if (this.game_state.core_data.items[obj.frame].name.length < 13) {
+                texture = "alt";
+            } else {
+                texture = "alt_160_20";
+            }
             texture = "alt";
             text = this.game_state.core_data.items[obj.frame].name;
             x = obj.x - 4;
@@ -604,7 +615,7 @@ Mst.hud.prototype.show_alt = function (obj) {
             
             break;
         case "otherPlayer":
-            if (this.name.length < 13) {
+            if (this.name.length < 12) {
                 texture = "alt";
             } else {
                 texture = "alt_160_20";
@@ -635,6 +646,9 @@ Mst.hud.prototype.show_alt = function (obj) {
     this.game_state.hud.alt.loadTexture(texture);
     this.game_state.hud.alt.visible = true;
     this.game_state.hud.alt.alpha = 0.7;
+    if (type === 'chestitems') {
+        this.game_state.hud.alt.alpha = 0.85;
+    }
     //this.game_state.hud.alt.text.reset(x, y);
     
     //console.log(x + ":" + y);
@@ -651,7 +665,7 @@ Mst.hud.prototype.hide_alt = function () {
         this.visible = false;
     }
         
-    if (typeof(this.text_alt) != 'undefined') {
+    if (typeof (this.text_alt) !== 'undefined') {
         this.text_alt.text = "";
         this.text_alt.destroy;
     }

@@ -328,7 +328,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         });
                         console.log(b);
                         //var testik = chest_new.collide_test();
-                        if (!b) {                            
+                        if (!b) {
+                            chest_new.set_owner(player.usr_id);
+                            
                             switch (chest_new.closed_frame) {
                                 case 3: //věci - obecně
                                     chest_new.add_item(item_frame, 1);
