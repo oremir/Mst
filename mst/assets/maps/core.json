@@ -1,6 +1,6 @@
 {
     "assets": {
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 100 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 130 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 12 },
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/player/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/player/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
@@ -188,7 +188,14 @@
         { "name": "Hřib.polévka", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Miska", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Hřib. polévka m.", "istool": "false", "properties": { "use_sub": "true" } },
-        { "name": "Pazourek", "istool": "false", "properties": {} }
+        { "name": "Pazourek", "istool": "false", "properties": {} },
+        { "name": "Žel. ruda", "istool": "false", "properties": {} },
+        { "name": "Železo", "istool": "false", "properties": {} },
+        { "name": "Bronz", "istool": "false", "properties": {} },
+        { "name": "Tav. měď", "istool": "false", "properties": {} },
+        { "name": "Tav. cín", "istool": "false", "properties": {} },
+        { "name": "Tav. bronz", "istool": "false", "properties": {} },
+        { "name": "tav. železo", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 

@@ -154,12 +154,12 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
         if (rnd_test < 2) {
             player.add_item(40, 1); // lichen
         } else {
-            rnd_core = Math.max(15, 30 - player.level("stonebreaker"))
+            rnd_core = Math.max(18, 35 - player.level("stonebreaker"))
             rnd_test = Math.floor(Math.random() * rnd_core);
             if (rnd_test < 2) {
                 player.add_item(96, 1); // pazourek
             } else {
-                rnd_core = Math.max(20, 40 - player.level("stonebreaker"))
+                rnd_core = Math.max(20, 45 - player.level("stonebreaker"))
                 rnd_test = Math.floor(Math.random() * rnd_core);
                 if (rnd_test < 2 && player.level("stonebreaker") > 1) {
                     player.add_item(49, 1); // uhli
@@ -174,7 +174,12 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
                         } else {
                             rnd_test = Math.floor(Math.random() * rnd_core);
                             if (rnd_test < 2 && player.level("stonebreaker") > 4) {
-                                player.add_item(61, 1); // zlato
+                                player.add_item(97, 1); // žel. ruda
+                            } else {
+                                rnd_test = Math.floor(Math.random() * rnd_core);
+                                if (rnd_test < 2 && player.level("stonebreaker") > 5) {
+                                    player.add_item(61, 1); // zlato
+                                }
                             }
                         }
                     }
@@ -292,12 +297,12 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             if (rnd_test < 2) {
                                 player.add_item(40, 1); // lichen
                             } else {
-                                rnd_core = Math.max(15, 40 - player.level("stonebreaker"))
+                                rnd_core = Math.max(22, 40 - player.level("stonebreaker"))
                                 rnd_test = Math.floor(Math.random() * rnd_core);
                                 if (rnd_test < 2) {
                                     player.add_item(96, 1); // pazourek
                                 } else {
-                                    rnd_core = Math.max(20, 50 - player.level("stonebreaker"))
+                                    rnd_core = Math.max(25, 50 - player.level("stonebreaker"))
                                     rnd_test = Math.floor(Math.random() * rnd_core);
                                     if (rnd_test < 2 && player.level("stonebreaker") > 1) {
                                         player.add_item(49, 1); // uhli
@@ -312,7 +317,12 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                             } else {
                                                 rnd_test = Math.floor(Math.random() * rnd_core);
                                                 if (rnd_test < 2 && player.level("stonebreaker") > 4) {
-                                                    player.add_item(61, 1); // zlato
+                                                    player.add_item(97, 1); // žel. ruda
+                                                } else {
+                                                    rnd_test = Math.floor(Math.random() * rnd_core);
+                                                    if (rnd_test < 2 && player.level("stonebreaker") > 5) {
+                                                        player.add_item(61, 1); // zlato
+                                                    }
                                                 }
                                             }
                                         }
@@ -404,6 +414,13 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                 break;
                 case 8: //palice
                     switch (chest.closed_frame) {
+                        case 4: //truhla
+                            in_chest = chest.in_chest_ord();
+                            chest.take_all();
+                            player.put_all(in_chest);
+                            chest.get_chest(chest);
+                            player.work_rout("forager", "exploration", 1, 1, 1, 1); // stress, stand_exp, skill_exp, abil_p
+                        break;
                         case 29: //prac. stůl
                             in_chest = chest.in_chest_ord();
                             console.log(in_chest.length);
