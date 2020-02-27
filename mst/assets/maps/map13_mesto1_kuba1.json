@@ -75,6 +75,7 @@
                      "go_position_y": 834,
                      "group":"goouts",
                      "next_map":14,
+                     "locked":"true",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },

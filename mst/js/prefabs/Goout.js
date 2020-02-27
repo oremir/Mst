@@ -10,6 +10,19 @@ Mst.Goout = function (game_state, name, position, properties) {
         y: +properties.go_position_y
     };
     
+    this.locked = false;
+    this.key_permit = "";
+    this.key_level = 0;
+    this.key_obj_id = 0;
+    this.permit_type = "";
+    if (typeof (properties.locked) !== 'undefined') {
+        this.locked = (properties.locked === 'true');
+        this.key_permit = properties.key_permit;
+        this.key_level = parseInt(properties.key_level);
+        this.key_obj_id = parseInt(properties.key_obj_id);
+        this.permit_type = properties.permit_type;
+    }
+    
     this.game_state = game_state;
     
     this.game_state.game.physics.arcade.enable(this);
@@ -38,7 +51,11 @@ Mst.Goout.prototype.go_out = function () {
     
     if (this.notupdated) {
         this.notupdated = false;
-        this.game_state.save_data(this.go_position, new_int, "goout");
+        if (!this.locked) {
+            this.game_state.save_data(this.go_position, new_int, "goout");
+        } else {
+            this.game_state.hud.alert.show_alert("Zamčeno!");
+        }        
     }
 };
 
