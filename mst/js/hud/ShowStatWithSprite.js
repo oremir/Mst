@@ -346,8 +346,8 @@ Mst.ShowStatWithSprite.prototype.logout = function () {
     "use strict";
     this.map_int = this.game_state.root_data.map_int;
     this.position = {
-        x: this.game_state.prefabs.player.x,
-        y: this.game_state.prefabs.player.y
+        x: this.game_state.prefabs.player.x - 8,
+        y: this.game_state.prefabs.player.y + 8
     }
 
     this.game_state.prefabs.player.set_logoff();

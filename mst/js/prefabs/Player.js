@@ -89,6 +89,10 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.keys = [];
     }
     
+    if (typeof (properties.badges) === 'undefined') {
+        properties.badges = {};
+    }
+    
 //    var dt = new Date();
 //    var tm = dt.getTime();
     
@@ -784,14 +788,16 @@ Mst.Player.prototype.update_place = function () {
 
 Mst.Player.prototype.update_relation = function (person, type, exp) {
     "use strict";
-    var key, relation_selected, uid, ruid, rname;
+    var key, relation_selected, uid, ruid, rname, otype;
     console.log("Update relation");
     console.log(person);
     
     if (person.o_type === 'NPC') {
         uid = person.unique_id;
+        otype = "NPC";
     } else {
         uid = person.usr_id;
+        otype = "player";
     }
     
     for (key in this.stats.relations) {
@@ -813,8 +819,10 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
             }
         } else {
             ruid = parseInt(this.stats.relations[key].uid);
-            if (this.stats.relations[key].type === person.o_type && ruid === uid) {
+            console.log("Relation r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
+            if (this.stats.relations[key].type === otype && ruid === uid) {
                 relation_selected = this.stats.relations[key];
+                console.log(relation_selected);
             }
         }
 
@@ -830,8 +838,10 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
             exp: 1
         };
         this.stats.relations.push(relation_selected);
+        console.log("Push");
         console.log(relation_selected);
     } else {
+        console.log("Update");
         relation_selected.exp = exp + parseInt(relation_selected.exp);
         console.log(relation_selected);
     }

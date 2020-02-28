@@ -38,8 +38,10 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
         type: "player",
         name: name,        
         usr_id: this.game_state.save.objects[key].usr_id,
-        x: (position.x - (this.game_state.map.tileHeight / 2)),
-        y: (position.y + (this.game_state.map.tileHeight / 2)),
+//        x: (position.x - (this.game_state.map.tileHeight / 2)),
+//        y: (position.y + (this.game_state.map.tileHeight / 2)),
+        x: position.x,
+        y: position.y,
         properties: properties
     }
     
@@ -267,8 +269,11 @@ Mst.OtherPlayer.prototype.save_player = function () {
     "use strict";
     var key;
     
-    this.save.x = this.x - (this.game_state.map.tileHeight / 2);
-    this.save.y = this.y + (this.game_state.map.tileHeight / 2);
+//    this.save.x = this.x - (this.game_state.map.tileHeight / 2);
+//    this.save.y = this.y + (this.game_state.map.tileHeight / 2);
+    
+    this.save.x = this.x;
+    this.save.y = this.y;
     
     key = this.game_state.keyOfName(this.name);
     
