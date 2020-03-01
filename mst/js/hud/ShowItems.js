@@ -372,7 +372,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         var opened_chest = this.game_state.prefabs.player.opened_chest;
                         var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
-                        console.log("Put down: " + chest_frame + "item:" + item_frame);
+                        console.log("Put down: " + chest_frame + " item: " + item_frame);
                         
                         switch (chest_frame) {
                             case 7: //Drevo

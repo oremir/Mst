@@ -502,16 +502,18 @@ Mst.Player.prototype.subtract_stress = function (quantity) {
 
 Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";
+    var owner;
     
     console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");
     console.log(chest.stats);
     
     if (this.opened_chest === "") {
         player.opened_chest = chest.name;
+        owner = parseInt(chest.owner);
         
         if (chest.stat !== "open") {
-            if (chest.owner !== 0) {
-                if (chest.owner === player.usr_id) {
+            if (owner !== 0) {
+                if (owner === player.usr_id) {
                     chest.open_chest(player, chest);
                 } else {
                     console.log("Chest is owned by other player");
@@ -807,6 +809,9 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
             if (person.name === 'nun_1') {
                 rname = "nun";
             }
+            if (person.name === 'merchant_0') {
+                rname = "merchant";
+            }
             if (this.stats.relations[key].name === rname
                     && this.stats.relations[key].region === person.region
                     && this.stats.relations[key].type === type) {
@@ -816,13 +821,27 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
                     type: type,
                     exp: this.stats.relations[key].exp
                 };
+                this.stats.relations[key] = relation_selected;
+                relation_selected = this.stats.relations[key];
             }
         } else {
             ruid = parseInt(this.stats.relations[key].uid);
-            console.log("Relation r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
+            console.log("Relation [" + key + "] r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
             if (this.stats.relations[key].type === otype && ruid === uid) {
                 relation_selected = this.stats.relations[key];
                 console.log(relation_selected);
+                
+                for (var i = parseInt(key) + 1; i < this.stats.relations.length; i++) { // jen docasne ... odstran multi
+                    ruid = parseInt(this.stats.relations[i].uid);
+                    if (this.stats.relations[i].type === otype && ruid === uid) {
+                        relation_selected.exp = parseInt(relation_selected.exp);
+                        relation_selected.exp += parseInt(this.stats.relations[i].exp);
+                        this.stats.relations.splice(i, 1);
+                        break;
+                    }
+                }
+                
+                break;
             }
         }
 

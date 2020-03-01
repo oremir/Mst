@@ -370,6 +370,10 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
 
                     console.log("Chest is open!");
                     chest.game_state.hud.alert.show_alert("Otevřena!");
+                    
+                    if (chest.closed_frame === 80) {
+                        chest.game_state.hud.alert.show_alert("Vodní zdroj");
+                    }
 
                     var nloop = chest.chest_loop;
                     var ltype = chest.chest_loop_frame;

@@ -259,6 +259,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                     } 
                                 }
                             }
+                        break;
                         case 43: //větev
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
