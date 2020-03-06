@@ -193,7 +193,7 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
 
 Mst.Sword.prototype.cut_chest = function (chest) {
     "use strict";
-    var player, index, in_chest, tool_frame, recipe;
+    var player, index, in_chest, tool_frame, recipe, rnd_test, rnd_core;
     
     console.log("Cut chest");
     console.log(chest);

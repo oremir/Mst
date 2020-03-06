@@ -551,27 +551,38 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 45: //Křesadlo
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;
                         
                         switch (chest_frame) {
                             case 7: //Drevo
-                                this.game_state.prefabs[opened_chest].chest_loop_frame = 83; //Ohen
-                                this.game_state.prefabs[opened_chest].change_frame(83);
-                                this.game_state.prefabs[opened_chest].add_item(92, 1); //Ohen
+                                chest.chest_loop_frame = 83; //Ohen
+                                chest.change_frame(83);
+                                chest.add_item(92, 1); //Ohen
+                            break;
+                            case 64: //Výheň
+                                var index = chest.test_item(49, 1); //Uhli
+                                if (index > -1) {
+                                    chest.subtract_item(index, 1);
+                                    chest.add_item(92, 1); //Ohen
+                                    
+                                    chest.chest_loop_frame = 65; //hori
+                                    chest.change_frame(65);
+                                }
                             break;
                             case 77: //Zel. kotlik na drevu
-                                this.game_state.prefabs[opened_chest].chest_loop_frame = 56; //hori
-                                this.game_state.prefabs[opened_chest].change_frame(56);
-                                var index = this.game_state.prefabs[opened_chest].test_item(32, 1); //Prkno
-                                this.game_state.prefabs[opened_chest].subtract_item(index, 1);
-                                this.game_state.prefabs[opened_chest].add_item(92, 1); //Ohen
+                                chest.chest_loop_frame = 56; //hori
+                                chest.change_frame(56);
+                                var index = chest.test_item(32, 1); //Prkno
+                                chest.subtract_item(index, 1);
+                                chest.add_item(92, 1); //Ohen
                             break;
                             case 79: //Zel. kotlik s vodou na drevu
-                                this.game_state.prefabs[opened_chest].chest_loop_frame = 74; //hori
-                                this.game_state.prefabs[opened_chest].change_frame(74);
-                                var index = this.game_state.prefabs[opened_chest].test_item(32, 1); //Prkno
-                                this.game_state.prefabs[opened_chest].subtract_item(index, 1);
-                                this.game_state.prefabs[opened_chest].add_item(92, 1); //Ohen
+                                chest.chest_loop_frame = 74; //hori
+                                chest.change_frame(74);
+                                var index = chest.test_item(32, 1); //Prkno
+                                chest.subtract_item(index, 1);
+                                chest.add_item(92, 1); //Ohen
                             break;
                             default:
                                 

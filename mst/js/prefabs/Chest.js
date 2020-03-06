@@ -71,7 +71,8 @@ Mst.Chest = function (game_state, name, position, properties) {
     this.chest_fire = 0;
     
     this.animations.add('ficauldron', [56, 57], 10, true);
-    this.animations.add('fiwcauldron', [74, 75], 10, true);
+    this.animations.add('fifurnace', [65, 66], 10, true);
+    this.animations.add('fiwcauldron', [74, 75], 10, true);    
     this.animations.add('fire', [83, 84, 85, 86, 87, 88], 10, true);
     
     
@@ -81,6 +82,12 @@ Mst.Chest = function (game_state, name, position, properties) {
             this.chest_timer.add(Phaser.Timer.SECOND * 10, this.time_up, this);
             this.chest_timer.start();
             this.chest_loop_frame = 56;
+        break;
+        case 65:
+            this.animations.play("fifurnace");
+            this.chest_timer.add(Phaser.Timer.SECOND * 10, this.time_up, this);
+            this.chest_timer.start();
+            this.chest_loop_frame = 65;
         break;
         case 74:
             this.animations.play("fiwcauldron");
@@ -146,6 +153,10 @@ Mst.Chest.prototype.update = function () {
             case 56:
                 console.log("Play anim kotlik");
                 this.animations.play("ficauldron");
+            break;
+            case 65:
+                console.log("Play anim vyhen");
+                this.animations.play("fifurnace");
             break;
             case 74:
                 console.log("Play anim kotlik s vodou");
@@ -221,6 +232,14 @@ Mst.Chest.prototype.time_up = function () {
             this.frame = 53; //Kotlik
             this.closed_frame = 53;
             this.opened_frame = 53;
+            this.updated = true;
+        break;
+        case 65: //Vyhen hori
+            this.animations.stop();
+            
+            this.frame = 64; //Vyhen
+            this.closed_frame = 64;
+            this.opened_frame = 64;
             this.updated = true;
         break;
         case 74: //Kotlik s vodou hori
