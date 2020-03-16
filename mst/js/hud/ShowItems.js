@@ -154,6 +154,18 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                 break;
             }
         break;
+        case 64: // vyhen
+            switch (frame_int) {
+                case 103: // tav. zelezo
+                    gframe_str = "frame_item_fial";
+                break;
+            }
+        case 65: // vyhen hori
+            switch (frame_int) {
+                case 92: // ohen
+                    gframe_str = "frame_item_fial";
+                break;
+            }
         case 69: // dzban plny
             switch (frame_int) {
                 case 81: // voda
@@ -198,6 +210,13 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
         case 83: // ohen
             switch (frame_int) {
                 case 92: // ohen
+                    gframe_str = "frame_item_fial";
+                break;
+            }
+        break;
+        case 104: // kam. nadoba s tav.
+            switch (frame_int) {
+                case 105: // zhav. zelezo
                     gframe_str = "frame_item_fial";
                 break;
             }
@@ -292,7 +311,7 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
 
 Mst.ShowItems.prototype.put_down_item = function (one_item) {
     "use strict";
-    var item_index, item_frame, item_quantity, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
+    var item_index, item_frame, item_quantity, item, quant_put, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
     
     console.log("put down");
     console.log(one_item);
@@ -300,15 +319,24 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
     
     item_index = one_item.stat_index;
     item_frame = this.stats[item_index].frame;
+    item_quantity = this.stats[item_index].quantity;
+    console.log("II: " + item_index + " IF: " + item_frame + " IQ: " + item_quantity)
     
     switch (this.put_type) {
         case "put":
             if (player.opened_business === "") {
                 if (this.prefab_name === "player") {
+                    //console.log(player.keys.shift.isDown);
+                    quant_put = 1;
+                    if (player.keys.shift.isDown && player.opened_chest !== "") {
+                        console.log("SHIFT");
+                        quant_put = Math.ceil(parseInt(this.stats[item_index].quantity)/2);
+                        
+                    }
                     
                     // ------------------------------------- - item -----------------------------------------
 
-                    item_quantity = this.subtract_item(item_index, 1);
+                    item_quantity = this.subtract_item(item_index, quant_put);
 
                     // ------------------------------------- + item -----------------------------------------
                     
@@ -333,7 +361,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             
                             switch (chest_new.closed_frame) {
                                 case 3: //věci - obecně
-                                    chest_new.add_item(item_frame, 1);
+                                    chest_new.add_item(item_frame, quant_put);
                                 break;
                                 case 7: //dřevo
                                     if (item_quantity > 0) {
@@ -359,12 +387,15 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 case 71: //zel. kotlik s vodou
                                     chest_new.add_item(81, 1); //cista voda
                                 break;
+                                case 104: //kam. nadoba s tav.
+                                    chest_new.add_item(105, 1); //zhav. zelezo
+                                break;
                             }
                         } else {
                             console.log("Sem to nejde polozit");
                             this.game_state.hud.alert.show_alert("Sem to nejde položit");
                             if (chest_new.closed_frame == 3) {
-                                this.add_item(item_frame, 1);
+                                this.add_item(item_frame, quant_put);
                             }
                             chest_new.get_chest(chest_new);
                         }
@@ -379,8 +410,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 switch (item_frame) {
                                     case 53: //Zel. kotlik
                                         this.game_state.prefabs[opened_chest].change_frame(77); //na drevu
-                                        
                                         this.game_state.prefabs[opened_chest].add_item(32, 1); //prkno
+                                        
+                                        if (quant_put > 1) {
+                                            quant_put -= 1;
+                                            this.add_item(item_frame, quant_put);
+                                        }
                                     break;
                                     case 71: //Zel. kotlik s vodou
                                         this.game_state.prefabs[opened_chest].chest_loop_frame = 79;
@@ -388,9 +423,32 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         
                                         this.game_state.prefabs[opened_chest].add_item(32, 1); //prkno
                                         this.game_state.prefabs[opened_chest].add_item(81, 1); //cista voda
+                                        
+                                        if (quant_put > 1) {
+                                            quant_put -= 1;
+                                            this.add_item(item_frame, quant_put);
+                                        }
                                     break;
                                     default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
+                            case 60: //kam. nadoba
+                                switch (item_frame) {
+                                    case 105: //zhav. zelezo
+                                        this.game_state.prefabs[opened_chest].chest_loop_frame = 104;
+                                        this.game_state.prefabs[opened_chest].change_frame(104); //s tav.
+                                        
                                         this.game_state.prefabs.chestitems.add_item(item_frame, 1);
+                                        
+                                        if (quant_put > 1) {
+                                            quant_put -= 1;
+                                            this.add_item(item_frame, quant_put);
+                                        }
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
                                 }
                             break;
@@ -399,26 +457,37 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     case 53: //Zel. kotlik
                                         this.game_state.prefabs[opened_chest].chest_loop_frame = 56;
                                         this.game_state.prefabs[opened_chest].change_frame(56); //hori
+                                        
+                                        if (quant_put > 1) {
+                                            quant_put -= 1;
+                                            this.add_item(item_frame, quant_put);
+                                        }
                                     break;
                                     case 71: //Zel. kotlik s vodou
                                         this.game_state.prefabs[opened_chest].chest_loop_frame = 74;
                                         this.game_state.prefabs[opened_chest].change_frame(74); //hori
                                         
                                         this.game_state.prefabs[opened_chest].add_item(81, 1); //cista voda
+                                        
+                                        if (quant_put > 1) {
+                                            quant_put -= 1;
+                                            this.add_item(item_frame, quant_put);
+                                        }
                                     break;
                                     default:
-                                        this.game_state.prefabs.chestitems.add_item(item_frame, 1);
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
                                 }
                             break;
                             default:
-                                this.game_state.prefabs.chestitems.add_item(item_frame, 1);
+                                this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                             break;
                         }
                     }
                 } else { // beru z bedny
                     var is_fluid = (this.game_state.core_data.items[item_frame].properties.fluid === 'true');                    
                     var takeit = true;
+                    var tquant = 1;
                     var opened_chest = this.game_state.prefabs.player.opened_chest;
                     var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                     var sub_water = this.game_state.core_data.items[chest_frame].properties.sub_water;
@@ -461,6 +530,33 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
+                            case 103: //tav. zelezo
+                                var index = player.test_item(60, 1); //kam. nadoba
+                                console.log(index + " " + item_quantity);
+                                if (index > -1 && item_quantity > 3) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 104; //kam. nadoba s tav
+                                    tquant = 4;
+                                } else {                                    
+                                    takeit = false;       
+                                }
+                            break;
+                            case 105: //zhav. zelezo
+                                var equip = parseInt(player.stats.equip);
+                                if (equip === 106) { //kleste
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {
+                                    takeit = false;  
+                                }
+                            break;
+                            case 109: //zhav.zel.tyc
+                                var equip = parseInt(player.stats.equip);
+                                if (equip === 106) { //kleste
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {
+                                    takeit = false;  
+                                }
+                            break;
                             default:
                                takeit = false;
                             break;
@@ -471,7 +567,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         case 77: // zel. kotlik na drevu
                             switch (item_frame) {
                                 case 32: // prkno
-                                    if (item_quantity < 1) { // kdyz seberu vsechny
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
                                         this.game_state.prefabs[opened_chest].change_frame(53); //zel. kotlik
                                     }
                                 break;
@@ -480,7 +576,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         case 79: // zel. kotlik na drevu s vodou
                             switch (item_frame) {
                                 case 32: // prkno
-                                    if (item_quantity < 1) { // kdyz seberu vsechny
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
                                         this.game_state.prefabs[opened_chest].change_frame(71); //zel. kotlik v vodou
                                     }
                                 break;
@@ -489,14 +585,20 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                      }
                     
                     if (takeit) {
+                        quant_put = 1;
+                        if (player.keys.shift.isDown && tquant < 2) {
+                            console.log("SHIFT");
+                            quant_put = Math.ceil(parseInt(this.stats[item_index].quantity)/2);
+                            tquant = quant_put;
+                        }
                         
                         // ------------------------------------- - item -----------------------------------------
-
-                        item_quantity = this.subtract_item(item_index, 1);
+                        
+                        item_quantity = this.subtract_item(item_index, tquant);
 
                         // ------------------------------------- + item -----------------------------------------
                         
-                        this.game_state.prefabs.items.add_item(item_frame, 1);
+                        this.game_state.prefabs.items.add_item(item_frame, quant_put);
                         
                     } else {
                         console.log("To nejde vzit");
@@ -558,31 +660,33 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             case 7: //Drevo
                                 chest.chest_loop_frame = 83; //Ohen
                                 chest.change_frame(83);
-                                chest.add_item(92, 1); //Ohen
+                                chest.add_item(92, 2); //Ohen
                             break;
                             case 64: //Výheň
-                                var index = chest.test_item(49, 1); //Uhli
-                                if (index > -1) {
-                                    chest.subtract_item(index, 1);
-                                    chest.add_item(92, 1); //Ohen
+                                item = chest.index_item(49); //Uhli
+                                if (item.index > -1) {
+                                    chest.subtract_item(item.index, item.quantity);
+                                    chest.add_item(92, item.quantity*4); //Ohen
                                     
                                     chest.chest_loop_frame = 65; //hori
                                     chest.change_frame(65);
+                                } else {
+                                    this.game_state.hud.alert.show_alert("Chce to uhlí!");
                                 }
                             break;
                             case 77: //Zel. kotlik na drevu
                                 chest.chest_loop_frame = 56; //hori
                                 chest.change_frame(56);
-                                var index = chest.test_item(32, 1); //Prkno
-                                chest.subtract_item(index, 1);
-                                chest.add_item(92, 1); //Ohen
+                                item = chest.test_item(32); //Prkno
+                                chest.subtract_item(item.index, item.quantity);
+                                chest.add_item(92, item.quantity*2); //Ohen
                             break;
                             case 79: //Zel. kotlik s vodou na drevu
                                 chest.chest_loop_frame = 74; //hori
                                 chest.change_frame(74);
-                                var index = chest.test_item(32, 1); //Prkno
-                                chest.subtract_item(index, 1);
-                                chest.add_item(92, 1); //Ohen
+                                item = chest.index_item(32); //Prkno
+                                chest.subtract_item(item.index, item.quantity);
+                                chest.add_item(92, item.quantity*2); //Ohen
                             break;
                             default:
                                 

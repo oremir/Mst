@@ -166,6 +166,9 @@ Mst.Chest.prototype.update = function () {
                 console.log("Play anim ohen");
                 this.animations.play("fire");
             break;
+            case 104:
+                is_timed = true;
+            break;
             default:
                 this.animations.stop();
                 is_timed = false;
@@ -182,6 +185,8 @@ Mst.Chest.prototype.update = function () {
         console.log(this.name);
         console.log(this.save);
         console.log(JSON.stringify(this.save));
+        
+        console.log("OF: " + this.opened_frame + " CF: " + this.closed_frame + " It: " + this.stats.items);
         
         this.save.properties.items = this.stats.items;
         this.save.properties.opened_frame = this.opened_frame;
@@ -260,6 +265,15 @@ Mst.Chest.prototype.time_up = function () {
             
             console.log(this.frame);
         break;
+        case 104: //kam. nadoba s tav.
+            this.frame = 60; //kam. nadoba
+            this.closed_frame = 60;
+            this.opened_frame = 60;
+            this.chest_loop_frame = 104;
+            this.updated = true;
+            
+            console.log(this.frame);
+        break;
     }
     
     this.chest_loop++;
@@ -271,7 +285,7 @@ Mst.Chest.prototype.time_up = function () {
 
 Mst.Chest.prototype.loops_done = function (nloop, type) {
     "use strict";
-    var f, q, fc, qc, index, in_chest, cook, ij;
+    var f, q, fc, qc, item, index, ind2, quantity, quant2, quant_red, in_chest, cook, ij;
     
     console.log("Loops done / l:" + nloop + " f:" + type);
     
@@ -279,14 +293,38 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
         for (i = 0; i < nloop; i++) {
             switch (type) {
                 case 56: //kotlik hori
-                    index = this.test_item(92, 1); //ohen
-                    this.subtract_item(index, 1);
-                    this.add_item(89, 1); //popel
+                    item = this.index_item(92); //ohen
+                    this.subtract_item(item.index, item.quantity);
+                    quantity = Math.ceil(item.quantity / 2);
+                    this.add_item(89, quantity); //popel
+                break;
+                case 65: //vyhen hori
+                    item = this.index_item(92); //ohen
+                    this.subtract_item(item.index, item.quantity);
+                    quantity = Math.ceil(item.quantity / 2);
+                    quant_red = Math.floor(quantity / 2);
+                    this.add_item(89, quantity); //popel
+                    item = this.index_item(97); //zel. ruda
+                    ind2 = item.index;
+                    quant2 = item.quantity;
+                    
+                    if (quant2 > quant_red) {                        
+                        if (quant_red > 0) {
+                            this.subtract_item(ind2, quant_red);
+                            this.add_item(103, quant_red); //tav. zelezo
+                        }
+                    } else {
+                        if (quant2 > 0) {
+                            this.subtract_item(ind2, quant2);
+                            this.add_item(103, quant2); //tav. zelezo
+                        }
+                    }
                 break;
                 case 74: //kotlik s vodou hori
-                    index = this.test_item(92, 1); //ohen
-                    this.subtract_item(index, 1);
-                    this.add_item(89, 1); //popel
+                    item = this.index_item(92); //ohen
+                    this.subtract_item(item.index, item.quantity);
+                    quantity = Math.ceil(item.quantity / 2);
+                    this.add_item(89, quantity); //popel
                     index = this.test_item(91, 1); //hrib
                     if (index > -1) {
                         this.subtract_item(index, 1);
@@ -296,8 +334,10 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                     }
                 break;
                 case 83: //drevo hori
-                    index = this.test_item(92, 1); //ohen
-                    this.subtract_item(index, 1);
+                    item = this.index_item(92); //ohen
+                    this.subtract_item(item.index, item.quantity);
+                    quantity = Math.floor(item.quantity / 2);
+                    this.add_item(89, quantity); //popel
                     in_chest = this.in_chest_ord();
                     if (in_chest.length > 0) {
                         for (var i = 0; i < in_chest.length; i++) {
@@ -317,6 +357,13 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                             }
 
                         }
+                    }
+                break;
+                case 104:
+                    index = this.test_item(105, 1); //zhav. zelezo
+                    if (index > -1) {
+                        this.subtract_item(index, 1);
+                        this.add_item(98, 1); //zelezo
                     }
                 break;
             }
@@ -493,6 +540,12 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     case 19: //ohrada
                         this.game_state.prefabs.player.add_item(24, 1); //hůl
                     break;
+                    case 20: //krovi
+                        this.game_state.prefabs.player.add_item(123, 1); //trava
+                    break;
+                    case 22: //parez
+                        this.game_state.prefabs.player.add_item(31, 1); //spalek
+                    break;
                     default: //ostatní bedny
                         this.game_state.prefabs.player.add_item(closed_frame, 1);
                     break;
@@ -550,6 +603,36 @@ Mst.Chest.prototype.get_chest = function (chest) {
     return success;
 };
 
+Mst.Chest.prototype.rnd_take = function (frame, skill) {
+    "use strict";
+    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test;
+    
+    player = this.game_state.prefabs.player;
+    rtake = this.game_state.core_data.items[frame].properties.rtake;
+    
+    if (typeof (rtake) === 'undefined') {
+        rtake = [];
+    }
+    
+    for (var i = 0; i < rtake.length; i++) {
+        rtake_sp = rtake[i].split("_");
+        iframe = parseInt(rtake_sp[0]);
+        level = parseInt(rtake_sp[3]);
+        
+        rnd_core = 20;
+        if (level > 0) {
+            rnd_core = Math.max(20, 50 - player.level(skill));
+        }
+        
+        rnd_test = Math.floor(Math.random() * rnd_core);
+        if (rnd_test < 2 && player.level(skill) > level) {
+            player.add_item(iframe, 1);
+            
+            break;
+        }
+    }
+};
+
 Mst.Chest.prototype.add_item = function (item_frame, quantity) {
     "use strict";
     var success = true;
@@ -596,10 +679,12 @@ Mst.Chest.prototype.take_all = function () {
 Mst.Chest.prototype.change_frame = function (frame) {
     "use strict";
     
-    this.frame = frame;
-    this.closed_frame = frame;
-    this.opened_frame = frame;
-    this.updated = true;
+    if (typeof (frame) !== 'undefined') {
+        this.frame = frame;
+        this.closed_frame = frame;
+        this.opened_frame = frame;
+        this.updated = true;
+    }
 };
 
 Mst.Chest.prototype.in_chest_ord = function () {
@@ -641,6 +726,15 @@ Mst.Chest.prototype.test_item = function (item_frame, quantity) {
     console.log("Is opened? " + this.is_opened);
     return index;
 };
+
+Mst.Chest.prototype.index_item = function (item_frame) {
+    "use strict";
+    var item;
+    
+    item = this.game_state.prefabs.chestitems.index_by_frame(item_frame);
+    return item;
+};
+
 
 Mst.Chest.prototype.load_chest = function (properties, stat) {
     "use strict";

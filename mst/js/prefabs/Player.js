@@ -184,7 +184,8 @@ Mst.Player = function (game_state, name, position, properties) {
     
     this.frame = 0;
     
-    this.body.setSize(11, 14, 2.5, 5);
+    //this.body.setSize(11, 14, 2.5, 5);
+    this.body.setSize(12, 14, 2, 2);
     this.anchor.setTo(0.5);
     
     this.cursors = this.game_state.game.input.keyboard.createCursorKeys();
@@ -196,6 +197,7 @@ Mst.Player = function (game_state, name, position, properties) {
         'action': Phaser.KeyCode.X,
         'close': Phaser.KeyCode.C,
         'change_type': Phaser.KeyCode.L,
+        'shift':Phaser.KeyCode.SHIFT,
         'attack': Phaser.KeyCode.F,
         'attack_alt': Phaser.Keyboard.ENTER
     });
@@ -208,6 +210,11 @@ Mst.Player = function (game_state, name, position, properties) {
     this.close_context = [];
     this.close_not_delay = true;
     this.action_state = "none";
+    
+    this.emitter = this.game_state.game.add.emitter(0, 0, 100);
+    this.emitter.makeParticles('blood', [0,1,2,3,4,5,6]);
+    this.emitter.gravity = 120;
+    this.emitter.setAlpha(1, 0, 400);
     
     this.update_place();
     //this.quest_bubble();
@@ -429,6 +436,18 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     enemy.knockback_by_player(enemy, player);
     
     player.subtract_health(enemy.en_attack);
+    
+    this.emitter.x = this.x;
+    this.emitter.y = this.y;
+//    var px = enemy.body.velocity.x;
+//    var py = enemy.body.velocity.y;
+//
+//    px *= -0.8 + Math.random()*0.4;
+//    py *= -0.8 + Math.random()*0.4;
+//
+//    this.emitter.minParticleSpeed.set(px, py);
+//    this.emitter.maxParticleSpeed.set(px, py);
+    this.emitter.start(true, 1000, null, 8);
 };
 
 Mst.Player.prototype.hit_player_by_bullet = function (bullet, player) {
@@ -438,6 +457,10 @@ Mst.Player.prototype.hit_player_by_bullet = function (bullet, player) {
     player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
     
     player.subtract_health(bullet.en_attack);
+    
+    this.emitter.x = this.x;
+    this.emitter.y = this.y;
+    this.emitter.start(true, 1000, null, 8);
 };
 
 Mst.Player.prototype.add_health = function (quantity) {

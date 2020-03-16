@@ -17,6 +17,7 @@ Mst.TiledState = function () {
         "chest_creator": Mst.ChestCreator.prototype.constructor,
         "chest": Mst.Chest.prototype.constructor,
         "sword": Mst.Sword.prototype.constructor,
+        "signpost": Mst.Signpost.prototype.constructor,
         "goout": Mst.Goout.prototype.constructor,
         "show_stat_with_sprite": Mst.ShowStatWithSprite.prototype.constructor,
         "show_stat_with_text": Mst.ShowStatWithText.prototype.constructor,
@@ -839,6 +840,7 @@ Mst.hud.prototype.kill_alert = function () {
     this.kill();
     
     this.game_state.hud.alert.alert_sprites.splice(this);
+    console.log("Kill alert");
     console.log(this.game_state.hud.alert.alert_sprites);
     
     this.game_state.hud.alert.next_alert();
@@ -924,7 +926,7 @@ Mst.hud.prototype.i_pos_cast = function () {
     
     console.log(this.alert_sprites);
 
-    for (var i; i < this.alert_sprites.length; i++) {
+    for (var i = 0; i < this.alert_sprites.length; i++) {
         i_pom = this.alert_sprites[i].i_pos;
         if (i_pom > i_pos) {
             i_pos = i_pom;
@@ -936,7 +938,7 @@ Mst.hud.prototype.i_pos_cast = function () {
     if (i_pos > 12) {
         i_pos = 0;
         
-        for (var i; i < this.alert_sprites.length; i++) {
+        for (var i = 0; i < this.alert_sprites.length; i++) {
             i_pom = this.alert_sprites[i].i_pos;
             if (i_pom == i_pos) {
                 i_pos++;

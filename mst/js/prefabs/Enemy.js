@@ -74,6 +74,11 @@ Mst.Enemy = function (game_state, name, position, properties) {
     }
     
     this.b_pool = this.game_state.groups.enemybullets;
+    
+    this.emitter = this.game_state.game.add.emitter(0, 0, 100);
+    this.emitter.makeParticles('blood', [0,1,2,3,4,5,6]);
+    this.emitter.gravity = 120;
+    this.emitter.setAlpha(1, 0, 400);
 
 
 };
@@ -118,7 +123,7 @@ Mst.Enemy.prototype.update = function () {
     }*/
     
     if (this.game_state.prefabs.sword.alive) {
-        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.sword) < 18) {
+        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.sword) < 19) {
             this.hit_enemy_sword(this.game_state.prefabs.player, this);
         }
     }
@@ -152,12 +157,21 @@ Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
 };
 
 Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
-    var damage = 2 + (player.stats.abilities.strength/5);
-    damage += player.level("standard") + (player.level("fighter")*1.5);
-    damage = Math.floor(damage);
-    console.log("DM: " + damage);
+    var sword_cut = this.game_state.prefabs.sword.cut;
+    console.log(this.game_state.prefabs.sword);
+    console.log("!!! Hit CUT: " + sword_cut);
     
-    this.hit_enemy(player, enemy, "fighter", "strength", damage);
+    if (sword_cut) {
+        var damage = 2 + (player.stats.abilities.strength/5);
+        damage += player.level("standard") + (player.level("fighter")*1.5);
+        damage = Math.floor(damage);
+        console.log("DM: " + damage);
+
+        this.hit_enemy(player, enemy, "fighter", "strength", damage);
+        
+        this.game_state.prefabs.sword.cut = false;
+        console.log("!!! Hit2 CUT: " + this.game_state.prefabs.sword.cut);
+    }
 };
 
 Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
@@ -174,7 +188,7 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
     
     var enemy_health_max = parseInt(enemy.health_max);
     
-    if (enemy.knockbacki < 1 && enemy.alive) {
+    if (enemy.alive) {
         enemy.health -= damage;
         
         var axp = Math.floor(damage/2);
@@ -183,6 +197,10 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
         player.work_rout(type, ability, 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
         
         enemy.knockback_by_hit(enemy, player, type);
+        
+        this.emitter.x = this.x;
+        this.emitter.y = this.y;
+        this.emitter.start(true, 1000, null, 8);
         
         if (enemy.health < 1) {
             player.add_exp("standard", enemy_health_max);

@@ -143,6 +143,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
     "use strict";
     var item_index, item_frame, item_cost, index_gold, item;
     
+    var player = this.game_state.prefabs.player;
     console.log("Business");
     
     if (this.game_state.prefabs.player.opened_business != "") {
@@ -163,11 +164,11 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
 
                 // ------------------------------------- Player - gold ---------------------------------------
 
-                this.game_state.prefabs.player.subtract_item(index_gold, item_cost);
+                player.subtract_item(index_gold, item_cost);
 
                 // ------------------------------------ Player + item ------------------------------------------
 
-                this.game_state.prefabs.player.add_item(item_frame, 1);
+                tplayer.add_item(item_frame, 1);
 
             } else {
                 // Na to nemas
@@ -177,13 +178,20 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
             
             if (item.is_in) {
                 
+                var quant_put = 1;
+                if (player.keys.shift.isDown) {
+                    console.log("SHIFT");
+                    quant_put = Math.ceil(parseInt(item.quantity)/2);
+
+                }
+                
                 // ------------------------------------ Player - item ------------------------------------------
             
-                this.game_state.prefabs.player.subtract_item(item.index, 1);
+                player.subtract_item(item.index, quant_put);
 
                 // ------------------------------------- Player + gold ---------------------------------------
 
-                this.game_state.prefabs.player.add_item(1, item_cost); 
+                player.add_item(1, item_cost*quant_put);
             } else {
                 this.game_state.hud.alert.show_alert("To nemáš!");
             }
