@@ -111,49 +111,55 @@ switch ($type) {
             $object = $apost;
             $new_map_int = $apost["map_int"];
             
-            $sel_dead = $mysqli->query("SELECT * FROM `objects` WHERE live = 0 ORDER BY ID ASC LIMIT 1");
+            $is_same = $mysqli->query("SELECT * FROM `objects` WHERE live = 1 and on_map = '".$new_map_int."' and name = '".$name."' and type = '".$type."'");
             
-            if ($sel_dead->num_rows < 1) {
-                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|Chest dead| 0 results\n";
-                
-                $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
-                VALUES ('".$name."', '".$type."', '".$new_map_int."', 0, 1, '".time()."')";
+            if ($is_same->num_rows > 0) {
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|Chest dupl\n";
+            } else {            
+                $sel_dead = $mysqli->query("SELECT * FROM `objects` WHERE live = 0 ORDER BY ID ASC LIMIT 1");
 
-                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $name . "|" . $type . "|" . $new_map_int .  "|Chest INS|";
+                if ($sel_dead->num_rows < 1) {
+                    $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|Chest dead| 0 results\n";
 
-                $last_id = 0;
+                    $sql = "INSERT INTO `objects` (name, type, on_map, open, live, time) 
+                    VALUES ('".$name."', '".$type."', '".$new_map_int."', 0, 1, '".time()."')";
 
-                if ($mysqli->query($sql) === TRUE) {
-                    $last_id = $mysqli->insert_id;
-                    $object["obj_id"] = $last_id;
-                    $new_obj_id = $last_id;
+                    $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $name . "|" . $type . "|" . $new_map_int .  "|Chest INS|";
 
-                    $radek_l2 = $radek_l2 . "LastID:".$last_id."|New record created successfully";
+                    $last_id = 0;
+
+                    if ($mysqli->query($sql) === TRUE) {
+                        $last_id = $mysqli->insert_id;
+                        $object["obj_id"] = $last_id;
+                        $new_obj_id = $last_id;
+
+                        $radek_l2 = $radek_l2 . "LastID:".$last_id."|New record created successfully";
+                    } else {
+                        $status = "error";
+                        $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
+                    }
                 } else {
-                    $status = "error";
-                    $radek_l2 = $radek_l2 . "Error: " . $sql . " | " . $mysqli->error . "\n";
+                    $row_dead = $sel_dead->fetch_assoc();
+
+                    $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row_dead["ID"]. "|" . $row_dead["name"] . "|" . $row_dead["type"] . "|M" . $row_dead["on_map"]. "|OP" . $row_dead["open"]. "|LV" . $row_dead["live"].  "|Dead Chest";
+
+                    $new_obj_id = $row_dead["ID"];
+                    $object["obj_id"] = $new_obj_id;              
                 }
-            } else {
-                $row_dead = $sel_dead->fetch_assoc();
-                
-                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row_dead["ID"]. "|" . $row_dead["name"] . "|" . $row_dead["type"] . "|M" . $row_dead["on_map"]. "|OP" . $row_dead["open"]. "|LV" . $row_dead["live"].  "|Dead Chest";
-                
-                $new_obj_id = $row_dead["ID"];
-                $object["obj_id"] = $new_obj_id;              
-            }
-            
-            if ($new_obj_id > 0) {
-                $new_obj = json_encode($object);
-                                
-                $sql = "UPDATE `objects` SET on_map = '".$new_map_int."', name = '".$name."', type = '".$type."', JSON = '".$new_obj."', time = '".time()."', open = 0, live = 1 WHERE ID = ".$new_obj_id;
 
-                if ($mysqli->query($sql) === TRUE) {
-                    $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
-                } else {
-                    $status = "error";
-                    $object["obj_id"] = 0;
-                    $radek_l2 =  $radek_l2 . "|Error updating record: " . $mysqli->error . "\n";
-                }  
+                if ($new_obj_id > 0) {
+                    $new_obj = json_encode($object);
+
+                    $sql = "UPDATE `objects` SET on_map = '".$new_map_int."', name = '".$name."', type = '".$type."', JSON = '".$new_obj."', time = '".time()."', open = 0, live = 1 WHERE ID = ".$new_obj_id;
+
+                    if ($mysqli->query($sql) === TRUE) {
+                        $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
+                    } else {
+                        $status = "error";
+                        $object["obj_id"] = 0;
+                        $radek_l2 =  $radek_l2 . "|Error updating record: " . $mysqli->error . "\n";
+                    }  
+                }
             }
         }
         break;
