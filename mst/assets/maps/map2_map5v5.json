@@ -42,8 +42,8 @@
                  "name":"goout",
                  "properties":
                     {
-                     "go_position_x":"718",
-                     "go_position_y":"114",
+                     "go_position_x":"287",
+                     "go_position_y":"147",
                      "group":"goouts",
                      "next_map":"1",
                      "pool":"goouts",

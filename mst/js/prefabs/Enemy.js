@@ -12,9 +12,6 @@ Mst.Enemy = function (game_state, name, position, properties) {
     
     this.en_attack = 2;
     
-    
-    
-    
     this.knockbacki = 0;
     
     // saving previous x to keep track of walked distance

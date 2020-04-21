@@ -28,6 +28,9 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
         case 3:
             properties.texture = "wasp_spritesheet";
         break;
+        default:
+            properties.texture = "slime_spritesheet";
+        break;
     }
     
     return new Mst.Enemy(this.game_state, name, position, properties);

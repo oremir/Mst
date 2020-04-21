@@ -94,6 +94,36 @@
                  "width":16,
                  "x":672,
                  "y":499
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":3,
+                 "name":"goout03",
+                 "properties":
+                    {
+                     "go_position_x":"288",
+                     "go_position_y":"365",
+                     "group":"goouts",
+                     "next_map":"18",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":848,
+                 "y":433
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -101,7 +131,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":3,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -110,7 +140,7 @@
         {
          "columns":45,
          "firstgid":1,
-         "image":"map15_skola3p_mod.png",
+         "image":"..\/images\/map15_skola3p_mod.png",
          "imageheight":480,
          "imagewidth":720,
          "margin":0,

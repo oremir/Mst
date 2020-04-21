@@ -13,6 +13,9 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     
     this.pool = this.game_state.groups[properties.pool];
     
+    this.xdif = parseInt(properties.xdif)*16;
+    this.ydif = parseInt(properties.ydif)*16;
+    
     this.items = [];
     
     for (var i = 0; i < this.game_state.core_data.items.length; i++) {
@@ -40,7 +43,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
     "use strict";
     var object_name, object_position, object, index, frame, itst, x, y, dist;
     // get new random position
-    object_position = new Phaser.Point(this.game_state.rnd.between(-120, 220) + this.position.x, this.game_state.rnd.between(-120, 120) + this.position.y);
+    object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
     
     // return new Item with random frame
     

@@ -11,7 +11,13 @@ Mst.Spawner = function (game_state, name, position, properties) {
     
     this.pool = this.game_state.groups[properties.pool];
     
-    this.spawn_time = properties.spawn_time;
+    this.spawn_time = {
+        min: +properties.spawn_time_min,
+        max: +properties.spawn_time_max
+    };
+    
+    this.xdif = parseInt(properties.xdif)*16;
+    this.ydif = parseInt(properties.ydif)*16;
     
     this.spawn_timer = this.game_state.time.create();
 
@@ -43,7 +49,7 @@ Mst.Spawner.prototype.spawn = function () {
     time = 0;
     
     // get new random position and velocity
-    object_position = new Phaser.Point(this.game_state.rnd.between(-70, 70) + this.position.x, this.game_state.rnd.between(-70, 70) + this.position.y);
+    object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
     // get first dead object from the pool
     object = this.pool.getFirstDead();
     
