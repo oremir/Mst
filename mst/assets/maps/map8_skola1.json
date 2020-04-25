@@ -184,6 +184,36 @@
                  "width":16,
                  "x":96,
                  "y":225
+                }, 
+                {
+                 "gid":47,
+                 "height":16,
+                 "id":7,
+                 "name":"goout06",
+                 "properties":
+                    {
+                     "go_position_x":"504",
+                     "go_position_y":"274",
+                     "group":"goouts",
+                     "next_map":"21",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":160,
+                 "y":670
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -191,7 +221,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":7,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

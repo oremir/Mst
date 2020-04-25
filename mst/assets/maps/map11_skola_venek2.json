@@ -70,20 +70,56 @@
                  "height":16,
                  "id":2,
                  "name":"goout02",
+                 "properties":
+                    {
+                     "go_position_x":"224",
+                     "go_position_y":"302",
+                     "group":"goouts",
+                     "next_map":"23",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
                  "rotation":0,
-                 "type":"",
+                 "type":"goout",
                  "visible":true,
                  "width":16,
                  "x":536,
-                 "y":336
+                 "y":337
                 }, 
                 {
                  "gid":2296,
                  "height":16,
                  "id":3,
                  "name":"goout03",
+                 "properties":
+                    {
+                     "go_position_x":"320",
+                     "go_position_y":"286",
+                     "group":"goouts",
+                     "next_map":"23",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
                  "rotation":0,
-                 "type":"",
+                 "type":"goout",
                  "visible":true,
                  "width":16,
                  "x":628,
@@ -94,8 +130,26 @@
                  "height":16,
                  "id":4,
                  "name":"goout04",
+                 "properties":
+                    {
+                     "go_position_x":"131",
+                     "go_position_y":"320",
+                     "group":"goouts",
+                     "next_map":"24",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
                  "rotation":0,
-                 "type":"",
+                 "type":"goout",
                  "visible":true,
                  "width":16,
                  "x":700,
@@ -116,7 +170,7 @@
         {
          "columns":41,
          "firstgid":1,
-         "image":"map11_skola_venek2.png",
+         "image":"..\/images\/map11_skola_venek2.png",
          "imageheight":480,
          "imagewidth":656,
          "margin":0,
@@ -129,7 +183,7 @@
         {
          "columns":41,
          "firstgid":1231,
-         "image":"map11_skola_venek2.png",
+         "image":"..\/images\/map11_skola_venek2.png",
          "imageheight":480,
          "imagewidth":656,
          "margin":0,
