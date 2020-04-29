@@ -340,7 +340,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
 
                     // ------------------------------------- + item -----------------------------------------
                     
-                    
+                    console.log("Opened chest: " + player.opened_chest);
                     if (player.opened_chest === "") { // zadna bedna otevrena - delam novou
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
@@ -758,10 +758,14 @@ Mst.ShowItems.prototype.subtract_all = function (item_index) {
     console.log(this.stats);
     console.log(this.stats[item_index]);
     
-    item_frame = this.stats[item_index].frame;
-    item_quantity = parseInt(this.stats[item_index].quantity);
-    
-    this.update_item(item_index, item_frame, 0);
+    if (this.stats.length > 0) {
+        item_frame = this.stats[item_index].frame;
+        item_quantity = parseInt(this.stats[item_index].quantity);
+
+        this.update_item(item_index, item_frame, 0);
+    } else {
+        item_quantity = -1;
+    }
     
     return item_quantity;
 };

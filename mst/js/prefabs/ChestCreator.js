@@ -78,18 +78,21 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     this.game_state.prefabs.player.x = position_new_player.x
     this.game_state.prefabs.player.y = position_new_player.y;
     
-    chest_new = this.pool.getFirstDead();
+    name_new = this.create_new_chest_name();
+    chest_new = this.create_object(name_new, position_new, this.properties);
     
-    if (!chest_new) {
-        // if there is no dead object, create a new one
-        name_new = this.create_new_chest_name();
-        chest_new = this.create_object(name_new, position_new, this.properties);
-
-    } else {
-        // if there is a dead object, reset it to the new position and velocity
-        chest_new.reset(position_new);
-        name_new = chest_new.name;
-    }
+//    chest_new = this.pool.getFirstDead();
+    
+//    if (!chest_new) {
+//        // if there is no dead object, create a new one
+//        name_new = this.create_new_chest_name();
+//        chest_new = this.create_object(name_new, position_new, this.properties);
+//
+//    } else {
+//        // if there is a dead object, reset it to the new position and velocity
+//        chest_new.reset(position_new);
+//        name_new = chest_new.name;
+//    }
     
     chest_new.stats.items = "";
     

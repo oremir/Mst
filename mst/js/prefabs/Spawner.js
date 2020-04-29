@@ -70,7 +70,7 @@ Mst.Spawner.prototype.spawn = function () {
             
             console.log("Reset enemy: " + object.name);
         }
-        this.wave_time += this.wave_count;
+        this.wave_time += this.wave_count*3;
         this.wave_num++;
         if (this.wave_num >= this.wave_max) {
             this.wave_num = 0;
@@ -79,7 +79,7 @@ Mst.Spawner.prototype.spawn = function () {
                 this.wave_max++;
             }
             
-            time = this.wave_time + this.wave_count + this.game_state.rnd.between(this.spawn_time.min, this.spawn_time.max);
+            time = this.wave_time*2 + this.wave_count*5 + this.game_state.rnd.between(this.spawn_time.min, this.spawn_time.max)*3;
             
             console.log("New enemy wave: " + this.wave_count + " Time: " + time);
         }

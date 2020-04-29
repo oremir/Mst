@@ -146,6 +146,8 @@ Mst.Player = function (game_state, name, position, properties) {
     
     this.o_exp_alert.timer = this.game_state.time.create(false);
     
+    this.get_chest_timer = this.game_state.time.create(false);
+        
     this.save = {
         type: "player",
         name: name,
@@ -218,6 +220,9 @@ Mst.Player = function (game_state, name, position, properties) {
     
     this.update_place();
     //this.quest_bubble();
+    
+    this.speak_b = false;
+    this.speak_ren = {};
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -260,7 +265,7 @@ Mst.Player.prototype.update = function () {
     //if (this.keys.close.isDown) { this.key_close(); }
     //if (this.keys.change_type.isDown) { this.key_change_type(); }
     
-    if (this.keys.attack.isDown) { this.game_state.prefabs.sword.swing(); }
+    if (this.keys.attack.isDown) { this.key_attack_enter(); }
     if (this.keys.attack_alt.isDown) { this.game_state.prefabs.sword.swing(); }
     
     
@@ -270,10 +275,20 @@ Mst.Player.prototype.update = function () {
     }*/
     
     if (this.game_state.prefabs.sword.alive) {
-        this.game_state.prefabs.sword.x = this.x + this.direction_sword.x * 4;
-        this.game_state.prefabs.sword.y = this.y + 2 + this.direction_sword.y;
-        this.game_state.prefabs.sword.hit.x = this.x + this.direction_sword.x * 6;
-        this.game_state.prefabs.sword.hit.y = this.y;
+        if (this.game_state.prefabs.sword.cut_type !== "fire") {
+            this.game_state.prefabs.sword.x = this.x + this.direction_sword.x * 4;
+            this.game_state.prefabs.sword.y = this.y + 2 + this.direction_sword.y;
+            this.game_state.prefabs.sword.hit.x = this.x + this.direction_sword.x * 6;
+            this.game_state.prefabs.sword.hit.y = this.y;
+        } else {
+            if (this.direction_chest.y === 0) {
+                this.game_state.prefabs.sword.x = this.x + this.direction_chest.x * 18;
+                this.game_state.prefabs.sword.y = this.y + this.direction_chest.y * 16 - 8;
+            } else {
+                this.game_state.prefabs.sword.x = this.x + this.direction_chest.x * 16 - 8;
+                this.game_state.prefabs.sword.y = this.y + this.direction_chest.y * 20;
+            }
+        }
     }
     
     this.stats.health_hearts = Math.ceil(this.health / Math.ceil(this.stats.health_max / 5));
@@ -309,6 +324,29 @@ Mst.Player.prototype.update = function () {
     this.save.properties.equip = this.stats.equip;
     
     this.game_state.save.player = this.save;
+};
+
+Mst.Player.prototype.key_attack_enter = function () {
+    "use strict";
+    var pins;
+    
+    if (!this.speak_b) {
+        this.game_state.prefabs.sword.swing();
+    } else {
+        this.speak_b = false;
+        
+        pins = this.speak_ren.p_id + "|" + this.usr_id + "|0|1|" + this.speak_ren.inp_speak.value;
+        console.log(pins);
+        
+        $.get( "broadcast.php", { ins: pins} )
+            .done(function( data ) {
+                console.log( "Data Loaded: " + data );
+        });
+        
+        this.speak_ren.img_speak.kill();
+        this.speak_ren.inp_speak.kill();
+    }
+    
 };
 
 Mst.Player.prototype.key_right = function () {
@@ -527,29 +565,42 @@ Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";
     var owner;
     
-    console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");
-    console.log(chest.stats);
+    console.log(this.get_chest_timer.length);
     
-    if (this.opened_chest === "") {
-        player.opened_chest = chest.name;
-        owner = parseInt(chest.owner);
+    if (this.get_chest_timer.length < 1) {
+          
         
-        if (chest.stat !== "open") {
-            if (owner !== 0) {
-                if (owner === player.usr_id) {
-                    chest.open_chest(player, chest);
+        if (this.opened_chest === "") {
+            console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");      
+            console.log(chest.stats);
+            
+            player.opened_chest = chest.name;
+            owner = parseInt(chest.owner);
+
+            if (chest.stat !== "open") {
+                if (owner !== 0) {
+                    if (owner === player.usr_id) {
+                        chest.open_chest(player, chest);
+                    } else {
+                        console.log("Chest is owned by other player");
+                        chest.game_state.hud.alert.show_alert("To patří jinému!");
+                        this.get_chest_timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
+                        this.get_chest_timer.start();
+                        this.opened_chest = "";
+                    }
                 } else {
-                    console.log("Chest is owned by other player");
-                    chest.game_state.hud.alert.show_alert("To patří jinému!"); 
+                    chest.open_chest(player, chest);
                 }
             } else {
-                chest.open_chest(player, chest);
+                console.log("Chest is open by other player");
+                chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
+                this.get_chest_timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
+                this.get_chest_timer.start();
+                this.opened_chest = "";
             }
-        } else {
-            console.log("Chest is open by other player");
-            chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
         }
     }
+    
 };
 
 Mst.Player.prototype.open_business = function (player, person) {

@@ -342,11 +342,11 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                     if (in_chest.length > 0) {
                         for (var i = 0; i < in_chest.length; i++) {
                             f = in_chest[i].f;
-                            if (typeof(this.game_state.core_data.items[f].properties.cook) !== undefined) {
+                            cook = this.game_state.core_data.items[f].properties.cook;
+                            if (typeof(cook) !== 'undefined') {
                                 index = this.test_item(f, 1);
                                 this.subtract_item(index, 1);
 
-                                cook = this.game_state.core_data.items[f].properties.cook;
                                 for (var j = 0; j < cook[0]; j++) {
                                     ij = 2 * j + 1;
                                     fc = cook[ij];
@@ -520,84 +520,97 @@ Mst.Chest.prototype.close_chest = function () {
 
 Mst.Chest.prototype.get_chest = function (chest) {
     "use strict";
-    var chest_name, closed_frame, key, usr_id, d, n, success;
+    var chest_name, closed_frame, key, usr_id, d, n, success, player;
     success = true;
     
-    if (this.is_takeable) {
-        if (chest.stat !== "open") {
-            if (chest.stats.items === "") {
-                console.log(chest);
-                chest_name = chest.name;
-                closed_frame = chest.closed_frame;
+    player = this.game_state.prefabs.player;
+    chest_name = chest.name;
+    
+    console.log("GET CHEST - is takeble: " + chest.is_takeable);
+    
+    if (player.opened_chest === chest_name) {
+        if (chest.is_takeable) {
+            if (chest.stat !== "open") {
+                if (chest.stats.items === "") {
+                    console.log(chest);
 
-                switch(closed_frame) {
-                    case 3: //věci 
+                    closed_frame = chest.closed_frame;
 
-                    break;
-                    case 7: //dřevo
-                        this.game_state.prefabs.player.add_item(32, 1); //prkno
-                    break;
-                    case 19: //ohrada
-                        this.game_state.prefabs.player.add_item(24, 1); //hůl
-                    break;
-                    case 20: //krovi
-                        this.game_state.prefabs.player.add_item(123, 1); //trava
-                    break;
-                    case 22: //parez
-                        this.game_state.prefabs.player.add_item(31, 1); //spalek
-                    break;
-                    default: //ostatní bedny
-                        this.game_state.prefabs.player.add_item(closed_frame, 1);
-                    break;
-                }
-                
-                if (chest.sskill !== "") {
-                    this.game_state.prefabs.player.work_rout(chest.sskill, "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                }
+                    switch(closed_frame) {
+                        case 3: //věci 
 
-                //this.obj_id = 0;
-                this.kill();
-                this.game_state.prefabs.player.opened_chest = "";
+                        break;
+                        case 7: //dřevo
+                            player.add_item(32, 1); //prkno
+                        break;
+                        case 19: //ohrada
+                            player.add_item(24, 1); //hůl
+                        break;
+                        case 20: //krovi
+                            player.add_item(123, 1); //trava
+                        break;
+                        case 22: //parez
+                            player.add_item(31, 1); //spalek
+                        break;
+                        default: //ostatní bedny
+                            player.add_item(closed_frame, 1);
+                        break;
+                    }
 
-                key = this.game_state.keyOfName(chest_name);
+                    if (chest.sskill !== "") {
+                        player.work_rout(chest.sskill, "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                    }
 
-                console.log("Get chest key:");
-                console.log(key);
+                    //this.obj_id = 0;
+                    this.kill();
+                    player.opened_chest = "";
 
-                if (key !== "") {
-                    this.game_state.save.objects.splice(key, 1);
-                }
+                    key = this.game_state.keyOfName(chest_name);
 
-                console.log("Get chest objects:");
-                console.log(this.game_state.save.objects);
+                    console.log("Get chest key:");
+                    console.log(key);
 
-                if (this.obj_id !== 0) {
-                    usr_id = this.game_state.prefabs.player.usr_id;
-                    chest.save.action = "GET";
+                    if (key !== "") {
+                        this.game_state.save.objects.splice(key, 1);
+                    }
 
-                    d = new Date();
-                    n = d.getTime();
+                    console.log("Get chest objects:");
+                    console.log(this.game_state.save.objects);
 
-                    $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
-                        .done(function (data) {
-                            console.log("Chest get success");
-                            console.log(data);
-                        })
-                        .fail(function (data) {
-                            console.log("Chest get error");
-                            console.log(data);
-                        });
+                    if (this.obj_id !== 0) {
+                        usr_id = player.usr_id;
+                        chest.save.action = "GET";
 
-                    console.log("save chest get");
+                        d = new Date();
+                        n = d.getTime();
+
+                        $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
+                            .done(function (data) {
+                                console.log("Chest get success");
+                                console.log(data);
+                            })
+                            .fail(function (data) {
+                                console.log("Chest get error");
+                                console.log(data);
+                            });
+
+                        console.log("save chest get");
+                    }
+                } else {
+                    success = false;
+                    console.log("Chest is not empty!");
                 }
             } else {
                 success = false;
+                console.log("Chest is open by any other!");
             }
         } else {
             success = false;
+            console.log("Chest is not takeble!");
         }
     } else {
         success = false;
+        console.log("Chest is not open!");
     }
     
     return success;
@@ -605,7 +618,9 @@ Mst.Chest.prototype.get_chest = function (chest) {
 
 Mst.Chest.prototype.rnd_take = function (frame, skill) {
     "use strict";
-    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test;
+    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, exp;
+    
+    console.log("RND take CHEST!!!");
     
     player = this.game_state.prefabs.player;
     rtake = this.game_state.core_data.items[frame].properties.rtake;
@@ -617,7 +632,7 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
     for (var i = 0; i < rtake.length; i++) {
         rtake_sp = rtake[i].split("_");
         iframe = parseInt(rtake_sp[0]);
-        level = parseInt(rtake_sp[3]);
+        level = parseInt(rtake_sp[1]);
         
         rnd_core = 20;
         if (level > 0) {
@@ -625,8 +640,13 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
         }
         
         rnd_test = Math.floor(Math.random() * rnd_core);
-        if (rnd_test < 2 && player.level(skill) > level) {
+        console.log("RND test " + rnd_test);
+        if (rnd_test < 3 && player.level(skill) > level) {
             player.add_item(iframe, 1);
+            console.log("RND take chest: " + iframe);
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            exp = (level + 1)*2;
+            player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
             
             break;
         }

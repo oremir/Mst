@@ -181,8 +181,9 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                     player.update_relation(other_player, "player", 1);
                     player.set_opened_ren(this.name);
                     console.log("Op.ren: " + this.name);
+                    options = ["speak"];
                     if (typeof (this.ren_sprite.quest.state) !== 'undefined') {
-                        options = ["quest"];
+                        options.push("quest");
                     }
                     if (player.gender === "male") {                        
                         this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?", options);

@@ -168,7 +168,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
 
                 // ------------------------------------ Player + item ------------------------------------------
 
-                tplayer.add_item(item_frame, 1);
+                player.add_item(item_frame, 1);
 
             } else {
                 // Na to nemas

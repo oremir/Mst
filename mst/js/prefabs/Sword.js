@@ -53,7 +53,7 @@ Mst.Sword.prototype.update = function () {
             this.game_state.game.physics.arcade.overlap(this, this.game_state.layers.collision_rock,  this.cut_stone, null, this);
             //console.log(this.game_state.layers.collision_forrest);
         }
-        if (this.body.rotation > 40 && this.body.rotation < 80) {
+        if (this.cut_type !== "fire" && this.body.rotation > 40 && this.body.rotation < 80) {
             this.kill();
         }
     }
@@ -62,37 +62,74 @@ Mst.Sword.prototype.update = function () {
 
 Mst.Sword.prototype.swing = function () {
     "use strict";
-    
     var player = this.game_state.prefabs.player;
     
     if (this.alive === false) {
-        this.hit.animations.play("r_hit");
-        
-        this.body.rotation = -135;
-        this.body.angularVelocity = player.direction_sword.x * 500;
-        
-        if (player.direction_sword.x === 1) {
-            this.frame = this.fr_right;
-        } else {
-            this.frame = this.fr_left;
-        }
-        
-        this.cut = true;
-        
-        console.log("!!! CUT: " + this.cut);
-        
-        this.wooshSound.play();
+        console.log(this.cut_type);
+        if (this.cut_type === "fire") {
+            var index = player.test_item(125, 1); //arrow
+            console.log(index);
+            if (index > -1) {
+                player.subtract_item(index, 1);
 
-        this.revive();
-        
-        if (this.cut_type === "magic") {
-            player.work_rout("magic", "intelligence", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
-            
-            this.create_bullet();
+                this.body.rotation = 0;
+                this.body.angularVelocity = 0;
+                this.revive();
+
+                console.log(player.direction_chest);
+
+
+                if (player.direction_chest.y === 0) {
+                    this.frame = this.fr_left;
+                    this.scale.setTo(-player.direction_chest.x, 1);
+                } else {
+                    this.frame = this.fr_right;
+                    this.scale.setTo(1, -player.direction_chest.y);
+                }
+
+                console.log(this.body.rotation);
+                player.work_rout("archer", "dexterity", 0, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+                this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.2, this.hide_bow, this);
+            } else {
+                this.game_state.hud.alert.show_alert("Není střelivo!");
+            }
+        } else {
+            this.hit.animations.play("r_hit");
+
+            this.body.rotation = -135;
+            this.body.angularVelocity = player.direction_sword.x * 500;
+
+            if (player.direction_sword.x === 1) {
+                this.frame = this.fr_right;
+            } else {
+                this.frame = this.fr_left;
+            }
+
+            this.cut = true;
+
+            console.log("!!! CUT: " + this.cut);
+
+            this.wooshSound.play();
+
+            this.revive();
+
+            if (this.cut_type === "magic") {
+                player.work_rout("magic", "intelligence", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+                this.create_bullet();
+            }
         }
         console.log("!!! CUT: " + this.cut);
         console.log(this.game_state.prefabs.sword);
     }
+};
+
+Mst.Sword.prototype.hide_bow = function () {
+    console.log("Hide bow");
+    this.create_bullet();
+    
+    this.kill();
 };
 
 Mst.Sword.prototype.reequip = function (ef) {
@@ -109,7 +146,7 @@ Mst.Sword.prototype.reequip = function (ef) {
         this.cut_type = "";
     }
     
-    console.log("Frames sword: " + this.fr_left + " " + this.fr_right);
+    console.log("Frames sword: " + this.fr_left + " " + this.fr_right + " Cut type: " + this.cut_type);
 };
 
 Mst.Sword.prototype.cut_wood = function (tool, wood) {
@@ -205,7 +242,7 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
 
 Mst.Sword.prototype.rnd_take = function (frame, skill) {
     "use strict";
-    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test;
+    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, exp;
     
     player = this.game_state.prefabs.player;
     rtake = this.game_state.core_data.items[frame].properties.rtake;
@@ -227,6 +264,10 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
         rnd_test = Math.floor(Math.random() * rnd_core);
         if (rnd_test < 2 && player.level(skill) > level) {
             player.add_item(iframe, 1);
+            console.log("RND take sword: " + iframe);
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            exp = (level + 1)*2;
+            player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
             
             break;
         }
@@ -264,6 +305,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                             
@@ -273,6 +315,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                         break;
@@ -324,6 +367,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             
                             player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
@@ -333,10 +377,11 @@ Mst.Sword.prototype.cut_chest = function (chest) {
 //                                player.add_item(33, 1); // trnka
 //                            }
                         break;
-                        case 93: //hrib
+                        case 91: //hrib
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                         break;
@@ -350,6 +395,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                             
@@ -365,6 +411,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             }  else {
                                 chest.take_all();
                                 player.put_all(in_chest);
+                                chest.is_takeable = true;
                                 chest.get_chest(chest);
                                 player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                             }
@@ -414,6 +461,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                         break;
@@ -441,7 +489,15 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                         chest.add_item(111, 5); //brousek
                                         chest.updated = true;
                                         player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                                    } 
+                                    } else {
+                                        in_chest = chest.in_chest_ord();
+                                        chest.take_all();
+                                        player.put_all(in_chest);
+                                        chest.is_takeable = true;
+                                        chest.get_chest(chest);
+                                        player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                        chest.rnd_take(21, "stonebreaker");
+                                    }
                                 }
                             }
                         break;
@@ -449,10 +505,11 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             chest.change_frame(60); //kam. nádoba
                             player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                         break;
-                        case 93: //hrib
+                        case 91: //hrib
                             in_chest = chest.in_chest_ord();
                             chest.take_all();
                             player.put_all(in_chest);
+                            chest.is_takeable = true;
                             chest.get_chest(chest);
                             player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                         break;
@@ -636,12 +693,25 @@ Mst.Sword.prototype.create_bullet = function () {
         y: (this.game_state.prefabs.player.y + (this.game_state.prefabs.player.direction_chest.y * 10))
     };
     
-    object_properties = {
-        direction: this.game_state.prefabs.player.direction_chest,
-        texture: "magic1",
-        firstframe: 0,
-        group: "playerbullets"
-    };
+    console.log(this.cut_type);
+    
+    if (this.cut_type === "magic") {
+        object_properties = {
+            direction: this.game_state.prefabs.player.direction_chest,
+            texture: "magic1",
+            firstframe: 0,
+            group: "playerbullets"
+        };
+    } else {
+        object_properties = {
+            direction: this.game_state.prefabs.player.direction_chest,
+            texture: "arrow1",
+            firstframe: 0,
+            group: "playerbullets"
+        };
+    }
+    
+    
     
     object = this.b_pool.getFirstDead();
         
@@ -650,5 +720,6 @@ Mst.Sword.prototype.create_bullet = function () {
         object = new Mst.Bullet(this.game_state, object_name, object_position, object_properties);
     } else {
         object.reset(object_position, object_properties);
+        object.loadTexture(object_properties.texture);
     }
 };

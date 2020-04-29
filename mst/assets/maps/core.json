@@ -20,6 +20,9 @@
 		"smith_e_spritesheet": { "type": "spritesheet", "source": "assets/images/player/smith_e_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "kratos_spritesheet": { "type": "spritesheet", "source": "assets/images/player/kratos_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "jaga_spritesheet": { "type": "spritesheet", "source": "assets/images/player/jaga_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "morigan_spritesheet": { "type": "spritesheet", "source": "assets/images/player/morigan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "alfred_spritesheet": { "type": "spritesheet", "source": "assets/images/player/alfred_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "lyria_spritesheet": { "type": "spritesheet", "source": "assets/images/player/lyria_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "rabite_spritesheet": { "type": "spritesheet", "source": "assets/images/rabite_spritesheet.png", "frame_width": 16, "frame_height": 32, "frames": 7 },
         "wasp_spritesheet": { "type": "spritesheet", "source": "assets/images/wasp_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
@@ -35,6 +38,7 @@
         "mirka_v_ren": { "type": "image", "source": "assets/images/ren/ren_mirka.png" },
         "aziza_a_ren": { "type": "image", "source": "assets/images/ren/ren_aziza.png" },
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
+        "arrow1": { "type": "image", "source": "assets/images/arrow1.png" },
         "sting": { "type": "image", "source": "assets/images/sting.png" },
         "blank_image": { "type": "image", "source": "assets/images/blank_image.png" },
         "black_image": { "type": "image", "source": "assets/images/black_image.png" },
@@ -216,7 +220,9 @@
         { "name": "Ostružiní", "istool": "false", "properties": {} },
         { "name": "Jitrocel", "istool": "false", "properties": {} },
         { "name": "Znamení", "istool": "false", "properties": {} },
-        { "name": "Tráva", "istool": "false", "properties": {} }
+        { "name": "Tráva", "istool": "false", "properties": {} },
+        { "name": "Luk", "istool": "true", "properties": { "cut_type": "fire", "tool_fr_left": "15", "tool_fr_right": "16" } },
+        { "name": "Šíp", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 

@@ -180,6 +180,15 @@ Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
     this.hit_enemy(player, enemy, "magic", "intelligence", damage);
 };
 
+Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
+    var damage = 2 + (player.stats.abilities.dexterity/5);
+    damage += player.level("standard") + (player.level("archer")*1.5);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    
+    this.hit_enemy(player, enemy, "archer", "dexterity", damage);
+};
+
 Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) {
     "use strict";
     

@@ -95,7 +95,15 @@ Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
     "use strict";
     
     var player = this.game_state.prefabs.player;
-    enemy.hit_enemy_magic(player, enemy);
+    
+    console.log("Bullet texture:");
+    console.log(this.key);
+    
+    if (this.key === "magic1") {
+        enemy.hit_enemy_magic(player, enemy);
+    } else {
+        enemy.hit_enemy_arrow(player, enemy);
+    }
     
     bullet.kill();
 };

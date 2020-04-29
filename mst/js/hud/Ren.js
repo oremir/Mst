@@ -13,6 +13,7 @@ Mst.Ren = function (game_state, name, position, properties) {
     this.p_id = properties.p_id;
     this.options = [];
     this.quest = {};
+    this.b_speak = false;
     
 };
 
@@ -56,6 +57,10 @@ Mst.Ren.prototype.show_options = function (options) {
             case "assign":
                 text.text = "[přijmout]";
                 text.events.onInputDown.add(this.option_assign, this);
+                break;
+            case "speak":
+                text.text = "[mluvit]";
+                text.events.onInputDown.add(this.option_speak, this);
                 break;
             case "lodging":
                 text.text = "[přespat]";
@@ -142,6 +147,41 @@ Mst.Ren.prototype.option_assign = function (option) {
 //    if (update_quest.accomplished) {
 //        this.game_state.hud.alert.show_alert("Podmínky úkolu jsou splněny!");
 //    }
+};
+
+Mst.Ren.prototype.option_speak = function () {
+    "use strict";
+    
+    this.game_state.hud.dialogue.hide_dialogue_onclick();
+    var player = this.game_state.prefabs.player;
+    
+    var game = this.game_state.game;
+    Phaser.Device.whenReady(function () {
+        game.plugins.add(PhaserInput.Plugin);
+    });
+    
+    this.img_speak = game.add.sprite(20, 310, 'alt_160_20');
+
+    this.inp_speak = game.add.inputField(22, 304, {
+            font: '12px Verdana',
+            fill: '#444444',
+            fillAlpha: 0,
+            fontWeight: 'bold',
+            width: 150,
+            max: 20,
+            padding: 8,
+            borderWidth: 1,
+            borderColor: '#000',
+            borderRadius: 6,
+            placeHolder: 'Speak',
+            textAlign: 'left',
+            zoom: true
+    });
+    
+    //this.inp_speak.blockInput = false;
+    
+    player.speak_b = true;
+    player.speak_ren = this;
 };
 
 Mst.Ren.prototype.option_lodging = function () {
