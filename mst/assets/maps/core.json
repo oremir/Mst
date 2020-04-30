@@ -23,6 +23,7 @@
         "morigan_spritesheet": { "type": "spritesheet", "source": "assets/images/player/morigan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "alfred_spritesheet": { "type": "spritesheet", "source": "assets/images/player/alfred_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "lyria_spritesheet": { "type": "spritesheet", "source": "assets/images/player/lyria_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "girl_blue_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/girl_blue_mage_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "rabite_spritesheet": { "type": "spritesheet", "source": "assets/images/rabite_spritesheet.png", "frame_width": 16, "frame_height": 32, "frames": 7 },
         "wasp_spritesheet": { "type": "spritesheet", "source": "assets/images/wasp_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
