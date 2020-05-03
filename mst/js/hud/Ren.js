@@ -20,6 +20,25 @@ Mst.Ren = function (game_state, name, position, properties) {
 Mst.Ren.prototype = Object.create(Mst.Prefab.prototype);
 Mst.Ren.prototype.constructor = Mst.Ren;
 
+Mst.Ren.prototype.update = function () {
+    "use strict";
+    
+    if (typeof(this.inp_speak) !== 'undefined') {
+        if (this.inp_speak.value !== "") {
+            //console.log(player.speak_b);
+            if (!this.inp_speak.focus && this.speak_b) {
+                console.log("FocusOut");
+                this.option_speak_enter();
+            }
+//            if (this.inp_speak.value !== this.inp_speak_value) {
+//                this.inp_speak_value = this.inp_speak.value;
+//                console.log(this.inp_speak_value);
+//            }
+        }
+    }
+    
+};
+
 Mst.Ren.prototype.show_dialogue = function (text, options, type) {
     "use strict";
     this.show();
@@ -95,7 +114,7 @@ Mst.Ren.prototype.buy_sell = function (option) {
 Mst.Ren.prototype.option_quest = function (option) {
     "use strict";
     var key, text;
-    this.game_state.hud.dialogue.hide_dialogue_onclick();
+    this.game_state.hud.dialogue.hide_dialogue_onclick(1);
     
 //    this.game_state.groups.quests.forEach(function(quest) {
 //        console.log(quest);
@@ -152,7 +171,8 @@ Mst.Ren.prototype.option_assign = function (option) {
 Mst.Ren.prototype.option_speak = function () {
     "use strict";
     
-    this.game_state.hud.dialogue.hide_dialogue_onclick();
+    console.log("Speak");
+    this.game_state.hud.dialogue.hide_dialogue_onclick(1);
     var player = this.game_state.prefabs.player;
     
     var game = this.game_state.game;
@@ -160,15 +180,16 @@ Mst.Ren.prototype.option_speak = function () {
         game.plugins.add(PhaserInput.Plugin);
     });
     
-    this.img_speak = game.add.sprite(20, 310, 'alt_160_20');
+    this.img_speak = game.add.sprite(20, 310, 'alt_500_20');
+    this.img_speak.fixedToCamera = true;
 
     this.inp_speak = game.add.inputField(22, 304, {
             font: '12px Verdana',
-            fill: '#444444',
+            fill: '#FFFFFF',
             fillAlpha: 0,
             fontWeight: 'bold',
-            width: 150,
-            max: 20,
+            width: 450,
+            max: 80,
             padding: 8,
             borderWidth: 1,
             borderColor: '#000',
@@ -178,10 +199,53 @@ Mst.Ren.prototype.option_speak = function () {
             zoom: true
     });
     
+    this.inp_speak.fixedToCamera = true;
+    //this.inp_speak.focusOutOnEnter = false;
+    
+    this.inp_speak_value = "";
+    
+    
+    
+    
     //this.inp_speak.blockInput = false;
     
-    player.speak_b = true;
-    player.speak_ren = this;
+    this.speak_b = true;
+    //player.speak_ren = this;
+    this.inp_speak.startFocus();
+    
+    //this.inp_speak.keys = this.game_state.game.input.keyboard.addKeys({
+    //    'enter': Phaser.Keyboard.ENTER
+    //});
+    
+    //this.inp_speak.keys.enter.onDown.add(this.option_speak_enter, this);
+    
+
+    //this.inp_speak.events.onInputDown.add(this.option_speak_enter, this);
+    //console.log(player.speak_ren);
+};
+
+Mst.Ren.prototype.option_speak_enter = function () {
+    "use strict";
+    var pins;
+    var player = this.game_state.prefabs.player;    
+    console.log("Input down");
+    
+    if (this.inp_speak.value !== "" && this.speak_b) {
+        this.speak_b = false;
+        
+        pins = this.p_id + "|" + player.usr_id + "|0|1|" + this.inp_speak.value;
+        console.log(pins);
+
+        $.get( "broadcast.php", { ins: pins} )
+            .done(function( data ) {
+                console.log( "Data Loaded: " + data );
+        });
+
+        this.img_speak.kill();
+        this.inp_speak.kill();
+    }
+
+
 };
 
 Mst.Ren.prototype.option_lodging = function () {

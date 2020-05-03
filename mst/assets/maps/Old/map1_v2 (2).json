@@ -99,7 +99,7 @@
                      "go_position_x":"107",
                      "go_position_y":"487",
                      "group":"goouts",
-                     "next_map":"25",
+                     "next_map":"2",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
@@ -132,7 +132,6 @@
                      "spawn_time_max":"8",
                      "spawn_time_min":"1",
                      "texture":"rabite_spritesheet",
-                     "level":1,
                      "walking_distance":100,
                      "walking_speed":50,
                      "xdif":"8",
@@ -146,7 +145,6 @@
                      "spawn_time_max":"string",
                      "spawn_time_min":"string",
                      "texture":"string",
-                     "level":"int",
                      "walking_distance":"int",
                      "walking_speed":"int",
                      "xdif":"string",
@@ -171,7 +169,6 @@
                      "sskill":"forager",
                      "stype":"wild",
                      "texture":"items_spritesheet",
-                     "level":1,
                      "xdif":"10",
                      "ydif":"10"
                     },
@@ -182,7 +179,6 @@
                      "sskill":"string",
                      "stype":"string",
                      "texture":"string",
-                     "level":"int",
                      "xdif":"string",
                      "ydif":"string"
                     },

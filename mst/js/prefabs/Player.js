@@ -93,8 +93,14 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.badges = {};
     }
     
+    if (typeof (properties.broadcast) === 'undefined') {
+        properties.broadcast = [];
+    }
+    
 //    var dt = new Date();
 //    var tm = dt.getTime();
+    
+    //console.log(properties.equip);
     
     this.stats = {
         health_hearts: 5,
@@ -113,7 +119,7 @@ Mst.Player = function (game_state, name, position, properties) {
         relations: properties.relations,
         places: properties.places,
         quests: properties.quests,
-        equip: properties.equip || -1,
+        equip: properties.equip,
         items: properties.items || load_player.properties.items,
         keys: properties.keys
     };
@@ -223,6 +229,10 @@ Mst.Player = function (game_state, name, position, properties) {
     
     this.speak_b = false;
     this.speak_ren = {};
+    this.broadcast = {};
+    this.broadcast.player = properties.broadcast;
+    this.save.properties.broadcast = [];
+    this.read_broadcast();
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -265,7 +275,7 @@ Mst.Player.prototype.update = function () {
     //if (this.keys.close.isDown) { this.key_close(); }
     //if (this.keys.change_type.isDown) { this.key_change_type(); }
     
-    if (this.keys.attack.isDown) { this.key_attack_enter(); }
+    if (this.keys.attack.isDown) { this.game_state.prefabs.sword.swing(); }
     if (this.keys.attack_alt.isDown) { this.game_state.prefabs.sword.swing(); }
     
     
@@ -326,28 +336,28 @@ Mst.Player.prototype.update = function () {
     this.game_state.save.player = this.save;
 };
 
-Mst.Player.prototype.key_attack_enter = function () {
-    "use strict";
-    var pins;
-    
-    if (!this.speak_b) {
-        this.game_state.prefabs.sword.swing();
-    } else {
-        this.speak_b = false;
-        
-        pins = this.speak_ren.p_id + "|" + this.usr_id + "|0|1|" + this.speak_ren.inp_speak.value;
-        console.log(pins);
-        
-        $.get( "broadcast.php", { ins: pins} )
-            .done(function( data ) {
-                console.log( "Data Loaded: " + data );
-        });
-        
-        this.speak_ren.img_speak.kill();
-        this.speak_ren.inp_speak.kill();
-    }
-    
-};
+//Mst.Player.prototype.key_attack_enter = function () {
+//    "use strict";
+//    var pins;
+//    
+//    if (!this.speak_b) {
+//        this.game_state.prefabs.sword.swing();
+//    } else {
+//        this.speak_b = false;
+//        
+//        pins = this.speak_ren.p_id + "|" + this.usr_id + "|0|1|" + this.speak_ren.inp_speak.value;
+//        console.log(pins);
+//        
+//        $.get( "broadcast.php", { ins: pins} )
+//            .done(function( data ) {
+//                console.log( "Data Loaded: " + data );
+//        });
+//        
+//        this.speak_ren.img_speak.kill();
+//        this.speak_ren.inp_speak.kill();
+//    }
+//    
+//};
 
 Mst.Player.prototype.key_right = function () {
     "use strict";
@@ -1222,6 +1232,82 @@ Mst.Player.prototype.finish_quest = function (quest) {
 //    console.log(completed);
 //            
 //    return completed;
+};
+
+Mst.Player.prototype.read_broadcast = function () {
+    "use strict";
+    var b_snt, d, n, player;
+    
+    player = this;
+    d = new Date();
+    n = d.getTime();
+
+    b_snt = $.get( "broadcast.php", { snt: this.usr_id, n: n} )
+        .done(function( data ) {
+            console.log( "Data Loaded: " + data );
+            b_snt = JSON.parse(data);
+            console.log(b_snt);
+            player.set_broadcast(b_snt);
+    });
+    
+};
+
+Mst.Player.prototype.set_broadcast = function (snt) {
+    "use strict";
+    
+    this.broadcast.snt = snt;
+    this.next_broadcast();
+    
+};
+
+Mst.Player.prototype.next_broadcast = function () {
+    "use strict";
+    var b_nxt, b_nxtt, b_nexta, key;
+    
+    b_nxt = this.broadcast.snt.shift();
+    
+    console.log("Broadcast SNT: " + b_nxt);
+    
+    if (typeof(b_nxt) !== 'undefined') {
+        b_nexta = b_nxt.split("|");
+    
+        console.log(b_nexta);
+
+        key = this.game_state.playerOfUsrID(b_nexta[1]);
+        if (key !== "") {
+            this.game_state.prefabs[key].ren_sprite.show_dialogue(b_nexta[4]);
+        } else {
+            this.save.properties.broadcast.push(b_nxt);
+            console.log("PUSH broadcast.player " + JSON.stringify(this.broadcast.player));
+            console.log("PUSH save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
+            this.next_broadcast();
+        }
+    } else {
+        console.log("broadcast.player " + JSON.stringify(this.broadcast.player));
+        console.log("save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
+        b_nxt = this.broadcast.player.shift();
+        b_nxtt = this.save.properties.broadcast[0];
+        
+        if (b_nxt !== b_nxtt) { console.log("!!!!!!!!!!!!") };
+        
+        console.log("Broadcast Player: " + b_nxt + " Save: " + b_nxtt);
+        
+        if (typeof(b_nxt) !== 'undefined') {
+            b_nexta = b_nxt.split("|");
+
+            console.log(b_nexta);
+
+            key = this.game_state.playerOfUsrID(b_nexta[1]);
+            if (key !== "") {
+                this.game_state.prefabs[key].ren_sprite.show_dialogue(b_nexta[4]);
+            } else {
+                this.save.properties.broadcast.push(b_nxt);
+                this.next_broadcast();
+            }
+        }
+    }
+    
+
 };
 
 Mst.Player.prototype.save_player = function (go_position, go_map_int) {

@@ -30,6 +30,15 @@ $usr_id = $apost["player"]["usr_id"];
 $map_new_int = $apost["player"]["map"]["new_int"];
 $map_old_int = $apost["player"]["map"]["old_int"];
 $user = $apost["player"];
+$user_en1 = $apost["enplayer"];
+
+if (isset($apost["enplayer"])):
+    $user_en1 = $apost["enplayer"];
+else:
+    $user_en1 = json_encode($user);
+endif;
+
+if ($user_en1 == "")
 
 if (isset($apost["objects"])):
     $objects = $apost["objects"];
@@ -57,9 +66,10 @@ if ($result->num_rows > 0) {
     }
     
     //$user_en1 = array_map('htmlentities',$user);
-    $user_en2 = html_entity_decode(json_encode($user));
+    //$user_en2 = html_entity_decode(json_encode($user));
+    //$user_en2 = json_encode($user);
     
-    $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".$user_en2."', time = '".time()."' WHERE UID = ".$usr_id;
+    $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".$user_en1."', time = '".time()."' WHERE UID = ".$usr_id;
 
     if ($mysqli->query($sql) === TRUE) {
         $radek_l2 =  $radek_l2 . "Record updated successfully\n";
@@ -169,17 +179,20 @@ FClose($fp);*/
 
 $path_postavy = "./assets/postavy/postavy.json";
 
-$postavy = json_decode(file_get_contents($path_postavy));
+//$postavy = json_decode(file_get_contents($path_postavy));
+$postavy = file_get_contents($path_postavy);
 
-$i = indexOfUsrID($usr_id, $postavy);
+//$i = indexOfUsrID($usr_id, $postavy);
+//
+//if ($i != -1):
+//    $postavy[$i] = $user;
+//else:
+//    array_push($postavy, $user);
+//endif;
 
-if ($i != -1):
-    $postavy[$i] = $user;
-else:
-    array_push($postavy, $user);
-endif;
+$postavy = $postavy . $user_en1;
 
-file_put_contents($path_postavy, json_encode($postavy));
+file_put_contents($path_postavy, $postavy);
 
 // --------------------------- update pswd --------------------------
 

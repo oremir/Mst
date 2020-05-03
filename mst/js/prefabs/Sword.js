@@ -34,6 +34,7 @@ Mst.Sword = function (game_state, name, position, properties) {
     console.log("!!! Init CUT: " + this.cut);
     
     this.wooshSound = this.game_state.game.add.audio('woosh');
+    this.arrowSound = this.game_state.game.add.audio('arrow_sound');
     
     this.b_pool = this.game_state.groups.playerbullets;
 };
@@ -91,6 +92,7 @@ Mst.Sword.prototype.swing = function () {
                 player.work_rout("archer", "dexterity", 0, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
 
                 this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.2, this.hide_bow, this);
+                this.arrowSound.play();
             } else {
                 this.game_state.hud.alert.show_alert("Není střelivo!");
             }

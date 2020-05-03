@@ -107,7 +107,8 @@ if (isset($aget["mapi"])):
             $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|INS2MAPFile|";
 
             $uid_i = $row["UID"];
-            $user_i = json_decode(utf8_encode($row["JSON"]));
+            //$user_i = json_decode(utf8_encode($row["JSON"]));
+            $user_i = json_decode($row["JSON"]);
 
             //$radek_l2 = $radek_l2 . json_encode($user_i);            
             //echo json_encode($map->objects);

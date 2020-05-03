@@ -38,6 +38,7 @@
         "sofia-an_ren": { "type": "image", "source": "assets/images/ren/ren_sofie.png" },
         "mirka_v_ren": { "type": "image", "source": "assets/images/ren/ren_mirka.png" },
         "aziza_a_ren": { "type": "image", "source": "assets/images/ren/ren_aziza.png" },
+        "esmith_ren": { "type": "image", "source": "assets/images/ren/ren_esmith.png" },
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
         "arrow1": { "type": "image", "source": "assets/images/arrow1.png" },
         "sting": { "type": "image", "source": "assets/images/sting.png" },
@@ -56,6 +57,7 @@
         "alt": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
         "alt_80_35": { "type": "image", "source": "assets/images/frame-alt-80-35.png" },
         "alt_160_20": { "type": "image", "source": "assets/images/frame-alt-160-20.png" },
+        "alt_500_20": { "type": "image", "source": "assets/images/frame-alt-500-20.png" },
         "frame_item": { "type": "image", "source": "assets/images/frame_item.png" },
         "frame_item_fial": { "type": "image", "source": "assets/images/frame_item_fial.png" },
         "frame_bot": { "type": "image", "source": "assets/images/frame-bot.png" },
@@ -64,7 +66,8 @@
         "alert": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
         "circle_inv": { "type": "image", "source": "assets/images/circle_inv.png" },
         
-        "woosh": { "type": "audio", "source": "assets/sounds/woosh-2.wav" }
+        "woosh": { "type": "audio", "source": "assets/sounds/woosh-2.wav" },
+        "arrow_sound": { "type": "audio", "source": "assets/sounds/arrow.mp3" }
     },
 	
 	"groups": [
@@ -98,14 +101,21 @@
     },
     
     "items": [
-        { "name": "Sekera", "istool": "true", "properties": { "cut_type": "wood", "tool_fr_left": "1", "tool_fr_right": "2" } },
+        { "name": "Sekera", "istool": "true", "properties": 
+            { "cut_type": "wood", "tool_fr_left": "1", "tool_fr_right": "2" } 
+        },
         { "name": "Peníze (G)", "istool": "false", "properties": {} },
-        { "name": "Krumpáč", "istool": "true", "properties": { "cut_type": "stone", "tool_fr_left": "3", "tool_fr_right": "3" } },    
+        { "name": "Krumpáč", "istool": "true", "properties": 
+            { "cut_type": "stone", "tool_fr_left": "3", "tool_fr_right": "3" } 
+        },    
         { "name": "Věci", "istool": "false", "properties": {} },
 		{ "name": "Truhla", "istool": "false", "properties": {} },
         { "name": "Truhla", "istool": "false", "properties": {} },
         { "name": "Džbán", "istool": "false", "properties": { "use_sub": "true" } },
-        { "name": "Dřevo", "istool": "false", "properties": {} },
+        { "name": "Dřevo", "istool": "false", "properties": 
+            { "work": { 
+                "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
+            } } },
         { "name": "Stolek", "istool": "false", "properties": {} },
         { "name": "Stolek", "istool": "false", "properties": {} },
         { "name": "Stolek", "istool": "false", "properties": {} },
@@ -118,17 +128,34 @@
         { "name": "Bariéra", "istool": "false", "properties": {} },
         { "name": "Kostra", "istool": "false", "properties": {} },
         { "name": "Ohrada", "istool": "false", "properties": {} },
-        { "name": "Křoví", "istool": "false", "properties": { "spawn": "wild", "lives": 30, "rtake": ["112_0", "118_0", "120_0", "121_0"] } },
-        { "name": "Kámen", "istool": "false", "properties": { "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } },
-        { "name": "Pařez", "istool": "false", "properties": { "spawn": "wild", "lives": 130 } },
+        { "name": "Křoví", "istool": "false", "properties": 
+            { "spawn": "wild", "lives": 30, "rtake": ["112_0", "118_0", "120_0", "121_0"], "work": { 
+                "1": { "n": "sekera", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
+            } } },
+        { "name": "Kámen", "istool": "false", "properties": 
+            { "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } 
+        },
+        { "name": "Pařez", "istool": "false", "properties": 
+            { "spawn": "wild", "lives": 130, "work": { 
+                "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
+            } } },
         { "name": "Gel", "istool": "false", "properties": {} },
         { "name": "Hůl", "istool": "true", "properties": { "cut_type": "uni", "tool_fr_left": "4", "tool_fr_right": "4" } },
         { "name": "Bronzový meč", "istool": "false", "properties": {} },
         { "name": "Železný meč", "istool": "false", "properties": {} },
-        { "name": "Hůlka", "istool": "true", "properties": { "cut_type": "magic", "tool_fr_left": "7", "tool_fr_right": "7" } },
+        { "name": "Hůlka", "istool": "true", "properties": 
+            { "cut_type": "magic", "tool_fr_left": "7", "tool_fr_right": "7" } 
+        },
         { "name": "Zbroj", "istool": "false", "properties": {} },
         { "name": "Prac. stůl", "istool": "false", "properties": {} },
-        { "name": "Kmen", "istool": "false", "properties": {} },
+        { "name": "Kmen", "istool": "false", "properties": 
+            {"work": { 
+                "1": { "n": "sekera", "act": "cond", "cond": [
+                    { "type": "change", "i": 31, "add": 31, "n": "Špalek", 
+                    "skill": "woodcutter", "ability":"strength", "w": [1, 3, 2, 3] },
+                    { "type": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
+                ] }
+            } } },
         { "name": "Špalek", "istool": "false", "properties": {} },
         { "name": "Prkno", "istool": "false", "properties": {} },
         { "name": "Trnka", "istool": "false", "properties": { "use_sub": "true" } },
@@ -136,13 +163,19 @@
         { "name": "Muchomůrka", "istool": "false", "properties": { "use_sub": "true", "wild": "true", "lives": 30 } },
         { "name": "Maso", "istool": "false", "properties": { "use_sub": "true", "cook":[1, 37, 1] } },
         { "name": "Peč. maso", "istool": "false", "properties": { "use_sub": "true" } },
-        { "name": "Palice", "istool": "true", "properties": { "cut_type": "uni", "tool_fr_left": "8", "tool_fr_right": "8" } },
+        { "name": "Palice", "istool": "true", "properties": 
+            { "cut_type": "uni", "tool_fr_left": "8", "tool_fr_right": "8" } 
+        },
         { "name": "Kůže", "istool": "false", "properties": {} },
         { "name": "Lišejník", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Batoh", "istool": "false", "properties": {} },
         { "name": "Odpad", "istool": "false", "properties": {} },
-        { "name": "Větev", "istool": "true", "properties": { "cut_type": "uni",  "spawn": "wild", "lives": 30, "tool_fr_left": "9", "tool_fr_right": "9" } },
-        { "name": "Sekeromlat", "istool": "true", "properties": { "cut_type": "uni", "tool_fr_left": "10", "tool_fr_right": "11" } },
+        { "name": "Větev", "istool": "true", "properties": 
+            { "cut_type": "uni",  "spawn": "wild", "lives": 30, "tool_fr_left": "9", "tool_fr_right": "9" } 
+        },
+        { "name": "Sekeromlat", "istool": "true", "properties": 
+            { "cut_type": "uni", "tool_fr_left": "10", "tool_fr_right": "11" } 
+        },
         { "name": "Křesadlo", "istool": "false", "properties": {} },
         { "name": "Hmoždíř", "istool": "false", "properties": {} },
         { "name": "Měď. ruda", "istool": "false", "properties": {} },
@@ -204,8 +237,12 @@
         { "name": "Tav. železo", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Kam. nádoba s tav.", "istool": "false", "properties": { "sub_water": 60 } },
         { "name": "Žhav. železo", "istool": "false", "properties": { "fluid": "true" } },
-        { "name": "Kleště", "istool": "true", "properties": { "cut_type": "nul", "tool_fr_left": "12", "tool_fr_right": "12" } },
-        { "name": "Kladivo", "istool": "true", "properties": { "cut_type": "nul", "tool_fr_left": "13", "tool_fr_right": "14" } },
+        { "name": "Kleště", "istool": "true", "properties": 
+            { "cut_type": "nul", "tool_fr_left": "12", "tool_fr_right": "12" } 
+        },
+        { "name": "Kladivo", "istool": "true", "properties": 
+            { "cut_type": "nul", "tool_fr_left": "13", "tool_fr_right": "14" } 
+        },
         { "name": "Kovadlina", "istool": "false", "properties": {} },
         { "name": "Žh. žel. tyč", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Žel. tyč", "istool": "false", "properties": {} },
@@ -222,7 +259,9 @@
         { "name": "Jitrocel", "istool": "false", "properties": {} },
         { "name": "Znamení", "istool": "false", "properties": {} },
         { "name": "Tráva", "istool": "false", "properties": {} },
-        { "name": "Luk", "istool": "true", "properties": { "cut_type": "fire", "tool_fr_left": "15", "tool_fr_right": "16" } },
+        { "name": "Luk", "istool": "true", "properties": 
+            { "cut_type": "fire", "tool_fr_left": "15", "tool_fr_right": "16" } 
+        },
         { "name": "Šíp", "istool": "false", "properties": {} }
     ],
 	

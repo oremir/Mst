@@ -330,6 +330,7 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map_int, save_s
     this.prefabs.player.save_player(go_position, next_map_int);
     
     this.save.player = this.prefabs.player.save;
+    this.save.enplayer = JSON.stringify(this.prefabs.player.save);
     
     key = this.keyOfUsrID(this.root_data.usr_id);
     
@@ -746,11 +747,18 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, type) {
     this.text_dialogue.text = text;
 };
 
-Mst.hud.prototype.hide_dialogue_onclick = function () {
+Mst.hud.prototype.hide_dialogue_onclick = function (next) {
     "use strict";
     this.game_state.prefabs.player.close_state.pop();
     this.game_state.prefabs.player.close_context.pop();
     this.hide_dialogue();
+    
+    if (next === 1) {
+        console.log("Next dialogue");
+    } else {
+        console.log("Next broadcast");
+        this.game_state.prefabs.player.next_broadcast();
+    }
 };
 
 Mst.hud.prototype.hide_dialogue = function () {

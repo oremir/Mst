@@ -25,15 +25,19 @@ if ($snt > 0):
   while(!FEof($fp)):
     $radek[] = FGetS($fp,500);
   endwhile;
+
+  $bcst = array();
+  $radek_new = array();
   
   Reset($radek);
-  while(Current($radek)):
-    $radek_new[] = Current($radek);
+  while(Current($radek)):    
 	$radek_z = SubStr(Current($radek),2);
 	$arad = explode("|",$radek_z);
 	
 	if ($arad[0] == $snt):
-	 $bcst[] = $radek_z;
+	  $bcst[] = Trim($radek_z,"\r\n");
+    else:
+      $radek_new[] = Current($radek);
 	endif;
 	
 	//echo $radek_z;

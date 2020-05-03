@@ -58,6 +58,12 @@ Mst.Chest = function (game_state, name, position, properties) {
         
     console.log("Chest " + this.name + " takable:" + this.is_takeable);
     
+    if (typeof(properties.level) !== 'undefined') {
+        this.level = parseInt(properties.level);
+    } else {
+        this.level = 0;
+    }
+    
     this.is_opened = false;
     
     this.body.immovable = true;
@@ -618,9 +624,9 @@ Mst.Chest.prototype.get_chest = function (chest) {
 
 Mst.Chest.prototype.rnd_take = function (frame, skill) {
     "use strict";
-    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, exp;
+    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, exp, max;
     
-    console.log("RND take CHEST!!!");
+    console.log("RND take CHEST!!! Level: " + this.level);
     
     player = this.game_state.prefabs.player;
     rtake = this.game_state.core_data.items[frame].properties.rtake;
@@ -629,7 +635,17 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
         rtake = [];
     }
     
-    for (var i = 0; i < rtake.length; i++) {
+    if (this.level > 0) {
+        if (this.level < rtake.length) {
+            max = this.level + 1;
+        } else {
+            max = rtake.length;
+        }
+    } else {
+        max = rtake.length;
+    }
+    
+    for (var i = 0; i < max; i++) {
         rtake_sp = rtake[i].split("_");
         iframe = parseInt(rtake_sp[0]);
         level = parseInt(rtake_sp[1]);

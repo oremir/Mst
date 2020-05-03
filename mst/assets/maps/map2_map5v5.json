@@ -192,24 +192,24 @@
                  "name":"voda03",
                  "properties":
                     {
+                     "closed_frame":"80",
                      "group":"chests",
-                     "pool":"chests",
+                     "is_takeable":"false",
                      "items":"",
                      "obj_id":"31",
-                     "is_takeable":"false",
-                     "closed_frame":"80",
                      "opened_frame":"80",
+                     "pool":"chests",
                      "texture":"items_spritesheet"
                     },
                  "propertytypes":
                     {
+                     "closed_frame":"string",
                      "group":"string",
-                     "pool":"string",
+                     "is_takeable":"string",
                      "items":"string",
                      "obj_id":"string",
-                     "is_takeable":"string",
-                     "closed_frame":"string",
                      "opened_frame":"string",
+                     "pool":"string",
                      "texture":"string"
                     },
                  "rotation":0,
@@ -226,24 +226,24 @@
                  "name":"voda02",
                  "properties":
                     {
+                     "closed_frame":"80",
                      "group":"chests",
-                     "pool":"chests",
+                     "is_takeable":"false",
                      "items":"",
                      "obj_id":"30",
-                     "is_takeable":"false",
-                     "closed_frame":"80",
                      "opened_frame":"80",
+                     "pool":"chests",
                      "texture":"items_spritesheet"
                     },
                  "propertytypes":
                     {
+                     "closed_frame":"string",
                      "group":"string",
-                     "pool":"string",
+                     "is_takeable":"string",
                      "items":"string",
                      "obj_id":"string",
-                     "is_takeable":"string",
-                     "closed_frame":"string",
                      "opened_frame":"string",
+                     "pool":"string",
                      "texture":"string"
                     },
                  "rotation":0,
@@ -260,24 +260,24 @@
                  "name":"voda01",
                  "properties":
                     {
+                     "closed_frame":"80",
                      "group":"chests",
-                     "pool":"chests",
+                     "is_takeable":"false",
                      "items":"",
                      "obj_id":"33",
-                     "is_takeable":"false",
-                     "closed_frame":"80",
                      "opened_frame":"80",
+                     "pool":"chests",
                      "texture":"items_spritesheet"
                     },
                  "propertytypes":
                     {
+                     "closed_frame":"string",
                      "group":"string",
-                     "pool":"string",
+                     "is_takeable":"string",
                      "items":"string",
                      "obj_id":"string",
-                     "is_takeable":"string",
-                     "closed_frame":"string",
                      "opened_frame":"string",
+                     "pool":"string",
                      "texture":"string"
                     },
                  "rotation":0,
@@ -286,6 +286,36 @@
                  "width":16,
                  "x":17,
                  "y":127
+                }, 
+                {
+                 "gid":305,
+                 "height":16,
+                 "id":7,
+                 "name":"goout06",
+                 "properties":
+                    {
+                     "go_position_x":"368",
+                     "go_position_y":"461",
+                     "group":"goouts",
+                     "next_map":"33",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":384,
+                 "y":129
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -293,7 +323,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":7,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
