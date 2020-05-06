@@ -25,8 +25,8 @@ Mst.HUD.prototype.init = function (game_state, hud_data) {
             elements: []
         },
         center_top: {
-            begin: {x: (camera_width / 3) + this.margins.left, y: this.margins.top},
-            end: {x: (2 * camera_width / 3) - this.margins.right, y: this.margins.top},
+            begin: {x: (camera_width / 3) + this.margins.left - 50, y: this.margins.top},
+            end: {x: (2 * camera_width / 3) - this.margins.right + 100, y: this.margins.top},
             elements: []
         },
         center_top_left: {

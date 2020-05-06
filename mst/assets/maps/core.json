@@ -46,6 +46,7 @@
         "black_image": { "type": "image", "source": "assets/images/black_image.png" },
         "health_image": { "type": "image", "source": "assets/images/heart-health.png" },
         "exp_image": { "type": "image", "source": "assets/images/exp.png" },
+        "time_image": { "type": "image", "source": "assets/images/time.png" },
         "bubble_spritesheet": { "type": "spritesheet", "source": "assets/images/bubble.png", "frame_width": 16, "frame_height": 16, "frames": 10},
         "blood": { "type": "spritesheet", "source": "assets/images/blood.png", "frame_width": 4, "frame_height": 4, "frames": 7},
         "level_image": { "type": "image", "source": "assets/images/level.png" },
@@ -65,6 +66,7 @@
         "dialogue_small": { "type": "image", "source": "assets/images/DialogueBoxSmall2.png" },
         "alert": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
         "circle_inv": { "type": "image", "source": "assets/images/circle_inv.png" },
+        "night": { "type": "image", "source": "assets/images/night.png" },
         
         "woosh": { "type": "audio", "source": "assets/sounds/woosh-2.wav" },
         "arrow_sound": { "type": "audio", "source": "assets/sounds/arrow.mp3" }
@@ -90,7 +92,8 @@
         "items",
         "quests",
         "stats",
-        "alerts"
+        "alerts",
+        "night"
         
     ],
     
@@ -369,7 +372,7 @@
                 "properties": {
                     "texture": "level_image",
                     "group": "hud",
-                    "scale": {"x": 2, "y": 2},
+                    "scale": {"x": 2, "y": 0},
                     "stat_to_show": "player.level",
                     "stats_group": "stats",
                     "text_style": {
@@ -384,11 +387,26 @@
                 "properties": {
                     "texture": "exp_image",
                     "group": "hud",
-                    "scale": {"x": 2, "y": 2},
+                    "scale": {"x": 2, "y": 0},
                     "stat_to_show": "player.exp",
                     "stats_group": "stats",
                     "text_style": {
                         "font": "12px Arial",
+                        "fill": "#FFFFFF"
+                    }
+                }
+            },
+            "time": {
+                "type": "show_stat_with_text",
+                "region": "center_top",
+                "properties": {
+                    "texture": "time_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 0},
+                    "stat_to_show": "player.gtime",
+                    "stats_group": "stats",
+                    "text_style": {
+                        "font": "10px Arial",
                         "fill": "#FFFFFF"
                     }
                 }

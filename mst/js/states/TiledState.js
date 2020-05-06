@@ -206,6 +206,10 @@ Mst.TiledState.prototype.create = function () {
             otherplayer.test_quest();
         }, this);
         
+        // ......................... Night Init ..............................
+        
+        this.night = new Mst.night(this, this.prefabs.player.save.properties.gtimealpha);
+        
         // ......................... HUD Init 2 ..............................
         
         this.hud.stats = this.game.plugins.add(Mst.HUD, this, this.core_data.hud);
@@ -981,3 +985,55 @@ Mst.hud.prototype.i_pos_cast = function () {
     this.game_state.hud.alt.tween_text_alt1.start();
     this.game_state.hud.alt.tween.onComplete.addOnce(this.game_state.hud.alt.hide_alt, this);
 };*/
+
+Mst.night = function (game_state, alpha) {
+    "use strict";
+       
+    Phaser.Image.call(this, game_state.game, 0, 0, "night");
+    
+    this.game_state = game_state;    
+    this.game_state.groups.night.add(this);    
+    this.name = "night";
+    
+    this.scale.setTo(35);
+    
+    if (alpha > 0) {
+        this.visible = true;
+        this.alpha = alpha;
+    } else {
+        this.visible = false;
+        this.alpha = 0;
+    }    
+    
+    this.fixedToCamera = true;
+    
+};
+
+Mst.night.prototype = Object.create(Phaser.Image.prototype);
+Mst.night.prototype.constructor = Mst.night;
+
+Mst.night.prototype.add_night = function () {
+    "use strict";
+    
+    if (!this.visible) {
+        this.visible = true;
+        this.alpha = 0;
+    } else {
+        this.alpha += 0.05;
+        console.log("Alpha:" + this.alpha);
+    }
+    
+    return this.alpha;
+};
+
+Mst.night.prototype.show = function () {
+    "use strict";
+    this.visible = true;
+    this.alpha = 0.7;
+};
+
+Mst.night.prototype.hide = function () {
+    "use strict";
+    this.visible = false;
+    this.alpha = 0;
+};

@@ -271,6 +271,7 @@ Mst.Ren.prototype.option_lodging = function () {
         
         player.add_health(constitution);
         player.subtract_stress(constitution);
+        player.new_day();
         this.game_state.prefabs.moon.subtract_moon();
         this.game_state.save_data({ "x": 503, "y": 512 }, 12, "lodging");
 

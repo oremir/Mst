@@ -27,7 +27,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.direction_sword = {"x": 1, "y": -1};
     this.direction_chest = {"x": 0, "y": 1};
     
-    this.killed = (properties.killed === 'true');
+    //this.killed = (properties.killed === 'true');
+    this.killed = properties.killed;
     
     this.no_pass_OP = true;
         
@@ -97,6 +98,14 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.broadcast = [];
     }
     
+    if (typeof (properties.gtimems) === 'undefined') {
+        properties.gtimems = 0;
+    }
+    
+    if (typeof (properties.gtimealpha) === 'undefined') {
+        properties.gtimealpha = 0;
+    }
+    
 //    var dt = new Date();
 //    var tm = dt.getTime();
     
@@ -112,6 +121,7 @@ Mst.Player = function (game_state, name, position, properties) {
         moon_max: 5,
         moon_time: +properties.time || 0,
         moon_loop: +properties.moon_loop || 0,
+        gtime: "0",
         exp: +properties.skills.standard.exp || +properties.exp || 1,
         level: +properties.skills.standard.level || 1,
         skills: properties.skills,
@@ -124,9 +134,18 @@ Mst.Player = function (game_state, name, position, properties) {
         keys: properties.keys
     };
     
+    this.gtime = {};
+    this.gtime.ms = properties.gtimems;
+    this.gtime.obj = new Date(this.gtime.ms);
+    
     var dt = new Date();
     var tt = dt.getTime();
     console.log("Time: " + properties.time + " " + tt + " " + (tt - properties.time));
+    
+    //this.stats.gtime = " " + dt.getHours() + ":" + dt.getMinutes();
+    this.stats.gtime = this.gtime.obj.toLocaleTimeString();
+    var gtimepom = this.stats.gtime.split(":");
+    this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
     
     this.stats.moon_loop -= (tt - properties.time);
     if (this.stats.moon_loop < 1) {
@@ -540,6 +559,7 @@ Mst.Player.prototype.subtract_health = function (quantity) {
         this.save.properties.stats.health = this.stats.health_max;
         
         this.game_state.prefabs.moon.subtract_moon();
+        this.new_day();
         
         this.game_state.save_data({ "x": 432, "y": 272 }, 4, "dead"); // "assets/maps/map4.json"
     }
@@ -736,6 +756,7 @@ Mst.Player.prototype.level = function (skill) {
 Mst.Player.prototype.work_rout = function (skill, ability, stress, stand_exp, skill_exp, abil_p) {
     "use strict";
 
+    this.add_minutes(4);
     this.add_stress(stress);
     this.add_exp("standard", stand_exp);
     this.add_exp(skill, skill_exp);
@@ -1310,6 +1331,44 @@ Mst.Player.prototype.next_broadcast = function () {
 
 };
 
+Mst.Player.prototype.new_day = function () {
+    "use strict";
+    
+    if (this.gtime.obj.getHours() < 7) {
+        this.gtime.obj.setHours(7);
+    } else {
+        this.gtime.obj.setDate(this.gtime.obj.getDate() + 1);
+        this.gtime.obj.setHours(7);
+    }
+    this.gtime.ms = this.gtime.obj.getTime();
+    console.log("DATUM");
+    console.log(this.gtime.obj);
+    this.save.properties.gtimealpha = 0;
+    this.save.properties.gtimems = this.gtime.ms;
+};
+
+Mst.Player.prototype.add_minutes = function (mins) {
+    "use strict";
+    
+    console.log("Hodina: " + this.gtime.obj.getHours());
+    if (this.gtime.obj.getHours() < 7 || this.gtime.obj.getHours() > 20) {
+        mins = 1;
+        this.save.properties.gtimealpha = this.game_state.night.add_night();
+    }
+    
+    this.gtime.ms += mins * 60000;
+    this.gtime.obj = new Date(this.gtime.ms);
+    
+    this.stats.gtime = this.gtime.obj.toLocaleTimeString();
+    var gtimepom = this.stats.gtime.split(":");
+    this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
+    
+    console.log("DATUM");
+    console.log(this.gtime.obj);
+    
+    this.save.properties.gtimems = this.gtime.ms;
+};
+
 Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     "use strict";
     var name, dt;
@@ -1333,7 +1392,9 @@ Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     dt = new Date();
     this.save.properties.time = dt.getTime();
     this.save.properties.moon = this.stats.moon;
-    console.log("moon> " + this.stats.moon);
+    console.log("moon: " + this.stats.moon);
+    
+    this.save.properties.gtimems = this.gtime.ms;
     
     this.save.map.old_int = this.game_state.root_data.map_int;
     this.save.map.new_int = go_map_int;
