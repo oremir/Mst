@@ -29,6 +29,13 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
         }
     }
     //console.log(this.items);
+    
+    if (typeof(properties.max_number) !== 'undefined') {
+        this.max_number = parseInt(properties.max_number);
+    } else {
+        this.max_number = 20;
+    }
+    
     this.b_test = false;
     
     this.j = 0;
@@ -56,7 +63,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
     
     //console.log("Item count living:" + this.pool.countLiving());
     
-    if (this.j < 20) {
+    if (this.j < this.max_number) {
         if (!object) {
             // if there is no dead object, create a new one            
             

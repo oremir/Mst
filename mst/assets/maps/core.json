@@ -84,16 +84,16 @@
         "otherplayers",        
         "NPCs",
         "signposts",
-        "ren",
-        "hud",
         "bubbles",
+        "night",
+        "ren",
+        "hud",        
         "chestitems",
         "businessitems",
         "items",
         "quests",
         "stats",
-        "alerts",
-        "night"
+        "alerts"        
         
     ],
     

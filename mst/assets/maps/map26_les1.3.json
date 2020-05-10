@@ -169,6 +169,7 @@
                      "sskill":"forager",
                      "stype":"wild",
                      "texture":"items_spritesheet",
+                     "max_number":"15",
                      "xdif":"7",
                      "ydif":"12"
                     },
@@ -179,6 +180,7 @@
                      "sskill":"string",
                      "stype":"string",
                      "texture":"string",
+                     "max_number":"string",
                      "xdif":"string",
                      "ydif":"string"
                     },

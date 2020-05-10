@@ -1019,8 +1019,10 @@ Mst.night.prototype.add_night = function () {
         this.visible = true;
         this.alpha = 0;
     } else {
-        this.alpha += 0.05;
-        console.log("Alpha:" + this.alpha);
+        if (this.alpha < 0.85) {
+            this.alpha += 0.05;
+            console.log("Alpha:" + this.alpha);
+        }
     }
     
     return this.alpha;
