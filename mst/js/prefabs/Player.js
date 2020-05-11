@@ -1353,6 +1353,16 @@ Mst.Player.prototype.add_minutes = function (mins) {
     console.log("Hodina: " + this.gtime.obj.getHours());
     if (this.gtime.obj.getHours() < 7 || this.gtime.obj.getHours() > 20) {
         mins = 1;
+        if (this.gtime.obj.getHours() > 2) {
+            mins = 0.25;
+        }
+        if (this.gtime.obj.getHours() > 4) {
+            mins = 0.01;
+        }
+        if (this.gtime.obj.getHours() > 5) {
+            mins = 0;
+        }
+        
         this.save.properties.gtimealpha = this.game_state.night.add_night();
     }
     
