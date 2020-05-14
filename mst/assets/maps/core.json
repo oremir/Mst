@@ -39,6 +39,12 @@
         "mirka_v_ren": { "type": "image", "source": "assets/images/ren/ren_mirka.png" },
         "aziza_a_ren": { "type": "image", "source": "assets/images/ren/ren_aziza.png" },
         "esmith_ren": { "type": "image", "source": "assets/images/ren/ren_esmith.png" },
+        "jaga_ren": { "type": "image", "source": "assets/images/ren/ren_jaga.png" },
+        "lajla_ren": { "type": "image", "source": "assets/images/ren/ren_lajla.png" },
+        "sara_ren": { "type": "image", "source": "assets/images/ren/ren_sara.png" },
+        "gabriela_ren": { "type": "image", "source": "assets/images/ren/ren_gabriela.png" },
+        "lyria_ren": { "type": "image", "source": "assets/images/ren/ren_lyria.png" },
+        "alfred_ren": { "type": "image", "source": "assets/images/ren/ren_alfred.png" },
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
         "arrow1": { "type": "image", "source": "assets/images/arrow1.png" },
         "sting": { "type": "image", "source": "assets/images/sting.png" },
@@ -77,7 +83,7 @@
         "spawners",
         "chests",        
         "goouts",
-		"swords",
+	"swords",
         "players",
         "playerbullets",
         "enemybullets",
@@ -87,13 +93,13 @@
         "bubbles",
         "night",
         "ren",
-        "hud",        
+        "hud",
         "chestitems",
         "businessitems",
         "items",
         "quests",
         "stats",
-        "alerts"        
+        "alerts"
         
     ],
     
@@ -372,7 +378,7 @@
                 "properties": {
                     "texture": "level_image",
                     "group": "hud",
-                    "scale": {"x": 2, "y": 0},
+                    "scale": {"x": 2, "y": 2},
                     "stat_to_show": "player.level",
                     "stats_group": "stats",
                     "text_style": {
@@ -387,7 +393,7 @@
                 "properties": {
                     "texture": "exp_image",
                     "group": "hud",
-                    "scale": {"x": 2, "y": 0},
+                    "scale": {"x": 2, "y": 2},
                     "stat_to_show": "player.exp",
                     "stats_group": "stats",
                     "text_style": {
