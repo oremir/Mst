@@ -6,6 +6,8 @@ Mst.Bed = function (game_state, name, position, properties) {
     Mst.Prefab.call(this, game_state, name, position, properties);
     
     this.game_state.game.physics.arcade.enable(this);
+    this.body.immovable = true;
+    this.anchor.setTo(0.5);
     
     this.owner = properties.owner;
     

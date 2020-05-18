@@ -29,6 +29,10 @@ Mst.Player = function (game_state, name, position, properties) {
     
     //this.killed = (properties.killed === 'true');
     this.killed = properties.killed;
+    //console.log(typeof(this.killed));
+    if (typeof(this.killed) === 'string') {
+        this.killed = (properties.killed === 'true')
+    }
     
     this.no_pass_OP = true;
         
@@ -1014,7 +1018,11 @@ Mst.Player.prototype.assign_quest = function (quest) {
         }
         this.stats.quests.ass[quest.name] = new_quest;
         
-        key = this.game_state.playerOfUsrID(new_quest.owner);
+        if (new_quest.ot !== 'NPC') {
+            key = this.game_state.playerOfUsrID(new_quest.owner);
+        } else {
+            key = quest.ow_name;
+        }
         this.game_state.prefabs[key].ren_sprite.quest.state = "ass";
     }
     this.save.properties.quests = this.stats.quests;
@@ -1087,7 +1095,7 @@ Mst.Player.prototype.test_quest = function (type, condition) {
 
 Mst.Player.prototype.update_quest = function (type, condition) {
     "use strict";
-    var item_frame, quantity, item, return_obj, quest, key;
+    var item_frame, quantity, item, return_obj, quest, key, uid, oid;
     return_obj = {updated: false, accomplished: false};
     
     if (type === "by_quest_name") {
@@ -1127,7 +1135,24 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                                     quest.acc.is = 'true';
                                     quest.acc.q = condition.q;
                                     
-                                    key = this.game_state.playerOfUsrID(quest.owner);
+                                    
+                                    if (quest.ot !== 'NPC') {
+                                        key = this.game_state.playerOfUsrID(quest.owner);
+                                    } else {                                        
+                                        key = "";
+                                        for (var object_key in this.game_state.prefabs) {
+                                            
+                                            if (typeof(this.game_state.prefabs[object_key].unique_id) !== 'undefined') {
+                                                oid = parseInt(quest.owner);
+                                                uid = parseInt(this.game_state.prefabs[object_key].unique_id);
+                                                if (uid === oid) {
+                                                    key = object_key;
+                                                    console.log(key);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    console.log(key);
                                     if (key !== "") {
                                         this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
                                         this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished

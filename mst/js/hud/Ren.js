@@ -155,6 +155,7 @@ Mst.Ren.prototype.option_assign = function (option) {
 //                              region: this.game_state.prefabs.player.region
 //                             });
 //    this.quest.save.properties.assigned = this.quest.assigned;
+    this.quest.ow_name = this.dialogue_name;
     
     this.game_state.prefabs.player.assign_quest(this.quest);
     
