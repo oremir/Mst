@@ -24,3 +24,9 @@ Mst.Signpost.prototype.update = function () {
     
     
 };
+
+Mst.Signpost.prototype.open_collision = function (player) {
+    "use strict";
+    
+     
+};

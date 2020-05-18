@@ -4,10 +4,9 @@ var Mst = Mst || {};
 Mst.EnemySpawner = function (game_state, name, position, properties) {
     "use strict";
     
-    var max_level = 3;
-    
-    
     Mst.Spawner.call(this, game_state, name, position, properties);
+    
+    var max_level = 3;
     
     this.frames = properties.frames;
     if (typeof(properties.level) !== 'undefined') {

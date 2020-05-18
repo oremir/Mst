@@ -18,6 +18,7 @@ Mst.TiledState = function () {
         "chest": Mst.Chest.prototype.constructor,
         "sword": Mst.Sword.prototype.constructor,
         "signpost": Mst.Signpost.prototype.constructor,
+        "bed": Mst.Bed.prototype.constructor,
         "goout": Mst.Goout.prototype.constructor,
         "show_stat_with_sprite": Mst.ShowStatWithSprite.prototype.constructor,
         "show_stat_with_text": Mst.ShowStatWithText.prototype.constructor,
@@ -467,8 +468,7 @@ Mst.hud = function (game_state, name) {
     
     Phaser.Image.call(this, game_state.game, 273, 47, name_img);
     
-    this.game_state = game_state;    
-    this.game_state.groups.hud.add(this);    
+    this.game_state = game_state;
     this.name = name;
     
     
@@ -484,11 +484,13 @@ Mst.hud = function (game_state, name) {
     this.text.maxWidth = 150;
     
     switch(name) {
-        case "alt":
+        case "alt":            
+            this.game_state.groups.hud.add(this);
             this.text_alt = {};
             
             break;
-        case "dialogue":
+        case "dialogue":            
+            this.game_state.groups.hud.add(this);
             text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
             this.text_name = this.game_state.game.add.text(16, 244, "", text_style);
             this.text_name.fixedToCamera = true;
@@ -505,7 +507,22 @@ Mst.hud = function (game_state, name) {
             this.events.onInputDown.add(this.hide_dialogue_onclick, this);
             
             break;
+        case "middle_window":            
+            this.game_state.groups.hud.add(this);
+            text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
+            this.text_mw = this.game_state.game.add.text(162, 69, "", text_style);
+            this.text_mw.fixedToCamera = true;
+            this.reset(150, 57);
+            this.visible = false;
+            this.fixedToCamera = true;
+            
+            this.inputEnabled = true;
+            this.input.useHandCursor = true;
+            this.events.onInputDown.add(this.hide_mw, this);
+            
+            break;
         case "alert":
+            this.game_state.groups.hud.add(this);
             this.orig_pos = {x: 8, y: 50};
             text_style = {"font": "12px Arial", "fill": "#FFFFFF"};
             this.text_alert = this.game_state.game.add.text(275, 53, "", text_style);
@@ -518,8 +535,9 @@ Mst.hud = function (game_state, name) {
             this.show_running = false;
             
             break;
-        default:
+        default:            
             if (name.substr(0, 5) == "alert") {
+                this.game_state.groups.hud.add(this);
                 //console.log(name);
 
                 text_style = {"font": "12px Arial", "fill": "#FFFFFF"};
@@ -530,6 +548,8 @@ Mst.hud = function (game_state, name) {
 
                 console.log("New alert!");
                 console.log(this);
+            } else {
+                this.game_state.groups.unhud.add(this);
             }
             
             this.fixedToCamera = true;
@@ -576,6 +596,20 @@ Mst.hud.prototype.hide = function () {
     "use strict";
     this.visible = false;
     this.text.text = "";
+};
+
+Mst.hud.prototype.show_mw = function (text) {
+    "use strict";
+    this.visible = true;
+    this.alpha = 0.7;
+    this.text_mw.text = text;
+    console.log(this.text_mw);
+};
+
+Mst.hud.prototype.hide_mw = function () {
+    "use strict";
+    this.visible = false;
+    this.text_mw.text = "";
 };
 
 Mst.hud.prototype.show_alt = function (obj) {

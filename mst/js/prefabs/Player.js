@@ -262,6 +262,7 @@ Mst.Player.prototype.update = function () {
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_player, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.open_chest, null, this);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.collisions, this.open_collision, null, this);
     
     if (this.no_pass_OP) {
         this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.collide_other_player, null, this);
@@ -631,6 +632,13 @@ Mst.Player.prototype.open_chest = function (player, chest) {
         }
     }
     
+};
+
+Mst.Player.prototype.open_collision = function (player, collision) {
+    "use strict";
+    console.log("Open collision player");
+    
+    collision.open_collision(player);
 };
 
 Mst.Player.prototype.open_business = function (player, person) {

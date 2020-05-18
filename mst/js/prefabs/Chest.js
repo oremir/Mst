@@ -64,6 +64,16 @@ Mst.Chest = function (game_state, name, position, properties) {
         this.level = 0;
     }
     
+    var d = new Date();
+    var n = d.getTime();
+    
+    if (typeof(properties.time) !== 'undefined') {
+        this.time = parseInt(properties.time);
+    } else {
+
+        this.time = n;
+    }
+    
     this.is_opened = false;
     
     this.body.immovable = true;
@@ -489,6 +499,7 @@ Mst.Chest.prototype.close_chest = function () {
     if (this.stat !== "open" && chest.is_opened) {
         d = new Date();
         n = d.getTime();
+        this.save.properties.time = n;
 
         console.log("CLOSE CHEST");
         console.log(this.save);
@@ -558,6 +569,15 @@ Mst.Chest.prototype.get_chest = function (chest) {
                         case 22: //parez
                             player.add_item(31, 1); //spalek
                         break;
+                        case 127: //Měď. ruda
+                            player.add_item(47, 1); //Měď. ruda
+                        break;
+                        case 128: //Cín. ruda
+                            player.add_item(48, 1); //Cín. ruda
+                        break;
+                        case 129: //Žel. ruda
+                            player.add_item(97, 1); //Žel. ruda
+                        break;
                         default: //ostatní bedny
                             player.add_item(closed_frame, 1);
                         break;
@@ -568,7 +588,7 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     }
 
                     //this.obj_id = 0;
-                    this.kill();
+                    chest.kill();
                     player.opened_chest = "";
 
                     key = this.game_state.keyOfName(chest_name);
@@ -579,28 +599,55 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     if (key !== "") {
                         this.game_state.save.objects.splice(key, 1);
                     }
-
+                    
                     console.log("Get chest objects:");
                     console.log(this.game_state.save.objects);
-
-                    if (this.obj_id !== 0) {
-                        usr_id = player.usr_id;
-                        chest.save.action = "GET";
-
+                    
+                    if (closed_frame === 22) {
+                        chest.save.properties.closed_frame = "126";
+                        chest.save.properties.opened_frame = "126";
+                        
                         d = new Date();
                         n = d.getTime();
+                        chest.save.properties.time = n;
+                        
+                        usr_id = player.usr_id;
+                        chest.save.action = "CLOSE";
+
+                        console.log("CLOSE 126 CHEST");
+                        console.log(this.save);
 
                         $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
                             .done(function (data) {
-                                console.log("Chest get success");
+                                console.log("Chest close success");
                                 console.log(data);
                             })
                             .fail(function (data) {
-                                console.log("Chest get error");
+                                console.log("Chest close error");
                                 console.log(data);
                             });
 
-                        console.log("save chest get");
+                        console.log("save chest close");
+                    } else {
+                        if (this.obj_id !== 0) {
+                            usr_id = player.usr_id;
+                            chest.save.action = "GET";
+
+                            d = new Date();
+                            n = d.getTime();
+
+                            $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
+                                .done(function (data) {
+                                    console.log("Chest get success");
+                                    console.log(data);
+                                })
+                                .fail(function (data) {
+                                    console.log("Chest get error");
+                                    console.log(data);
+                                });
+
+                            console.log("save chest get");
+                        }
                     }
                 } else {
                     success = false;

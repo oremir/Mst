@@ -83,22 +83,23 @@
         "spawners",
         "chests",        
         "goouts",
-	"swords",
+	    "swords",
         "players",
         "playerbullets",
         "enemybullets",
         "otherplayers",        
         "NPCs",
-        "signposts",
+        "collisions",
         "bubbles",
         "night",
         "ren",
-        "hud",
+        "unhud",
         "chestitems",
         "businessitems",
         "items",
         "quests",
         "stats",
+        "hud",
         "alerts"
         
     ],
@@ -189,7 +190,9 @@
         { "name": "Hmoždíř", "istool": "false", "properties": {} },
         { "name": "Měď. ruda", "istool": "false", "properties": {} },
         { "name": "Cín. ruda", "istool": "false", "properties": {} },
-        { "name": "Uhlí", "istool": "false", "properties": {} },
+        { "name": "Uhlí", "istool": "false", "properties": { "spawn": "mine", "work": { 
+            "3": { "n": "krumpáč", "act": "take", "skill": "miner", "ability":"strength", "w": [1, 2, 1, 3] }
+        } } },
         { "name": "Měď", "istool": "false", "properties": {} },
         { "name": "Cín", "istool": "false", "properties": {} },
         { "name": "Měď. kotlík", "istool": "false", "properties": {} },
@@ -269,9 +272,19 @@
         { "name": "Znamení", "istool": "false", "properties": {} },
         { "name": "Tráva", "istool": "false", "properties": {} },
         { "name": "Luk", "istool": "true", "properties": 
-            { "cut_type": "fire", "tool_fr_left": "15", "tool_fr_right": "16" } 
+            { "cut_type": "fire", "tool_fr_left": "15", "tool_fr_right": "16" }
         },
-        { "name": "Šíp", "istool": "false", "properties": {} }
+        { "name": "Šíp", "istool": "false", "properties": {} },
+        { "name": "Sazenice", "istool": "false", "properties": {} },
+        { "name": "Měď. ruda", "istool": "false", "properties": { "spawn": "mine", "work": { 
+            "3": { "n": "krumpáč", "act": "take", "skill": "miner", "ability":"strength", "w": [1, 2, 1, 3] }
+        } } },
+        { "name": "Cín. ruda", "istool": "false", "properties": { "spawn": "mine", "work": { 
+            "3": { "n": "krumpáč", "act": "take", "skill": "miner", "ability":"strength", "w": [1, 2, 1, 3] }
+        } } },
+        { "name": "Žel. ruda", "istool": "false", "properties": { "spawn": "mine", "work": { 
+            "3": { "n": "krumpáč", "act": "take", "skill": "miner", "ability":"strength", "w": [1, 2, 1, 3] }
+        } } }
     ],
 	
 	"objects": { 
@@ -299,7 +312,7 @@
                 "region": "bottom_left",
                 "properties": {
                     "texture": "frame_item",
-                    "group": "hud",
+                    "group": "unhud",
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
                     "stat_to_show": "player.equip",
@@ -338,7 +351,7 @@
                 "region": "right_window",
                 "properties": {
                     "texture": "items_spritesheet",
-                    "group": "hud",
+                    "group": "unhud",
                     "scale": {"x": 2, "y": 2},
                     "anchor": {"x": 0.5, "y": 0.5},
                     "stat_to_show": "merchant.items",

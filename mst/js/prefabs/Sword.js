@@ -278,7 +278,7 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
 
 Mst.Sword.prototype.cut_chest = function (chest) {
     "use strict";
-    var player, index, in_chest, tool_frame, recipe, rnd_test, rnd_core;
+    var player, index, in_chest, tool_frame, recipe, rnd_test, rnd_core, success;
     
     console.log("Cut chest");
     console.log(chest);
@@ -293,390 +293,395 @@ Mst.Sword.prototype.cut_chest = function (chest) {
         if (player.opened_chest === chest.name) {
             console.log("Chest frame: " + chest.closed_frame + " op: " + chest.is_opened);
             console.log("Tool frame: " + tool_frame);
-            switch (tool_frame) {
-                case 1: //sekera                    
-                    switch (chest.closed_frame) {
-                        case 7: //dřevo
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.get_chest(chest);
-                            player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        case 20: //krovi
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            
-                            chest.rnd_take(20, "forager");
-                        break;
-                        case 22: //parez
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        case 30: //kmen
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length < 1) {
-                                chest.change_frame(31);
-                                
-                                chest.add_item(31, 1); //špalek
-                                player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            }  else {
+            
+            success = this.blade_work(chest, player, tool_frame);
+            
+            if (!success) {            
+                switch (tool_frame) {
+                    case 1: //sekera                    
+                        switch (chest.closed_frame) {
+                            case 7: //dřevo
+                                in_chest = chest.in_chest_ord();
                                 chest.take_all();
                                 player.put_all(in_chest);
                                 chest.get_chest(chest);
                                 player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            }
-                        break;
-                        case 31: //špalek
-                            index = chest.test_item(30, 1); //kmen
-                            console.log(index);
-                            if (index > -1) {
-                                chest.subtract_item(index, 1);
-                                chest.add_item(31, 2); //špalek
-                                chest.updated = true;
-                                player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            } else {
-                                index = chest.test_item(31, 1);
-                                console.log(index);
-                                if (index > -1) {
-                                    chest.subtract_item(index, 1);
-                                    chest.add_item(32,2); //prkno
-                                    chest.updated = true;
-                                    player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                                } else {
-                                    index = chest.test_item(32, 1);
-                                    console.log(index);
-                                    if (index > -1) {
-                                        chest.subtract_item(index, 1);
-                                        chest.add_item(24, 2); // hůl
-                                        chest.updated = true;
-                                        player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                                    } 
-                                }
-                            }
-                        break;
-                        case 43: //větev
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            
-                            player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            
-//                            rnd_test = Math.floor(Math.random() * 20);
-//                            if (rnd_test < 2) {
-//                                player.add_item(33, 1); // trnka
-//                            }
-                        break;
-                        case 91: //hrib
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        default:
-                        break;
-                    }                    
-                break;
-                case 3: //krumpáč                    
-                    switch (chest.closed_frame) {
-                        case 20: //krovi
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            
-                            chest.rnd_take(20, "forager");
-                        break;
-                        case 21: //kámen
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length < 1) {
-                                chest.change_frame(58); //op. kamen
-                                player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            }  else {
+                            break;
+                            case 20: //krovi
+                                in_chest = chest.in_chest_ord();
                                 chest.take_all();
                                 player.put_all(in_chest);
                                 chest.is_takeable = true;
                                 chest.get_chest(chest);
-                                player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            }
-                            
-                            chest.rnd_take(21, "stonebreaker");
+                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
 
-//                            rnd_test = Math.floor(Math.random() * 20);
-//                            if (rnd_test < 2) {
-//                                player.add_item(40, 1); // lichen
-//                            } else {
-//                                rnd_core = Math.max(22, 40 - player.level("stonebreaker"))
-//                                rnd_test = Math.floor(Math.random() * rnd_core);
-//                                if (rnd_test < 2) {
-//                                    player.add_item(96, 1); // pazourek
-//                                } else {
-//                                    rnd_core = Math.max(25, 50 - player.level("stonebreaker"))
-//                                    rnd_test = Math.floor(Math.random() * rnd_core);
-//                                    if (rnd_test < 2 && player.level("stonebreaker") > 1) {
-//                                        player.add_item(49, 1); // uhli
-//                                    } else {
-//                                        rnd_test = Math.floor(Math.random() * rnd_core);
-//                                        if (rnd_test < 2 && player.level("stonebreaker") > 2) {
-//                                            player.add_item(47, 1); // med. ruda
-//                                        } else {
-//                                            rnd_test = Math.floor(Math.random() * rnd_core);
-//                                            if (rnd_test < 2 && player.level("stonebreaker") > 3) {
-//                                                player.add_item(48, 1); // cin. ruda
-//                                            } else {
-//                                                rnd_test = Math.floor(Math.random() * rnd_core);
-//                                                if (rnd_test < 2 && player.level("stonebreaker") > 4) {
-//                                                    player.add_item(97, 1); // žel. ruda
-//                                                } else {
-//                                                    rnd_test = Math.floor(Math.random() * rnd_core);
-//                                                    if (rnd_test < 2 && player.level("stonebreaker") > 5) {
-//                                                        player.add_item(61, 1); // zlato
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-                            
-                            
-                        break;
-                        case 22: //parez
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        case 58: //op. kámen
-                            index = chest.test_item(21, 1); //kámen
-                            console.log(index);
-                            if (index > -1) {
-                                chest.subtract_item(index, 1);
-                                chest.add_item(58, 2); //op. kámen
-                                chest.updated = true;
-                                player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            } else {
-                                index = chest.test_item(58, 1);
+                                chest.rnd_take(20, "forager");
+                            break;
+                            case 22: //parez
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.is_takeable = true;
+                                chest.get_chest(chest);
+                                player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 30: //kmen
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.change_frame(31);
+
+                                    chest.add_item(31, 1); //špalek
+                                    player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                }  else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.get_chest(chest);
+                                    player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                            case 31: //špalek
+                                index = chest.test_item(30, 1); //kmen
                                 console.log(index);
                                 if (index > -1) {
                                     chest.subtract_item(index, 1);
-                                    chest.add_item(59,2); //kam. blok
+                                    chest.add_item(31, 2); //špalek
                                     chest.updated = true;
-                                    player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                    player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                                 } else {
-                                    index = chest.test_item(59, 1);
+                                    index = chest.test_item(31, 1);
                                     console.log(index);
                                     if (index > -1) {
                                         chest.subtract_item(index, 1);
-                                        chest.add_item(111, 5); //brousek
+                                        chest.add_item(32,2); //prkno
                                         chest.updated = true;
-                                        player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                        player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                                     } else {
-                                        in_chest = chest.in_chest_ord();
-                                        chest.take_all();
-                                        player.put_all(in_chest);
-                                        chest.is_takeable = true;
-                                        chest.get_chest(chest);
-                                        player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                                        chest.rnd_take(21, "stonebreaker");
-                                    }
-                                }
-                            }
-                        break;
-                        case 59: //kam. blok
-                            chest.change_frame(60); //kam. nádoba
-                            player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        case 91: //hrib
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.is_takeable = true;
-                            chest.get_chest(chest);
-                            player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        default:
-                        break;
-                    }                    
-                break;
-                case 4: //hul
-                    switch (chest.closed_frame) {
-                        case 21: //kámen
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length < 1) {
-                                chest.get_chest(chest);
-                                index = player.test_item(21, 1);
-                                player.subtract_item(index, 1);
-                                index = player.unequip();
-                                player.subtract_item(index, 1);
-                                index = player.add_item(44, 1); // sekeromlat
-                                player.equip(index, 44);
-                                player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            } else {
-                                chest.take_all();
-                                player.put_all(in_chest);
-                                chest.get_chest(chest);
-                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            }
-                        break;
-                        case 31: //špalek
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length < 1) {
-                                chest.get_chest(chest);
-                                index = player.test_item(31, 1);
-                                player.subtract_item(index, 1);
-                                index = player.unequip();
-                                player.subtract_item(index, 1);
-                                index = player.add_item(38, 1); // palice
-                                player.equip(index, 38);
-                                player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            } else {
-                                chest.take_all();
-                                player.put_all(in_chest);
-                                chest.get_chest(chest);
-                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            }
-                        break;
-                        case 98: //zelezo
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length < 1) {
-                                chest.get_chest(chest);
-                                index = player.test_item(98, 1);
-                                player.subtract_item(index, 1);
-                                index = player.unequip();
-                                player.subtract_item(index, 1);
-                                index = player.add_item(107, 1); // kladivo
-                                player.equip(index, 107);
-                                player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
-                            } else {
-                                chest.take_all();
-                                player.put_all(in_chest);
-                                chest.get_chest(chest);
-                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
-                            }
-                        break;
-                    }
-                break;
-                case 8: //palice
-                    switch (chest.closed_frame) {
-                        case 4: //truhla
-                            in_chest = chest.in_chest_ord();
-                            chest.take_all();
-                            player.put_all(in_chest);
-                            chest.get_chest(chest);
-                            player.work_rout("forager", "exploration", 1, 1, 1, 1); // stress, stand_exp, skill_exp, abil_p
-                        break;
-                        case 29: //prac. stůl
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length > 0) {
-                                recipe = [{f: 59, q: 20}]; //20 kam. blok
-                                if (chest.chest_compare(in_chest, recipe)) {
-                                    index = chest.test_item(59, 20);
-                                    chest.subtract_item(index, 20);
-                                    chest.add_item(64, 1); // kam. pec
-                                    chest.updated = true;
-                                    player.work_rout("builder", "dexterity", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
-                                }
-                            }
-                        break;
-                        case 31: //špalek
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-                            
-                            if (in_chest.length > 0) {
-                                recipe = [{f: 24, q: 4}, {f: 32, q: 2}]; //4 hole, 2 prkna
-                                if (chest.chest_compare(in_chest, recipe)) {
-                                    index = chest.test_item(24, 4);
-                                    chest.subtract_item(index, 4);
-                                    index = chest.test_item(32, 2);
-                                    chest.subtract_item(index, 2);
-                                    chest.add_item(29, 1); // prac. stůl
-                                    chest.updated = true;
-                                    player.work_rout("toolmaker", "exploration", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
-                                }
-                            }
-                        break;
-                            
-                    }
-                break;
-                case 13: //kladivo
-                    switch (chest.closed_frame) {
-                        case 98: //zelezo
-                            index = chest.test_item(105, 1); //zhav. zelezo
-                            console.log(index);
-                            if (index > -1) {
-                                chest.subtract_item(index, 1);
-                                chest.change_frame(108); //kovadlina
-                                player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
-                            }
-                        break;
-                        case 108: //kovadlina
-                            in_chest = chest.in_chest_ord();
-                            console.log(in_chest.length);
-
-                            if (in_chest.length > 0) {
-                                recipe = [{f: 24, q: 1}, {f: 105, q: 1}, {f: 111, q: 1}]; //hul, zhav.zelezo, brousek
-                                if (chest.chest_compare(in_chest, recipe)) {
-                                    index = chest.test_item(24, 1);
-                                    chest.subtract_item(index, 1);
-                                    index = chest.test_item(105, 1);
-                                    chest.subtract_item(index, 1);
-                                    chest.add_item(0, 1); // sekera
-                                    chest.updated = true;
-                                    player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
-                                } else {
-                                    recipe = [{f: 24, q: 1}, {f: 109, q: 1}]; //hul, zhav.zel.tyc
-                                    if (chest.chest_compare(in_chest, recipe)) {
-                                        index = chest.test_item(24, 1);
-                                        chest.subtract_item(index, 1);
-                                        index = chest.test_item(109, 1);
-                                        chest.subtract_item(index, 1);
-                                        chest.add_item(2, 1); // krumpac
-                                        chest.updated = true;
-                                        player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
-                                    } else {
-                                        index = chest.test_item(105, 1); //zhav. zelezo
+                                        index = chest.test_item(32, 1);
                                         console.log(index);
                                         if (index > -1) {
                                             chest.subtract_item(index, 1);
-                                            chest.add_item(109, 2); // zhav.zel.tyc
-                                            player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                            chest.add_item(24, 2); // hůl
+                                            chest.updated = true;
+                                            player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                        } 
+                                    }
+                                }
+                            break;
+                            case 43: //větev
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.is_takeable = true;
+                                chest.get_chest(chest);
+
+                                player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+    //                            rnd_test = Math.floor(Math.random() * 20);
+    //                            if (rnd_test < 2) {
+    //                                player.add_item(33, 1); // trnka
+    //                            }
+                            break;
+                            case 91: //hrib
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.is_takeable = true;
+                                chest.get_chest(chest);
+                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            default:
+                            break;
+                        }                    
+                    break;
+                    case 3: //krumpáč                    
+                        switch (chest.closed_frame) {
+                            case 20: //krovi
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.is_takeable = true;
+                                chest.get_chest(chest);
+                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+                                chest.rnd_take(20, "forager");
+                            break;
+                            case 21: //kámen
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.change_frame(58); //op. kamen
+                                    player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                }  else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.is_takeable = true;
+                                    chest.get_chest(chest);
+                                    player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+
+                                chest.rnd_take(21, "stonebreaker");
+
+    //                            rnd_test = Math.floor(Math.random() * 20);
+    //                            if (rnd_test < 2) {
+    //                                player.add_item(40, 1); // lichen
+    //                            } else {
+    //                                rnd_core = Math.max(22, 40 - player.level("stonebreaker"))
+    //                                rnd_test = Math.floor(Math.random() * rnd_core);
+    //                                if (rnd_test < 2) {
+    //                                    player.add_item(96, 1); // pazourek
+    //                                } else {
+    //                                    rnd_core = Math.max(25, 50 - player.level("stonebreaker"))
+    //                                    rnd_test = Math.floor(Math.random() * rnd_core);
+    //                                    if (rnd_test < 2 && player.level("stonebreaker") > 1) {
+    //                                        player.add_item(49, 1); // uhli
+    //                                    } else {
+    //                                        rnd_test = Math.floor(Math.random() * rnd_core);
+    //                                        if (rnd_test < 2 && player.level("stonebreaker") > 2) {
+    //                                            player.add_item(47, 1); // med. ruda
+    //                                        } else {
+    //                                            rnd_test = Math.floor(Math.random() * rnd_core);
+    //                                            if (rnd_test < 2 && player.level("stonebreaker") > 3) {
+    //                                                player.add_item(48, 1); // cin. ruda
+    //                                            } else {
+    //                                                rnd_test = Math.floor(Math.random() * rnd_core);
+    //                                                if (rnd_test < 2 && player.level("stonebreaker") > 4) {
+    //                                                    player.add_item(97, 1); // žel. ruda
+    //                                                } else {
+    //                                                    rnd_test = Math.floor(Math.random() * rnd_core);
+    //                                                    if (rnd_test < 2 && player.level("stonebreaker") > 5) {
+    //                                                        player.add_item(61, 1); // zlato
+    //                                                    }
+    //                                                }
+    //                                            }
+    //                                        }
+    //                                    }
+    //                                }
+    //                            }
+
+
+                            break;
+                            case 22: //parez
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.is_takeable = true;
+                                chest.get_chest(chest);
+                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 58: //op. kámen
+                                index = chest.test_item(21, 1); //kámen
+                                console.log(index);
+                                if (index > -1) {
+                                    chest.subtract_item(index, 1);
+                                    chest.add_item(58, 2); //op. kámen
+                                    chest.updated = true;
+                                    player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    index = chest.test_item(58, 1);
+                                    console.log(index);
+                                    if (index > -1) {
+                                        chest.subtract_item(index, 1);
+                                        chest.add_item(59,2); //kam. blok
+                                        chest.updated = true;
+                                        player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                    } else {
+                                        index = chest.test_item(59, 1);
+                                        console.log(index);
+                                        if (index > -1) {
+                                            chest.subtract_item(index, 1);
+                                            chest.add_item(111, 5); //brousek
+                                            chest.updated = true;
+                                            player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                        } else {
+                                            in_chest = chest.in_chest_ord();
+                                            chest.take_all();
+                                            player.put_all(in_chest);
+                                            chest.is_takeable = true;
+                                            chest.get_chest(chest);
+                                            player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                            chest.rnd_take(21, "stonebreaker");
                                         }
                                     }
                                 }
-                            }
-                        break;
-                    }
-                break;                
-            }            
+                            break;
+                            case 59: //kam. blok
+                                chest.change_frame(60); //kam. nádoba
+                                player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 91: //hrib
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.is_takeable = true;
+                                chest.get_chest(chest);
+                                player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            default:
+                            break;
+                        }                    
+                    break;
+                    case 4: //hul
+                        switch (chest.closed_frame) {
+                            case 21: //kámen
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.get_chest(chest);
+                                    index = player.test_item(21, 1);
+                                    player.subtract_item(index, 1);
+                                    index = player.unequip();
+                                    player.subtract_item(index, 1);
+                                    index = player.add_item(44, 1); // sekeromlat
+                                    player.equip(index, 44);
+                                    player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.get_chest(chest);
+                                    player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                            case 31: //špalek
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.get_chest(chest);
+                                    index = player.test_item(31, 1);
+                                    player.subtract_item(index, 1);
+                                    index = player.unequip();
+                                    player.subtract_item(index, 1);
+                                    index = player.add_item(38, 1); // palice
+                                    player.equip(index, 38);
+                                    player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.get_chest(chest);
+                                    player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                            case 98: //zelezo
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.get_chest(chest);
+                                    index = player.test_item(98, 1);
+                                    player.subtract_item(index, 1);
+                                    index = player.unequip();
+                                    player.subtract_item(index, 1);
+                                    index = player.add_item(107, 1); // kladivo
+                                    player.equip(index, 107);
+                                    player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.get_chest(chest);
+                                    player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                        }
+                    break;
+                    case 8: //palice
+                        switch (chest.closed_frame) {
+                            case 4: //truhla
+                                in_chest = chest.in_chest_ord();
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
+                                player.work_rout("forager", "exploration", 1, 1, 1, 1); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 29: //prac. stůl
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length > 0) {
+                                    recipe = [{f: 59, q: 20}]; //20 kam. blok
+                                    if (chest.chest_compare(in_chest, recipe)) {
+                                        index = chest.test_item(59, 20);
+                                        chest.subtract_item(index, 20);
+                                        chest.add_item(64, 1); // kam. pec
+                                        chest.updated = true;
+                                        player.work_rout("builder", "dexterity", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                    }
+                                }
+                            break;
+                            case 31: //špalek
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length > 0) {
+                                    recipe = [{f: 24, q: 4}, {f: 32, q: 2}]; //4 hole, 2 prkna
+                                    if (chest.chest_compare(in_chest, recipe)) {
+                                        index = chest.test_item(24, 4);
+                                        chest.subtract_item(index, 4);
+                                        index = chest.test_item(32, 2);
+                                        chest.subtract_item(index, 2);
+                                        chest.add_item(29, 1); // prac. stůl
+                                        chest.updated = true;
+                                        player.work_rout("toolmaker", "exploration", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                    }
+                                }
+                            break;
+
+                        }
+                    break;
+                    case 13: //kladivo
+                        switch (chest.closed_frame) {
+                            case 98: //zelezo
+                                index = chest.test_item(105, 1); //zhav. zelezo
+                                console.log(index);
+                                if (index > -1) {
+                                    chest.subtract_item(index, 1);
+                                    chest.change_frame(108); //kovadlina
+                                    player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                            case 108: //kovadlina
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length > 0) {
+                                    recipe = [{f: 24, q: 1}, {f: 105, q: 1}, {f: 111, q: 1}]; //hul, zhav.zelezo, brousek
+                                    if (chest.chest_compare(in_chest, recipe)) {
+                                        index = chest.test_item(24, 1);
+                                        chest.subtract_item(index, 1);
+                                        index = chest.test_item(105, 1);
+                                        chest.subtract_item(index, 1);
+                                        chest.add_item(0, 1); // sekera
+                                        chest.updated = true;
+                                        player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                    } else {
+                                        recipe = [{f: 24, q: 1}, {f: 109, q: 1}]; //hul, zhav.zel.tyc
+                                        if (chest.chest_compare(in_chest, recipe)) {
+                                            index = chest.test_item(24, 1);
+                                            chest.subtract_item(index, 1);
+                                            index = chest.test_item(109, 1);
+                                            chest.subtract_item(index, 1);
+                                            chest.add_item(2, 1); // krumpac
+                                            chest.updated = true;
+                                            player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                        } else {
+                                            index = chest.test_item(105, 1); //zhav. zelezo
+                                            console.log(index);
+                                            if (index > -1) {
+                                                chest.subtract_item(index, 1);
+                                                chest.add_item(109, 2); // zhav.zel.tyc
+                                                player.work_rout("smith", "strength", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
+                                            }
+                                        }
+                                    }
+                                }
+                            break;
+                        }
+                    break;                
+                }
+            }
         }
     } else {
         
@@ -685,6 +690,36 @@ Mst.Sword.prototype.cut_chest = function (chest) {
     console.log("!!! Chest CUT: " + this.cut);
 };
 
+Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_frame) {
+    "use strict";
+    var work, tw, in_chest, success;
+    
+    success = false;
+    work = this.game_state.core_data.items[chest.closed_frame].properties.work;
+    
+    if (typeof(work) !== 'undefined') {
+        console.log(work);
+        tw = work[tool_frame];
+        console.log(tw);
+        
+        if (typeof(tw) !== 'undefined') {
+            switch (tw.act) {
+                case "take":
+                    in_chest = chest.in_chest_ord();
+                    chest.take_all();
+                    player.put_all(in_chest);
+                    chest.is_takeable = true;
+                    chest.get_chest(chest);
+                    player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
+                    chest.rnd_take(chest.closed_frame, tw.skill);
+                    success = true;
+                break;
+            }
+        }
+    }
+    
+    return success;
+};
 
 Mst.Sword.prototype.create_bullet = function () {
     "use strict";

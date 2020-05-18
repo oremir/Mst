@@ -42,16 +42,17 @@
                  "name":"goout02",
                  "properties":
                     {
-                     "go_position_x": 400,
-                     "go_position_y": 713,
+                     "go_position_x":"400",
+                     "go_position_y":"713",
                      "group":"goouts",
-                     "next_map":7,
+                     "next_map":"7",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -71,16 +72,17 @@
                  "name":"goout01",
                  "properties":
                     {
-                     "go_position_x": 330,
-                     "go_position_y": 224,
+                     "go_position_x":"330",
+                     "go_position_y":"224",
                      "group":"goouts",
-                     "next_map":5,
+                     "next_map":"5",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -92,6 +94,40 @@
                  "width":16,
                  "x":240,
                  "y":705
+                }, 
+                {
+                 "gid":54,
+                 "height":16,
+                 "id":4,
+                 "name":"itemspawner01",
+                 "properties":
+                    {
+                     "group":"spawners",
+                     "pool":"chests",
+                     "sskill":"miner",
+                     "stype":"mine",
+                     "texture":"items_spritesheet",
+                     "level":10,
+                     "xdif":"7",
+                     "ydif":"4"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "pool":"string",
+                     "sskill":"string",
+                     "stype":"string",
+                     "texture":"string",
+                     "level":"int",
+                     "xdif":"string",
+                     "ydif":"string"
+                    },
+                 "rotation":0,
+                 "type":"item_spawner",
+                 "visible":true,
+                 "width":16,
+                 "x":464,
+                 "y":544
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -99,7 +135,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -108,7 +144,7 @@
         {
          "columns":51,
          "firstgid":1,
-         "image":"assets\/images\/map6_dungeon1.png",
+         "image":"..\/images\/map6_dungeon1.png",
          "imageheight":960,
          "imagewidth":816,
          "margin":0,

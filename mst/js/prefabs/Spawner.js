@@ -3,13 +3,21 @@ var Mst = Mst || {};
 
 Mst.Spawner = function (game_state, name, position, properties) {
     "use strict";
-    //Mst.Prefab.call(this, game_state, position, properties);
+    
+    properties.texture = "blank_image";
+    
+    Mst.Prefab.call(this, game_state, name, position, properties);
     
     this.game_state = game_state;
     this.properties = properties;
     this.position = position;
     
+    this.group = properties.pool || properties.group;
     this.pool = this.game_state.groups[properties.pool];
+    this.game_state.groups[this.group].add(this);
+    
+    this.game_state.prefabs[name] = this;
+    this.name = name;
     
     this.spawn_time = {
         min: +properties.spawn_time_min,
