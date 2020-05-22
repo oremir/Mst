@@ -16,6 +16,8 @@ Mst.Bed = function (game_state, name, position, properties) {
     } else {
         this.is_takeable = true;
     }
+    
+    this.hited = false;
 };
 
 Mst.Bed.prototype = Object.create(Mst.Prefab.prototype);
@@ -30,7 +32,38 @@ Mst.Bed.prototype.update = function () {
 Mst.Bed.prototype.open_collision = function (player) {
     "use strict";
     
-    console.log("Open collision: Bed")
+    console.log("Open collision: Bed");
     
-    this.game_state.hud.middle_window.show_mw("Chcete se vyspat?");
+    if (!this.hited) {
+        this.hited = true;
+        this.game_state.hud.middle_window.show_mw("Chcete se vyspat?", this, ["yes", "no"]);
+    } 
+    
+};
+
+Mst.Bed.prototype.option_yes = function () {
+    "use strict";
+    
+    console.log("Option YES");
+    
+    var index_gold, cost, constitution, player;
+    
+    player = this.game_state.prefabs.player;
+    console.log(player);
+    constitution = parseInt(player.stats.abilities.constitution)/2 + 50;
+    if (constitution < 100) {constitution = 100;}
+    
+    player.add_health(constitution);
+    player.subtract_stress(constitution);
+    player.new_day();
+    this.game_state.prefabs.moon.subtract_moon();
+    this.game_state.save_data({ "x": player.x-8, "y": player.y+8 }, this.game_state.map_data.map.map_int, "lodging");
+
+};
+
+Mst.Bed.prototype.option_no = function () {
+    "use strict";
+    
+    console.log("Option NO");
+    this.hited = false;
 };

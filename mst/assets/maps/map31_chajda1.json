@@ -94,6 +94,33 @@
                  "width":16,
                  "x":224,
                  "y":178
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":3,
+                 "name":"bed01",
+                 "properties":
+                    {
+                     "group":"collisions",
+                     "is_takeable":"false",
+                     "pool":"collisions",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "group":"string",
+                     "is_takeable":"string",
+                     "items":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"bed",
+                 "visible":true,
+                 "width":16,
+                 "x":367,
+                 "y":246
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -101,7 +128,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":3,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

@@ -74,6 +74,66 @@ Mst.Chest = function (game_state, name, position, properties) {
         this.time = n;
     }
     
+    console.log("Chest time diff: " + (n - this.time));
+    
+    if ((n - this.time)/100000 > 846) {
+        switch (this.closed_frame) {
+            case 126: // sazenice
+                var rnd_test = Math.floor(Math.random() * 100);
+                if (rnd_test > 50) {
+                    var r_frame = 132; // Keř
+                } else {
+                    var r_frame = 131; // Strom malý
+                }
+                this.change_frame(r_frame);
+                this.time = n;
+            break;
+            case 130: // Keř malý
+                var rnd_test = Math.floor(Math.random() * 100);
+                if (rnd_test > 50) {
+                    var r_frame = 132; // Keř
+                } else {
+                    var r_frame = 133; // Keř s bobulí
+                }
+                this.change_frame(r_frame);
+                this.time = n;
+            break;
+            case 132: // Keř malý
+                this.change_frame(133); // Keř s bobulí
+                this.time = n;
+            break;
+        }
+    }
+    
+    if ((n - this.time)/100000 > 423) {
+        switch (this.closed_frame) {
+            case 126: // sazenice
+                var rnd_test = Math.floor(Math.random() * 100);
+                if (rnd_test > 50) {
+                    var r_frame = 130; // Keř malý
+                } else {
+                    var r_frame = 131; // Strom malý
+                }
+                this.change_frame(r_frame);
+                this.time = n;
+            break;
+            case 130: // Keř malý
+                var rnd_test = Math.floor(Math.random() * 100);
+                if (rnd_test > 50) {
+                    var r_frame = 132; // Keř
+                } else {
+                    var r_frame = 133; // Keř s bobulí
+                }
+                this.change_frame(r_frame);
+                this.time = n;
+            break;
+            case 132: // Keř malý
+                this.change_frame(133); // Keř s bobulí
+                this.time = n;
+            break;
+        }
+    }
+    
     this.is_opened = false;
     
     this.body.immovable = true;
@@ -577,6 +637,12 @@ Mst.Chest.prototype.get_chest = function (chest) {
                         break;
                         case 129: //Žel. ruda
                             player.add_item(97, 1); //Žel. ruda
+                        break;
+                        case 130: //Keř malý
+                            player.add_item(43, 1); //Větev
+                        break;
+                        case 131: //Strom malý
+                            player.add_item(30, 1); //Kmen
                         break;
                         default: //ostatní bedny
                             player.add_item(closed_frame, 1);

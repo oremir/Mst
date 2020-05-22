@@ -515,6 +515,8 @@ Mst.hud = function (game_state, name) {
             this.reset(150, 57);
             this.visible = false;
             this.fixedToCamera = true;
+            this.options = [];
+            this.mw_object = {};
             
             this.inputEnabled = true;
             this.input.useHandCursor = true;
@@ -598,18 +600,80 @@ Mst.hud.prototype.hide = function () {
     this.text.text = "";
 };
 
-Mst.hud.prototype.show_mw = function (text) {
+Mst.hud.prototype.show_mw = function (text, object, options) {
     "use strict";
     this.visible = true;
     this.alpha = 0.7;
     this.text_mw.text = text;
     console.log(this.text_mw);
+    
+    this.mw_object = object;
+    
+    if (typeof(options) !== 'undefined') {
+        this.show_options(options);
+    }
 };
 
 Mst.hud.prototype.hide_mw = function () {
     "use strict";
     this.visible = false;
     this.text_mw.text = "";
+    this.hide_options();
+    this.mw_object.hited = false;
+    this.mw_object = {};
+};
+
+Mst.hud.prototype.show_options = function (options) {
+    "use strict";
+    var key, x, y, text, text_style;
+    
+    console.log(this.game_state.hud.middle_window);
+    
+//    x = this.game_state.hud.middle_window.x + 13;
+//    y = this.game_state.hud.middle_window.y + 75;
+    
+    x = 163;
+    y = 212;
+    
+    text_style = {"font": "12px Arial", "fill": "#BF9F00"};
+    for (key in options) {
+        text = this.game_state.game.add.text(x + (60 * key), y, "", text_style);
+        text.fixedToCamera = true;
+        text.inputEnabled = true;
+        text.input.useHandCursor = true;
+        
+        switch (options[key]) {
+            case "yes":
+                text.text = "[ano]";
+                text.events.onInputDown.add(this.option_yes, this);
+                break;
+            case "no":
+                text.text = "[ne]";
+                text.events.onInputDown.add(this.option_no, this);
+                break;
+        }
+        
+        this.options.push(text);
+    }
+};
+
+Mst.hud.prototype.hide_options = function () {
+    "use strict";
+    this.options.forEach(function (option) {
+        option.destroy();
+    });
+};
+
+Mst.hud.prototype.option_yes = function () {
+    "use strict";
+    this.mw_object.option_yes();
+    this.hide_mw();
+};
+
+Mst.hud.prototype.option_no = function () {
+    "use strict";
+    this.mw_object.option_no();
+    this.hide_mw();
 };
 
 Mst.hud.prototype.show_alt = function (obj) {
