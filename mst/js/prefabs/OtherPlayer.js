@@ -113,6 +113,13 @@ Mst.OtherPlayer.prototype.update = function () {
         this.game_state.game.physics.arcade.collide(this, one_player);
     }, this);
     
+    this.game_state.groups.NPCs.forEachAlive(function(NPC) {
+        //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
+        if (this.game_state.game.physics.arcade.distanceBetween(this, NPC) < 10) {
+            this.game_state.game.physics.arcade.moveToObject(this, NPC, -30);
+        }
+    }, this);
+    
     if (this.bubble_showed) {
         this.bubble.x = this.x;
         this.bubble.y = this.y - 16;

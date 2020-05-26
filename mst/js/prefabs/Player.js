@@ -109,6 +109,12 @@ Mst.Player = function (game_state, name, position, properties) {
     if (typeof (properties.gtimealpha) === 'undefined') {
         properties.gtimealpha = 0;
     }
+        
+    this.followers = {};
+    if (typeof (properties.followers) === 'undefined') {
+        properties.followers = [];
+    }
+    
     
 //    var dt = new Date();
 //    var tm = dt.getTime();
@@ -250,6 +256,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.update_place();
     //this.quest_bubble();
     
+    this.infight = false;
+    
     this.speak_b = false;
     this.speak_ren = {};
     this.broadcast = {};
@@ -271,6 +279,8 @@ Mst.Player.prototype.update = function () {
     if (this.no_pass_OP) {
         this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.collide_other_player, null, this);
     }
+    
+    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.NPCs, this.collide_NPC, null, this);
     
     if (typeof (this.game_state.layers.collision_forrest) !== 'undefined') {
         this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision_forrest);
@@ -490,6 +500,14 @@ Mst.Player.prototype.collide_other_player = function (player, other_player) {
     
     if (this.opened_ren === "") {
         other_player.collide_with_player(player, other_player);
+    }
+};
+
+Mst.Player.prototype.collide_NPC = function (player, NPC) {
+    "use strict";
+    
+    if (this.opened_ren === "" && NPC.type !== "follower") {
+        NPC.touch_player(NPC, player);
     }
 };
 
@@ -1412,6 +1430,62 @@ Mst.Player.prototype.add_minutes = function (mins) {
     this.save.properties.gtimems = this.gtime.ms;
 };
 
+Mst.Player.prototype.make_followers = function () {
+    "use strict";
+    var follower, followers;
+    
+    followers =  this.save.properties.followers;
+    this.followers = {};
+    
+    for (var i = 0; i < followers.length; i++) {
+        var fwr = followers[i];
+        follower = this.create_follower(fwr);
+        if (typeof(follower) !== 'undefined') {
+            this.followers[fwr] = follower;
+        }
+    }
+};
+
+Mst.Player.prototype.create_follower = function (fwr) {
+    "use strict";
+    var follower, afwr, type, id, name, position, properties;
+    
+    if (typeof(this.game_state.prefabs[fwr]) !== 'undefined') {        
+        name = this.game_state.prefabs[fwr].name;
+        position = this.game_state.prefabs[fwr].position;
+        properties = this.game_state.prefabs[fwr].save.properties;
+        
+        console.log(this.game_state.prefabs[fwr]);
+        console.log(properties);
+        
+        this.game_state.prefabs[fwr].destroy();
+        
+        console.log(position);
+        console.log(properties);
+        
+        follower = new Mst.Follower(this.game_state, name, position, properties);
+        
+        console.log(follower);
+    } else {
+        afwr = fwr.split("_");
+        type = afwr[0];
+        id = afwr[1];
+    }
+    console.log(follower);
+    return follower;
+};
+
+Mst.Player.prototype.save_followers = function (go_position, go_map_int) {
+    "use strict";
+    
+    console.log(this.followers);
+    
+    for (var key in this.followers) {
+        this.followers[key].save_follower(go_position, go_map_int);
+    }
+
+};
+
 Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     "use strict";
     var name, dt;
@@ -1445,6 +1519,8 @@ Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     this.game_state.save.player = this.save;
     
     localStorage.setItem("player", JSON.stringify(this.save));
+
+    this.save_followers(go_position, go_map_int);
 };
 
 Mst.Player.prototype.set_logoff = function () {

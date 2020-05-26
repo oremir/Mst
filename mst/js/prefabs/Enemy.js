@@ -4,6 +4,8 @@ Mst.Enemy = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
+    this.pool = this.game_state.groups[properties.pool];
+    
     this.walking_speed = +properties.walking_speed;
     this.walking_distance = +properties.walking_distance;
     
@@ -76,6 +78,8 @@ Mst.Enemy = function (game_state, name, position, properties) {
     this.emitter.makeParticles('blood', [0,1,2,3,4,5,6]);
     this.emitter.gravity = 120;
     this.emitter.setAlpha(1, 0, 400);
+    
+    this.game_state.prefabs.player.infight = true;
 
 
 };
@@ -155,7 +159,7 @@ Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
 
 Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
     var sword_cut = this.game_state.prefabs.sword.cut;
-    console.log(this.game_state.prefabs.sword);
+    //console.log(this.game_state.prefabs.sword);
     console.log("!!! Hit CUT: " + sword_cut);
     
     if (sword_cut) {
@@ -189,6 +193,15 @@ Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
     this.hit_enemy(player, enemy, "archer", "dexterity", damage);
 };
 
+Mst.Enemy.prototype.hit_enemy_pet = function (player, enemy) {
+    var damage = 2 + (player.stats.abilities.strength/5);
+    damage += player.level("standard") + (player.level("fighter")*1.5);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    
+    this.hit_enemy(player, enemy, "fighter", "strength", damage);
+};
+
 Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) {
     "use strict";
     
@@ -208,6 +221,8 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
         this.emitter.y = this.y;
         this.emitter.start(true, 1000, null, 8);
         
+        console.log("Hit Enemy");
+        
         if (enemy.health < 1) {
             player.add_exp("standard", enemy_health_max);
             player.add_exp(type, enemy_health_max / 2);
@@ -222,6 +237,13 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
             enemy.kill();
             if (enemy.key == "wasp_spritesheet") {
                 enemy.timer_sting.stop();
+            }
+            
+            console.log("Enemy count:" + this.pool.countLiving());
+            console.log(this.pool);
+            
+            if (this.pool.countLiving() < 1) {
+                this.game_state.prefabs.player.infight = false;
             }
             
         }
@@ -245,6 +267,8 @@ Mst.Enemy.prototype.reset = function (position) {
         this.timer_sting.start();
         console.log(this.timer_sting);
     }
+    
+    this.game_state.prefabs.player.infight = true;
 };
 
 Mst.Enemy.prototype.detect_player = function () {

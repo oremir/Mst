@@ -78,23 +78,40 @@ Mst.ItemSpawner.prototype.spawn = function () {
     //console.log("Item count living:" + this.pool.countLiving());
     
     if (this.j < this.max_number && this.k < (this.max_number*2)) {
-        tilex = this.game_state.layers.collision.getTileX(object_position.x);
-        tiley = this.game_state.layers.collision.getTileX(object_position.y);
-        tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.collision);
-        console.log(object_position.x + ">" + tilex*16 + "|" + object_position.y + ">" + tiley*16);
-        console.log(tile);
-        
-        object_position.x = tilex*16 + 8;
-        object_position.y = tiley*16 + 8;
+        //console.log(this.game_state.layers);
         
         var b = false;
         
-        if (tile === null) {
-            b = false;
+        if (typeof(this.game_state.layers.grass) !== 'undefined') {
+            tilex = this.game_state.layers.grass.getTileX(object_position.x);
+            tiley = this.game_state.layers.grass.getTileX(object_position.y);
+            tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
+            console.log("Grass: " + object_position.x + ">" + tilex*16 + "|" + object_position.y + ">" + tiley*16);
+            console.log(tile);
+            
+            if (tile === null) {
+                b = true;
+                console.log("Item not created / not grass tile");
+            } else {
+                b = false;                
+            }
         } else {
-            b = true;
-            console.log("Item not created / collision tile");
+            tilex = this.game_state.layers.collision.getTileX(object_position.x);
+            tiley = this.game_state.layers.collision.getTileX(object_position.y);
+            tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.collision);
+            console.log(object_position.x + ">" + tilex*16 + "|" + object_position.y + ">" + tiley*16);
+            console.log(tile);
+            
+            if (tile === null) {
+                b = false;
+            } else {
+                b = true;
+                console.log("Item not created / collision tile");
+            }
         }
+        
+        object_position.x = tilex*16 + 8;
+        object_position.y = tiley*16 + 8;
         
         this.game_state.map_data.objects.forEach(function (map_object) {
             //console.log(map_object.x+"|"+map_object.y);

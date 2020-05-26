@@ -12,7 +12,7 @@ Mst.Spawner = function (game_state, name, position, properties) {
     this.properties = properties;
     this.position = position;
     
-    this.group = properties.pool || properties.group;
+    this.group = properties.group;
     this.pool = this.game_state.groups[properties.pool];
     this.game_state.groups[this.group].add(this);
     

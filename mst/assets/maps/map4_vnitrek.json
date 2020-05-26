@@ -86,6 +86,7 @@
                      "unique_id":"1",
                      "p_name":"Sestra Clara",                        
                      "stype":"nun",
+                     "nurse":"true",
                      "relations_allowed":"true",
                      "region":"1",
                      "pool":"NPCs",

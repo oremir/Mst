@@ -86,6 +86,7 @@ Mst.Chest = function (game_state, name, position, properties) {
                     var r_frame = 131; // Strom malý
                 }
                 this.change_frame(r_frame);
+                this.save_chest();
                 this.time = n;
             break;
             case 130: // Keř malý
@@ -115,6 +116,7 @@ Mst.Chest = function (game_state, name, position, properties) {
                     var r_frame = 131; // Strom malý
                 }
                 this.change_frame(r_frame);
+                this.save_chest();
                 this.time = n;
             break;
             case 130: // Keř malý
@@ -577,7 +579,7 @@ Mst.Chest.prototype.close_chest = function () {
 
                 game_state.prefabs.chestitems.kill_stats();
             
-                console.log("Chest is close");
+                console.log("Chest is closed");
                 chest.game_state.hud.alert.show_alert("Zavřena!");
             })
             .fail(function (data) {
@@ -591,6 +593,53 @@ Mst.Chest.prototype.close_chest = function () {
         game_state.prefabs.chestitems.kill_stats();
     }
         
+    this.is_opened = false;
+    
+};
+
+Mst.Chest.prototype.save_chest = function () {
+    "use strict";
+        
+    var game_state, chest, name, usr_id, d, n;
+    game_state = this.game_state;
+    chest = this;
+    name = this.name;
+    usr_id = game_state.prefabs.player.usr_id;
+    this.save.properties.items = this.stats.items;
+    this.save.properties.opened_frame = this.opened_frame;
+    this.save.properties.closed_frame = this.closed_frame;
+    this.save.action = "CLOSE";
+
+    if (this.stat !== "open") {
+        d = new Date();
+        n = d.getTime();
+        this.save.properties.time = n;
+
+        console.log("SAVE CHEST");
+        console.log(this.save);
+
+        $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+            .done(function (data) {
+                console.log("Chest save success");
+                console.log(data);
+                var resp, obj_id;
+                resp = JSON.parse(data);
+                obj_id = resp.obj.obj_id;
+                console.log("ObjID: " + obj_id);
+
+                chest.set_obj_id(obj_id);
+            
+                console.log("Chest is saved");
+            })
+            .fail(function (data) {
+                console.log("Chest save error");
+                console.log(data);
+            });
+
+        console.log("save chest save");
+        
+    }
+    
     this.is_opened = false;
     
 };

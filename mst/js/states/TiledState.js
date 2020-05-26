@@ -11,6 +11,7 @@ Mst.TiledState = function () {
         "player": Mst.Player.prototype.constructor,
         "other_player": Mst.OtherPlayer.prototype.constructor,
         "NPC": Mst.NPC.prototype.constructor,
+        "follower": Mst.Follower.prototype.constructor,
         "bullet": Mst.Bullet.prototype.constructor,
         "enemy_spawner": Mst.EnemySpawner.prototype.constructor,
         "item_spawner": Mst.ItemSpawner.prototype.constructor,
@@ -196,6 +197,8 @@ Mst.TiledState.prototype.create = function () {
             console.log(load_player.properties);
             this.create_object(load_player);
         }
+        
+        this.prefabs.player.make_followers();
         
         this.groups.NPCs.forEachAlive(function (NPC) {
             console.log("Quest bubble: " + NPC.name);
