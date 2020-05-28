@@ -28,6 +28,12 @@ Mst.Follower = function (game_state, name, position, properties) {
         items: properties.items || ""
     };
     
+    if (typeof (properties.offset) === 'undefined') {
+        var offset = 2;
+    } else {
+        var offset = parseInt(properties.offset);
+    }
+    
     this.save = {
         type: properties.ftype,
         name: name,
@@ -53,7 +59,7 @@ Mst.Follower = function (game_state, name, position, properties) {
     }
     this.frame = 0;
     
-    this.body.setSize(12, 14, 2, 2);
+    this.body.setSize(12, 14, 2, offset);
     this.anchor.setTo(0.5);
     
     this.updated = false;

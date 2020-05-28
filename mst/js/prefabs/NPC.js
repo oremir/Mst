@@ -45,6 +45,12 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.sprtype = parseInt(properties.sprtype);
     }
     
+    if (typeof (properties.offset) === 'undefined') {
+        var offset = 2;
+    } else {
+        var offset = parseInt(properties.offset);
+    }
+    
     this.save = {
         type: "NPC",
         name: name,
@@ -64,9 +70,9 @@ Mst.NPC = function (game_state, name, position, properties) {
     this.frame = 0;
     
     if (this.stype === "pet") {
-        this.body.setSize(12, 14, 2, 2);
+        this.body.setSize(12, 14, 2, offset);
     } else {
-        this.body.setSize(16, 16, 2.5, parseInt(properties.offset));
+        this.body.setSize(16, 16, 2.5, offset);
     }
     
     this.anchor.setTo(0.5);
@@ -196,6 +202,8 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
     console.log("Touch NPC");
     
     if (!this.ren_sprite.visible && player.opened_ren === "") {
+        player.set_opened_ren(this.name);
+        
         if (this.relations_allowed) {
             player.update_relation(NPC, "NPC", 1);
         }

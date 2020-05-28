@@ -145,7 +145,7 @@ Mst.Player = function (game_state, name, position, properties) {
     };
     
     this.gtime = {};
-    this.gtime.ms = properties.gtimems;
+    this.gtime.ms = parseInt(properties.gtimems);
     this.gtime.obj = new Date(this.gtime.ms);
     
     var dt = new Date();
@@ -154,6 +154,7 @@ Mst.Player = function (game_state, name, position, properties) {
     
     //this.stats.gtime = " " + dt.getHours() + ":" + dt.getMinutes();
     this.stats.gtime = this.gtime.obj.toLocaleTimeString();
+    console.log(this.gtime.obj);
     var gtimepom = this.stats.gtime.split(":");
     this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
     
