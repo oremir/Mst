@@ -289,6 +289,6 @@ Mst.Ren.prototype.show = function () {
 Mst.Ren.prototype.hide = function () {
     "use strict";
     this.visible = false;    
-    this.game_state.prefabs.player.opened_ren = "";    
+    this.game_state.prefabs.player.set_opened_ren("");
     this.hide_options();
 };

@@ -279,9 +279,8 @@ Mst.Player.prototype.update = function () {
     
     if (this.no_pass_OP) {
         this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.collide_other_player, null, this);
+        this.game_state.game.physics.arcade.collide(this, this.game_state.groups.NPCs, this.collide_NPC, null, this);
     }
-    
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.NPCs, this.collide_NPC, null, this);
     
     if (typeof (this.game_state.layers.collision_forrest) !== 'undefined') {
         this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision_forrest);
@@ -499,6 +498,7 @@ Mst.Player.prototype.key_change_type = function () {
 Mst.Player.prototype.collide_other_player = function (player, other_player) {
     "use strict";
     
+    console.log(this.opened_ren);
     if (this.opened_ren === "") {
         other_player.collide_with_player(player, other_player);
     }
@@ -507,6 +507,7 @@ Mst.Player.prototype.collide_other_player = function (player, other_player) {
 Mst.Player.prototype.collide_NPC = function (player, NPC) {
     "use strict";
     
+    console.log(this.opened_ren);
     if (this.opened_ren === "" && NPC.type !== "follower") {
         NPC.touch_player(NPC, player);
     }

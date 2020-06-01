@@ -17,7 +17,12 @@ Mst.ShowItems = function (game_state, name, position, properties) {
     this.prefab_frame = 0;
     this.stat_name = this.stat_to_show.split(".")[1]; //items
     
-    this.put_type = "put";
+    if (this.prefab_name === "player") {
+        this.put_type = "equip";
+    } else {
+        this.put_type = "put";
+    }
+    
     
     // it is necessary to save the initial position because we need it to create the stat sprites
     this.initial_position = new Phaser.Point(this.x, this.y);
@@ -358,7 +363,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         //var testik = chest_new.collide_test();
                         if (!b) {
                             chest_new.set_owner(player.usr_id);
-                            
+
                             switch (chest_new.closed_frame) {
                                 case 3: //věci - obecně
                                     chest_new.add_item(item_frame, quant_put);
@@ -998,7 +1003,7 @@ Mst.ShowItems.prototype.change_put_type = function () {
             this.game_state.prefabs.businessitems.business_sell();
             break;
         default:
-            new_put_type = "put";
+            new_put_type = "equip";
     }
     this.set_put_type(new_put_type);
     

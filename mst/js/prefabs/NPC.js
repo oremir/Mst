@@ -106,6 +106,9 @@ Mst.NPC = function (game_state, name, position, properties) {
     this.bubble.visible = false;
     this.bubble_showed = false;
     
+    this.num_of_hits = 0;
+    this.player_hit_not_delay = true;
+    
     //this.test_quest();
 };
 
@@ -118,18 +121,21 @@ Mst.NPC.prototype.update = function () {
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);    
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.players);
+    //this.game_state.game.physics.arcade.collide(this, this.game_state.groups.players);
     
     //console.log(!this.body.immovable);
     if (!this.body.immovable) {
-        this.game_state.groups.otherplayers.forEachAlive(function(o_player) {
-            //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
-            if (this.game_state.game.physics.arcade.distanceBetween(this, o_player) < 10) {
-                this.game_state.game.physics.arcade.moveToObject(this, o_player, -30);
-            } else {
-                this.body.velocity.set(0);
-            }
+        this.game_state.groups.NPCs.forEachAlive(function(one_player) {
+            this.game_state.game.physics.arcade.collide(this, one_player);
         }, this);
+//        this.game_state.groups.otherplayers.forEachAlive(function(o_player) {
+//            //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
+//            if (this.game_state.game.physics.arcade.distanceBetween(this, o_player) < 10) {
+//                this.game_state.game.physics.arcade.moveToObject(this, o_player, -30);
+//            } else {
+//                this.body.velocity.set(0);
+//            }
+//        }, this);
     }
     
     //console.log(this.game_state.prefabs.player.killed);
@@ -144,6 +150,11 @@ Mst.NPC.prototype.update = function () {
         
         this.game_state.prefabs.player.killed = false;
         this.game_state.prefabs.player.save.properties.killed = false;
+    }
+    
+    if (this.bubble_showed) {
+        this.bubble.x = this.x;
+        this.bubble.y = this.y - 16;
     }
     
     if (this.updated) {
@@ -197,38 +208,78 @@ Mst.NPC.prototype.save_NPC = function () {
 
 Mst.NPC.prototype.touch_player = function (NPC, player) {
     "use strict";
-    var open = false;
+    var pom_hits, open;
+    open = false;
     
     console.log("Touch NPC");
     
     if (!this.ren_sprite.visible && player.opened_ren === "") {
-        player.set_opened_ren(this.name);
-        
-        if (this.relations_allowed) {
-            player.update_relation(NPC, "NPC", 1);
-        }
-
         if (player.opened_business === "" && NPC.stype === "merchant") {
+            if (this.relations_allowed) {
+                player.update_relation(NPC, "NPC", 1);
+            }
+            
             console.log("merchant");
             player.open_business(player, NPC);
+            player.set_opened_ren(this.name);
             this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"], "item");
             open = true;
         } 
         
         if (NPC.stype === "hospod") {
+            if (this.relations_allowed) {
+                player.update_relation(NPC, "NPC", 1);
+            }
+            
             console.log("hospod");
+            player.set_opened_ren(this.name);
             this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"], "item");
             open = true;
-        } 
+        }
+        
+        console.log(open);
 
         if (!open) {
-            if (this.stype === "pet") {
-                this.ren_sprite.show_dialogue("Vrrr?");
+            if (this.stype === "pet") {      
+                if (this.player_hit_not_delay) {
+                    this.player_hit_not_delay = false;
+
+                    this.num_of_hits ++;
+                    pom_hits = this.num_of_hits % 3;
+                    console.log("NoHits:" + this.num_of_hits + " Mod: " + pom_hits);
+
+                    switch (pom_hits) {
+                        case 1:
+                            this.show_bubble(0); // question
+                            break;
+
+                        case 2:
+                            player.update_relation(NPC, "player", 1);
+                            player.set_opened_ren(this.name);
+                            console.log("Op.ren: " + this.name);
+                            this.ren_sprite.show_dialogue("Vrrr?");
+                            break;
+
+                        case 0:
+                            player.no_pass_OP = false;
+                            break;
+                    }
+                    
+                    this.game_state.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.collide_with_player_delay, this);
+                }
             } else {
                 this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?");
             }
         }
     }
+    
+    console.log(player.opened_ren);
+};
+    
+Mst.NPC.prototype.collide_with_player_delay = function () {
+    "use strict";    
+    this.player_hit_not_delay = true;
+    this.game_state.prefabs.player.no_pass_OP = true;
 };
 
 Mst.NPC.prototype.open_business = function (player) {

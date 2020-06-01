@@ -96,6 +96,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.events.onInputOver.add(this.game_state.hud.alt.show_alt, this);
     this.events.onInputOut.add(this.game_state.hud.alt.hide_alt, this);
     
+    this.move_out_NPC = "left";
+    
     
     
 };
@@ -106,7 +108,7 @@ Mst.OtherPlayer.prototype.constructor = Mst.OtherPlayer;
 Mst.OtherPlayer.prototype.update = function () {
     "use strict";
     
-    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
     this.game_state.groups.otherplayers.forEachAlive(function(one_player) {
@@ -115,8 +117,34 @@ Mst.OtherPlayer.prototype.update = function () {
     
     this.game_state.groups.NPCs.forEachAlive(function(NPC) {
         //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
+        var newx, newy;        
+        
+        this.game_state.game.physics.arcade.collide(this, NPC);
+        
         if (this.game_state.game.physics.arcade.distanceBetween(this, NPC) < 10) {
-            this.game_state.game.physics.arcade.moveToObject(this, NPC, -30);
+            switch (this.move_out_NPC) {
+                case "left":
+                    var newx = this.x - 16;
+                    var newy = this.y;
+                break;            
+                case "right":
+                    var newx = this.x + 16;
+                    var newy = this.y;
+                break;
+                case "up":
+                    var newx = this.x;
+                    var newy = this.y - 16;
+                break;
+                case "down":
+                    var newx = this.x;
+                    var newy = this.y + 16;
+                break;
+
+            }
+            
+            this.game_state.game.physics.arcade.moveToXY(this, newx, newy, 30);
+            
+            //this.game_state.game.physics.arcade.moveToObject(this, NPC, -30);
         }
     }, this);
     
@@ -144,6 +172,27 @@ Mst.OtherPlayer.prototype.update = function () {
         this.updated = false;
     }
 };
+
+Mst.OtherPlayer.prototype.collide_layer_tile = function () {
+    "use strict";
+
+    switch (this.move_out_NPC) {
+        case "left":
+            this.move_out_NPC = "right";
+        break;            
+        case "right":
+            this.move_out_NPC = "up";
+        break;
+        case "up":
+            this.move_out_NPC = "down";
+        break;
+        case "down":
+            this.move_out_NPC = "left";
+        break;
+
+    }
+};
+
 
 Mst.OtherPlayer.prototype.show_bubble = function (type) {
     "use strict";

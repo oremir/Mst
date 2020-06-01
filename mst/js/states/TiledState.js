@@ -537,6 +537,8 @@ Mst.hud = function (game_state, name) {
             
             this.alerts = [];
             this.alert_sprites = [];
+            this.alerts_i = [];
+            this.indexes = {};
             this.show_running = false;
             
             break;
@@ -884,8 +886,8 @@ Mst.hud.prototype.hide_dialogue = function () {
 Mst.hud.prototype.show_alert = function (text) {
     "use strict";
     this.alerts.push(text);
-    console.log("Add alert:" + text);
-    console.log(this.alerts);
+    //console.log("Add alert:" + text);
+    //console.log(this.alerts);
     
     this.next_alert();
     
@@ -910,13 +912,22 @@ Mst.hud.prototype.show_alert = function (text) {
 
 Mst.hud.prototype.next_alert = function () {
     "use strict";
-    var text;
-    console.log("next alert");
+    var text, alert, i;
+    //console.log("next alert");
     
     if (this.alert_sprites.length < 13) {
         if (this.alerts.length > 0) {
             text = this.alerts.shift();
-            this.create_new_alert(text);
+            alert = this.create_new_alert(text);
+            
+            i = alert.i_pos;
+            
+            this.alerts_i.push(i);
+            
+            //console.log(text);
+            //console.log(this.alert_sprites);
+            //console.log(this.alerts_i);
+            
         }
     }
     
@@ -946,15 +957,25 @@ Mst.hud.prototype.next_alert = function () {
 //};
 
 Mst.hud.prototype.kill_alert = function () {
+    "use strict";
+    
+    var pom = this.text_alert.text;
+    
+    for (var i = 0; i < this.game_state.hud.alert.alerts_i.length; i++) {
+        if (this.i_pos === this.game_state.hud.alert.alerts_i[i]) {
+           this.game_state.hud.alert.alerts_i.splice(i, 1);
+        }
+    }
     
     this.text_alert.text = "";
     this.visible = false;
     this.timer_alert.stop();
     this.kill();
     
-    this.game_state.hud.alert.alert_sprites.splice(this);
-    console.log("Kill alert");
-    console.log(this.game_state.hud.alert.alert_sprites);
+    this.game_state.hud.alert.alert_sprites.splice(this, 1);
+    //console.log("Kill alert:" + pom);
+    //console.log(this.game_state.hud.alert.alerts_i);
+    //console.log(this.game_state.hud.alert.alert_sprites);
     
     this.game_state.hud.alert.next_alert();
 };
@@ -992,7 +1013,7 @@ Mst.hud.prototype.create_new_alert = function (text) {
         i = this.i_pos_cast() + 1;
     }
     
-    console.log("Alert i: " + i);
+    //console.log("Alert i: " + i);
     
     //console.log(this.game_state.groups.alerts);
     alert = this.game_state.groups.alerts.getFirstDead();
@@ -1011,6 +1032,7 @@ Mst.hud.prototype.create_new_alert = function (text) {
     
     console.log(alert);
     
+    alert.aatext = text;
     alert.fixedToCamera = false;
     alert.reset(x, y + 20*i); //this.reset(x, y + 20*this.n_alert);
     alert.loadTexture(texture);
@@ -1029,7 +1051,9 @@ Mst.hud.prototype.create_new_alert = function (text) {
     
     //console.log(alert.text_alert);
     this.alert_sprites.push(alert);
-    console.log(this.alert_sprites);
+    //console.log(this.alert_sprites);
+    
+    return alert;
 };
 
 Mst.hud.prototype.i_pos_cast = function () {
@@ -1039,21 +1063,21 @@ Mst.hud.prototype.i_pos_cast = function () {
     
     console.log(this.alert_sprites);
 
-    for (var i = 0; i < this.alert_sprites.length; i++) {
-        i_pom = this.alert_sprites[i].i_pos;
+    for (var i = 0; i < this.alerts_i.length; i++) {
+        i_pom = this.alerts_i[i];
         if (i_pom > i_pos) {
             i_pos = i_pom;
         }
     }
     
-    console.log("i_pos " + i_pos);
+    //console.log("i_pos " + i_pos);
     
     if (i_pos > 12) {
         i_pos = 0;
         
-        for (var i = 0; i < this.alert_sprites.length; i++) {
-            i_pom = this.alert_sprites[i].i_pos;
-            if (i_pom == i_pos) {
+        for (var i = 0; i < this.alerts_i.length; i++) {
+            i_pom = this.alerts_i[i];
+            if (i_pom === (i_pos + 1)) {
                 i_pos++;
             }
         }

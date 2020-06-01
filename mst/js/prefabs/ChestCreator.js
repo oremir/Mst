@@ -59,7 +59,7 @@ Mst.ChestCreator.prototype.create_new_chest_name = function () {
 
 Mst.ChestCreator.prototype.create_new_chest = function (item_frame) { 
     "use strict";    
-    var position_new, position_new_player, chest_new, name_new;
+    var position_new, position_new_player, chest_new, name_new,  tilex, tiley, tile, b;
     
     position_new = {
         x: Math.round((this.game_state.prefabs.player.x - 8 + (this.game_state.prefabs.player.direction_chest.x * 16))/16)*16 + 8,
@@ -97,6 +97,23 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     chest_new.stats.items = "";
     
     console.log("Items: " + chest_new.stats.items);
+    
+    if (typeof(this.game_state.layers.grass) !== 'undefined') {
+        tilex = this.game_state.layers.grass.getTileX(chest_new.x);
+        tiley = this.game_state.layers.grass.getTileX(chest_new.y);
+        tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
+        console.log("Grass: " + chest_new.x + ">" + tilex*16 + "|" + chest_new.y + ">" + tiley*16);
+        console.log(tile);
+
+        if (tile === null) {
+            b = false;
+            console.log("Not grass tile");
+        } else {
+            b = true;
+            console.log("Grass tile");
+        }
+    }
+                            
     
     switch (item_frame) {
         case 4:
@@ -170,6 +187,15 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
         case 108:
             chest_new.closed_frame = 108;
             chest_new.opened_frame = 108;
+            break;
+        case 126:
+            if (b) {
+                chest_new.closed_frame = 126;
+                chest_new.opened_frame = 126;
+            } else {
+                chest_new.closed_frame = 3;
+                chest_new.opened_frame = 3;
+            }
             break;
         default:
             chest_new.closed_frame = 3;
