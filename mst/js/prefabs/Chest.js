@@ -557,40 +557,50 @@ Mst.Chest.prototype.close_chest = function () {
     this.save.properties.opened_frame = this.opened_frame;
     this.save.properties.closed_frame = this.closed_frame;
     this.save.action = "CLOSE";
-
-    if (this.stat !== "open" && chest.is_opened) {
-        d = new Date();
-        n = d.getTime();
-        this.save.properties.time = n;
-
-        console.log("CLOSE CHEST");
-        console.log(this.save);
-
-        $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
-            .done(function (data) {
-                console.log("Chest close success");
-                console.log(data);
-                var resp, obj_id;
-                resp = JSON.parse(data);
-                obj_id = resp.obj.obj_id;
-                console.log("ObjID: " + obj_id);
-
-                chest.set_obj_id(obj_id);
-
-                game_state.prefabs.chestitems.kill_stats();
-            
-                console.log("Chest is closed");
-                chest.game_state.hud.alert.show_alert("Zavřena!");
-            })
-            .fail(function (data) {
-                console.log("Chest close error");
-                console.log(data);
-            });
-
-        console.log("save chest close");
-        
-    } else {
+    
+    console.log(this.save.properties.stype);
+    
+    if (this.save.properties.stype = "shadow") {
+        game_state.prefabs.player.stats.bag = this.stats.items;
+        game_state.prefabs.player.save.properties.bag = this.stats.items;
+        game_state.prefabs.player.shadow = {};
         game_state.prefabs.chestitems.kill_stats();
+        chest.destroy();
+    } else {
+        if (this.stat !== "open" && chest.is_opened) {
+            d = new Date();
+            n = d.getTime();
+            this.save.properties.time = n;
+
+            console.log("CLOSE CHEST");
+            console.log(this.save);
+
+            $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+                .done(function (data) {
+                    console.log("Chest close success");
+                    console.log(data);
+                    var resp, obj_id;
+                    resp = JSON.parse(data);
+                    obj_id = resp.obj.obj_id;
+                    console.log("ObjID: " + obj_id);
+
+                    chest.set_obj_id(obj_id);
+
+                    game_state.prefabs.chestitems.kill_stats();
+
+                    console.log("Chest is closed");
+                    chest.game_state.hud.alert.show_alert("Zavřena!");
+                })
+                .fail(function (data) {
+                    console.log("Chest close error");
+                    console.log(data);
+                });
+
+            console.log("save chest close");
+
+        } else {
+            game_state.prefabs.chestitems.kill_stats();
+        }
     }
         
     this.is_opened = false;

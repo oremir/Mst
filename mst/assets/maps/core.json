@@ -90,7 +90,8 @@
 	"groups": [
         "enemies",
         "spawners",
-        "chests",        
+        "chests",
+        "shadows",
         "goouts",
 	    "swords",        
         "playerbullets",

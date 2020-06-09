@@ -94,6 +94,10 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.keys = [];
     }
     
+    if (typeof (properties.bag) === 'undefined') {
+        properties.bag = "";
+    }
+    
     if (typeof (properties.badges) === 'undefined') {
         properties.badges = {};
     }
@@ -141,6 +145,7 @@ Mst.Player = function (game_state, name, position, properties) {
         quests: properties.quests,
         equip: properties.equip,
         items: properties.items || load_player.properties.items,
+        bag: properties.bag,
         keys: properties.keys
     };
     
@@ -265,6 +270,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.broadcast.player = properties.broadcast;
     this.save.properties.broadcast = [];
     this.read_broadcast();
+    
+    this.shadow = {};
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);

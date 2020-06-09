@@ -776,12 +776,12 @@ Mst.hud.prototype.hide_alt = function () {
         
     if (typeof (this.text_alt) !== 'undefined') {
         this.text_alt.text = "";
-        this.text_alt.destroy;
+        //this.text_alt.destroy();
     }
     
     /*if (typeof(this.text_alt1) != 'undefined') {
         this.text_alt1.text = "";
-        this.text_alt1.destroy;
+        this.text_alt1.destroy();
     }   */ 
 };
 

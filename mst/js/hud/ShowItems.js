@@ -318,7 +318,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
     "use strict";
     var item_index, item_frame, item_quantity, item, quant_put, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
     
-    console.log("put down");
+    console.log("put down " + this.put_type);
     console.log(one_item);
     player = this.game_state.prefabs.player;
     
@@ -386,6 +386,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         chest_new.add_item(item_frame, item_quantity);
                                     }
                                 break;
+                                case 41: //batoh
+                                    chest_new.stats.items = player.stats.bag;
+                                    this.game_state.prefabs.chestitems.show_initial_stats();
+                                    player.stats.bag = "";
+                                    player.save.properties.bag = "";
+                                break;
                                 case 69: //dzban s vodou
                                     chest_new.add_item(81, 1); //cista voda
                                 break;
@@ -413,6 +419,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         switch (chest_frame) {
                             case 7: //Drevo
                                 switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
                                     case 53: //Zel. kotlik
                                         this.game_state.prefabs[opened_chest].change_frame(77); //na drevu
                                         this.game_state.prefabs[opened_chest].add_item(32, 1); //prkno
@@ -439,8 +451,27 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     break;
                                 }
                             break;
+                            case 41: //batoh
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
                             case 60: //kam. nadoba
                                 switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
                                     case 105: //zhav. zelezo
                                         this.game_state.prefabs[opened_chest].chest_loop_frame = 104;
                                         this.game_state.prefabs[opened_chest].change_frame(104); //s tav.
@@ -459,6 +490,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             break;
                             case 83: //Ohen
                                 switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
                                     case 53: //Zel. kotlik
                                         this.game_state.prefabs[opened_chest].chest_loop_frame = 56;
                                         this.game_state.prefabs[opened_chest].change_frame(56); //hori
@@ -485,7 +522,19 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 }
                             break;
                             default:
-                                this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        if (player.stats.bag !== "") {
+                                            this.add_item(item_frame, quant_put);
+
+                                            console.log("Batoh není prázdný");
+                                            this.game_state.hud.alert.show_alert("Batoh není prázdný");
+                                        }
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }                                
                             break;
                         }
                     }
@@ -655,6 +704,25 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                 case 40: //Lišejník
                     player.add_health(3);
                     player.subtract_stress(7);
+                    break;
+                case 41: //Batoh
+                    if (opened_chest === "") {
+                        var position = { x: player.x, y: player.y };
+                        var properties = {
+                            group: "shadows",
+                            pool: "shadows",
+                            stype: "shadow",
+                            items: player.stats.bag,
+                            closed_frame: 41,
+                            opened_frame: 41,        
+                            texture: "blank_image"
+                        };
+                            
+                        player.shadow = new Mst.Chest(this.game_state, "bag", position, properties);
+                        player.opened_chest = "bag";
+                        player.shadow.open_chest(player, player.shadow);
+                    }
+                    
                     break;
                 case 45: //Křesadlo
                     if (opened_chest !== "") {
