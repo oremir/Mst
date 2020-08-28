@@ -42,16 +42,17 @@
                  "name":"goout01",
                  "properties":
                     {
-                     "go_position_x": 688,
-                     "go_position_y": 147,
+                     "go_position_x":"688",
+                     "go_position_y":"147",
                      "group":"goouts",
-                     "next_map":6,
+                     "next_map":"6",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -71,16 +72,17 @@
                  "name":"goout02",
                  "properties":
                     {
-                     "go_position_x": 224,
-                     "go_position_y": 243,
+                     "go_position_x":"224",
+                     "go_position_y":"243",
                      "group":"goouts",
-                     "next_map":8,
+                     "next_map":"8",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },
                  "propertytypes":
                     {
-                     "go_position":"",
+                     "go_position_x":"string",
+                     "go_position_y":"string",
                      "group":"string",
                      "next_map":"string",
                      "pool":"string",
@@ -92,6 +94,36 @@
                  "width":16,
                  "x":304,
                  "y":81
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":3,
+                 "name":"goout03",
+                 "properties":
+                    {
+                     "go_position_x":"201",
+                     "go_position_y":"512",
+                     "group":"goouts",
+                     "next_map":"35",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":430,
+                 "y":208
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -99,7 +131,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":3,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -108,7 +140,7 @@
         {
          "columns":30,
          "firstgid":1,
-         "image":"map7_dungeon2.png",
+         "image":"..\/images\/map7_dungeon2.png",
          "imageheight":736,
          "imagewidth":480,
          "margin":0,

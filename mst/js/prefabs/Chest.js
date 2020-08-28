@@ -74,6 +74,19 @@ Mst.Chest = function (game_state, name, position, properties) {
         this.time = n;
     }
     
+    if (typeof(properties.s1type) !== 'undefined') {
+        this.s1type = properties.s1type;
+    } else {
+        this.s1type = "";
+        this.save.properties.s1type = "";
+    }
+    
+    console.log("S1TYPE closed frame: " + this.closed_frame);
+    if (this.closed_frame === 131 || this.closed_frame === 132) {
+        this.s1type = "tree";
+        this.save.properties.s1type = "tree";
+    }
+    
     console.log("Chest time diff: " + (n - this.time));
     
     if ((n - this.time)/100000 > 846) {
@@ -85,6 +98,8 @@ Mst.Chest = function (game_state, name, position, properties) {
                 } else {
                     var r_frame = 131; // Strom malý
                 }
+                this.s1type = "tree";
+                this.save.properties.s1type = "tree";
                 this.change_frame(r_frame);
                 this.save_chest();
                 this.time = n;
@@ -459,6 +474,7 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
 
     if (chest.obj_id === 0) {
         chest.game_state.prefabs.chestitems.show_initial_stats();
+        chest.game_state.prefabs.items.set_put_type("put");
 
         chest.is_opened = true;
         chest.updated = true;
@@ -509,6 +525,8 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                     chest.close_chest();
                     success = false;
                 } else {
+                    chest.game_state.prefabs.items.set_put_type("put");
+                    
                     chest.is_opened = true;
                     chest.updated = true;
 
@@ -517,6 +535,23 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                     
                     if (chest.closed_frame === 80) {
                         chest.game_state.hud.alert.show_alert("Vodní zdroj");
+                    }
+                    
+                    var rnd_test = Math.floor(Math.random() * 100);
+                    if (chest.s1type === "tree" && player.opened_ren === "" && rnd_test > 70) {
+                        chest.krlz_sprite =  new Mst.NPC(chest.game_state, "kurolez", {x: chest.x, y: chest.y}, {
+                            group: "NPCs", 
+                            texture: "blank_image",
+                            p_name: "kurolez",
+                            unique_id: 0,
+                            stype: "kurolez",
+                            relations_allowed : "false",
+                            region: 0,
+                            o_type: "NPC"
+                        });
+                        
+                        chest.krlz_sprite.touch_player(chest.krlz_sprite, player);
+
                     }
 
                     var nloop = chest.chest_loop;
@@ -547,6 +582,7 @@ Mst.Chest.prototype.close_chest = function () {
     
     this.frame = this.closed_frame;
     this.game_state.prefabs.player.opened_chest = "";
+    this.game_state.prefabs.items.set_put_type("equip");
     
     var game_state, chest, name, usr_id, d, n;
     game_state = this.game_state;
@@ -560,7 +596,7 @@ Mst.Chest.prototype.close_chest = function () {
     
     console.log(this.save.properties.stype);
     
-    if (this.save.properties.stype = "shadow") {
+    if (this.save.properties.stype === "shadow") {
         game_state.prefabs.player.stats.bag = this.stats.items;
         game_state.prefabs.player.save.properties.bag = this.stats.items;
         game_state.prefabs.player.shadow = {};
@@ -600,6 +636,11 @@ Mst.Chest.prototype.close_chest = function () {
 
         } else {
             game_state.prefabs.chestitems.kill_stats();
+        }
+        
+        if (typeof(this.krlz_sprite) !== 'undefined') {
+            this.krlz_sprite.kill();
+            game_state.prefabs.player.key_close();
         }
     }
         
@@ -684,6 +725,18 @@ Mst.Chest.prototype.get_chest = function (chest) {
                         break;
                         case 20: //krovi
                             player.add_item(123, 1); //trava
+                        break;
+                        case 21: //kamen
+                            player.add_item(21, 1);
+                            
+                            var rnd_test = Math.floor(Math.random() * 100);
+                            if (rnd_test > 70) {
+                                player.add_item(135, 1); // Stínka
+                                
+                                console.log("RND take chest: 135 - stinka");
+                                this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[135].name + "!");
+                                player.work_rout("forager", "exploration", 1, 1, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                            } 
                         break;
                         case 22: //parez
                             player.add_item(31, 1); //spalek

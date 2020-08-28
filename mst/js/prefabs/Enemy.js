@@ -231,6 +231,7 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
             var m_length = this.monster_loot.length;
             for (var i = 0; i < m_length; i++) {
                 i_frame = this.monster_loot[i];
+                player.key_close();
                 player.add_item(i_frame, 1); // loot
             }
                         

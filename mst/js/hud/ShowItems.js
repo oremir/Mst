@@ -183,6 +183,15 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                 case 81: // voda
                     gframe_str = "frame_item_fial";
                 break;
+                case 147: // Destil. voda
+                    gframe_str = "frame_item_fial";
+                break;
+                case 149: // Tinktura
+                    gframe_str = "frame_item_fial";
+                break;                
+                case 152: // Inkoust
+                    gframe_str = "frame_item_fial";
+                break;
             }
         break;
         case 74: // zel. kotlik plny hori
@@ -531,6 +540,14 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                             this.game_state.hud.alert.show_alert("Batoh není prázdný");
                                         }
                                     break;
+                                    case 135: //stinka
+                                        if (player.opened_ren === 'kurolez') {
+                                            player.add_item(136, 1);
+                                            console.log("Dubenka");
+                                            this.game_state.hud.alert.show_alert("Dar: duběnky!");
+                                        }
+                                        
+                                    break;
                                     default:
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
@@ -609,6 +626,42 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
                                 } else {
                                     takeit = false;  
+                                }
+                            break;
+                            case 147: //Destil. voda
+                                var index = player.test_item(154, 1); //Lahvicka
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 146; //Destil. voda l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {                                    
+                                    takeit = false;       
+                                }
+                            break;
+                            case 149: //Tinktura
+                                var index = player.test_item(154, 1); //Lahvicka
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 148; //Tinktura l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {                                    
+                                    takeit = false;       
+                                }
+                            break;
+                            case 152: //Inkoust
+                                var index = player.test_item(154, 1); //Lahvicka
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 151; //Inkoust l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {                                    
+                                    takeit = false;       
                                 }
                             break;
                             default:
@@ -767,6 +820,18 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         }
                     }
                     break;
+                case 46: //Hmoždíř
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;
+                        
+                        item = chest.index_item(136); //Dubenky
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, item.quantity);
+                            chest.add_item(144, item.quantity); //Dubenky drc.
+                        }
+                    }
+                    break;
                 case 53: //Žel. kotlík
                     if (opened_chest !== "") {
                         var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
@@ -785,6 +850,32 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     player.add_health(30);
                     player.subtract_stress(42);
                     this.add_item(94, 1); // miska
+                    break;
+                case 146: //Destil. voda l.
+                    if (opened_chest !== "") {
+                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        
+                        if (chest_frame == 53 || chest_frame == 71) { //Žel. kotlík
+                            this.game_state.prefabs[opened_chest].change_frame(71); //Zel. kotlik s vodou
+                            this.game_state.prefabs[opened_chest].add_item(147, 1); //Destil. voda
+                            this.add_item(154, 1); //Lahvicka
+                        } else {
+                            this.add_item(item_frame, 1);
+                        }
+                    }
+                    break;
+                case 148: //Tintura l.
+                    if (opened_chest !== "") {
+                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        
+                        if (chest_frame == 53 || chest_frame == 71) { //Žel. kotlík
+                            this.game_state.prefabs[opened_chest].change_frame(71); //Zel. kotlik s vodou
+                            this.game_state.prefabs[opened_chest].add_item(149, 1); //Tinktura
+                            this.add_item(154, 1); //Lahvicka
+                        } else {
+                            this.add_item(item_frame, 1);
+                        }
+                    }
                     break;
             }
             break;

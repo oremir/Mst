@@ -692,7 +692,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
 
 Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_frame) {
     "use strict";
-    var work, tw, in_chest, empty, change_f, success;
+    var work, tw, in_chest, empty, change_f, index, success;
     
     success = false;
     work = this.game_state.core_data.items[chest.closed_frame].properties.work;
@@ -735,6 +735,26 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
                     
                     player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
                     success = true;
+                break;
+                case "recipe":
+                    in_chest = chest.in_chest_ord();
+                    console.log(in_chest.length);
+
+                    if (in_chest.length > 0) {
+                        var recipe = tw.recipe;
+                        if (chest.chest_compare(in_chest, recipe)) {
+                            for (var i = 0; i < recipe.length; i++) {
+                                index = chest.test_item(recipe[i].f, recipe[i].q);
+                                chest.subtract_item(index, recipe[i].q);
+                            }
+                            if (typeof(tw.pq) !== 'undefined') {
+                                chest.add_item(tw.padd, tw.pq);
+                            } else {
+                                chest.add_item(tw.padd, 1);
+                            }
+                            player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
+                        }
+                    }
                 break;
             }
         }

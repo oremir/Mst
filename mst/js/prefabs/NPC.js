@@ -237,6 +237,14 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             open = true;
         }
         
+        if (NPC.stype === "kurolez") {
+            
+            console.log("kurolez");
+            player.set_opened_ren(this.name);
+            this.ren_sprite.show_dialogue("Hhhhrrarrhhh?", [], "item");
+            open = true;
+        }
+        
         console.log(open);
 
         if (!open) {

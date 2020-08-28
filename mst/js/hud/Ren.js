@@ -85,6 +85,10 @@ Mst.Ren.prototype.show_options = function (options) {
                 text.text = "[přespat]";
                 text.events.onInputDown.add(this.option_lodging, this);
                 break;
+            case "give":
+                text.text = "[dát]";
+                text.events.onInputDown.add(this.option_give, this);
+                break;
         }
         
         this.options.push(text);
@@ -278,6 +282,29 @@ Mst.Ren.prototype.option_lodging = function () {
 
     } else {
         // Na to nemas
+    }
+};
+
+Mst.Ren.prototype.option_give = function () {
+    "use strict";
+    
+    var player = this.game_state.prefabs.player;
+    
+    if (player.opened_chest === "") {
+        var position = { x: player.x, y: player.y };
+        var properties = {
+            group: "shadows",
+            pool: "shadows",
+            stype: "shadow",
+            items: "",
+            closed_frame: 41,
+            opened_frame: 41,        
+            texture: "blank_image"
+        };
+
+        player.shadow = new Mst.Chest(this.game_state, "cpgive", position, properties);
+        player.opened_chest = "cpgive";
+        player.shadow.open_chest(player, player.shadow);
     }
 };
 

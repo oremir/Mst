@@ -1,7 +1,8 @@
 {
     "assets": {
-        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 150 },
-        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 17 },
+        "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
+        "items_blank": { "type": "spritesheet", "source": "assets/images/items_blank.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
+        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 20 },
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/player/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/player/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "rzxsan_spritesheet": { "type": "spritesheet", "source": "assets/images/player/rzxsan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
@@ -28,6 +29,7 @@
         "haris_spritesheet": { "type": "spritesheet", "source": "assets/images/player/haris_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "adalwolf_spritesheet": { "type": "spritesheet", "source": "assets/images/player/adalwolf_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "hannah_spritesheet": { "type": "spritesheet", "source": "assets/images/player/hannah_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "daeron_spritesheet": { "type": "spritesheet", "source": "assets/images/player/daeron_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "dino_spritesheet": { "type": "spritesheet", "source": "assets/images/player/dino_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10},
         "btiger_spritesheet": { "type": "spritesheet", "source": "assets/images/blue_tiger.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "cir_spritesheet": { "type": "spritesheet", "source": "assets/images/cir.png", "frame_width": 17, "frame_height": 17, "frames": 2 },
@@ -57,6 +59,7 @@
         "haris_ren": { "type": "image", "source": "assets/images/ren/ren_haris.png" },
         "adalwolf_ren": { "type": "image", "source": "assets/images/ren/ren_adalwolf.png" },
         "hannah_ren": { "type": "image", "source": "assets/images/ren/ren_hannah.png" },
+        "daeron_ren": { "type": "image", "source": "assets/images/ren/ren_daeron.png" },
         "kurolez_ren": { "type": "image", "source": "assets/images/ren/ren_kurolez.png" },
         "dino_ren": { "type": "image", "source": "assets/images/ren/ren_dino.png" },
         "btiger_ren": { "type": "image", "source": "assets/images/ren/ren_btiger.png" },
@@ -160,7 +163,7 @@
                 "1": { "n": "sekera", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
             } } },
         { "name": "Kámen", "istool": "false", "properties": 
-            { "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } 
+            { "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "135_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } 
         },
         { "name": "Pařez", "istool": "false", "properties": 
             { "spawn": "wild", "lives": 130, "work": { 
@@ -231,7 +234,9 @@
         { "name": "Čutora pln.", "istool": "false", "properties": {} },
         { "name": "Džbán pln.", "istool": "false", "properties": { "sub_water": 6 } },
         { "name": "Měď. kotlík pln.", "istool": "false", "properties": { "sub_water": 52 } },
-        { "name": "Žel. kotlík pln.", "istool": "false", "properties": { "sub_water": 53 } },
+        { "name": "Žel. kotlík pln.", "istool": "false", "properties": { "sub_water": 53,  "work": {
+                "17": { "n": "Skl. tyčinka", "act": "recipe", "recipe": [{"f": 144, "q": 1}, {"f": 145, "q": 1}, {"f": 147, "q": 1}, {"f": 149, "q": 1}, {"f": 150, "q": 1}], "padd": 152, "pq": 3, "npa": "Inkoust", "skill": "alchemist", "ability":"dexterity", "w": [1, 20, 18, 3] } 
+        } } },
         { "name": "Měď. kotlík pln. hori", "istool": "false", "properties": { "sub_water": 54 } },
         { "name": "Měď. kotlík pln. hori", "istool": "false", "properties": {} },
         { "name": "Žel. kotlík pln. hori", "istool": "false", "properties": { "sub_water": 56 } },
@@ -315,7 +320,31 @@
                 "0": { "n": "ruka", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] },
                 "1": { "n": "sekera", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
         } } },
-        { "name": "Bobule", "istool": "false", "properties": {} }
+        { "name": "Bobule", "istool": "false", "properties": {} },
+        { "name": "Stínka", "istool": "false", "properties": {} },
+        { "name": "Duběnky", "istool": "false", "properties": {} },
+        { "name": "Zemina", "istool": "false", "properties": {} },
+        { "name": "Květináč prázd.", "istool": "false", "properties": {} },
+        { "name": "Květináč zem.", "istool": "false", "properties": {} },
+        { "name": "Květináč saz.", "istool": "false", "properties": {} },
+        { "name": "Květináč rost.", "istool": "false", "properties": {} },
+        { "name": "Šafrán", "istool": "false", "properties": {} },
+        { "name": "Šafrán. cibulka", "istool": "false", "properties": {} },
+        { "name": "Duběnky drc.", "istool": "false", "properties": {} },
+        { "name": "Arabská guma", "istool": "false", "properties": {} },
+        { "name": "Destil. voda l.", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Destil. voda", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Tinktura l.", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Tinktura", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Zel. skalice", "istool": "false", "properties": {} },
+        { "name": "Inkoust l.", "istool": "false", "properties": {} },
+        { "name": "Inkoust", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Skl. tyčinka", "istool": "true", "properties": 
+            { "cut_type": "nul", "tool_fr_left": "17", "tool_fr_right": "17" }  },
+        { "name": "Lahvička", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Šafrán. čnělka", "istool": "false", "properties": {} },
+        { "name": "Skříň bl.", "istool": "false", "properties": {} },
+        { "name": "Bioodpad", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 
