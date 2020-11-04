@@ -24,6 +24,12 @@ Mst.ShowEquip = function (game_state, name, position, properties) {
         this.equiped_item.frame = equip;
         this.equiped_item.visible = true;
     }
+    
+    this.ability_sprite = this.game_state.groups.hud.create(this.x + 37, this.y + 2, 'abilities_spritesheet', 0);
+    this.ability_sprite.fixedToCamera = true;
+    this.ability_sprite.inputEnabled = true;
+    this.ability_sprite.input.useHandCursor = true;
+    this.ability_sprite.events.onInputDown.add(this.search, this);
 };
 
 Mst.ShowEquip.prototype = Object.create(Mst.ShowStat.prototype);
@@ -89,7 +95,8 @@ Mst.ShowEquip.prototype.hide = function () {
     "use strict";
     
     this.visible = false;
-    this.equiped_item.visible = false;  
+    this.equiped_item.visible = false;
+    this.ability_sprite.visible = false;
 };
 
 Mst.ShowEquip.prototype.show = function () {
@@ -99,5 +106,80 @@ Mst.ShowEquip.prototype.show = function () {
     if (this.game_state.prefabs.player.stats.equip !== -1) {
         this.equiped_item.visible = true;
     }
+    this.ability_sprite.visible = true;
 };
 
+Mst.ShowEquip.prototype.search = function () {
+    "use strict";
+    var b, tilex, tiley, tile, dist, test_ok, b_null, stype, sign;
+    
+    var player = this.game_state.prefabs.player;
+    b = true;
+    b_null = true;
+    
+    if (player.opened_signpost !== '') {
+        sign = this.game_state.prefabs[player.opened_signpost];
+        
+        if (sign.stype === 'secsign') {
+            console.log("Secsign");
+            sign.loadTexture('signs_spritesheet', 0);
+            sign.exposed = true;
+
+            player.add_minutes(16);
+            player.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
+            this.game_state.hud.alert.show_alert("Nález: znamení!");
+            b_null = false;
+        }
+    }
+    
+    if (typeof(this.game_state.layers.grass) !== 'undefined') {
+        tilex = this.game_state.layers.grass.getTileX(player.x);
+        tiley = this.game_state.layers.grass.getTileX(player.y);
+        tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
+        console.log("Grass: " + player.x + ">" + tilex*16 + "|" + player.y + ">" + tiley*16);
+        console.log(tile);
+
+        if (tile === null) {
+            b = true;
+            console.log("Not grass tile");
+        } else {
+            b = false;
+            console.log("Grass tile");
+        }
+    }
+    
+    stype = "wild";
+    
+    this.game_state.groups.spawners.forEachAlive(function (spawner) {
+        dist = Math.sqrt(Math.pow((player.x - spawner.x),2) + Math.pow((player.y - spawner.y),2));
+        console.log("Test search spawner: " + spawner.name + " " + dist);
+        console.log(spawner.name.substr(0, 11));
+        
+        if (dist < 180 && spawner.name.substr(0, 11) === 'itemspawner') {
+            b = false;
+            console.log("Itemspawner close");
+            stype = spawner.stype;
+        }
+        
+    }, this);
+    
+    test_ok = false;
+    if (!b && b_null) {
+        if (stype === 'wild') {
+            test_ok = this.game_state.prefabs.sword.rnd_take(20, "seeker");
+        } else {
+            test_ok = this.game_state.prefabs.sword.rnd_take(21, "seeker");
+        }
+    }
+    
+    if (test_ok) {
+        player.add_minutes(12);
+        player.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
+    } else {
+        if (b_null) {
+            player.add_minutes(16);
+            player.work_rout("seeker", "exploration", 5, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+            this.game_state.hud.alert.show_alert("Nic jsi nenašel!");
+        }
+    }
+};

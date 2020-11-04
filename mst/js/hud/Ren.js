@@ -6,7 +6,7 @@ Mst.Ren = function (game_state, name, position, properties) {
     
     this.fixedToCamera = true;
     
-    console.log("Ren: " + this.x + " " + this.y)
+    console.log("Ren: " + this.x + " " + this.y);
     
     this.p_name = properties.p_name;
     this.dialogue_name = properties.dialogue_name;
@@ -39,11 +39,13 @@ Mst.Ren.prototype.update = function () {
     
 };
 
-Mst.Ren.prototype.show_dialogue = function (text, options, type) {
+Mst.Ren.prototype.show_dialogue = function (text, options, type, heart) {
     "use strict";
     this.show();
     
-    this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text, type);
+    this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text, type, heart);
+    
+    this.quest.showed = true;
     
     if (typeof(options) !== 'undefined') {
         this.show_options(options);
@@ -69,6 +71,10 @@ Mst.Ren.prototype.show_options = function (options) {
                 text.text = "[prodat]";
                 text.events.onInputDown.add(this.buy_sell, this);
                 break;
+            case "mer_admin":
+                text.text = "[správa]";
+                text.events.onInputDown.add(this.mer_admin, this);
+                break;
             case "quest":
                 text.text = "[úkol]";
                 text.events.onInputDown.add(this.option_quest, this);
@@ -77,9 +83,17 @@ Mst.Ren.prototype.show_options = function (options) {
                 text.text = "[přijmout]";
                 text.events.onInputDown.add(this.option_assign, this);
                 break;
+            case "repeat":
+                text.text = "[zopakovat]";
+                text.events.onInputDown.add(this.option_repeat, this);
+                break;
             case "speak":
                 text.text = "[mluvit]";
                 text.events.onInputDown.add(this.option_speak, this);
+                break;
+            case "rumour":
+                text.text = "[fáma]";
+                text.events.onInputDown.add(this.option_rumour, this);
                 break;
             case "lodging":
                 text.text = "[přespat]";
@@ -105,20 +119,32 @@ Mst.Ren.prototype.hide_options = function () {
 Mst.Ren.prototype.buy_sell = function (option) {
     "use strict";
     if (this.game_state.prefabs.businessitems.type_buy) {
-        this.game_state.prefabs.businessitems.type_buy = false;
+        this.game_state.prefabs.businessitems.set_put_type("sell");
         this.game_state.prefabs.items.set_put_type("sell");
         option.text = "[koupit]";
     } else {
-        this.game_state.prefabs.businessitems.type_buy = true;
+        this.game_state.prefabs.businessitems.set_put_type("buy");
         this.game_state.prefabs.items.set_put_type("buy");
         option.text = "[prodat]";
     }
 };
 
+Mst.Ren.prototype.mer_admin = function (option) {
+    "use strict";
+
+        this.game_state.prefabs.businessitems.set_put_type("mer_admin");
+        this.game_state.prefabs.items.set_put_type("mer_admin");
+        option.text = "[správa]";
+};
+
 Mst.Ren.prototype.option_quest = function (option) {
     "use strict";
     var key, text;
-    this.game_state.hud.dialogue.hide_dialogue_onclick(1);
+    console.log(this.game_state.prefabs.player.opened_ren);
+    console.log(this.quest);
+    if (this.game_state.prefabs.player.opened_ren !== '') {
+        this.game_state.hud.dialogue.hide_dialogue_onclick(1);
+    }
     
 //    this.game_state.groups.quests.forEach(function(quest) {
 //        console.log(quest);
@@ -129,20 +155,38 @@ Mst.Ren.prototype.option_quest = function (option) {
 //        }
 //    }, this);
     
+    this.quest.close = "close";
+    
     if (typeof (this.quest.state) !== 'undefined') {
         if (this.quest.state === "pre") {
             text = this.quest.properties.quest_text;
-            this.show_dialogue(text, ["assign"]);
+            console.log("\x1b[102mQuest Pre dialogue: " + this.quest.name);
+            if (this.quest.properties.ending_conditions.type !== 'text') {
+                this.quest.close = "close";
+                this.show_dialogue(text, ["assign"]);
+            } else {
+                this.quest.close = "";
+                this.show_dialogue(text, []);
+            }            
             this.game_state.prefabs[this.dialogue_name].show_bubble(3); // ! exclamation mark - quest ready
         } else {
             if (this.quest.state === "ass") {
-                this.show_dialogue("Tento  úkol není dosud dokončen!");
-                this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+                this.show_dialogue("Tento  úkol není dosud dokončen!", ["repeat"]);
+                if (typeof(this.quest.properties.target) === 'undefined') {
+                    this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+                }
             } else {
                 if (this.quest.state === "acc") {
                     this.show_dialogue("Výborně! Tady máte odměnu!", [], "item");
+                    console.log("\x1b[102mQuest Fin dialogue: Výborně! Tady máte odměnu! " + this.quest.name);
+                    this.quest.state = "fin";
                     this.game_state.prefabs.player.finish_quest(this.quest);
-                    this.game_state.prefabs[this.dialogue_name].hide_bubble();
+                    this.game_state.prefabs[this.dialogue_name].hide_bubble(0);
+                    if (typeof(this.quest.properties.nextq) === 'undefined') {
+                        this.quest = {};
+                        console.log("Ren - Test Quest");
+                        this.game_state.prefabs[this.dialogue_name].test_quest();
+                    }
                 }
             }
         }
@@ -165,12 +209,41 @@ Mst.Ren.prototype.option_assign = function (option) {
     
     this.game_state.hud.dialogue.hide_dialogue_onclick();
     
-    this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+    console.log(this.quest);
+    if (typeof(this.quest.properties.target) === 'undefined') {
+      this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+    }
     
 //    update_quest = this.game_state.prefabs.player.update_quest("by_quest_name",this.quest.name);
 //    if (update_quest.accomplished) {
 //        this.game_state.hud.alert.show_alert("Podmínky úkolu jsou splněny!");
 //    }
+};
+
+Mst.Ren.prototype.option_repeat = function (option) {
+    "use strict";
+    console.log("Repeat quest");
+    this.game_state.hud.dialogue.hide_dialogue_onclick(1);
+    
+    if (this.quest.state === "ass") {
+        var text = this.quest.properties.quest_text;
+        this.show_dialogue(text);
+        if (typeof(this.quest.properties.target) === 'undefined') {
+            this.game_state.prefabs[this.dialogue_name].show_bubble(4); // ! exclamation mark - quest assigned
+        }
+    }
+};
+
+Mst.Ren.prototype.option_rumour = function (option) {
+    "use strict";
+    console.log("Rumour");
+    this.game_state.hud.dialogue.hide_dialogue_onclick(1);
+    
+    var rumour = this.game_state.prefabs[this.dialogue_name].rumour;
+    
+    if (typeof(rumour.text) !== 'undefined') {
+        this.show_dialogue(rumour.text);
+    }
 };
 
 Mst.Ren.prototype.option_speak = function () {
@@ -215,7 +288,7 @@ Mst.Ren.prototype.option_speak = function () {
     //this.inp_speak.blockInput = false;
     
     this.speak_b = true;
-    //player.speak_ren = this;
+    player.speak_ren = this;
     this.inp_speak.startFocus();
     
     //this.inp_speak.keys = this.game_state.game.input.keyboard.addKeys({
@@ -226,7 +299,7 @@ Mst.Ren.prototype.option_speak = function () {
     
 
     //this.inp_speak.events.onInputDown.add(this.option_speak_enter, this);
-    //console.log(player.speak_ren);
+    console.log(player.speak_ren);
 };
 
 Mst.Ren.prototype.option_speak_enter = function () {
@@ -245,6 +318,21 @@ Mst.Ren.prototype.option_speak_enter = function () {
             .done(function( data ) {
                 console.log( "Data Loaded: " + data );
         });
+
+        this.img_speak.kill();
+        this.inp_speak.kill();
+        player.speak_ren = {};
+    }
+
+
+};
+
+Mst.Ren.prototype.option_speak_close = function () {
+    "use strict";
+    console.log("Input close");
+    
+    if (this.inp_speak.value === "" && this.speak_b) {
+
 
         this.img_speak.kill();
         this.inp_speak.kill();

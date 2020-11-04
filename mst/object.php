@@ -196,6 +196,37 @@ switch ($type) {
         }
         break;
         
+        case "NPC":
+        
+        $result = $mysqli->query("SELECT * FROM `objects` WHERE ID = '".$obj_id."'");
+
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while($row = $result->fetch_assoc()) {
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["name"] . "|" . $row["type"] . "|M" . $row["on_map"]. "|OP" . $row["open"]. "|LV" . $row["live"].  "|NPC";
+    
+                switch ($action) {
+                    case "SAVE":                        
+                        $radek_l2 =  $radek_l2 . " Save|";
+                        $new_map_int = $apost["map_int"];
+                        $object = $apost;
+                        $new_obj = json_encode($apost);
+                        $sql = "UPDATE `objects` SET JSON = '".$new_obj."', on_map = '".$new_map_int."', time = '".time()."' WHERE ID = ".$obj_id;
+
+                        if ($mysqli->query($sql) === TRUE) {
+                            $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                        } else {
+                            $status = "error";
+                            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                        }
+                        break;
+                } // --- end of switch ---
+            } // --- end of while ---
+        } else {
+            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $obj_id . "|Follower| 0 results\n";
+        }
+        break;
+        
     default:
         $radek_l2 =  date(DATE_ATOM) . "|" . time() . "|" . "Object - Unknown Type of Object: ".$type."\n";
 }

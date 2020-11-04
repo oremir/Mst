@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+		<title>Mst Top 10</title>
+        <script type="text/javascript" src="../js/jquery-3.1.0.min.js"></script>
+
+        <script type="text/javascript" >
+            var zaklad = new Object();
+            
+            function makeTable(container, data) {
+                var table = $("<table/>").addClass('paleBlueRows');
+                $.each(data, function(rowIndex, r) {
+                    var row = $("<tr/>");
+                    $.each(r, function(colIndex, c) { 
+                        row.append($("<t"+(rowIndex < 1 ?  "h" : "d")+"/>").text(c));
+                    });
+                    table.append(row);
+                });
+                return container.append(table);
+            }
+            
+
+            
+            
+            $(document).ready(function() {
+                var data_body;
+                var d = new Date();
+                var n = d.getTime(); 
+
+                $.getJSON("play.php?time="+n, function(data) {
+                    console.log(data);
+                    zaklad = data;
+
+                    players = [];
+                    
+                    for (var i = 0; i < zaklad.play.length; i++) {
+                        player = {
+                            name: zaklad.play[i].name,
+                            exp: parseInt(zaklad.play[i].properties.skills.standard.exp)
+                        }
+                        
+                        console.log(player.name);
+                        
+                        if (typeof(zaklad.play[i].properties.badges) !== 'undefined') {
+                            console.log(zaklad.play[i].properties.badges[1]);
+                            
+                            if (zaklad.play[i].properties.badges[1] === 'S_3' && player.exp > 1) {
+                                console.log(player);
+                                players.push(player);
+                            }
+                        }
+                        
+                        
+                    }
+                    
+                    console.log(players);
+                    
+                    players.sort(function(a, b){return b.exp - a.exp});
+                    
+                    console.log(players);
+
+                    players.unshift({name:"Jméno",exp:"Exp"});
+                    
+
+                    var MainTable = makeTable($(document.body), players);
+                });
+            });
+        </script>
+        
+		<style>
+		  body {
+		    padding: 10px;
+		    margin: 10px;
+		    background-color: white;
+		  }
+          table.paleBlueRows {
+              font-family: "Times New Roman", Times, serif;
+              border: 1px solid #444444;
+              width: 350px;
+              height: 200px;
+              text-align: center;
+              border-collapse: collapse;
+            }
+            table.paleBlueRows td, table.paleBlueRows th {
+              border: 1px solid #444444;
+              padding: 3px 2px;
+            }
+            table.paleBlueRows td {
+              white-space: nowrap;
+            }
+            
+            table.paleBlueRows tbody td {
+              font-size: 13px;
+            }
+            table.paleBlueRows tr:nth-child(even) {
+              background: #D0E4F5;
+            }
+            table.paleBlueRows thead {
+              background: #0B6FA4;
+              border-bottom: 5px solid #444444;
+            }
+            table.paleBlueRows thead th {
+              font-size: 17px;
+              font-weight: bold;
+              color: #FFFFFF;
+              text-align: center;
+              border-left: 2px solid #444444;
+            }
+            table.paleBlueRows thead th:first-child {
+              border-left: none;
+            }
+
+            table.paleBlueRows tfoot {
+              font-size: 14px;
+              font-weight: bold;
+              color: #333333;
+              background: #D0E4F5;
+              border-top: 3px solid #444444;
+            }
+            table.paleBlueRows tfoot td {
+              font-size: 14px;
+            }
+		  </style>
+	</head>
+
+	<body>
+        
+
+        
+	</body>
+</html>

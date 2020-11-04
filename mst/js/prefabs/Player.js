@@ -102,6 +102,10 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.badges = {};
     }
     
+    if (typeof (properties.rumours) === 'undefined') {
+        properties.rumours = [];
+    }
+        
     if (typeof (properties.broadcast) === 'undefined') {
         properties.broadcast = [];
     }
@@ -123,7 +127,7 @@ Mst.Player = function (game_state, name, position, properties) {
 //    var dt = new Date();
 //    var tm = dt.getTime();
     
-    //console.log(properties.equip);
+    console.log("Equip: " + properties.equip + " " + typeof(properties.equip));
     
     this.stats = {
         health_hearts: 5,
@@ -142,9 +146,11 @@ Mst.Player = function (game_state, name, position, properties) {
         abilities: properties.abilities,
         relations: properties.relations,
         places: properties.places,
+        badges: properties.badges,
+        rumours: properties.rumours,
         quests: properties.quests,
         equip: properties.equip,
-        items: properties.items || load_player.properties.items,
+        items: properties.items,
         bag: properties.bag,
         keys: properties.keys
     };
@@ -155,10 +161,11 @@ Mst.Player = function (game_state, name, position, properties) {
     
     var dt = new Date();
     var tt = dt.getTime();
-    console.log("Time: " + properties.time + " " + tt + " " + (tt - properties.time));
+    console.log("Time: " + properties.time + " " + tt + " " + (tt - properties.time) + " " + Math.floor(this.gtime.ms/86400000));
     
     //this.stats.gtime = " " + dt.getHours() + ":" + dt.getMinutes();
     this.stats.gtime = this.gtime.obj.toLocaleTimeString();
+    console.log("Date:");
     console.log(this.gtime.obj);
     var gtimepom = this.stats.gtime.split(":");
     this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
@@ -205,6 +212,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.opened_chest = "";
     this.opened_business = "";
     this.opened_ren = "";
+    this.opened_signpost = "";
     
     //console.log(properties.items);
     //console.log(this.stats.items);
@@ -272,6 +280,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.read_broadcast();
     
     this.shadow = {};
+    
+    console.log("Badge: " + this.test_badge(1));
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -282,6 +292,7 @@ Mst.Player.prototype.update = function () {
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_player, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.open_chest, null, this);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.signposts, this.open_signpost, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.collisions, this.open_collision, null, this);
     
     if (this.no_pass_OP) {
@@ -528,25 +539,29 @@ Mst.Player.prototype.set_opened_ren = function (name) {
 
 Mst.Player.prototype.hit_player = function (player, enemy) {
     "use strict";
-    var stress = enemy.en_attack + 2;
-    
-    player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
-    
-    enemy.knockback_by_player(enemy, player);
-    
-    player.subtract_health(enemy.en_attack);
-    
-    this.emitter.x = this.x;
-    this.emitter.y = this.y;
-//    var px = enemy.body.velocity.x;
-//    var py = enemy.body.velocity.y;
-//
-//    px *= -0.8 + Math.random()*0.4;
-//    py *= -0.8 + Math.random()*0.4;
-//
-//    this.emitter.minParticleSpeed.set(px, py);
-//    this.emitter.maxParticleSpeed.set(px, py);
-    this.emitter.start(true, 1000, null, 8);
+    if (!enemy.knockbacked) {
+        var stress = enemy.en_attack + 2;
+
+        player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+        enemy.knockback_by_player(enemy, player);
+
+        player.subtract_health(enemy.en_attack);
+
+        this.emitter.x = this.x;
+        this.emitter.y = this.y;
+    //    var px = enemy.body.velocity.x;
+    //    var py = enemy.body.velocity.y;
+    //
+    //    px *= -0.8 + Math.random()*0.4;
+    //    py *= -0.8 + Math.random()*0.4;
+    //
+    //    this.emitter.minParticleSpeed.set(px, py);
+    //    this.emitter.maxParticleSpeed.set(px, py);
+        this.emitter.start(true, 1000, null, 8);
+    } else {
+        console.log("Enemy knockbacked");
+    }
 };
 
 Mst.Player.prototype.hit_player_by_bullet = function (bullet, player) {
@@ -574,6 +589,8 @@ Mst.Player.prototype.add_health = function (quantity) {
 Mst.Player.prototype.subtract_health = function (quantity) {
     "use strict";
     
+    var region = parseInt(this.game_state.map_data.map.region);
+    
     this.health -= quantity;
     
     this.add_exp("standard", 1);
@@ -581,7 +598,7 @@ Mst.Player.prototype.subtract_health = function (quantity) {
     this.stats.stress += 1;
     
     this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
-
+    
     if (this.health < 1) {
         this.save.properties.killed = true;
         this.stats.stress = 0
@@ -593,7 +610,16 @@ Mst.Player.prototype.subtract_health = function (quantity) {
         this.game_state.prefabs.moon.subtract_moon();
         this.new_day();
         
-        this.game_state.save_data({ "x": 432, "y": 272 }, 4, "dead"); // "assets/maps/map4.json"
+        console.log("Region: " + region);
+        
+        switch (region) {
+            case 2:
+                this.game_state.save_data({ "x": 178, "y": 495 }, 20, "dead");
+            break;
+            default:
+                this.game_state.save_data({ "x": 432, "y": 272 }, 4, "dead"); // "assets/maps/map4.json"
+            break;
+        }
     }
 };
 
@@ -633,7 +659,8 @@ Mst.Player.prototype.open_chest = function (player, chest) {
           
         
         if (this.opened_chest === "") {
-            console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");      
+            console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");
+            console.log(chest);
             console.log(chest.stats);
             
             player.opened_chest = chest.name;
@@ -663,6 +690,15 @@ Mst.Player.prototype.open_chest = function (player, chest) {
         }
     }
     
+};
+
+Mst.Player.prototype.open_signpost = function (player, signpost) {
+    "use strict";
+    console.log("Open signpost player");
+    
+    if (this.opened_signpost === "") {
+        signpost.open_signpost(player);
+    }
 };
 
 Mst.Player.prototype.open_collision = function (player, collision) {
@@ -789,7 +825,12 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
 };
 
 Mst.Player.prototype.level = function (skill) {
-    return parseInt(this.stats.skills[skill].level);
+    "use strict";
+    var level = 0;
+    if (typeof(this.stats.skills[skill]) !== 'undefined') {
+        level = parseInt(this.stats.skills[skill].level);
+    }    
+    return level;
 };
 
 Mst.Player.prototype.work_rout = function (skill, ability, stress, stand_exp, skill_exp, abil_p) {
@@ -829,7 +870,7 @@ Mst.Player.prototype.alert_exp_done = function () {
     "use strict";
     var text, skill, iz;
     
-    console.log("Timer end");
+    console.log("Alert timer end");
     
     var eal = Object.values(this.o_exp_alert.alerts);
     iz = 0;
@@ -942,8 +983,13 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
         uid = person.unique_id;
         otype = "NPC";
     } else {
-        uid = person.usr_id;
-        otype = "player";
+        if (person.o_type === 'follower') {
+            uid = person.unique_id;
+            otype = "NPC";
+        } else {
+            uid = person.usr_id;
+            otype = "player";   
+        }
     }
     
     for (key in this.stats.relations) {
@@ -1021,6 +1067,34 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
 //    }, this);
 //};
 
+Mst.Player.prototype.return_relation = function (person, type) {
+    "use strict";
+    var uid, ruid, otype, relation_selected, exp;
+    
+    exp = -1;
+    
+    if (person.o_type === 'NPC') {
+        uid = person.unique_id;
+        otype = "NPC";
+    } else {
+        uid = person.usr_id;
+        otype = "player";
+    }
+    
+    for (var key in this.stats.relations) {
+        ruid = parseInt(this.stats.relations[key].uid);
+        console.log("Relation [" + key + "] r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
+        if (this.stats.relations[key].type === otype && ruid === uid) {
+            relation_selected = this.stats.relations[key];
+            console.log(relation_selected);
+            exp = parseInt(relation_selected.exp);
+            break;
+        }
+    }
+    
+    return exp;
+};
+
 Mst.Player.prototype.assign_quest = function (quest) {
     "use strict";
     var new_quest, key;
@@ -1029,6 +1103,8 @@ Mst.Player.prototype.assign_quest = function (quest) {
         qid: quest.qid,
         owner: quest.properties.owner,
         ot: quest.properties.owner_type,
+        target: quest.properties.target,
+        tt: quest.properties.target_type,
         endc: quest.properties.ending_conditions,
         acc: {
             is: false,
@@ -1038,7 +1114,7 @@ Mst.Player.prototype.assign_quest = function (quest) {
     console.log(new_quest);
     
     if (this.test_quest("notassign", quest)) {
-        console.log("Assigned");
+        console.log("\x1b[106mAssigned " + quest.name);
         
         if (typeof (this.stats.quests.ass) === 'undefined') {
             this.stats.quests.ass = {};
@@ -1115,6 +1191,7 @@ Mst.Player.prototype.test_quest = function (type, condition) {
             break;
     }
     
+    console.log(type + " " + condition);
     console.log(test);
             
     return test;
@@ -1122,124 +1199,346 @@ Mst.Player.prototype.test_quest = function (type, condition) {
 
 Mst.Player.prototype.update_quest = function (type, condition) {
     "use strict";
-    var item_frame, quantity, item, return_obj, quest, key, uid, oid;
+    var item_frame, quantity, cwhere, con, item, return_obj, quest, qtype, key, uid, oid;
     return_obj = {updated: false, accomplished: false};
     
-    if (type === "by_quest_name") {
-        if(typeof (this.stats.quests.ass[condition].ending_conditions.have) !== 'undefined') {
-            item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
-            item = this.game_state.prefabs.items.index_by_frame(item_frame);
-            
-            if (parseInt(this.stats.quests.ass[condition].ending_conditions.have) < item.quantity) {
-                this.stats.quests.ass[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
-                return_obj.updated = true;
-                return_obj.accomplished = true;
-            } else {
-                this.stats.quests[condition].accomplished.have = item.quantity;
-                return_obj.updated = true;
+    console.log('\x1b[106mAccomplish ' + type);
+
+    if (typeof(this.stats.quests.ass) !== 'undefined') {
+        console.log(this.stats.quests.ass[condition]);
+
+        if (type === "by_quest_name") {
+            console.log(this.stats.quests.ass[condition].name);
+            console.log(this);
+            qtype = this.stats.quests.ass[condition].endc.type;
+            switch (qtype) {
+                case "have":
+                    if(typeof (this.stats.quests.ass[condition].ending_conditions.have) !== 'undefined') {
+                        item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
+                        item = this.game_state.prefabs.items.index_by_frame(item_frame);
+
+                        if (parseInt(this.stats.quests.ass[condition].ending_conditions.have) < item.quantity) {
+                            this.stats.quests.ass[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
+                            return_obj.updated = true;
+                            return_obj.accomplished = true;
+                        } else {
+                            this.stats.quests[condition].accomplished.have = item.quantity;
+                            return_obj.updated = true;
+                        }
+                    }
+                break;
+    /*            case "put":
+                    if(typeof (this.stats.quests.ass[condition].ending_conditions.put) !== 'undefined') {
+                        item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
+                        item = this.game_state.prefabs.items.index_by_frame(item_frame);
+
+                        if (parseInt(this.stats.quests.ass[condition].ending_conditions.have) < item.quantity) {
+                            this.stats.quests.ass[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
+                            return_obj.updated = true;
+                            return_obj.accomplished = true;
+                        } else {
+                            this.stats.quests[condition].accomplished.have = item.quantity;
+                            return_obj.updated = true;
+                        }
+                    }
+                break;*/
+                case "textpow":          
+                    return_obj.updated = true;
+                    return_obj.accomplished = true;
+
+                    console.log(this);
+                    console.log(condition);
+
+                    this.stats.quests.ass[condition].acc.is = 'true';
+
+                    if (this.stats.quests.ass[condition].ot !== 'NPC') {
+                        key = this.game_state.playerOfUsrID(this.stats.quests.ass[condition].owner);
+                    } else {
+                        key = this.game_state.NPCofID(this.stats.quests.ass[condition].owner);
+                    }
+                    console.log(key);
+                    if (key !== "") {
+                        this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                        this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                    }
+
+                    //this.quest_bubble();
+
+                    //this.game_state.hud.alert.show_alert("Úkol byl splněn!");}
+
+                break;
+                case "text":          
+                    return_obj.updated = true;
+                    return_obj.accomplished = true;
+
+                    console.log(this);
+                    console.log(condition);
+
+                    this.stats.quests.ass[condition].acc.is = 'true';
+
+                    if (this.stats.quests.ass[condition].ot !== 'NPC') {
+                        key = this.game_state.playerOfUsrID(this.stats.quests.ass[condition].owner);
+                    } else {
+                        key = this.game_state.NPCofID(this.stats.quests.ass[condition].owner);
+                    }
+                    console.log(key);
+                    if (key !== "") {
+                        this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                        this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                    }
+
+                    //this.quest_bubble();
+
+                    //this.game_state.hud.alert.show_alert("Úkol byl splněn!");}
+
+                break;
+                case "findps":          
+                    return_obj.updated = true;
+                    return_obj.accomplished = true;
+
+                    this.stats.quests.ass[condition].acc.is = 'true';
+
+                    if (this.stats.quests.ass[condition].tt !== 'NPC') {
+                        key = this.game_state.playerOfUsrID(this.stats.quests.ass[condition].target);
+                    } else {
+                        key = this.game_state.NPCofID(this.stats.quests.ass[condition].target);
+                    }
+                    console.log(key);
+                    if (key !== "") {
+                        this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                        this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                    }
+
+                    //this.quest_bubble();
+
+                    //this.game_state.hud.alert.show_alert("Úkol byl splněn!");}
+
+                break;
             }
-        }
-    } else {
-        console.log(this.stats.quests.ass);
-        for (var q_name in this.stats.quests.ass) {
-            quest = this.stats.quests.ass[q_name];
-            console.log(quest);
-        //this.stats.quests.ass.forEach(function(quest) {
-            if (quest.acc.is !== 'true') {
-                switch (type) {
-                    case "have":
-                        if (quest.endc.type === 'have') {
-                            item_frame = parseInt(quest.endc.what);
-                            if (item_frame === condition.f) {
-                                quantity = parseInt(quest.endc.quantity);
-                                if (condition.q < quantity) {
-                                    return_obj.updated = true;
-                                    quest.acc.q = condition.q;
-                                } else {
+        } else {
+            console.log(this.stats.quests.ass);
+            for (var q_name in this.stats.quests.ass) {
+                quest = this.stats.quests.ass[q_name];
+                console.log(quest);
+            //this.stats.quests.ass.forEach(function(quest) {
+                if (quest.acc.is !== 'true') {
+                    switch (type) {
+                        case "have":
+                            if (quest.endc.type === 'have') {
+                                item_frame = parseInt(quest.endc.what);
+                                if (item_frame === condition.f) {
+                                    quantity = parseInt(quest.endc.quantity);
+                                    if (condition.q < quantity) {
+                                        return_obj.updated = true;
+                                        quest.acc.q = condition.q;
+                                    } else {
+                                        return_obj.updated = true;
+                                        return_obj.accomplished = true;
+
+                                        quest.acc.is = 'true';
+                                        quest.acc.q = condition.q;
+
+
+                                        if (quest.ot !== 'NPC') {
+                                            key = this.game_state.playerOfUsrID(quest.owner);
+                                        } else {                                        
+                                            key = this.game_state.NPCofID(quest.owner);
+                                        }
+                                        console.log(key);
+                                        if (key !== "") {
+                                            this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                            this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                        }
+
+                                        //this.quest_bubble();
+
+                                        console.log("Ukol byl splnen " + quest.name);
+                                        this.game_state.hud.alert.show_alert("Úkol byl splněn!");
+                                    }
+                                }
+                            }
+                        break;
+                        case "put":
+                            console.log("Quest PUT");
+                            console.log(condition);
+                            if (quest.endc.type === 'put') {
+                                item_frame = parseInt(quest.endc.what);
+                                if (item_frame === condition.f) {
+                                    cwhere = parseInt(quest.endc.where);
+                                    if (condition.wr === cwhere) {
+                                        return_obj.updated = true;
+                                        return_obj.accomplished = true;
+
+                                        quest.acc.is = 'true';                                    
+
+                                        if (quest.ot !== 'NPC') {
+                                            key = this.game_state.playerOfUsrID(quest.owner);
+                                        } else {                                        
+                                            key = this.game_state.NPCofID(quest.owner);
+                                        }
+                                        console.log(key);
+                                        if (key !== "") {
+                                            this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                            this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                        }
+
+                                        this.game_state.hud.alert.show_alert("Úkol byl splněn!");
+                                    }
+                                }
+                            }
+                        break;
+                        case "use":
+                            console.log("Quest USE");
+                            console.log(condition);
+                            if (quest.endc.type === 'use') {
+                                item_frame = parseInt(quest.endc.what);
+                                if (item_frame === condition.t) {
+                                    con = parseInt(quest.endc.on);
+                                    if (condition.on === con) {
+                                        return_obj.updated = true;
+                                        return_obj.accomplished = true;
+
+                                        quest.acc.is = 'true';                                    
+
+                                        if (quest.ot !== 'NPC') {
+                                            key = this.game_state.playerOfUsrID(quest.owner);
+                                        } else {                                        
+                                            key = this.game_state.NPCofID(quest.owner);
+                                        }
+                                        console.log(key);
+                                        if (key !== "") {
+                                            this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                            this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                        }
+
+                                        this.game_state.hud.alert.show_alert("Úkol byl splněn!");
+                                    }
+                                }
+                            } else {
+                                if (quest.endc.type === 'use2') {
+                                    item_frame = parseInt(quest.endc.what);
+                                    if (item_frame === condition.t) {
+                                        con = parseInt(quest.endc.on);
+                                        if (condition.on === con) {
+                                            return_obj.updated = true;
+                                            return_obj.accomplished = true;
+
+                                            quest.acc.is = 'true';                                    
+
+                                            if (quest.ot !== 'NPC') {
+                                                key = this.game_state.playerOfUsrID(quest.owner);
+                                            } else {                                        
+                                                key = this.game_state.NPCofID(quest.owner);
+                                            }
+                                            console.log(key);
+                                            if (key !== "") {
+                                                this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                                this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                            }
+
+                                            this.game_state.hud.alert.show_alert("Úkol byl splněn!");
+                                        }
+                                    }
+                                }
+                            }
+                        break;
+                        case "make":
+                            console.log("Quest MAKE");
+                            console.log(condition);
+                            if (quest.endc.type === 'make') {
+                                item_frame = parseInt(quest.endc.what);
+                                if (item_frame === condition) {
                                     return_obj.updated = true;
                                     return_obj.accomplished = true;
-                                    
-                                    quest.acc.is = 'true';
-                                    quest.acc.q = condition.q;
-                                    
-                                    
+
+                                    quest.acc.is = 'true';                                    
+
                                     if (quest.ot !== 'NPC') {
                                         key = this.game_state.playerOfUsrID(quest.owner);
                                     } else {                                        
-                                        key = "";
-                                        for (var object_key in this.game_state.prefabs) {
-                                            
-                                            if (typeof(this.game_state.prefabs[object_key].unique_id) !== 'undefined') {
-                                                oid = parseInt(quest.owner);
-                                                uid = parseInt(this.game_state.prefabs[object_key].unique_id);
-                                                if (uid === oid) {
-                                                    key = object_key;
-                                                    console.log(key);
-                                                }
-                                            }
-                                        }
+                                        key = this.game_state.NPCofID(quest.owner);
                                     }
                                     console.log(key);
                                     if (key !== "") {
                                         this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
                                         this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
                                     }
-                                    
-                                    //this.quest_bubble();
-                                    
+
                                     this.game_state.hud.alert.show_alert("Úkol byl splněn!");
                                 }
                             }
-                        }
-                    break;
+                        break;
+                        case "textpow":
+                            if (quest.endc.type === 'textpow') {             
+                                return_obj.updated = true;
+                                return_obj.accomplished = true;
+
+                                quest.acc.is = 'true';
+
+                                if (quest.ot !== 'NPC') {
+                                    key = this.game_state.playerOfUsrID(quest.owner);
+                                } else {
+                                    key = this.game_state.NPCofID(quest.owner);
+                                }
+                                console.log(key);
+                                if (key !== "") {
+                                    this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                    this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                }
+
+                                //this.quest_bubble();
+
+                                //this.game_state.hud.alert.show_alert("Úkol byl splněn!");}
+                            }
+                        break;
+                    }
                 }
+                console.log(quest);
+
+    //            switch (quest.type) {
+    //                case "assigned":
+    //                    if (typeof (quest.endc[type]) !== 'undefined') {
+    //                        switch (type) {
+    //                            case "have":
+    //                                if (typeof (condition) === 'undefined') {
+    //                                    item_frame = parseInt(quest.ending_conditions.what);
+    //                                    item = this.game_state.prefabs.items.index_by_frame(item_frame);
+    //                                    condition = item.quantity;
+    //                                }
+    //                                if (parseInt(quest.ending_conditions[type]) <= condition) {
+    //                                    quest.accomplished[type] = quest.ending_conditions[type];
+    //                                    return_obj.updated = true;
+    //                                    return_obj.accomplished = true;
+    //                                } else {
+    //                                    quest.accomplished[type] = condition;
+    //                                    return_obj.updated = true;
+    //                                }
+    //                                break;
+    //                            default: //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //                                if (typeof (quest.accomplished[type]) !== 'undefined') {
+    //                                    quest.accomplished[type] = 1;
+    //
+    //                                } else {
+    //                                    quest.accomplished[type] = parseInt(quest.accomplished[type]) + 1;
+    //                                }
+    //
+    //                                if (quest.accomplished[type] > (quest.ending_conditions[type] - 1)) {
+    //                                    quest.type = "accomplished";
+    //
+    //
+    //                                }
+    //                        }
+    //                    }
+    //                    break;
+    //                case "accomplished":
+    //
+    //                    break;
+    //            }
+
+            //});
             }
-            console.log(quest);
-            
-//            switch (quest.type) {
-//                case "assigned":
-//                    if (typeof (quest.endc[type]) !== 'undefined') {
-//                        switch (type) {
-//                            case "have":
-//                                if (typeof (condition) === 'undefined') {
-//                                    item_frame = parseInt(quest.ending_conditions.what);
-//                                    item = this.game_state.prefabs.items.index_by_frame(item_frame);
-//                                    condition = item.quantity;
-//                                }
-//                                if (parseInt(quest.ending_conditions[type]) <= condition) {
-//                                    quest.accomplished[type] = quest.ending_conditions[type];
-//                                    return_obj.updated = true;
-//                                    return_obj.accomplished = true;
-//                                } else {
-//                                    quest.accomplished[type] = condition;
-//                                    return_obj.updated = true;
-//                                }
-//                                break;
-//                            default: //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//                                if (typeof (quest.accomplished[type]) !== 'undefined') {
-//                                    quest.accomplished[type] = 1;
-//
-//                                } else {
-//                                    quest.accomplished[type] = parseInt(quest.accomplished[type]) + 1;
-//                                }
-//
-//                                if (quest.accomplished[type] > (quest.ending_conditions[type] - 1)) {
-//                                    quest.type = "accomplished";
-//
-//
-//                                }
-//                        }
-//                    }
-//                    break;
-//                case "accomplished":
-//
-//                    break;
-//            }
-                
-        //});
         }
     }
-    
     
     this.save.properties.quests = this.stats.quests;
     console.log(this.stats.quests);
@@ -1250,14 +1549,22 @@ Mst.Player.prototype.update_quest = function (type, condition) {
 Mst.Player.prototype.finish_quest = function (quest) {
     "use strict";
     var key, completed, quest_name, qid, reward, rewa, item_frame, item, quantity;
+    
+    console.log("\x1b[106mFinish quest: " + quest.name);
+    
     completed = false;
     quest_name = quest.name;
     qid = quest.qid;
     reward = quest.properties.reward;
     
-    delete this.stats.quests.ass[quest_name];
+    if (typeof(this.stats.quests.ass) !== 'undefined') {
+        delete this.stats.quests.ass[quest_name];
+    }    
     if (typeof (this.stats.quests.fin) !== 'undefined') {
-        this.stats.quests.fin.push(qid);
+        key = this.stats.quests.fin.indexOf(qid);
+        if (key < 0) {
+            this.stats.quests.fin.push(qid);
+        }
     } else {
         this.stats.quests.fin = [];
         this.stats.quests.fin.push(qid);
@@ -1272,6 +1579,12 @@ Mst.Player.prototype.finish_quest = function (quest) {
             case 'exp':
                 quantity = parseInt(rewa[1]);
                 this.add_exp("standard", quantity);
+                console.log("Exp +" + quantity);
+            break;
+            case 'exps':
+                quantity = parseInt(rewa[2]);
+                this.add_exp(rewa[1], quantity);
+                console.log(rewa[1] + " +" + quantity);
             break;
             case 'itm':
                 item_frame = parseInt(rewa[1]);
@@ -1313,6 +1626,18 @@ Mst.Player.prototype.finish_quest = function (quest) {
 //    console.log(completed);
 //            
 //    return completed;
+};
+
+Mst.Player.prototype.test_badge = function (badge) {
+    "use strict";
+    var key = "";
+    
+    console.log(this.stats.badges[badge]);
+    if (typeof(this.stats.badges[badge]) !== 'undefined') {
+        key = this.stats.badges[badge];
+    }
+    
+    return key;
 };
 
 Mst.Player.prototype.read_broadcast = function () {

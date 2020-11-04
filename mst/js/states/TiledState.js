@@ -121,7 +121,7 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data, quest_
 
 Mst.TiledState.prototype.create = function () {
     "use strict";
-    var group_name, object_layer, object_key, collision_tiles, load_player;
+    var group_name, object_layer, object_key, collision_tiles, load_player, key;
     
     if (this.root_data.usr_id > 0) {
         this.save = {
@@ -130,6 +130,7 @@ Mst.TiledState.prototype.create = function () {
         };
         
         // create map layers
+        console.log(this.map);
         this.layers = {};
         this.map.layers.forEach(function (layer) {
             this.layers[layer.name] = this.map.createLayer(layer.name);
@@ -200,16 +201,6 @@ Mst.TiledState.prototype.create = function () {
         
         this.prefabs.player.make_followers();
         
-        this.groups.NPCs.forEachAlive(function (NPC) {
-            console.log("Quest bubble: " + NPC.name);
-            NPC.test_quest();
-        }, this);
-        
-        this.groups.otherplayers.forEachAlive(function (otherplayer) {
-            console.log("Quest bubble: " + otherplayer.name);
-            otherplayer.test_quest();
-        }, this);
-        
         // ......................... Night Init ..............................
         
         this.night = new Mst.night(this, this.prefabs.player.save.properties.gtimealpha);
@@ -225,8 +216,35 @@ Mst.TiledState.prototype.create = function () {
 
             //console.log(this.core_data.objects[object_key]);
         }
-
+        
         //console.log(this.core_data.hud);
+        
+        // ......................... Test quest ............................
+        
+        this.groups.NPCs.forEachAlive(function (NPC) {
+            console.log("Test Quest bubble: " + NPC.name);
+            NPC.test_quest();
+        }, this);
+        
+        this.groups.otherplayers.forEachAlive(function (otherplayer) {
+            console.log("Test Quest bubble: " + otherplayer.name);
+            otherplayer.test_quest();
+        }, this);
+        
+        this.quest_data.rumours = {};
+        this.quest_data.act_rumours = [];
+        for (var i = 0; i < this.quest_data.texts.length; i++) {
+            if (this.quest_data.texts[i].type === 'rumour') {
+                this.quest_data.rumours[i] = this.quest_data.texts[i];
+                
+                key = this.prefabs.player.stats.rumours.indexOf(i);
+                if (key < 0) {
+                    this.quest_data.act_rumours.push(this.quest_data.texts[i]);
+                }
+            }
+        }
+        console.log(this.quest_data.rumours);
+        console.log(this.quest_data.act_rumours);        
         
         console.log("Prefabs:");
         console.log(this.prefabs);
@@ -407,6 +425,30 @@ Mst.TiledState.prototype.playerOfUsrID = function (usr_id) {
     return key;
 };
 
+Mst.TiledState.prototype.NPCofID = function (usr_id) {
+    "use strict";
+    
+    console.log("NPCofID:" + usr_id);
+    
+    var key, object_key, uid;
+    key = "";
+    for (object_key in this.prefabs) {
+//            console.log(object_key);
+//            console.log(objects[object_key]);
+//            console.log(usr_id);
+        if (typeof(this.prefabs[object_key].unique_id) != 'undefined') {
+            usr_id = parseInt(usr_id);
+            uid = parseInt(this.prefabs[object_key].unique_id);
+            if (uid === usr_id) {
+                key = object_key;
+                console.log(key);
+            }
+        }
+    }
+
+    return key;
+};
+
 Mst.TiledState.prototype.keyOfUsrID = function (usr_id) {
     "use strict";
     
@@ -499,6 +541,8 @@ Mst.hud = function (game_state, name) {
             this.text_name.fixedToCamera = true;
             this.text_dialogue = this.game_state.game.add.text(16, 270, "", text_style);
             this.text_dialogue.fixedToCamera = true;
+            this.text_heart = this.game_state.game.add.text(480, 270, "", text_style);
+            this.text_heart.fixedToCamera = true;
             this.reset(8, 240);
             this.visible = false;
             this.fixedToCamera = true;
@@ -785,7 +829,7 @@ Mst.hud.prototype.hide_alt = function () {
     }   */ 
 };
 
-Mst.hud.prototype.show_dialogue = function (name, p_name, text, type) {
+Mst.hud.prototype.show_dialogue = function (name, p_name, text, type, heart) {
     "use strict";
     this.game_state.prefabs.player.close_state.push("Dialogue");
     this.game_state.prefabs.player.close_context.push(this.name);
@@ -827,7 +871,7 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, type) {
         } else {
             this.game_state.prefabs.items.kill_stats();
             this.game_state.prefabs.equip.hide();
-
+            
             this.fixedToCamera = false;
             this.reset(8, 285);
             this.loadTexture("dialogue");
@@ -842,6 +886,17 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, type) {
             this.text_dialogue.x = 16;
             this.text_dialogue.y = 315;
             this.text_dialogue.fixedToCamera = true;
+            
+            if (heart > 0) {
+                this.heart_sprite = this.game_state.groups.hud.create(this.x + 485, this.y + 6, 'hearts_spritesheet', 0);
+                this.heart_sprite.fixedToCamera = true;
+                
+                this.text_heart.fixedToCamera = false;
+                this.text_heart.x = 477;
+                this.text_heart.y = 290;
+                this.text_heart.fixedToCamera = true;
+                this.text_heart.text = heart;
+            }
         //}
             
 
@@ -856,15 +911,141 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, type) {
 
 Mst.hud.prototype.hide_dialogue_onclick = function (next) {
     "use strict";
-    this.game_state.prefabs.player.close_state.pop();
-    this.game_state.prefabs.player.close_context.pop();
+    console.log('\x1b[102mHide dialogue tiled');
+    
+    var player = this.game_state.prefabs.player;
+    player.close_state.pop();
+    player.close_context.pop();
     this.hide_dialogue();
     
     if (next === 1) {
         console.log("Next dialogue");
     } else {
-        console.log("Next broadcast");
-        this.game_state.prefabs.player.next_broadcast();
+        console.log(this.game_state.prefabs[this.dialogue_name].ren_sprite.quest);
+        var quest = this.game_state.prefabs[this.dialogue_name].ren_sprite.quest;
+        var ren_player = this.game_state.prefabs[this.dialogue_name];
+        
+        console.log("Hide dialogue continue / Quest name: " + quest.name);
+        if (typeof(quest.name) !== 'undefined') {
+            if (quest !== 'close') {
+                if (typeof(quest.properties.nextq) !== 'undefined') {
+                    var is_ok = true;
+                    if (typeof(quest.properties.target) !== 'undefined') {
+                        var target = parseInt(quest.properties.target);
+                        console.log(target);
+                        console.log(ren_player.usr_id);
+                        if (target !== ren_player.usr_id) {
+                            is_ok = false;
+                        }
+                    }
+
+                    if (is_ok) {
+                        if (quest.state !== "pre") {
+                            console.log("Next quest & is not target | target is actual");
+                            quest.state = "fin";
+                            player.finish_quest(quest);
+                            console.log(this.game_state.quest_data.quests);
+                            var quests = this.game_state.quest_data.quests;
+                            var ind = parseInt(quest.properties.nextq);
+
+                            console.log("Next quest: " + quest.properties.nextq);
+                            console.log("Owner: " + quests[ind].properties.owner);
+
+                            var key = this.game_state.playerOfUsrID(quests[ind].properties.owner);
+
+                            this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
+                            console.log('\x1b[102mShow dialogue tiled pre ' + quests[ind].name);
+                            this.game_state.prefabs[key].ren_sprite.show_dialogue(quests[ind].properties.quest_text);
+                            player.assign_quest(quests[ind]);
+
+                            if (typeof(quests[ind].properties.target) !== 'undefined') {
+                                this.game_state.prefabs[key].hide_bubble();
+
+                                key = this.game_state.playerOfUsrID(quests[ind].properties.target);
+                                if (key !== "") {
+                                    this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
+                                    this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
+                                }     
+                            }
+                        } else {
+                            console.log("Quest has nextq, pre not target | target is actual");
+                            console.log(quest.showed + " " + quest.state);
+                            console.log(quest);
+                            if (typeof(quest.showed) === 'undefined') {
+                                quest.showed = false;
+                            }
+                            if (quest.properties.ending_conditions.type === "text" && quest.showed) {
+                                quest.state = "fin";
+                                player.finish_quest(quest);
+                                console.log(this.game_state.quest_data.quests);
+                                var quests = this.game_state.quest_data.quests;
+                                var ind = parseInt(quest.properties.nextq);
+
+                                console.log("Next quest: " + quest.properties.nextq);
+                                console.log("Owner: " + quests[ind].properties.owner);
+
+                                var key = this.game_state.playerOfUsrID(quests[ind].properties.owner);
+
+                                this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
+                                console.log('\x1b[102mShow dialogue tiled pre ' + quests[ind].name);
+                                this.game_state.prefabs[key].ren_sprite.show_dialogue(quests[ind].properties.quest_text);
+                                player.assign_quest(quests[ind]);
+
+                                if (typeof(quests[ind].properties.target) !== 'undefined') {
+                                    this.game_state.prefabs[key].hide_bubble();
+
+                                    key = this.game_state.playerOfUsrID(quests[ind].properties.target);
+                                    if (key !== "") {
+                                        this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
+                                        this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
+                                    }     
+                                }
+                            }
+                        }
+                    } else {
+
+                        if(quest.state === 'pre' && quest.close !== 'close') {
+                            console.log("Next quest / other person: " + quest.name);
+
+                            ren_player.ren_sprite.show_dialogue(quest.properties.quest_text);
+                            player.assign_quest(quest);
+                        } else {
+                            console.log(quest.close);
+                            if (quest.close !== 'close') {
+                                console.log("Same quest / other person: " + quest.properties.target);
+                                ren_player.hide_bubble(0);
+                                console.log(player.opened_ren);
+
+                                var key = this.game_state.playerOfUsrID(quest.properties.target);
+                                if (key !== "") {
+                                    this.game_state.prefabs[key].ren_sprite.quest = quest;
+                                    this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
+                                }
+                            }
+                        }
+
+
+
+                    }
+                } else {
+                    console.log(quest.properties.ending_conditions.type);
+                    if (quest.properties.ending_conditions.type === "textpow" || quest.properties.ending_conditions.type === "text") {
+                        if (quest.close !== 'close') {
+                            quest.state = "fin";
+                            player.finish_quest(quest);
+                            this.game_state.prefabs[this.dialogue_name].ren_sprite.quest = {};
+                            console.log("Tiled / not next - Test Quest");
+                            this.game_state.prefabs[this.dialogue_name].test_quest();
+                        }
+                    }
+                }
+            } else {
+                console.log("Quest is close");
+            }
+        } else {
+            console.log("Next broadcast");
+            player.next_broadcast();
+        }        
     }
 };
 
@@ -880,7 +1061,15 @@ Mst.hud.prototype.hide_dialogue = function () {
         this.game_state.prefabs.equip.show();
     }
     
-    this.game_state.prefabs[this.dialogue_name].hide_ren();
+    if (typeof(this.heart_sprite) !== 'undefined') {
+        this.heart_sprite.kill();
+        this.text_heart.text = "";
+    }
+    
+    console.log(this.dialogue_name);
+    if (typeof(this.game_state.prefabs[this.dialogue_name]) !== 'undefined') {
+        this.game_state.prefabs[this.dialogue_name].hide_ren();
+    }
 };
 
 Mst.hud.prototype.show_alert = function (text) {

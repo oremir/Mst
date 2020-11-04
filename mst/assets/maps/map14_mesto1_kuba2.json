@@ -7,7 +7,7 @@
          "name":"background",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":60,
          "x":0,
          "y":0
@@ -161,9 +161,6 @@
                     {
                      "group":"string",
                      "is_takeable":"string",
-                     "items":"string",
-                     "obj_id":"string",
-                     "opened_frame":"string",
                      "pool":"string",
                      "texture":"string"
                     },
@@ -173,6 +170,36 @@
                  "width":16,
                  "x":147,
                  "y":279
+                }, 
+                {
+                 "gid":1682,
+                 "height":16,
+                 "id":8,
+                 "name":"goout03",
+                 "properties":
+                    {
+                     "go_position_x":"240",
+                     "go_position_y":"227",
+                     "group":"goouts",
+                     "next_map":"39",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":254,
+                 "y":561
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -180,7 +207,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":8,
+ "nextobjectid":9,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

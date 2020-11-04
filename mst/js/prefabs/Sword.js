@@ -244,7 +244,7 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
 
 Mst.Sword.prototype.rnd_take = function (frame, skill) {
     "use strict";
-    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, exp;
+    var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, test_ok, exp;
     
     player = this.game_state.prefabs.player;
     rtake = this.game_state.core_data.items[frame].properties.rtake;
@@ -252,6 +252,8 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
     if (typeof (rtake) === 'undefined') {
         rtake = [];
     }
+    
+    test_ok = false;
     
     for (var i = 0; i < rtake.length; i++) {
         rtake_sp = rtake[i].split("_");
@@ -270,10 +272,34 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
             this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
             exp = (level + 1)*2;
             player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
-            
+            test_ok = true;
             break;
         }
     }
+    
+    console.log("RND take test1: " + rnd_test);
+    
+    rnd_test = Math.floor(Math.random() * 20);
+
+    console.log("RND take test2: " + rnd_test);
+    
+    if (!test_ok && rnd_test < 6) {
+        rnd_test = Math.floor(Math.random() * rtake.length);
+        rtake_sp = rtake[rnd_test].split("_");
+        iframe = parseInt(rtake_sp[0]);
+        level = parseInt(rtake_sp[1]);
+        
+        if (player.level(skill) > level) {
+            player.add_item(iframe, 1);
+            console.log("RND take sword next: " + iframe);
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            exp = (level + 1)*2;
+            player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
+            test_ok = true;
+        }
+        
+    }
+    return test_ok;
 };
 
 Mst.Sword.prototype.cut_chest = function (chest) {
@@ -288,11 +314,16 @@ Mst.Sword.prototype.cut_chest = function (chest) {
     if (tool_frame == 2) {tool_frame = 1;}
     if (tool_frame == 11) {tool_frame = 10;}
     if (tool_frame == 14) {tool_frame = 13;}
+    if (tool_frame == 19) {tool_frame = 18;}
+    if (tool_frame == 21) {tool_frame = 20;}
     
     if (player.opened_chest !== "") {
         if (player.opened_chest === chest.name) {
             console.log("Chest frame: " + chest.closed_frame + " op: " + chest.is_opened);
             console.log("Tool frame: " + tool_frame);
+            
+            var uuse = { t: tool_frame, on: chest.closed_frame };
+            player.update_quest("use", uuse);
             
             success = this.blade_work(chest, player, tool_frame);
             
@@ -356,6 +387,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                         chest.subtract_item(index, 1);
                                         chest.add_item(32,2); //prkno
                                         chest.updated = true;
+                                        player.update_quest("make", 32);
                                         player.work_rout("woodcutter", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                                     } else {
                                         index = chest.test_item(32, 1);
@@ -679,7 +711,35 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                 }
                             break;
                         }
-                    break;                
+                    break;
+                    case 18: //kropicka
+                        switch (chest.closed_frame) {
+                            case 139: //kvetinac zem.
+                                chest.change_frame(158); //kvetinac zem. zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 20, 15, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 140: //kvetinac saz.
+                                chest.change_frame(159); //kvetinac saz. zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                                player.work_rout("herbology", "intelligence", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 141: //kvetinac rost.
+                                chest.change_frame(160); //kvetinac rost. zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                                player.work_rout("herbology", "intelligence", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                        }
+                    break;
+                        
                 }
             }
         }
@@ -752,6 +812,7 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
                             } else {
                                 chest.add_item(tw.padd, 1);
                             }
+                            player.update_quest("make", tw.padd);
                             player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
                         }
                     }

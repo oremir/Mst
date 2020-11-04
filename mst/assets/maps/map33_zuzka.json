@@ -81,7 +81,6 @@
                     {
                      "group":"string",
                      "is_takeable":"string",
-                     "items":"string",
                      "pool":"string",
                      "texture":"string"
                     },
@@ -91,6 +90,36 @@
                  "width":16,
                  "x":479,
                  "y":180
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":3,
+                 "name":"goout02",
+                 "properties":
+                    {
+                     "go_position_x":"413",
+                     "go_position_y":"576",
+                     "group":"goouts",
+                     "next_map":"36",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":115,
+                 "y":448
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -98,7 +127,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":3,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

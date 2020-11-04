@@ -17,13 +17,16 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     
     this.group = properties.pool || properties.group;
     this.pool = this.game_state.groups[properties.pool];
-    this.game_state.groups[this.group].add(this);
+    this.game_state.groups[properties.group].add(this);
     
     this.game_state.prefabs[name] = this;
     this.name = name;
     
     this.xdif = parseInt(properties.xdif)*16;
     this.ydif = parseInt(properties.ydif)*16;
+    
+    this.spawnernum = name.substr(11, 2);
+    console.log(this.spawnernum);
     
     this.items = [];
     this.stype = properties.stype;
@@ -93,7 +96,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
                 b = true;
                 console.log("Item not created / not grass tile");
             } else {
-                b = false;                
+                b = false;
             }
         } else {
             tilex = this.game_state.layers.collision.getTileX(object_position.x);
@@ -119,7 +122,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
             y = parseInt(map_object.y);
             //console.log(Math.pow((x - object_position.x),2) + Math.pow((y - object_position.y),2));
             dist = Math.sqrt(Math.pow((x - object_position.x),2) + Math.pow((y - object_position.y),2));
-            console.log("Dist: "+dist);
+            //console.log("Dist: "+dist);
             if (dist < 40) {
                 //console.log("Item not created / collision dist");
                 b = true;
@@ -238,7 +241,7 @@ Mst.ItemSpawner.prototype.create_name = function () {
     var name, a;
     var names = [];
     //var j = this.pool.countLiving();
-    var object_name = "item_" + this.j;
+    var object_name = "item_" + this.spawnernum + "_" + this.j;
     
     //console.log(this.game_state.map_data.objects);
     //console.log(this.game_state.map_data.objects.length);
@@ -248,7 +251,12 @@ Mst.ItemSpawner.prototype.create_name = function () {
         //console.log(this.game_state.map_data.objects[i].name);
         name = this.game_state.map_data.objects[i].name;
         a = name.split("_");
-        names.push(parseInt(a[1]));
+        if (a[1] === this.spawnernum) {
+            names.push(parseInt(a[2]));
+        } else {
+            names.push(parseInt(a[1]));
+        }
+        
     }
       
     names.sort(function(a, b){return a - b});
@@ -259,7 +267,7 @@ Mst.ItemSpawner.prototype.create_name = function () {
         this.j++;
     }
     
-    var object_name = "item_" + this.j;
+    var object_name = "item_"  + this.spawnernum + "_" + this.j;
     
 //    for (var i = 0; i < names.length; i++) {
 //        //console.log(object_name + " " + names[i]);

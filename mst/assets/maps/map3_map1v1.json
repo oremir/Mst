@@ -63,37 +63,6 @@
                  "width":16,
                  "x":64,
                  "y":140
-                },
-                {
-                 "gid":360,
-                 "height":16,
-                 "id":1,
-                 "name":"merchant_0",
-                 "properties":
-                    {
-                     "group":"NPCs",
-                     "unique_id":"0",
-                     "pool":"NPCs",
-                     "p_name":"Kupec Martin",
-                     "stype":"merchant",
-                     "relations_allowed":"true",
-                     "region":"1",
-                     "offset":"20",
-                     "items":"6-21-1_2-5-1_0-19-1_4-5-1_23-21-1_53-21-1_45-21-1_94-21-1_32-21-1_59-21-1_106-21-1_125-21-1",
-                     "texture":"merchant"
-                    },
-                 "propertytypes":
-                    {
-                     "group":"string",
-                     "pool":"string",
-                     "texture":"string"
-                    },
-                 "rotation":0,
-                 "type":"NPC",
-                 "visible":true,
-                 "width":16,
-                 "x":64,
-                 "y":62
                 }],
          "opacity":1,
          "type":"objectgroup",

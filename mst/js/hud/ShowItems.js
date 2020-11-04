@@ -113,7 +113,7 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                                      this.initial_position.y + (this.stats.length * this.stats_spacing.y));
     
     //console.log(this.prefab_name);
-    if (this.prefab_name.substr(0, 5) === "chest") {
+    if (this.prefab_name.substr(0, 5) === "chest" || this.prefab_name === "bag" || this.prefab_name.substr(0, 5) === "bedna") {
         stats_spacing_y = Math.floor(this.stats.length/12) * this.stats_spacing.x;
         new_stats_length = this.stats.length % 12;
         stat_position = new Phaser.Point(this.initial_position.x + (new_stats_length * this.stats_spacing.x),
@@ -191,6 +191,9 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                 break;                
                 case 152: // Inkoust
                     gframe_str = "frame_item_fial";
+                break;                   
+                case 173: // Cistici l.
+                    gframe_str = "frame_item_fial";
                 break;
             }
         break;
@@ -217,6 +220,9 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                     gframe_str = "frame_item_fial";
                 break;                    
                 case 81: // voda
+                    gframe_str = "frame_item_fial";
+                break;                   
+                case 147: // Destil. voda
                     gframe_str = "frame_item_fial";
                 break;
             }
@@ -425,6 +431,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         
                         console.log("Put down: " + chest_frame + " item: " + item_frame);
                         
+                        var uput = { f: item_frame, wr: chest_frame };
+                        player.update_quest("put", uput);
+                        
                         switch (chest_frame) {
                             case 7: //Drevo
                                 switch (item_frame) {
@@ -530,6 +539,70 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     break;
                                 }
                             break;
+                            case 138: //kvetinac prazd.
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
+                                    case 137: //zemina
+                                        this.game_state.prefabs[opened_chest].change_frame(139); //kvetinac zem.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
+                            case 139: //kvetinac zem.
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
+                                    case 143: //safran cibulka
+                                        this.game_state.prefabs[opened_chest].change_frame(140); //kvetinac saz.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;                                        
+                                    case 163: //medunka saz.
+                                        this.game_state.prefabs[opened_chest].change_frame(140); //kvetinac saz.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
+                            case 158: //kvetinac zem. zal
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
+                                    case 143: //safran cibulka
+                                        this.game_state.prefabs[opened_chest].change_frame(159); //kvetinac saz. zal.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    case 163: //medunka saz.
+                                        this.game_state.prefabs[opened_chest].change_frame(159); //kvetinac saz. zal.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
                             default:
                                 switch (item_frame) {
                                     case 41: //batoh
@@ -538,13 +611,19 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
 
                                             console.log("Batoh není prázdný");
                                             this.game_state.hud.alert.show_alert("Batoh není prázdný");
+                                        } else {
+                                            this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                         }
                                     break;
                                     case 135: //stinka
                                         if (player.opened_ren === 'kurolez') {
                                             player.add_item(136, 1);
+                                            player.add_exp("standard", 50);
+                                            player.add_exp("magcrecare", 45);
                                             console.log("Dubenka");
                                             this.game_state.hud.alert.show_alert("Dar: duběnky!");
+                                        } else {
+                                            this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                         }
                                         
                                     break;
@@ -664,6 +743,18 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
+                            case 173: //Cistici lek.
+                                var index = player.test_item(154, 1); //Lahvicka
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 174; //Cistici lek. l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {                                    
+                                    takeit = false;       
+                                }
+                            break;
                             default:
                                takeit = false;
                             break;
@@ -686,6 +777,116 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     if (item_quantity < 2) { // kdyz seberu vsechny
                                         this.game_state.prefabs[opened_chest].change_frame(71); //zel. kotlik v vodou
                                     }
+                                break;
+                            }
+                        break;                            
+                        case 139: // kvetinac zem.
+                            switch (item_frame) {
+                                case 137: // zemina
+                                    if (this.game_state.prefabs[opened_chest].s1type === '') {
+                                        if (item_quantity < 2) { // kdyz seberu vsechny
+                                            this.game_state.prefabs[opened_chest].change_frame(138); //kvetinac prazd.
+                                        }
+                                    } else {
+                                        takeit = false;
+                                    }
+                                break;
+                                case 142: // safran
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                        }                                        
+                                    }
+                                break;
+                                case 164: // medunka
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                        }                                        
+                                    }
+                                break;
+                            }
+                        break;
+                        case 140: // kvetinac saz.
+                            switch (item_frame) {
+                                case 137: // zemina
+                                    takeit = false;
+                                break;
+                                case 143: // safran cibulka
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(139); //kvetinac zem.
+                                        console.log(takeit);
+                                    }
+                                break;
+                                case 163: // medunka saz.
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(139); //kvetinac zem.
+                                        console.log(takeit);
+                                    }
+                                break;
+                            }
+                        break;
+                        case 141: // kvetinac rost.
+                            switch (item_frame) {
+                                case 137: // zemina
+                                    takeit = false;
+                                break;
+                                case 143: // safran cibulka
+                                    takeit = false;
+                                break;
+                            }
+                        break;                          
+                        case 158: // kvetinac zem. zal.
+                            switch (item_frame) {
+                                case 137: // zemina
+                                    if (this.game_state.prefabs[opened_chest].s1type === '') {
+                                        if (item_quantity < 2) { // kdyz seberu vsechny
+                                            this.game_state.prefabs[opened_chest].change_frame(138); //kvetinac prazd.
+                                        }
+                                    } else {
+                                        takeit = false;
+                                    }
+                                break;
+                                case 142: // safran
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                        }       
+                                    }
+                                break;
+                            }
+                        break;
+                        case 159: // kvetinac saz. zal.
+                            switch (item_frame) {
+                                case 137: // zemina
+                                    takeit = false;
+                                break;
+                                case 143: // safran cibulka
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(158); //kvetinac zem. zal.
+                                    }
+                                break;
+                            }
+                        break;
+                        case 160: // kvetinac rost. zal.
+                            switch (item_frame) {
+                                case 137: // zemina
+                                    takeit = false;
+                                break;
+                                case 143: // safran cibulka
+                                    takeit = false;
                                 break;
                             }
                         break;
@@ -725,6 +926,11 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
 
             if (use_sub) {
                 this.subtract_item(item_index, 1);
+            }
+            
+            if (opened_chest !== "") {
+                var uuse = { t: item_frame, on: this.game_state.prefabs[opened_chest].closed_frame };
+                player.update_quest("use", uuse);
             }
             
             switch (item_frame) {
@@ -767,7 +973,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             stype: "shadow",
                             items: player.stats.bag,
                             closed_frame: 41,
-                            opened_frame: 41,        
+                            opened_frame: 41,
                             texture: "blank_image"
                         };
                             
@@ -846,10 +1052,70 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     }
 
                     break;
+                case 62: //Konev
+                    if (opened_chest !== "") {
+                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        
+                        if (chest_frame == 80) {
+                            this.add_item(63, 1); //konev pln.
+                        } else {
+                            this.add_item(item_frame, 1);
+                        }
+                    } else {
+                        this.add_item(item_frame, 1);
+                    }
+
+                    break;
                 case 95: //Hrib. polevka
                     player.add_health(30);
                     player.subtract_stress(42);
                     this.add_item(94, 1); // miska
+                    break;
+                case 117: //Nůž
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;
+                        
+                        item = chest.index_item(142); //Safran
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(155, 1); //Šafrán. čnělka
+                            chest.add_item(157, 1); //Bioodpad
+                            
+                            var rnd_test = Math.floor(Math.random() * 4);
+                            if (rnd_test > 0) {
+                                chest.add_item(161, rnd_test); //Šafrán. seminko
+                            }                            
+                            
+                            player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(164); //Medunka
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(165, 1); //Medunka list
+                            chest.add_item(157, 1); //Bioodpad
+                            
+                            var rnd_test = Math.floor(Math.random() * 4);
+                            if (rnd_test > 0) {
+                                chest.add_item(162, rnd_test); //Medunka seminko
+                            }                            
+                            
+                            player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(169); //Šváb
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(170, 2); //Oko svaba
+                            chest.add_item(172, 1); //Bioodpad 2
+                            
+                            player.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                    }
                     break;
                 case 146: //Destil. voda l.
                     if (opened_chest !== "") {
@@ -860,7 +1126,13 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             this.game_state.prefabs[opened_chest].add_item(147, 1); //Destil. voda
                             this.add_item(154, 1); //Lahvicka
                         } else {
-                            this.add_item(item_frame, 1);
+                            if (chest_frame == 77 || chest_frame == 79) { //Žel. kotlík na drevu
+                                this.game_state.prefabs[opened_chest].change_frame(79); //Zel. kotlik s vodou na drevu
+                                this.game_state.prefabs[opened_chest].add_item(147, 1); //Destil. voda
+                                this.add_item(154, 1); //Lahvicka
+                            } else { 
+                                this.add_item(item_frame, 1);
+                            }
                         }
                     }
                     break;
@@ -877,11 +1149,36 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         }
                     }
                     break;
+                case 174: //Cistici lektvar l.
+                    if (player.opened_signpost !== "") {
+                        var sign = this.game_state.prefabs[player.opened_signpost];
+                        
+                        if (sign.exposed) {
+                            sign.loadTexture('blank_image');
+                            this.add_item(176, 1); //Serpentin
+                            player.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
+                            this.game_state.hud.alert.show_alert("Nález: serpentin!");
+                            
+                            this.add_item(154, 1); //Lahvicka
+                        } else {
+                            this.add_item(item_frame, 1);
+                        }
+                    } else {
+                        this.add_item(item_frame, 1);
+                    }
+                    break;
             }
             break;
         case "sell":
             break;
         case "buy":
+            break;
+        case "mer_admin":
+            console.log("admin put down items");
+            
+            this.subtract_item(item_index, 1);
+            this.game_state.prefabs.businessitems.add_item_i(item_frame, 1);
+            
             break;
     }
 };
@@ -1154,12 +1451,13 @@ Mst.ShowItems.prototype.change_put_type = function () {
             new_put_type = "put";
             break;
         case "sell":
-            new_put_type = "buy";
-            this.game_state.prefabs.businessitems.business_buy();
+            new_put_type = "sell";
             break;
         case "buy":
-            new_put_type = "sell";
-            this.game_state.prefabs.businessitems.business_sell();
+            new_put_type = "buy";
+            break;
+        case "mer_admin":
+            new_put_type = "mer_admin";
             break;
         default:
             new_put_type = "equip";
@@ -1194,6 +1492,9 @@ Mst.ShowItems.prototype.translate_put_type = function () {
             break;
         case "buy":
             text = "Koupit";
+            break;        
+        case "mer_admin":
+            text = "Správa";
             break;
         default:
             text = "nic";

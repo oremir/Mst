@@ -43,6 +43,11 @@ Mst.BootState.prototype.create = function () {
 
 	if (this.usr_id > 0) {
 		map_text = this.game.cache.getText("map");
+        var n = map_text.lastIndexOf(">");
+        if (n > -1) {
+            map_text = map_text.substring(n + 1);
+        }
+        
         //console.log(map_text);
 		map_data = JSON.parse(map_text);
 		console.log(map_data);

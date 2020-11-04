@@ -39,7 +39,7 @@
                  "gid":93,
                  "height":16,
                  "id":1,
-                 "name":"goout01",                    
+                 "name":"goout01",
                  "properties":
                     {
                      "go_position_x":"352",
@@ -132,6 +132,40 @@
                  "width":16,
                  "x":405,
                  "y":196
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":5,
+                 "name":"stolek01",
+                 "properties":
+                    {
+                     "closed_frame":"29",
+                     "group":"chests",
+                     "is_takeable":"false",
+                     "items":"",
+                     "obj_id":"291",
+                     "opened_frame":"29",
+                     "pool":"chests",
+                     "texture":"items_blank"
+                    },
+                 "propertytypes":
+                    {
+                     "closed_frame":"string",
+                     "group":"string",
+                     "is_takeable":"string",
+                     "items":"string",
+                     "obj_id":"string",
+                     "opened_frame":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"chest",
+                 "visible":true,
+                 "width":16,
+                 "x":462,
+                 "y":239
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -139,7 +173,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":5,
+ "nextobjectid":6,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -148,7 +182,7 @@
         {
          "columns":23,
          "firstgid":1,
-         "image":"map34_sklenik1.png",
+         "image":"..\/images\/map34_sklenik1.png",
          "imageheight":384,
          "imagewidth":368,
          "margin":0,

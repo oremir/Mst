@@ -2,7 +2,10 @@
     "assets": {
         "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
         "items_blank": { "type": "spritesheet", "source": "assets/images/items_blank.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
-        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 20 },
+        "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 30 },
+        "abilities_spritesheet": { "type": "spritesheet", "source": "assets/images/abilities_spritesheet.png", "frame_width": 20, "frame_height": 20, "frames": 5 },
+        "signs_spritesheet": { "type": "spritesheet", "source": "assets/images/signs_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 5 },
+        "hearts_spritesheet": { "type": "spritesheet", "source": "assets/images/hearts_spritesheet.png", "frame_width": 13, "frame_height": 13, "frames": 5 },
         "oremir_spritesheet": { "type": "spritesheet", "source": "assets/images/player/oremir_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "vojta_spritesheet": { "type": "spritesheet", "source": "assets/images/player/vojta_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "rzxsan_spritesheet": { "type": "spritesheet", "source": "assets/images/player/rzxsan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
@@ -24,18 +27,26 @@
         "morigan_spritesheet": { "type": "spritesheet", "source": "assets/images/player/morigan_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "alfred_spritesheet": { "type": "spritesheet", "source": "assets/images/player/alfred_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "lyria_spritesheet": { "type": "spritesheet", "source": "assets/images/player/lyria_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
-        "girl_blue_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/girl_blue_mage_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "girl_blue_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/girl_blue_mage1_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "girl_red_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/girl_red_mage_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "girl_orange_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/girl_orange_mage_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "boy_blue_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/boy_blue_mage_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "boy_red_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/boy_red_mage1_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "boy_orange_mage_spritesheet": { "type": "spritesheet", "source": "assets/images/player/boy_orange_mage_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "minhi_spritesheet": { "type": "spritesheet", "source": "assets/images/player/minhi_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "haris_spritesheet": { "type": "spritesheet", "source": "assets/images/player/haris_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "adalwolf_spritesheet": { "type": "spritesheet", "source": "assets/images/player/adalwolf_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "hannah_spritesheet": { "type": "spritesheet", "source": "assets/images/player/hannah_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "daeron_spritesheet": { "type": "spritesheet", "source": "assets/images/player/daeron_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "martin_spritesheet": { "type": "spritesheet", "source": "assets/images/player/martin_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "martin_spritesheet": { "type": "spritesheet", "source": "assets/images/player/martin_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "dino_spritesheet": { "type": "spritesheet", "source": "assets/images/player/dino_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10},
         "btiger_spritesheet": { "type": "spritesheet", "source": "assets/images/blue_tiger.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "cir_spritesheet": { "type": "spritesheet", "source": "assets/images/cir.png", "frame_width": 17, "frame_height": 17, "frames": 2 },
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "rabite_spritesheet": { "type": "spritesheet", "source": "assets/images/rabite_spritesheet.png", "frame_width": 16, "frame_height": 32, "frames": 7 },
         "wasp_spritesheet": { "type": "spritesheet", "source": "assets/images/wasp_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "spider_spritesheet": { "type": "spritesheet", "source": "assets/images/spider_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
         "male_ren": { "type": "image", "source": "assets/images/ren/ren_male.png" },
@@ -60,10 +71,13 @@
         "adalwolf_ren": { "type": "image", "source": "assets/images/ren/ren_adalwolf.png" },
         "hannah_ren": { "type": "image", "source": "assets/images/ren/ren_hannah.png" },
         "daeron_ren": { "type": "image", "source": "assets/images/ren/ren_daeron.png" },
+        "martin_ren": { "type": "image", "source": "assets/images/ren/ren_martin.png" },
         "kurolez_ren": { "type": "image", "source": "assets/images/ren/ren_kurolez.png" },
         "dino_ren": { "type": "image", "source": "assets/images/ren/ren_dino.png" },
         "btiger_ren": { "type": "image", "source": "assets/images/ren/ren_btiger.png" },
         "cir_ren": { "type": "image", "source": "assets/images/ren/ren_cir.png" },
+        "agnes_ren": { "type": "image", "source": "assets/images/ren/ren_agnes.png" },
+        "agnes": { "type": "image", "source": "assets/images/player/agnes.png" },
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
         "arrow1": { "type": "image", "source": "assets/images/arrow1.png" },
         "sting": { "type": "image", "source": "assets/images/sting.png" },
@@ -78,6 +92,11 @@
         "settings_image": { "type": "image", "source": "assets/images/settings.png" },
         "moon_image": { "type": "image", "source": "assets/images/moon.png" },
         "arrow_right": { "type": "image", "source": "assets/images/arrow-right.png" },
+        "arrow_up": { "type": "image", "source": "assets/images/arrow_up_yell.png" },
+        "arrow_down": { "type": "image", "source": "assets/images/arrow_down_yell.png" },
+        "arrow_rights": { "type": "image", "source": "assets/images/arrow_right_wh.png" },
+        "arrow_lefts": { "type": "image", "source": "assets/images/arrow_left_wh.png" },
+        "em": { "type": "image", "source": "assets/images/em.png" },
         "right_window": { "type": "image", "source": "assets/images/frame-gold-227-300.png" },
         "middle_window": { "type": "image", "source": "assets/images/frame-gold-300-180.png" },
         "alt": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
@@ -107,6 +126,7 @@
         "playerbullets",
         "enemybullets",
         "NPCs",
+        "signposts",
         "otherplayers",
         "players",
         "collisions",
@@ -127,7 +147,8 @@
     "creatures": {
         "slime": { "spritesheet": "slime_spritesheet", "loot": [ 23 ] },
         "rabite": { "spritesheet": "rabite_spritesheet", "loot": [ 36, 39 ] },
-        "wasp": { "spritesheet": "wasp_spritesheet", "loot": [ 90 ] }
+        "wasp": { "spritesheet": "wasp_spritesheet", "loot": [ 90 ] },
+        "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] }
     },
     
     "items": [
@@ -159,8 +180,10 @@
         { "name": "Kostra", "istool": "false", "properties": {} },
         { "name": "Ohrada", "istool": "false", "properties": {} },
         { "name": "Křoví", "istool": "false", "properties": 
-            { "spawn": "wild", "lives": 30, "rtake": ["112_0", "118_0", "120_0", "121_0"], "work": { 
-                "1": { "n": "sekera", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
+            { "spawn": "wild", "lives": 30, "rtake": ["157_0", "169_0", "171_0", "112_0", "118_0", "120_0", "121_0"], 
+                "work": { 
+                    "1": { "n": "sekera", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
+                    "20": { "n": "srp", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
             } } },
         { "name": "Kámen", "istool": "false", "properties": 
             { "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "135_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } 
@@ -225,8 +248,8 @@
         { "name": "Kam. blok", "istool": "false", "properties": {} },
         { "name": "Kam. nádoba", "istool": "false", "properties": {} },
         { "name": "Zlato", "istool": "false", "properties": {} },
-        { "name": "Konev prázd.", "istool": "true", "properties": {} },
-        { "name": "Konev pln.", "istool": "true", "properties": {} },
+        { "name": "Konev prázd.", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Konev pln.", "istool": "true", "properties": { "cut_type": "nul", "tool_fr_left": "18", "tool_fr_right": "19" } },
         { "name": "Kam. výheň", "istool": "false", "properties": {} },
         { "name": "Kam. výheň", "istool": "false", "properties": {} },
         { "name": "Kam. výheň", "istool": "false", "properties": {} },
@@ -256,7 +279,12 @@
         { "name": "Oheň", "istool": "false", "properties": {} },
         { "name": "Popel", "istool": "false", "properties": {} },
         { "name": "Chitin", "istool": "false", "properties": {} },
-        { "name": "Hřib", "istool": "false", "properties": { "use_sub": "true", "spawn": "wild", "lives": 30  } },
+        { "name": "Hřib", "istool": "false", "properties": { "use_sub": "true", "spawn": "wild", "lives": 30,
+            "work": {
+                "0": { "n": "ruka", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
+                "1": { "n": "sekera", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
+                "20": { "n": "srp", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
+        } } },
         { "name": "Oheň", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Hřib.polévka", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Miska", "istool": "false", "properties": { "use_sub": "true" } },
@@ -297,7 +325,10 @@
             { "cut_type": "fire", "tool_fr_left": "15", "tool_fr_right": "16" }
         },
         { "name": "Šíp", "istool": "false", "properties": {} },
-        { "name": "Sazenice", "istool": "false", "properties": {} },
+        { "name": "Sazenice", "istool": "false", "properties": {
+                "work": {
+                    "20": { "n": "srp", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
+        } } },
         { "name": "Měď. ruda", "istool": "false", "properties": { "spawn": "mine", "work": { 
             "3": { "n": "krumpáč", "act": "take", "skill": "miner", "ability":"strength", "w": [1, 2, 1, 3] }
         } } },
@@ -310,15 +341,16 @@
 		{ "name": "Keř malý", "istool": "false", "properties": { "work": {
                 "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
         } } },
-		{ "name": "Strom malý", "istool": "false", "properties": { "work": {
-                "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
+		{ "name": "Strom malý", "istool": "false", "properties": { "rtake": ["33_0", "119_1"], 
+                "work": { "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
         } } },
         { "name": "Keř", "istool": "false", "properties": { "work": {
                 "1": { "n": "sekera", "act": "change", "i": 22, "n": "Pařez", "padd": 43, "npa": "Větev", "empty":"false", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
         } } },
         { "name": "Keř s bobulí", "istool": "false", "properties": { "work": {
-                "0": { "n": "ruka", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] },
-                "1": { "n": "sekera", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
+                "0": { "n": "ruka", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
+                "1": { "n": "sekera", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
+                "20": { "n": "srp", "act": "change", "i": 132, "n": "Keř", "padd": 134, "npa": "Bobule", "empty":"false", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
         } } },
         { "name": "Bobule", "istool": "false", "properties": {} },
         { "name": "Stínka", "istool": "false", "properties": {} },
@@ -344,7 +376,27 @@
         { "name": "Lahvička", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Šafrán. čnělka", "istool": "false", "properties": {} },
         { "name": "Skříň bl.", "istool": "false", "properties": {} },
-        { "name": "Bioodpad", "istool": "false", "properties": {} }
+        { "name": "Bioodpad", "istool": "false", "properties": {} },
+        { "name": "Květináč zem. zal.", "istool": "false", "properties": {} },
+        { "name": "Květináč saz. zal.", "istool": "false", "properties": {} },
+        { "name": "Květináč rost. zal.", "istool": "false", "properties": {} },
+        { "name": "Sem. šafrán", "istool": "false", "properties": {} },
+        { "name": "Sem. meduňka", "istool": "false", "properties": {} },
+        { "name": "Meduňka saz.", "istool": "false", "properties": {} },
+        { "name": "Meduňka", "istool": "false", "properties": {} },
+        { "name": "Meduňka list", "istool": "false", "properties": {} },
+        { "name": "Koš odpad.", "istool": "false", "properties": {} },
+        { "name": "Výměš. plísňáčka", "istool": "false", "properties": {} },
+        { "name": "Sliz tlustočerva", "istool": "false", "properties": {} },
+        { "name": "Šváb", "istool": "false", "properties": {} },
+        { "name": "Oko švába", "istool": "false", "properties": {} },
+        { "name": "Čistivka", "istool": "false", "properties": {} },
+        { "name": "Bioodpad ž.", "istool": "false", "properties": {} },
+        { "name": "Čistící lektvar", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Čistící lekt. l.", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Srp", "istool": "true", "properties": { "cut_type": "plant", "tool_fr_left": "20", "tool_fr_right": "21" } },
+        { "name": "Serpentin", "istool": "false", "properties": {} }
+        
     ],
 	
 	"objects": { 

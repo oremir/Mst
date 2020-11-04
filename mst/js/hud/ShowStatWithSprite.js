@@ -157,7 +157,7 @@ Mst.ShowStatWithSprite.prototype.action_onclick = function (stat) {
                 this.show_window("Abilities", "skills", "Dovednosti:");
                 break;
             case "moon":
-                this.subtract_moon();
+                //this.subtract_moon();
                 break;
             case "settings":
                 this.logout();
@@ -244,12 +244,16 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
                     break;
                 default:
                     for (key in this.game_state.prefabs.player.stats) {
-                        text_value = key + "\t" + this.game_state.prefabs.player.stats[key];
-                        text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
-                        text.fixedToCamera = true;
-                        this.texts.push(text);
-                        index ++;
+                        text_value = key + "\t" + this.game_state.prefabs.player.stats[key];                        
+                        console.log(key + ":" + typeof(this.game_state.prefabs.player.stats[key]));
+                        if (typeof(this.game_state.prefabs.player.stats[key]) !== 'object') {
+                            text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                            index ++;
+                        }
                     }
+                    break;
             }
             break;
     }

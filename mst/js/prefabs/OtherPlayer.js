@@ -29,6 +29,27 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
         properties.gender = "";
     }
     
+    if (typeof (properties.nurse) === 'undefined') {
+        this.nurse = false;
+    } else {
+        this.nurse = true;
+    }
+    
+    this.rumour = {};
+    if (typeof (properties.rumours) === 'undefined') {
+        this.rumours = [];
+    } else {
+        this.rumours = properties.rumours;
+    }
+    
+    if (typeof (properties.badges) === 'undefined') {
+        this.badges = {};
+    } else {
+        this.badges = properties.badges;
+    }
+    
+    console.log(this.badges);
+    
     this.gender = properties.gender;
     
     var key;
@@ -148,6 +169,18 @@ Mst.OtherPlayer.prototype.update = function () {
         }
     }, this);
     
+    if (this.game_state.prefabs.player.killed && this.nurse) {
+        console.log(this);
+        this.game_state.prefabs.player.set_opened_ren(this.name);
+        this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
+        if (this.relations_allowed) {
+            this.game_state.prefabs.player.update_relation(this, "player", 5);
+        }
+        
+        this.game_state.prefabs.player.killed = false;
+        this.game_state.prefabs.player.save.properties.killed = false;
+    }
+    
     if (this.bubble_showed) {
         this.bubble.x = this.x;
         this.bubble.y = this.y - 16;
@@ -197,6 +230,7 @@ Mst.OtherPlayer.prototype.collide_layer_tile = function () {
 Mst.OtherPlayer.prototype.show_bubble = function (type) {
     "use strict";
     this.bubble_showed = true;
+    console.log("Bubble show " + this.usr_id);
     
     this.bubble.loadTexture('bubble_spritesheet', type);
     this.bubble.visible = true;
@@ -206,17 +240,28 @@ Mst.OtherPlayer.prototype.show_bubble = function (type) {
     }
 };
 
-Mst.OtherPlayer.prototype.hide_bubble = function () {
+Mst.OtherPlayer.prototype.hide_bubble = function (hidecond) {
     "use strict";
     this.bubble_showed = false;
-    console.log("Bubble hide");
+    console.log("Bubble hide " + this.usr_id);
     
+    //console.log(this.bubble.visible);
     this.bubble.visible = false;
+    //console.log(this.bubble.visible);
+    
+    console.log(hidecond);
+    //console.log(this.bubble);
+    
+    //console.log(this.bubble.visible);
+    
+    if (hidecond !== 0) {
+        this.test_quest();
+    }
 };
 
 Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) {
     "use strict";
-    var pom_hits, options;
+    var pom_hits, options, heart;
     
     options = [];
     
@@ -238,13 +283,44 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                     player.set_opened_ren(this.name);
                     console.log("Op.ren: " + this.name);
                     options = ["speak"];
+                    var isnotacc = true;
                     if (typeof (this.ren_sprite.quest.state) !== 'undefined') {
-                        options.push("quest");
+                        var quest = this.ren_sprite.quest;
+                        var target_id = parseInt(quest.properties.target);
+                        console.log(quest);
+                        console.log(this.usr_id);
+                        if (quest.properties.target_type === "player" && target_id === this.usr_id) {
+                            if (quest.properties.ending_conditions.type === 'findps') {
+                                player.update_quest("by_quest_name", quest.name);
+                                this.ren_sprite.quest.state = "acc";
+                                this.show_bubble(5); // ! question mark - quest accomplished
+                                this.ren_sprite.option_quest();
+                                isnotacc = false;
+                                
+                            }
+                        } else {
+                            quest.close = "close";
+                        }
+                        
+                        if (isnotacc) {
+                            options.push("quest");
+                        }
                     }
-                    if (player.gender === "male") {                        
-                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?", options);
-                    } else {
-                        this.ren_sprite.show_dialogue("Dobrý den, co byste potřebovala?", options);
+                    
+                    this.rumour = this.prepare_rumour();
+                    console.log(this.rumour);
+                    if (typeof(this.rumour.text) !== 'undefined') {
+                        options.push("rumour");
+                    }
+                    
+                    if (isnotacc) {
+                        heart = player.return_relation(this, "player");
+                        console.log("Heart: " + heart);
+                        if (player.gender === "male") {                        
+                            this.ren_sprite.show_dialogue("Dobrý den, co byste potřeboval?", options, "", heart);
+                        } else {
+                            this.ren_sprite.show_dialogue("Dobrý den, co byste potřebovala?", options, "", heart);
+                        }
                     }
                 }
                 break;
@@ -268,31 +344,142 @@ Mst.OtherPlayer.prototype.collide_with_player_delay = function () {
     this.game_state.prefabs.player.no_pass_OP = true;
 };
 
+Mst.OtherPlayer.prototype.prepare_rumour = function () {
+    "use strict";
+    var key, rumour, act_rumour, index, ri, test_q;
+    var pom_rumours = [];    
+    rumour = {};
+    
+    for (var i = 0; i < this.rumours.length; i++) {
+        ri = this.rumours[i].tid;
+        
+        test_q = this.cond_rumour(this.rumours[i]);
+        
+        key = this.game_state.prefabs.player.stats.rumours.indexOf(ri);
+        if (key < 0 && test_q) {
+            pom_rumours.push(this.rumours[i]);
+        }
+    }
+    
+    if (pom_rumours.length < 1) {
+        for (var i = 0; i < this.game_state.quest_data.act_rumours.length; i++) {
+            act_rumour = this.game_state.quest_data.act_rumours[i];
+            ri = act_rumour.tid;
+
+            test_q = this.cond_rumour(act_rumour);
+
+            key = this.game_state.prefabs.player.stats.rumours.indexOf(ri);
+            if (key < 0 && test_q) {
+                pom_rumours.push(act_rumour);
+            }
+        }
+    }
+    
+    if (pom_rumours.length > 0) {
+        index = this.game_state.game.rnd.between(0, pom_rumours.length - 1);
+        rumour = pom_rumours[index];
+    }
+        
+    return rumour;
+};
+
+
+Mst.OtherPlayer.prototype.cond_rumour = function (rumour) {
+    "use strict";
+    var key, rumour, index, rc, rci, ri, test_q;
+    
+    ri = rumour.tid;
+    rc = rumour.rconditions;
+
+    test_q = true;
+    for (var j = 0; j < rc.length; j++) {
+        rci = rc[j].split("_");
+        console.log(rci);
+        switch (rci[0]) {
+            case "pr":
+                //console.log(condi1);
+                key = this.game_state.prefabs.player.stats.rumours.indexOf(rci[1]);
+                test_q = key > 0 && test_q;
+
+                console.log(test_q);
+            break;
+            case "badge":
+                //console.log(condi1);
+                key = this.game_state.prefabs.player.test_badge(rci[1]);
+                test_q = key !== "" && test_q;
+                
+                key = this.test_badge(rci[1]);
+                test_q = key !== "" && test_q;
+
+                console.log(test_q);
+            break;
+        }
+    }
+    
+    return test_q;
+};
+
+Mst.OtherPlayer.prototype.test_badge = function (badge) {
+    "use strict";
+    var key = "";
+    
+    console.log(this.badges[badge]);
+    if (typeof(this.badges[badge]) !== 'undefined') {
+        key = this.badges[badge];
+    }
+    
+    return key;
+};
+
 
 Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
     
-    var quests, owner_id, player, test_q, is_quest;
+    var quests, owner_id, target_id, player, test_q, is_quest, condi, condi1;
     //console.log(this.game_state.quest_data);
     quests = this.game_state.quest_data.quests;
     player = this.game_state.prefabs.player;
     is_quest = false;
+    
 //    if (this.game_state.prefabs.player.test_quest("owner", this.usr_id)) {
 //        this.show_bubble(3); // ! exclamation mark - quest
 //    }
 
     for (var i = 0; i < quests.length; i++) {
         owner_id = parseInt(quests[i].properties.owner);
-        console.log(quests[i]);
-        console.log("Other Player ID: " + this.usr_id);
-        if (quests[i].properties.owner_type === "player" && owner_id === this.usr_id) {
-            console.log(quests[i]);
+        target_id = parseInt(quests[i].properties.target);
+        //console.log(quests[i]);
+        //console.log("Other Player ID: " + this.usr_id);
+
+        if (quests[i].properties.target_type === "player" && target_id === this.usr_id) {
+            //console.log(quests[i]);
+            test_q = true;
             
-            test_q = player.test_quest("idfin", quests[i].qid);
-            
+            if (typeof(quests[i].properties.qconditions) !== 'undefined') {
+                var cond = quests[i].properties.qconditions;
+                for (var j = 0; j < cond.length; j++) {
+                    condi = cond[j].split("_");
+                    switch (condi[0]) {
+                        case "pq":
+                            //condi1 = parseInt(condi[1]);
+                            test_q = player.test_quest("idfin", condi[1]);
+                        break;
+                        case "badge":
+                            
+                        break;
+                    }
+                }
+            }
+                
+            if (test_q) {
+                test_q = player.test_quest("idfin", quests[i].qid);
+            } else {
+                test_q = true;
+            }            
+
             if (!test_q) {                
                 test_q = player.test_quest("idass", quests[i].name);
-                
+
                 if (test_q) {
                     this.ren_sprite.quest = quests[i];
                     this.ren_sprite.quest.state = "ass";
@@ -307,17 +494,88 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                         this.show_bubble(5); // ! question mark - quest accomplished
                         is_quest = true;
                         break;            
+                    }
+                }
+            }
+        }
+        
+        //console.log(test_q);
+
+        if (quests[i].properties.owner_type === "player" && owner_id === this.usr_id) {
+            console.log(quests[i]);
+            test_q = true;
+            
+            if (typeof(quests[i].properties.qconditions) !== 'undefined') {
+                var cond = quests[i].properties.qconditions;
+                for (var j = 0; j < cond.length; j++) {
+                    condi = cond[j].split("_");
+                    console.log(condi);
+                    switch (condi[0]) {
+                        case "pq":
+                            condi1 = parseInt(condi[1]);
+                            //console.log(condi1);
+                            test_q = player.test_quest("idfin", condi[1]);
+                            console.log(test_q);
+                        break;
+                    }
+                }
+            }
+                
+            if (test_q) {
+                test_q = player.test_quest("idfin", quests[i].qid);
+            } else {
+                test_q = true;
+            }
+
+            if (!test_q) {                
+                test_q = player.test_quest("idass", quests[i].name);
+
+                if (test_q) {
+                    this.ren_sprite.quest = quests[i];
+                    this.ren_sprite.quest.state = "ass";
+                    if (isNaN(target_id)) {
+                        this.show_bubble(4); // ! exclamation mark - quest assigned
+                    }
+                    is_quest = true;
+                    break;
+                } else {
+                    test_q = player.test_quest("idacc", quests[i].name);
+                    if (test_q) {
+                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.quest.state = "acc";
+                        //console.log(target_id);
+                        //console.log(isNaN(target_id));
+                        if (isNaN(target_id)) {
+                            this.show_bubble(5); // ! question mark - quest accomplished
+                        }
+                        is_quest = true;
+                        break;            
                     } else {
                         this.ren_sprite.quest = quests[i];
                         this.ren_sprite.quest.state = "pre";
                         this.show_bubble(3); // ! exclamation mark - quest ready
                         is_quest = true;
-                        break;            
+
+                        if (quests[i].properties.ending_conditions.type === 'textpow') {
+                            console.log('\x1b[102mShow dialogue pre ' + quests[i].name);
+                            this.ren_sprite.show_dialogue(quests[i].properties.quest_text);
+                            player.assign_quest(quests[i]);
+                            player.update_quest("by_quest_name", quests[i].name);
+                        }
+                        
+//                        if (quests[i].properties.ending_conditions.type === 'text') {
+//                            player.assign_quest(quests[i]);
+//                            player.update_quest("by_quest_name", quests[i].name);
+//                        }
+                        break;
                     }
                 }
             }
         }
     }
+  
+    
+    console.log(this.ren_sprite.quest);
     
     return is_quest;
 };

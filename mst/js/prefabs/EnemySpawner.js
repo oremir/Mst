@@ -6,7 +6,7 @@ Mst.EnemySpawner = function (game_state, name, position, properties) {
     
     Mst.Spawner.call(this, game_state, name, position, properties);
     
-    var max_level = 3;
+    var max_level = 4;
     
     this.frames = properties.frames;
     if (typeof(properties.level) !== 'undefined') {
@@ -38,6 +38,9 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
         break;
         case 3:
             properties.texture = "wasp_spritesheet";
+        break;
+        case 4:
+            properties.texture = "spider_spritesheet";
         break;
         default:
             properties.texture = "slime_spritesheet";

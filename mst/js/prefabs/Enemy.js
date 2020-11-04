@@ -15,6 +15,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
     this.en_attack = 2;
     
     this.knockbacki = 0;
+    this.knockbacked = false;
     
     // saving previous x to keep track of walked distance
     this.previous_x = this.x;
@@ -70,6 +71,21 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.monster_type = "wasp";
             this.monster_loot = this.game_state.core_data.creatures["wasp"].loot;
         break;
+        case "spider_spritesheet":
+            this.health_max = 200;
+            this.health = this.health_max;
+    
+            this.en_attack = 20;
+            
+            this.animations.add('left', [6, 7], 10, true);
+            this.animations.add('right', [4, 5], 10, true);
+            this.animations.add('up', [2, 3], 10, true);
+            this.animations.add('down', [0, 1], 10, true);
+    
+            this.anchor.setTo(0.5);
+            this.monster_type = "spider";
+            this.monster_loot = this.game_state.core_data.creatures["spider"].loot;
+        break;
     }
     
     this.b_pool = this.game_state.groups.enemybullets;
@@ -99,15 +115,34 @@ Mst.Enemy.prototype.update = function () {
     }, this);
     
     //console.log(this.name + " " + this.body.facing + " " + Math.sign(this.body.velocity.x));
-    this.scale.setTo(Math.sign(this.body.velocity.x), 1);
+    if (this.monster_type === 'spider') {
+        if (Math.abs(this.body.velocity.x) > Math.abs(this.body.velocity.y)) {
+            if (this.body.velocity.x > 0) {
+                this.animations.play("right");
+            } else {
+                this.animations.play("left");
+            }
+        } else {
+            if (this.body.velocity.y < 0) {
+                this.animations.play("up");
+            } else {
+                this.animations.play("down");
+            }
+        }
+    } else {
+        this.scale.setTo(Math.sign(this.body.velocity.x), 1);
+    }    
     
     if (this.knockbacki > 0) {
         this.knockbacki--;
-    } else if (this.detect_player()) {
-        if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 45) {
-            this.game_state.game.physics.arcade.moveToObject(this, this.game_state.prefabs.player, 60);
-        } else {
-            this.game_state.game.physics.arcade.accelerateToObject(this, this.game_state.prefabs.player, 60);
+    } else {
+        this.knockbacked = false;
+        if (this.detect_player()) {
+            if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 45) {
+                this.game_state.game.physics.arcade.moveToObject(this, this.game_state.prefabs.player, 60);
+            } else {
+                this.game_state.game.physics.arcade.accelerateToObject(this, this.game_state.prefabs.player, 60);
+            }
         }
     } /*else {
         if (this.body.speed > this.walking_speed) {
@@ -142,6 +177,7 @@ Mst.Enemy.prototype.knockback_by_player = function (enemy, player) {
     
     this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
     this.knockbacki = 10;
+    this.knockbacked = true;
 };
 
 Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
@@ -154,6 +190,7 @@ Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
         this.game_state.game.physics.arcade.moveToObject(enemy, player, -90);
         this.knockbacki = 10;
     }
+    this.knockbacked = true;
 
 };
 

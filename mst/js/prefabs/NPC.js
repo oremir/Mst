@@ -45,15 +45,28 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.sprtype = parseInt(properties.sprtype);
     }
     
+    if (typeof (properties.owner) === 'undefined') {
+        this.owner = 0;
+    } else {
+        this.owner = parseInt(properties.owner);
+    }
+    
     if (typeof (properties.offset) === 'undefined') {
         var offset = 2;
     } else {
         var offset = parseInt(properties.offset);
     }
     
+    if (typeof (properties.tosave) === 'undefined') {
+        this.tosave = false;
+    } else {
+        this.tosave = true;
+    }
+    
     this.save = {
         type: "NPC",
         name: name,
+        obj_id: this.unique_id,
         x: (position.x - (this.game_state.map.tileHeight / 2)),
         y: (position.y + (this.game_state.map.tileHeight / 2)),
         properties: properties
@@ -84,10 +97,14 @@ Mst.NPC = function (game_state, name, position, properties) {
     
     var ren_name;
     
-    ren_name = this.stype + "_ren";
+    ren_name = properties.texture + "_ren";
     if (this.stype === "pet") {
         ren_name = properties.ren_texture;
     }
+    if (this.stype === "kurolez") {
+        ren_name = "kurolez_ren";
+    }
+    
     
     this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
         group: "ren", 
@@ -152,6 +169,12 @@ Mst.NPC.prototype.update = function () {
         this.game_state.prefabs.player.save.properties.killed = false;
     }
     
+    if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 35 && this.game_state.prefabs.player.opened_ren === this.name) {
+            console.log(this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player));
+            console.log("NPC is too far!");
+            this.save_NPC();
+        }
+    
     if (this.bubble_showed) {
         this.bubble.x = this.x;
         this.bubble.y = this.y - 16;
@@ -191,6 +214,42 @@ Mst.NPC.prototype.save_NPC = function () {
     this.save.x = this.x - (this.game_state.map.tileHeight / 2);
     this.save.y = this.y + (this.game_state.map.tileHeight / 2);
     
+    
+    
+    if (this.tosave) {
+        var game_state, NPC, name, usr_id, d, n;
+        game_state = this.game_state;
+        NPC = this;
+        name = this.name;
+        usr_id = game_state.prefabs.player.usr_id;
+        this.save.action = "SAVE";
+        this.save.type = "NPC";
+
+    //    this.save.x = go_position.x;
+    //    this.save.y = go_position.y;
+
+        this.save.map_int = this.game_state.root_data.map_int;
+
+        d = new Date();
+        n = d.getTime();
+        this.save.properties.time = n;
+
+        console.log("SAVE NPC");
+        console.log(this.save);
+
+        $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+            .done(function (data) {
+                console.log("NPC save success");
+                console.log(data);
+            })
+            .fail(function (data) {
+                console.log("NPC save error");
+                console.log(data);
+            });
+
+        console.log("save npc save");
+    }
+    
     key = this.game_state.keyOfName(this.name);
     
     //console.log(key);
@@ -222,7 +281,11 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             console.log("merchant");
             player.open_business(player, NPC);
             player.set_opened_ren(this.name);
-            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"], "item");
+            var arr_buss = ["buy_sell", "quest"];
+            if (player.usr_id === this.owner) {
+                arr_buss = ["buy_sell", "mer_admin", "quest"];
+            }
+            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", arr_buss, "item");
             open = true;
         } 
         
@@ -294,12 +357,14 @@ Mst.NPC.prototype.open_business = function (player) {
     "use strict";
     player.opened_business = this.name;
     console.log("Open business");
+    this.game_state.prefabs.businessitems.up_length = 0;
     this.game_state.prefabs.businessitems.show_initial_stats();
 };
 
 Mst.NPC.prototype.close_business = function () {
     "use strict";
     this.game_state.prefabs.businessitems.kill_stats();
+    this.save_NPC;
     this.game_state.prefabs.player.opened_business = "";
 };
 
@@ -344,6 +409,7 @@ Mst.NPC.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     } else {
                         this.ren_sprite.quest = quests[i];
                         this.ren_sprite.quest.state = "pre";
+                        this.ren_sprite.quest.showed = false;
                         this.show_bubble(3); // ! exclamation mark - quest ready
                         is_quest = true;
                         break;            
