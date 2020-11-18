@@ -125,6 +125,7 @@
 	    "swords",        
         "playerbullets",
         "enemybullets",
+        "overlaps",
         "NPCs",
         "signposts",
         "otherplayers",
@@ -395,7 +396,10 @@
         { "name": "Čistící lektvar", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Čistící lekt. l.", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Srp", "istool": "true", "properties": { "cut_type": "plant", "tool_fr_left": "20", "tool_fr_right": "21" } },
-        { "name": "Serpentin", "istool": "false", "properties": {} }
+        { "name": "Serpentin", "istool": "false", "properties": {} },
+        { "name": "Kotvičník plod", "istool": "false", "properties": {} },
+        { "name": "Kotvičník saz.", "istool": "false", "properties": {} },
+        { "name": "Kotvičník", "istool": "false", "properties": {} }
         
     ],
 	

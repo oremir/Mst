@@ -533,6 +533,8 @@ Mst.hud = function (game_state, name) {
             this.game_state.groups.hud.add(this);
             this.text_alt = {};
             
+            
+            
             break;
         case "dialogue":            
             this.game_state.groups.hud.add(this);
@@ -735,12 +737,13 @@ Mst.hud.prototype.show_alt = function (obj) {
     type = obj.o_type;
     switch(type) {
         case "items":
-            if (this.game_state.core_data.items[obj.frame].name.length < 13) {
+            console.log(this.game_state.core_data.items[obj.frame].name.length);
+            if (this.game_state.core_data.items[obj.frame].name.length < 12) {
                 texture = "alt";
             } else {
                 texture = "alt_160_20";
             }
-            texture = "alt";
+            //texture = "alt";
             text = this.game_state.core_data.items[obj.frame].name;
             x = obj.x - 4;
             y = obj.y - 30;
@@ -756,12 +759,12 @@ Mst.hud.prototype.show_alt = function (obj) {
             }*/
             break;
         case "chestitems":
-            if (this.game_state.core_data.items[obj.frame].name.length < 13) {
+            if (this.game_state.core_data.items[obj.frame].name.length < 12) {
                 texture = "alt";
             } else {
                 texture = "alt_160_20";
             }
-            texture = "alt";
+            //texture = "alt";
             text = this.game_state.core_data.items[obj.frame].name;
             x = obj.x - 4;
             y = obj.y - 30;
@@ -795,13 +798,16 @@ Mst.hud.prototype.show_alt = function (obj) {
     this.text_alt = this.game_state.game.add.text(x + 6, y + 3, text, text_style);
     //this.text_alt.fixedToCamera = true;
     
+    //this.game_state.hud.alt.fixedToCamera = false;
     this.game_state.hud.alt.reset(x, y);
+    //this.game_state.hud.alt.fixedToCamera = true;
     this.game_state.hud.alt.loadTexture(texture);
     this.game_state.hud.alt.visible = true;
     this.game_state.hud.alt.alpha = 0.7;
     if (type === 'chestitems') {
         this.game_state.hud.alt.alpha = 0.85;
     }
+    
     //this.game_state.hud.alt.text.reset(x, y);
     
     //console.log(x + ":" + y);

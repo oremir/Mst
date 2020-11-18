@@ -38,6 +38,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.animations.play("go");
     
             this.anchor.setTo(0.5);
+            
             this.monster_type = "slime";
             this.monster_loot = this.game_state.core_data.creatures["slime"].loot;
         break;
@@ -51,6 +52,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.animations.play("go");
     
             this.anchor.setTo(0.7);
+            
             this.monster_type = "rabite";
             this.monster_loot = this.game_state.core_data.creatures["rabite"].loot;
         break;
@@ -68,6 +70,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.timer_sting = this.game_state.game.time.create(false);
             this.timer_sting.loop(Phaser.Timer.SECOND * 0.6, this.create_bullet, this);
             this.timer_sting.start();
+            
             this.monster_type = "wasp";
             this.monster_loot = this.game_state.core_data.creatures["wasp"].loot;
         break;
@@ -83,6 +86,11 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.animations.add('down', [0, 1], 10, true);
     
             this.anchor.setTo(0.5);
+            
+            this.timer_web = this.game_state.game.time.create(false);
+            this.timer_web.loop(Phaser.Timer.SECOND * 0.6, this.create_web, this);
+            this.timer_web.start();
+            
             this.monster_type = "spider";
             this.monster_loot = this.game_state.core_data.creatures["spider"].loot;
         break;
@@ -342,4 +350,34 @@ Mst.Enemy.prototype.create_bullet = function () {
         object.reset(object_position, object_properties);
     }
 };
+
+Mst.Enemy.prototype.create_web = function () {
+    "use strict";
+    var object_name, object_position, object_properties, object;
+    
+    object_position = {
+        x: (this.x + (Math.sign(this.body.velocity.x) * 10)),
+        y: (this.y )
+    };
+    
+    object_properties = {
+        direction: {"x": Math.sign(this.body.velocity.x), "y": 0},
+        texture: "web",
+        firstframe: 0,
+        group: "overlaps"
+    };
+    
+    object = this.b_pool.getFirstDead();
+        
+    if (!object) {
+        object_name = "web_" + this.b_pool.countLiving();
+        object = new Mst.Bullet(this.game_state, object_name, object_position, object_properties);
+        
+        //this.game_state.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
+        
+    } else {
+        object.reset(object_position, object_properties);
+    }
+};
+
 

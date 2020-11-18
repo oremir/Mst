@@ -574,6 +574,11 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         this.game_state.prefabs[opened_chest].change_frame(140); //kvetinac saz.
                                         
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;                                   
+                                    case 178: //kotvičník saz.
+                                        this.game_state.prefabs[opened_chest].change_frame(140); //kvetinac saz.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
                                     default:
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
@@ -595,6 +600,11 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     break;
                                     case 163: //medunka saz.
                                         this.game_state.prefabs[opened_chest].change_frame(159); //kvetinac saz. zal.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;                                        
+                                    case 178: //kotvičník saz.
+                                        this.game_state.prefabs[opened_chest].change_frame(159); //kvetinac saz.zal.
                                         
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
@@ -813,6 +823,17 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         }                                        
                                     }
                                 break;
+                                case 179: // kotvičník
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                        }                                        
+                                    }
+                                break;
                             }
                         break;
                         case 140: // kvetinac saz.
@@ -832,6 +853,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         console.log(takeit);
                                     }
                                 break;
+                                case 178: // kotvičník saz.
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(139); //kvetinac zem.
+                                        console.log(takeit);
+                                    }
+                                break;
                             }
                         break;
                         case 141: // kvetinac rost.
@@ -840,6 +867,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;
                                 break;
                                 case 143: // safran cibulka
+                                    takeit = false;
+                                break;
+                                case 163: // meduňka cibulka
+                                    takeit = false;
+                                break;
+                                case 178: // kotvičník cibulka
                                     takeit = false;
                                 break;
                             }
@@ -866,6 +899,29 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         }       
                                     }
                                 break;
+                                case 164: // meduňka
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                        }       
+                                    }
+                                break;
+                                case 179: // kotvičník
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        console.log(this.game_state.prefabs[opened_chest].plant);
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                        }       
+                                    }
+                                break;
                             }
                         break;
                         case 159: // kvetinac saz. zal.
@@ -878,6 +934,16 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         this.game_state.prefabs[opened_chest].change_frame(158); //kvetinac zem. zal.
                                     }
                                 break;
+                                case 163: // meduňka cibulka
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(158); //kvetinac zem. zal.
+                                    }
+                                break;
+                                case 178: // kotvičník cibulka
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(158); //kvetinac zem. zal.
+                                    }
+                                break;
                             }
                         break;
                         case 160: // kvetinac rost. zal.
@@ -886,6 +952,12 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;
                                 break;
                                 case 143: // safran cibulka
+                                    takeit = false;
+                                break;
+                                case 163: // meduňka cibulka
+                                    takeit = false;
+                                break;
+                                case 178: // kotvičník cibulka
                                     takeit = false;
                                 break;
                             }
@@ -1100,6 +1172,26 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             var rnd_test = Math.floor(Math.random() * 4);
                             if (rnd_test > 0) {
                                 chest.add_item(162, rnd_test); //Medunka seminko
+                            }                            
+                            
+                            player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(179); //Kotvičník
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(157, 1); //Bioodpad
+                            
+                            var rnd_test = Math.floor(Math.random() * 4);
+                            var test_q = test_q = player.test_quest("idass", "quest_36");
+                            console.log("Test quest 32 knife: " + test_q + "RT " + rnd_test);
+                            if (test_q && rnd_test < 2) {
+                                rnd_test = 2;
+                            }
+                            
+                            if (rnd_test > 0) {
+                                chest.add_item(177, rnd_test); //Kotvičník plod
                             }                            
                             
                             player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p

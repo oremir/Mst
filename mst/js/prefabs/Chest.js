@@ -101,7 +101,7 @@ Mst.Chest = function (game_state, name, position, properties) {
     console.log("Chest time diff: " + (n - this.ctime));
     console.log((n - this.ctime)/100000);
     
-    //if ((n - this.ctime)/100000 > 6) {
+    //if ((n - this.ctime)/100000 > 1) {
     if ((n - this.ctime)/100000 > 846) {
         switch (this.closed_frame) {
             case 126: // sazenice
@@ -159,17 +159,23 @@ Mst.Chest = function (game_state, name, position, properties) {
                 var plant_frame = plant_a1[1].split("-")[0];
                 console.log("Plant frame: " + plant_frame);
                 switch (plant_frame) {
-                    case "143":
+                    case "143": // šafrán
                         this.s1type = "plant";
                         this.save.properties.s1type = "plant";
                         this.s2type = "142";
                         this.save.properties.s2type = "142";
                     break;
-                    case "163":
+                    case "163": // meduňka
                         this.s1type = "plant";
                         this.save.properties.s1type = "plant";
                         this.s2type = "164";
                         this.save.properties.s2type = "164";
+                    break;
+                    case "178": // kotvičník
+                        this.s1type = "plant";
+                        this.save.properties.s1type = "plant";
+                        this.s2type = "179";
+                        this.save.properties.s2type = "179";
                     break;                    
                 }
                 
@@ -484,7 +490,10 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
     
     player = this.game_state.prefabs.player;
     
-    console.log("Loops done / l:" + nloop + " f:" + type);
+    var d = new Date();
+    var n = d.getTime();
+    
+    console.log("Loops done / l:" + nloop + " f:" + type + " time: " + (n - this.ctime)/100000);
     
     if (nloop > 0) {
         for (i = 0; i < nloop; i++) {
@@ -596,10 +605,15 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                         this.subtract_item(index, 1);
                         this.add_item(142, 1); //safran
                     }
-                    index = this.test_item(163, 1); //Medunka sem.
+                    index = this.test_item(163, 1); //Medunka cibulka
                     if (index > -1) {
                         this.subtract_item(index, 1);
                         this.add_item(164, 1); //medunka
+                    }
+                    index = this.test_item(178, 1); //kotvičník cibulka
+                    if (index > -1) {
+                        this.subtract_item(index, 1);
+                        this.add_item(179, 1); //kotvičník
                     }
                 break;                
                 case 140:
@@ -612,6 +626,11 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                     if (index > -1) {
                         this.subtract_item(index, 1);
                         this.add_item(163, 1); //Medunka saz.
+                    }                   
+                    index = this.test_item(177, 1); //Kotvičník sem.
+                    if (index > -1) {
+                        this.subtract_item(index, 1);
+                        this.add_item(178, 1); //Kotvičník saz.
                     }
                 break; 
                 case 166:
@@ -669,8 +688,8 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
         chest.save.properties.closed_frame = chest.closed_frame;
         chest.save.action = "OPEN";
 
-        d = new Date();
-        n = d.getTime();
+        var d = new Date();
+        var n = d.getTime();
 
         console.log(chest.save);
 
@@ -689,6 +708,7 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                 chest.set_stat(stat);
                 chest.game_state.prefabs.chestitems.show_initial_stats();
             
+                console.log("Chest open time > 20: " + (n - chest.time)/100000);
                 if (stat === 'open' && (n - chest.time)/100000 > 20) {
                     stat = "ok";
                     chest.set_stat(stat);
