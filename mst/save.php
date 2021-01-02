@@ -190,7 +190,7 @@ $postavy = file_get_contents($path_postavy);
 //    array_push($postavy, $user);
 //endif;
 
-$postavy = $postavy . $user_en1;
+$postavy = $postavy . $user_en1 . "\n";
 
 file_put_contents($path_postavy, $postavy);
 
