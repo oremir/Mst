@@ -164,6 +164,9 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                 case 103: // tav. zelezo
                     gframe_str = "frame_item_fial";
                 break;
+                case 183: // zhav. med
+                    gframe_str = "frame_item_fial";
+                break;
             }
         case 65: // vyhen hori
             switch (frame_int) {
@@ -765,6 +768,14 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
+                            case 183: //zhav. med
+                                var equip = parseInt(player.stats.equip);
+                                if (equip === 106) { //kleste
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {
+                                    takeit = false;  
+                                }
+                            break;
                             default:
                                takeit = false;
                             break;
@@ -1252,11 +1263,22 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             this.game_state.hud.alert.show_alert("Nález: serpentin!");
                             
                             this.add_item(154, 1); //Lahvicka
-                        } else {
+                        } else {    
                             this.add_item(item_frame, 1);
                         }
                     } else {
-                        this.add_item(item_frame, 1);
+                        if (player.opened_overlap !== "") {
+                            var web = this.game_state.prefabs[player.opened_overlap];
+                            
+                            this.add_item(181, 1); //Terra sigillata
+                            player.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
+                            this.game_state.hud.alert.show_alert("Nález: terra sigillata!");
+                            
+                            this.add_item(154, 1); //Lahvicka
+                            
+                        } else {    
+                            this.add_item(item_frame, 1);
+                        }
                     }
                     break;
             }

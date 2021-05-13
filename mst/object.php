@@ -59,6 +59,7 @@ switch ($type) {
                                 }
                             } else {
                                 $status = "open";
+                                $object = json_decode($row["JSON"]);
                                 $radek_l2 =  $radek_l2 . "Record is open\n";
                             }
                         } else {
@@ -196,7 +197,7 @@ switch ($type) {
         }
         break;
         
-        case "NPC":
+    case "NPC":
         
         $result = $mysqli->query("SELECT * FROM `objects` WHERE ID = '".$obj_id."'");
 
@@ -219,6 +220,28 @@ switch ($type) {
                             $status = "error";
                             $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
                         }
+                        break;
+                } // --- end of switch ---
+            } // --- end of while ---
+        } else {
+            $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $obj_id . "|Follower| 0 results\n";
+        }
+        break;
+        
+    case "player":
+        
+        $result = $mysqli->query("SELECT * FROM `users` WHERE UID = '".$uid."'");
+
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while($row = $result->fetch_assoc()) {
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" .  $row["UID"]. "|" . $row["login_name"] . "|M" . $row["on_map"]. "|Player";
+    
+                switch ($action) {
+                    case "LOAD":                        
+                        $status = "open";
+                        $object = json_decode($row["JSON"]);
+                        $radek_l2 =  $radek_l2 . "|Load\n";
                         break;
                 } // --- end of switch ---
             } // --- end of while ---

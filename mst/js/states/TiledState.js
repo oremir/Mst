@@ -17,6 +17,7 @@ Mst.TiledState = function () {
         "item_spawner": Mst.ItemSpawner.prototype.constructor,
         "chest_creator": Mst.ChestCreator.prototype.constructor,
         "chest": Mst.Chest.prototype.constructor,
+        "enemy": Mst.Enemy.prototype.constructor,
         "sword": Mst.Sword.prototype.constructor,
         "signpost": Mst.Signpost.prototype.constructor,
         "bed": Mst.Bed.prototype.constructor,
@@ -133,18 +134,22 @@ Mst.TiledState.prototype.create = function () {
         console.log(this.map);
         this.layers = {};
         this.map.layers.forEach(function (layer) {
-            this.layers[layer.name] = this.map.createLayer(layer.name);
-            if (layer.properties.collision) { // collision layer
-                collision_tiles = [];
-                layer.data.forEach(function (data_row) { // find tiles used in the layer
-                    data_row.forEach(function (tile) {
-                        // check if it's a valid tile index and isn't already in the list
-                        if (tile.index > 0 && collision_tiles.indexOf(tile.index) === -1) {
-                            collision_tiles.push(tile.index);
-                        }
+            if (layer.name !== "foreground") {
+                this.layers[layer.name] = this.map.createLayer(layer.name);
+                console.log("Layer: " + layer.name);
+                console.log(this.layers[layer.name])
+                if (layer.properties.collision) { // collision layer
+                    collision_tiles = [];
+                    layer.data.forEach(function (data_row) { // find tiles used in the layer
+                        data_row.forEach(function (tile) {
+                            // check if it's a valid tile index and isn't already in the list
+                            if (tile.index > 0 && collision_tiles.indexOf(tile.index) === -1) {
+                                collision_tiles.push(tile.index);
+                            }
+                        }, this);
                     }, this);
-                }, this);
-                this.map.setCollision(collision_tiles, true, layer.name);
+                    this.map.setCollision(collision_tiles, true, layer.name);
+                }
             }
         }, this);
         // resize the world to be the size of the current layer
@@ -162,14 +167,7 @@ Mst.TiledState.prototype.create = function () {
         
         this.create_prefab("chest_creator", "chest_creator", {x: 0, y: 0}, {});
         
-        // ......................... HUD Init 1 ............................
         
-        this.hud = {};
-        this.hud.right_window = new Mst.hud(this, "right_window");
-        this.hud.middle_window = new Mst.hud(this, "middle_window");
-        this.hud.alt = new Mst.hud(this, "alt");
-        this.hud.dialogue = new Mst.hud(this, "dialogue");
-        this.hud.alert = new Mst.hud(this, "alert");
         
         // ......................... Map Objects ............................
         
@@ -201,6 +199,21 @@ Mst.TiledState.prototype.create = function () {
         
         this.prefabs.player.make_followers();
         
+        this.layers["foreground"] = this.map.createLayer("foreground");
+        
+        this.core_data.groupshud.forEach(function (group_name) {
+            this.groups[group_name] = this.game.add.group();
+        }, this);
+        
+        // ......................... HUD Init 1 ............................
+        
+        this.hud = {};
+        this.hud.right_window = new Mst.hud(this, "right_window");
+        this.hud.middle_window = new Mst.hud(this, "middle_window");
+        this.hud.alt = new Mst.hud(this, "alt");
+        this.hud.dialogue = new Mst.hud(this, "dialogue");
+        this.hud.alert = new Mst.hud(this, "alert");
+        
         // ......................... Night Init ..............................
         
         this.night = new Mst.night(this, this.prefabs.player.save.properties.gtimealpha);
@@ -221,13 +234,43 @@ Mst.TiledState.prototype.create = function () {
         
         // ......................... Test quest ............................
         
+        this.items = {};
+        this.items.NPCs = {};
+        this.items.otherplayers = {};
+        
+        this.groups.NPCs.forEachAlive(function (NPC) {            
+            this.items.NPCs[NPC.unique_id] = NPC.name;
+            //console.log("Test NPCs: ");
+            //console.log(this.items.NPCs);
+        }, this);
+        
+        this.groups.otherplayers.forEachAlive(function (otherplayer) {            
+            this.items.otherplayers[otherplayer.usr_id] = otherplayer.name;
+            //console.log("Test otherplayers: ");
+            //console.log(this.items.otherplayers);
+        }, this);
+        
+        console.log("Items:");
+        console.log(this.items);
+        
+        var quest_state;
+        var quests = this.quest_data.quests;
+        var player = this.prefabs.player;
+        
+        for (var i = 0; i < quests.length; i++) {
+            quest_state = player.test_quest("idstate", quests[i].qid);
+            console.log(quests[i].qid + " " + quest_state);
+        }
+        
         this.groups.NPCs.forEachAlive(function (NPC) {
             console.log("Test Quest bubble: " + NPC.name);
+            NPC.add_ren();
             NPC.test_quest();
         }, this);
         
         this.groups.otherplayers.forEachAlive(function (otherplayer) {
             console.log("Test Quest bubble: " + otherplayer.name);
+            otherplayer.add_ren();
             otherplayer.test_quest();
         }, this);
         
@@ -244,7 +287,9 @@ Mst.TiledState.prototype.create = function () {
             }
         }
         console.log(this.quest_data.rumours);
-        console.log(this.quest_data.act_rumours);        
+        console.log(this.quest_data.act_rumours);
+        
+        this.prefabs.player.final_tests();
         
         console.log("Prefabs:");
         console.log(this.prefabs);
@@ -399,6 +444,54 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map_int, save_s
         });
     
     console.log("save");
+};
+
+Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
+    "use strict";
+    
+    var game_state = this;
+    var otherplayer = {};
+    var save = {};
+    save.type = "player"
+    save.action = "LOAD";
+    save.obj_id = 0;
+    save.name = "";
+
+    var d = new Date();
+    var n = d.getTime();
+
+    console.log(save);
+
+    $.post("object.php?time=" + n + "&uid=" + uid, save)
+        .done(function (data) {
+            console.log("OtherPlayer load success");
+            console.log(data);
+            var resp, name, properties;
+            resp = JSON.parse(data);
+            properties = resp.obj.properties;
+            name = resp.obj.name;
+        
+            game_state.save.objects.push(resp.obj);
+        
+            otherplayer = new Mst.OtherPlayer(game_state, name, position, properties);
+        
+            //console.log(otherplayer);
+        
+            if (type === "dead") {
+                var nurse = otherplayer.test_nurse();
+                
+                game_state.prefabs.player.killed = false;
+                game_state.prefabs.player.save.properties.killed = false;
+            }
+        })
+        .fail(function (data) {
+            console.log("OtherPlayer load error");
+            console.log(data);
+
+            success = false;
+        });
+        
+    return otherplayer;    
 };
 
 Mst.TiledState.prototype.playerOfUsrID = function (usr_id) {

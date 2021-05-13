@@ -115,7 +115,7 @@ Mst.Chest = function (game_state, name, position, properties) {
                 this.save.properties.s1type = "tree";
                 this.change_frame(r_frame);
                 this.save_chest();
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
             case 130: // Keř malý
@@ -126,30 +126,30 @@ Mst.Chest = function (game_state, name, position, properties) {
                     var r_frame = 133; // Keř s bobulí
                 }
                 this.change_frame(r_frame);
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
             case 132: // Keř malý
                 this.change_frame(133); // Keř s bobulí
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
             case 158: // Kvetinac zem. zal.
                 if (this.s1type !== "plant") {
                     if (this.stats.items.length > 6) {
                         this.change_frame(140); // Kvetinac saz.
-                        this.time = n;
+                        //this.time = n;
                         this.ctime = n;
                     }
                 } else {
                     this.change_frame(139); // Kvetinac zem.
-                    this.time = n;
+                    //this.time = n;
                     this.ctime = n;
                 }
             break;
             case 159: // Kvetinac saz. zal.
                 this.change_frame(141); // Kvetinac rosl.
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
             case 160: // Kvetinac rost. zal.
@@ -179,7 +179,7 @@ Mst.Chest = function (game_state, name, position, properties) {
                     break;                    
                 }
                 
-                this.time = n;
+                //this.time = n;
                 this.ctime = n; 
             break;
         }
@@ -196,7 +196,7 @@ Mst.Chest = function (game_state, name, position, properties) {
                 }
                 this.change_frame(r_frame);
                 this.save_chest();
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
             case 130: // Keř malý
@@ -207,12 +207,12 @@ Mst.Chest = function (game_state, name, position, properties) {
                     var r_frame = 133; // Keř s bobulí
                 }
                 this.change_frame(r_frame);
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
             case 132: // Keř malý
                 this.change_frame(133); // Keř s bobulí
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
         }
@@ -221,7 +221,7 @@ Mst.Chest = function (game_state, name, position, properties) {
     if ((n - this.ctime)/100000 > 4) {
         switch (this.closed_frame) {
             case 166: // kos
-                this.time = n;
+                //this.time = n;
                 this.ctime = n;
             break;
         }

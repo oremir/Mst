@@ -102,7 +102,17 @@ Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
     if (this.key === "magic1") {
         enemy.hit_enemy_magic(player, enemy);
     } else {
-        enemy.hit_enemy_arrow(player, enemy);
+        console.log(this.frame);
+        if (this.frame === 0) {
+            enemy.hit_enemy_arrow(player, enemy);
+        } else {
+            if (this.frame === 2) {
+                enemy.hit_enemy_meat(player, enemy);
+            } else {
+                enemy.hit_enemy_throw(player, enemy);
+            }            
+        }
+        
     }
     
     bullet.kill();

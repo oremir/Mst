@@ -213,6 +213,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.opened_business = "";
     this.opened_ren = "";
     this.opened_signpost = "";
+    this.opened_overlap = "";
     
     //console.log(properties.items);
     //console.log(this.stats.items);
@@ -282,6 +283,15 @@ Mst.Player = function (game_state, name, position, properties) {
     this.shadow = {};
     
     console.log("Badge: " + this.test_badge(1));
+    
+    var pusher = new Pusher('6e9750ce5661bfd14c35', {
+      cluster: 'eu'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      console.log("Pusher: " + JSON.stringify(data));
+    });
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -294,6 +304,7 @@ Mst.Player.prototype.update = function () {
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.open_chest, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.signposts, this.open_signpost, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.collisions, this.open_collision, null, this);
+    this.game_state.game.physics.arcade.overlap(this, this.game_state.groups.overlaps, this.open_overlaps, null, this);
     
     if (this.no_pass_OP) {
         this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.collide_other_player, null, this);
@@ -410,6 +421,45 @@ Mst.Player.prototype.update = function () {
 //    }
 //    
 //};
+
+Mst.Player.prototype.final_tests = function () {
+    "use strict";
+    var nurse = false;
+    
+    if (this.killed) {
+        console.log("KILLED!");
+        this.game_state.groups.NPCs.forEachAlive(function (NPC) {
+            if (!nurse) {
+                nurse = NPC.test_nurse();
+            }
+        }, this);
+        
+        if (!nurse) {
+            this.game_state.groups.otherplayers.forEachAlive(function (otherplayer) {
+                if (!nurse) {
+                    nurse = otherplayer.test_nurse();
+                }
+            }, this);
+        }
+        
+        if (!nurse) {
+            var region = parseInt(this.game_state.map_data.map.region);
+            
+            switch (region) {
+                case 2:
+                    this.game_state.make_otherplayer({ "x": 170, "y": 487 }, 45, "dead");
+                break;
+                case 3:
+                    this.game_state.make_otherplayer({ "x": 234, "y": 186 }, 53, "dead");
+                break;
+            }
+        } else {                
+            this.killed = false;
+            this.save.properties.killed = false;
+        }
+        
+    }
+};
 
 Mst.Player.prototype.key_right = function () {
     "use strict";
@@ -616,6 +666,9 @@ Mst.Player.prototype.subtract_health = function (quantity) {
             case 2:
                 this.game_state.save_data({ "x": 178, "y": 495 }, 20, "dead");
             break;
+            case 3:
+                this.game_state.save_data({ "x": 242, "y": 194 }, 41, "dead");
+            break;
             default:
                 this.game_state.save_data({ "x": 432, "y": 272 }, 4, "dead"); // "assets/maps/map4.json"
             break;
@@ -665,6 +718,16 @@ Mst.Player.prototype.open_chest = function (player, chest) {
             
             player.opened_chest = chest.name;
             owner = parseInt(chest.owner);
+            
+            var d = new Date();
+            var n = d.getTime();
+            
+            console.log("Player - Chest open time > 20: " + (n - chest.time)/100000);
+            console.log(n + " " + chest.time + " " + chest.ctime);
+            if (chest.stat === 'open' && (n - chest.time)/100000 > 20) {
+                var new_stat = "ok";
+                chest.set_stat(new_stat);
+            }
 
             if (chest.stat !== "open") {
                 if (owner !== 0) {
@@ -708,11 +771,40 @@ Mst.Player.prototype.open_collision = function (player, collision) {
     collision.open_collision(player);
 };
 
+Mst.Player.prototype.open_overlaps = function (player, overlap) {
+    "use strict";
+    console.log("Open overlap player");
+    
+    if (this.opened_overlap === "") {
+        this.opened_overlap = overlap.name;
+        console.log("Opened overlap: " + this.opened_overlap);
+        
+        this.body.immovable = true;
+        this.game_state.game.time.events.add(Phaser.Timer.SECOND * 3, this.hide_overlap, this);
+    }    
+};
+
 Mst.Player.prototype.open_business = function (player, person) {
     "use strict";
     
     if (this.opened_business === "") {
         person.open_business(player);
+    }
+};
+
+Mst.Player.prototype.hide_overlap = function () {
+    "use strict";
+    
+    console.log("Hide overlap");
+    
+    if (this.opened_overlap !== "") {
+        var overlap = this.game_state.prefabs[this.opened_overlap];
+        console.log(overlap);
+        
+        overlap.kill();
+        this.opened_overlap = "";
+        this.add_item(180,1);
+        this.body.immovable = false;
     }
 };
 
@@ -1134,7 +1226,7 @@ Mst.Player.prototype.assign_quest = function (quest) {
 
 Mst.Player.prototype.test_quest = function (type, condition) {
     "use strict";
-    var key, test;
+    var key, test, ret;
     test = false;
     
     switch (type) {
@@ -1188,6 +1280,26 @@ Mst.Player.prototype.test_quest = function (type, condition) {
                 key = this.stats.quests.fin.indexOf(condition);
                 test = (key > -1);
             }
+            break;
+        case "idstate":
+            ret = "";
+            if (typeof (this.stats.quests.fin) !== 'undefined') {
+                key = this.stats.quests.fin.indexOf(condition);
+                test = (key > -1);
+                if (test) { ret = "fin" }
+            }
+            
+            if (typeof (this.stats.quests.ass) !== 'undefined') {
+                if (typeof (this.stats.quests.ass[condition]) !== 'undefined') {
+                    if (this.stats.quests.ass[condition].acc.is !== 'true') {
+                        test = true;
+                        ret = "ass";
+                    } else {
+                        ret = "acc";
+                    }
+                }
+            }
+            test = ret;
             break;
     }
     

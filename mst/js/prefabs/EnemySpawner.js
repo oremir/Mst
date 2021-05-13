@@ -18,6 +18,14 @@ Mst.EnemySpawner = function (game_state, name, position, properties) {
     } else {
         this.level = max_level;
     }
+    
+    if (typeof(properties.spec) !== 'undefined') {
+        this.spec = properties.spec;
+    } else {
+        this.spec = "";
+    }
+   
+
 };
 
 Mst.EnemySpawner.prototype = Object.create(Mst.Spawner.prototype);
@@ -45,6 +53,10 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
         default:
             properties.texture = "slime_spritesheet";
         break;
+    }
+    
+    if (this.spec !== '') {
+        properties.texture = "spider_spritesheet";
     }
     
     return new Mst.Enemy(this.game_state, name, position, properties);

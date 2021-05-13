@@ -362,6 +362,40 @@
                  "width":16,
                  "x":344,
                  "y":515
+                }, 
+                {
+                 "gid":2,
+                 "height":16,
+                 "id":12,
+                 "name":"pec01",
+                 "properties":
+                    {
+                     "closed_frame":"64",
+                     "group":"chests",
+                     "is_takeable":"false",
+                     "items":"",
+                     "obj_id":"264",
+                     "opened_frame":"64",
+                     "pool":"chests",
+                     "texture":"items_blank"
+                    },
+                 "propertytypes":
+                    {
+                     "closed_frame":"string",
+                     "group":"string",
+                     "is_takeable":"string",
+                     "items":"string",
+                     "obj_id":"string",
+                     "opened_frame":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"chest",
+                 "visible":true,
+                 "width":16,
+                 "x":226,
+                 "y":289
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -369,7 +403,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":12,
+ "nextobjectid":14,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

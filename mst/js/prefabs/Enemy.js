@@ -31,6 +31,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
     
     console.log("Enemy texture:");
     console.log(this.key);
+    this.stand_still = false;
     
     switch (properties.texture) {
         case "slime_spritesheet":
@@ -94,16 +95,59 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.monster_type = "spider";
             this.monster_loot = this.game_state.core_data.creatures["spider"].loot;
         break;
+        case "angostura_spritesheet":
+            this.health_max = 100000;
+            this.health = this.health_max;
+            
+            this.animations.add("go", [0, 1], 5, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);
+            this.body.immovable = true;
+            this.body.velocity.x = 0;
+            this.body.velocity.y = 0;
+            
+            this.timer_vyh = this.game_state.game.time.create(false);
+            this.timer_vyh.loop(Phaser.Timer.SECOND * 1, this.create_vyh, this);
+            this.timer_vyh.start();
+            
+            this.ang_run = true;
+            this.stand_still = true;
+            this.monster_type = "angostura";
+            this.monster_loot = this.game_state.core_data.creatures["angostura"].loot;
+        break;
+        case "angostura-v_spritesheet":
+            this.health_max = 15;
+            this.health = this.health_max;
+            
+            this.animations.add("go", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);
+            this.body.immovable = true;
+            this.body.velocity.x = 0;
+            this.body.velocity.y = 0;
+            
+            this.ang_run = true;
+            this.stand_still = true;
+            this.monster_type = "angostura-v";
+            this.monster_loot = this.game_state.core_data.creatures["angostura-v"].loot;
+        break;
     }
     
     this.b_pool = this.game_state.groups.enemybullets;
+    this.w_pool = this.game_state.groups.overlaps;
     
     this.emitter = this.game_state.game.add.emitter(0, 0, 100);
     this.emitter.makeParticles('blood', [0,1,2,3,4,5,6]);
     this.emitter.gravity = 120;
     this.emitter.setAlpha(1, 0, 400);
     
-    this.game_state.prefabs.player.infight = true;
+    if (typeof (this.game_state.prefabs.player) !== 'undefined') {
+        this.game_state.prefabs.player.infight = true;
+    }
+    
+    this.stopped = false;
 
 
 };
@@ -139,13 +183,22 @@ Mst.Enemy.prototype.update = function () {
         }
     } else {
         this.scale.setTo(Math.sign(this.body.velocity.x), 1);
-    }    
+        if (this.body.velocity.x === 0) {
+            var sc = Math.sign(this.game_state.prefabs.player.x - this.x);
+            this.scale.setTo(sc, 1);
+        }
+    }
+    
+    if (this.body.immovable) {
+        this.body.velocity.x = 0;
+        this.body.velocity.y = 0;
+    }
     
     if (this.knockbacki > 0) {
         this.knockbacki--;
     } else {
         this.knockbacked = false;
-        if (this.detect_player()) {
+        if (this.detect_player() && !this.body.immovable) {
             if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 45) {
                 this.game_state.game.physics.arcade.moveToObject(this, this.game_state.prefabs.player, 60);
             } else {
@@ -175,15 +228,18 @@ Mst.Enemy.prototype.update = function () {
 
 Mst.Enemy.prototype.knockback_by_other_enemy = function (enemy, o_enemy) {
     "use strict";
-    
-    this.game_state.game.physics.arcade.moveToObject(enemy, this.game_state.prefabs.player, -100);
+    if (!this.body.immovable) {
+        this.game_state.game.physics.arcade.moveToObject(enemy, this.game_state.prefabs.player, -100);
+    }
     this.knockbacki = 10;
 };
 
 Mst.Enemy.prototype.knockback_by_player = function (enemy, player) {
     "use strict";
     
-    this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
+    if (!this.body.immovable) {
+        this.game_state.game.physics.arcade.moveToObject(enemy, player, -70);
+    }
     this.knockbacki = 10;
     this.knockbacked = true;
 };
@@ -192,10 +248,14 @@ Mst.Enemy.prototype.knockback_by_hit = function (enemy, player, type) {
     "use strict";
     
     if (type === "magic") {
-        this.game_state.game.physics.arcade.moveToObject(enemy, player, -60);
+        if (!this.body.immovable) {
+            this.game_state.game.physics.arcade.moveToObject(enemy, player, -60);
+        }
         enemy.knockbacki = 5;
     } else {
-        this.game_state.game.physics.arcade.moveToObject(enemy, player, -90);
+        if (!this.body.immovable) {
+            this.game_state.game.physics.arcade.moveToObject(enemy, player, -90);
+        }
         this.knockbacki = 10;
     }
     this.knockbacked = true;
@@ -236,6 +296,33 @@ Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
     console.log("DM: " + damage);
     
     this.hit_enemy(player, enemy, "archer", "dexterity", damage);
+};
+
+Mst.Enemy.prototype.hit_enemy_throw = function (player, enemy) {
+    var damage = 2 + (player.stats.abilities.dexterity/5);
+    damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    
+    this.hit_enemy(player, enemy, "thrower", "dexterity", damage);
+};
+
+Mst.Enemy.prototype.hit_enemy_meat = function (player, enemy) {
+    var damage = 2 + (player.stats.abilities.dexterity/5);
+    damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    var axp = Math.floor(damage/2);
+    var enemy_health_max = parseInt(enemy.health_max);
+    if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
+    
+    player.work_rout("thrower", "dexterity", 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
+    
+    this.game_state.game.time.events.add(Phaser.Timer.SECOND * 5, this.intomove, this);
+    this.body.immovable = true;
+    if (this.monster_type === "angostura") {
+        this.ang_run = false;
+    }
 };
 
 Mst.Enemy.prototype.hit_enemy_pet = function (player, enemy) {
@@ -285,6 +372,10 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
                 enemy.timer_sting.stop();
             }
             
+            if (enemy.key == "spider_spritesheet") {
+                enemy.timer_web.stop();
+            }
+            
             console.log("Enemy count:" + this.pool.countLiving());
             console.log(this.pool);
             
@@ -293,6 +384,18 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
             }
             
         }
+    }
+};
+
+Mst.Enemy.prototype.intomove = function () {
+    "use strict";
+    
+    if (!this.stand_still) {
+        this.body.immovable = false;
+    }
+    
+    if (this.monster_type === "angostura") {
+        this.ang_run = true;
     }
 };
 
@@ -312,6 +415,12 @@ Mst.Enemy.prototype.reset = function (position) {
         this.timer_sting.loop(Phaser.Timer.SECOND * 0.6, this.create_bullet, this);
         this.timer_sting.start();
         console.log(this.timer_sting);
+    }
+    
+    if (this.key == "spider_spritesheet") {
+        this.timer_web.loop(Phaser.Timer.SECOND * 0.6, this.create_web, this);
+        this.timer_web.start();
+        console.log(this.timer_web);
     }
     
     this.game_state.prefabs.player.infight = true;
@@ -367,17 +476,68 @@ Mst.Enemy.prototype.create_web = function () {
         group: "overlaps"
     };
     
-    object = this.b_pool.getFirstDead();
+    
+    object = this.w_pool.getFirstDead();
         
     if (!object) {
-        object_name = "web_" + this.b_pool.countLiving();
-        object = new Mst.Bullet(this.game_state, object_name, object_position, object_properties);
+        object_name = "web_" + this.w_pool.countLiving();
+        object = new Mst.Prefab(this.game_state, object_name, object_position, object_properties);
         
         //this.game_state.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
         
     } else {
         object.reset(object_position, object_properties);
     }
+    
+    object.game_state.game.physics.arcade.enable(object);
+    object.anchor.setTo(0.5);    
+    object.body.immovable = true;
+    
+    console.log("Web");
+    console.log(object);
 };
 
+Mst.Enemy.prototype.create_vyh = function () {
+    "use strict";
+    var object_name, object_position, object_properties, object;
+    
+    if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) < 45) {
+        object_position = {
+            x: this.game_state.prefabs.player.x + this.game_state.prefabs.player.direction_chest.x * 14,
+            y: this.game_state.prefabs.player.y + this.game_state.prefabs.player.direction_chest.y * 14
+        };
+        
+        object_properties = {
+            direction: {"x": Math.sign(this.body.velocity.x), "y": this.game_state.prefabs.player.y},
+            texture: "angostura-v_spritesheet",
+            firstframe: 0,
+            group: "enemies",
+            pool: "enemies"
+        };
+
+
+        object = this.pool.getFirstDead();
+
+        if (!object) {
+            object_name = "web_" + this.w_pool.countLiving();
+            object = new Mst.Enemy(this.game_state, object_name, object_position, object_properties);
+
+            //this.game_state.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
+
+        } else {
+            object.reset(object_position, object_properties);
+        }
+
+        object.game_state.game.physics.arcade.enable(object);
+        object.anchor.setTo(0.5);    
+        object.body.immovable = true;
+        
+        if (this.ang_run) {
+            object.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.4, this.kill, object);
+        }
+
+        console.log("vyhonek");
+        console.log(object);
+    }
+};
 

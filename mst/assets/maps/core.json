@@ -3,6 +3,7 @@
         "items_spritesheet": { "type": "spritesheet", "source": "assets/images/items_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
         "items_blank": { "type": "spritesheet", "source": "assets/images/items_blank.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 30 },
+        "arrow_spritesheet": { "type": "spritesheet", "source": "assets/images/arrow_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
         "abilities_spritesheet": { "type": "spritesheet", "source": "assets/images/abilities_spritesheet.png", "frame_width": 20, "frame_height": 20, "frames": 5 },
         "signs_spritesheet": { "type": "spritesheet", "source": "assets/images/signs_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 5 },
         "hearts_spritesheet": { "type": "spritesheet", "source": "assets/images/hearts_spritesheet.png", "frame_width": 13, "frame_height": 13, "frames": 5 },
@@ -39,13 +40,17 @@
         "hannah_spritesheet": { "type": "spritesheet", "source": "assets/images/player/hannah_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "daeron_spritesheet": { "type": "spritesheet", "source": "assets/images/player/daeron_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "martin_spritesheet": { "type": "spritesheet", "source": "assets/images/player/martin_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
-        "martin_spritesheet": { "type": "spritesheet", "source": "assets/images/player/martin_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "girl_st_spritesheet": { "type": "spritesheet", "source": "assets/images/player/girl_st_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "boy_st_spritesheet": { "type": "spritesheet", "source": "assets/images/player/boy_st_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
+        "neli_spritesheet": { "type": "spritesheet", "source": "assets/images/player/neli_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "dino_spritesheet": { "type": "spritesheet", "source": "assets/images/player/dino_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10},
         "btiger_spritesheet": { "type": "spritesheet", "source": "assets/images/blue_tiger.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "cir_spritesheet": { "type": "spritesheet", "source": "assets/images/cir.png", "frame_width": 17, "frame_height": 17, "frames": 2 },
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "rabite_spritesheet": { "type": "spritesheet", "source": "assets/images/rabite_spritesheet.png", "frame_width": 16, "frame_height": 32, "frames": 7 },
         "wasp_spritesheet": { "type": "spritesheet", "source": "assets/images/wasp_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "angostura_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "angostura-v_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura-v_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
         "spider_spritesheet": { "type": "spritesheet", "source": "assets/images/spider_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
@@ -72,6 +77,9 @@
         "hannah_ren": { "type": "image", "source": "assets/images/ren/ren_hannah.png" },
         "daeron_ren": { "type": "image", "source": "assets/images/ren/ren_daeron.png" },
         "martin_ren": { "type": "image", "source": "assets/images/ren/ren_martin.png" },
+        "neli_ren": { "type": "image", "source": "assets/images/ren/ren_neli.png" },
+        "girl_st_ren": { "type": "image", "source": "assets/images/ren/ren_girl_st.png" },
+        "boy_st_ren": { "type": "image", "source": "assets/images/ren/ren_boy_st.png" },
         "kurolez_ren": { "type": "image", "source": "assets/images/ren/ren_kurolez.png" },
         "dino_ren": { "type": "image", "source": "assets/images/ren/ren_dino.png" },
         "btiger_ren": { "type": "image", "source": "assets/images/ren/ren_btiger.png" },
@@ -81,6 +89,7 @@
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
         "arrow1": { "type": "image", "source": "assets/images/arrow1.png" },
         "sting": { "type": "image", "source": "assets/images/sting.png" },
+        "web": { "type": "image", "source": "assets/images/web.png" },
         "blank_image": { "type": "image", "source": "assets/images/blank_image.png" },
         "black_image": { "type": "image", "source": "assets/images/black_image.png" },
         "health_image": { "type": "image", "source": "assets/images/heart-health.png" },
@@ -117,21 +126,24 @@
     },
 	
 	"groups": [
-        "enemies",
         "spawners",
         "chests",
         "shadows",
         "goouts",
+        "overlaps",
 	    "swords",        
         "playerbullets",
-        "enemybullets",
-        "overlaps",
+        "enemybullets",        
+        "enemies",
         "NPCs",
         "signposts",
         "otherplayers",
         "players",
         "collisions",
-        "bubbles",
+        "bubbles"
+    ],
+    
+    "groupshud": [
         "night",
         "ren",
         "unhud",
@@ -149,7 +161,9 @@
         "slime": { "spritesheet": "slime_spritesheet", "loot": [ 23 ] },
         "rabite": { "spritesheet": "rabite_spritesheet", "loot": [ 36, 39 ] },
         "wasp": { "spritesheet": "wasp_spritesheet", "loot": [ 90 ] },
-        "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] }
+        "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] },
+        "angostura": { "spritesheet": "angostura_spritesheet", "loot": [ 90 ] },
+        "angostura-v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] }
     },
     
     "items": [
@@ -186,8 +200,8 @@
                     "1": { "n": "sekera", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
                     "20": { "n": "srp", "act": "take", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] }
             } } },
-        { "name": "Kámen", "istool": "false", "properties": 
-            { "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "135_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } 
+        { "name": "Kámen", "istool": "true", "properties": 
+            { "cut_type": "throw", "tool_fr_left": "0", "tool_fr_right": "0", "tfr": 1, "spawn": "uni", "lives": 30, "rtake": ["40_0", "96_0", "135_0", "49_1", "47_2", "48_3", "97_4", "61_5"] } 
         },
         { "name": "Pařez", "istool": "false", "properties": 
             { "spawn": "wild", "lives": 130, "work": { 
@@ -215,7 +229,7 @@
         { "name": "Trnka", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Žampion", "istool": "false", "properties": { "use_sub": "true", "wild": "true", "lives": 30 } },
         { "name": "Muchomůrka", "istool": "false", "properties": { "use_sub": "true", "wild": "true", "lives": 30 } },
-        { "name": "Maso", "istool": "false", "properties": { "use_sub": "true", "cook":[1, 37, 1] } },
+        { "name": "Maso", "istool": "true", "properties": { "cut_type": "throw", "tool_fr_left": "0", "tool_fr_right": "0", "tfr": 2, "use_sub": "true", "cook":[1, 37, 1] } },
         { "name": "Peč. maso", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Palice", "istool": "true", "properties": 
             { "cut_type": "uni", "tool_fr_left": "8", "tool_fr_right": "8" } 
@@ -306,7 +320,9 @@
         { "name": "Kladivo", "istool": "true", "properties": 
             { "cut_type": "nul", "tool_fr_left": "13", "tool_fr_right": "14" } 
         },
-        { "name": "Kovadlina", "istool": "false", "properties": {} },
+        { "name": "Kovadlina", "istool": "false", "properties": {"work": {
+                "13": { "n": "Kladivo", "act": "recipe", "recipe": [{"f": 176, "q": 1}, {"f": 181, "q": 1}, {"f": 183, "q": 1}], "padd": 182, "npa": "Amu. p. uštknutí", "skill": "alchemist", "ability":"dexterity", "w": [1, 20, 18, 3] }
+        } } },
         { "name": "Žh. žel. tyč", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Žel. tyč", "istool": "false", "properties": {} },
         { "name": "Brousek", "istool": "false", "properties": {} },
@@ -399,7 +415,12 @@
         { "name": "Serpentin", "istool": "false", "properties": {} },
         { "name": "Kotvičník plod", "istool": "false", "properties": {} },
         { "name": "Kotvičník saz.", "istool": "false", "properties": {} },
-        { "name": "Kotvičník", "istool": "false", "properties": {} }
+        { "name": "Kotvičník", "istool": "false", "properties": {} },
+        { "name": "Pavučina", "istool": "false", "properties": {} },
+        { "name": "Terra sigillata", "istool": "false", "properties": {} },
+        { "name": "Amu. p. uštknutí", "istool": "false", "properties": {} },
+        { "name": "Žhav. měď", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Výh. angostury", "istool": "false", "properties": {} }
         
     ],
 	

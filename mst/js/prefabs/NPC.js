@@ -95,26 +95,13 @@ Mst.NPC = function (game_state, name, position, properties) {
     
     // Call Ren
     
-    var ren_name;
-    
-    ren_name = properties.texture + "_ren";
+    this.ren_name = properties.texture + "_ren";
     if (this.stype === "pet") {
-        ren_name = properties.ren_texture;
+        this.ren_name = properties.ren_texture;
     }
     if (this.stype === "kurolez") {
-        ren_name = "kurolez_ren";
+        this.ren_name = "kurolez_ren";
     }
-    
-    
-    this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
-        group: "ren", 
-        texture: ren_name, 
-        p_name: this.p_name, 
-        p_id: this.unique_id,
-        dialogue_name: this.name
-    });
-
-    this.ren_sprite.visible = false;
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -155,20 +142,6 @@ Mst.NPC.prototype.update = function () {
 //        }, this);
     }
     
-    //console.log(this.game_state.prefabs.player.killed);
-    
-    if (this.game_state.prefabs.player.killed && this.nurse) {
-        console.log(this);
-        this.game_state.prefabs.player.set_opened_ren(this.name);
-        this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
-        if (this.relations_allowed) {
-            this.game_state.prefabs.player.update_relation(this, "NPC", 5);
-        }
-        
-        this.game_state.prefabs.player.killed = false;
-        this.game_state.prefabs.player.save.properties.killed = false;
-    }
-    
     if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 35 && this.game_state.prefabs.player.opened_ren === this.name) {
             console.log(this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player));
             console.log("NPC is too far!");
@@ -185,6 +158,22 @@ Mst.NPC.prototype.update = function () {
         
         this.updated = false;
     }
+};
+
+Mst.OtherPlayer.prototype.add_ren = function () {
+    "use strict";
+
+    // Call Ren 
+    
+    this.ren_sprite =  new Mst.Ren(this.game_state, this.ren_name, {x: 0, y:20}, {
+        group: "ren", 
+        texture: this.ren_name, 
+        p_name: this.p_name, 
+        p_id: this.unique_id,
+        dialogue_name: this.name
+    });
+
+    this.ren_sprite.visible = false;
 };
 
 Mst.NPC.prototype.show_bubble = function (type) {
@@ -280,7 +269,6 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             
             console.log("merchant");
             player.open_business(player, NPC);
-            player.set_opened_ren(this.name);
             var arr_buss = ["buy_sell", "quest"];
             if (player.usr_id === this.owner) {
                 arr_buss = ["buy_sell", "mer_admin", "quest"];
@@ -295,7 +283,6 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             }
             
             console.log("hospod");
-            player.set_opened_ren(this.name);
             this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"], "item");
             open = true;
         }
@@ -303,7 +290,6 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
         if (NPC.stype === "kurolez") {
             
             console.log("kurolez");
-            player.set_opened_ren(this.name);
             this.ren_sprite.show_dialogue("Hhhhrrarrhhh?", [], "item");
             open = true;
         }
@@ -326,7 +312,6 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
 
                         case 2:
                             player.update_relation(NPC, "player", 1);
-                            player.set_opened_ren(this.name);
                             console.log("Op.ren: " + this.name);
                             this.ren_sprite.show_dialogue("Vrrr?");
                             break;
@@ -366,6 +351,23 @@ Mst.NPC.prototype.close_business = function () {
     this.game_state.prefabs.businessitems.kill_stats();
     this.save_NPC;
     this.game_state.prefabs.player.opened_business = "";
+};
+
+Mst.NPC.prototype.test_nurse = function () {
+    "use strict";
+    
+    if (this.game_state.prefabs.player.killed && this.nurse) {
+        console.log(this);
+        
+        this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
+        if (this.relations_allowed) {
+            this.game_state.prefabs.player.update_relation(this, "player", 5);
+        }
+        
+
+    }
+    
+    return this.nurse;
 };
 
 Mst.NPC.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

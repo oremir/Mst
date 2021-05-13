@@ -21,8 +21,9 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.region = 0;
     this.p_name = name;
     
-    if (typeof (properties.ren_texture) === 'undefined') {
-        properties.ren_texture = "";
+    this.ren_texture = "";
+    if (typeof (properties.ren_texture) !== 'undefined') {
+        this.ren_texture = properties.ren_texture;
     }
     
     if (typeof (properties.gender) === 'undefined') {
@@ -77,32 +78,7 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.num_of_hits = 0;
     this.player_hit_not_delay = true;
     
-    // Call Ren
-    
-    var ren_name, ren_texture;
-    
-    ren_name = name+"_ren";
-    
-    if (properties.ren_texture === "") {
-        if (this.gender === "male") {
-            ren_texture = "male_ren";
-        } else {
-            ren_texture = "female_ren";
-        }  
-    } else {
-        ren_texture = properties.ren_texture;
-    }
-    
-    
-    this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
-        group: "ren", 
-        texture: ren_texture, 
-        p_name: name, // this.p_name 
-        p_id: this.usr_id,
-        dialogue_name: name
-    });
 
-    this.ren_sprite.visible = false;
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -114,11 +90,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.o_type = "otherPlayer";
     this.inputEnabled = true;
     this.input.useHandCursor = true;
-    this.events.onInputOver.add(this.game_state.hud.alt.show_alt, this);
-    this.events.onInputOut.add(this.game_state.hud.alt.hide_alt, this);
     
-    this.move_out_NPC = "left";
-    
+    this.move_out_NPC = "left"; 
     
     
 };
@@ -168,19 +141,7 @@ Mst.OtherPlayer.prototype.update = function () {
             //this.game_state.game.physics.arcade.moveToObject(this, NPC, -30);
         }
     }, this);
-    
-    if (this.game_state.prefabs.player.killed && this.nurse) {
-        console.log(this);
-        this.game_state.prefabs.player.set_opened_ren(this.name);
-        this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
-        if (this.relations_allowed) {
-            this.game_state.prefabs.player.update_relation(this, "player", 5);
-        }
         
-        this.game_state.prefabs.player.killed = false;
-        this.game_state.prefabs.player.save.properties.killed = false;
-    }
-    
     if (this.bubble_showed) {
         this.bubble.x = this.x;
         this.bubble.y = this.y - 16;
@@ -205,6 +166,42 @@ Mst.OtherPlayer.prototype.update = function () {
         this.updated = false;
     }
 };
+
+Mst.OtherPlayer.prototype.add_ren = function () {
+    "use strict";
+
+    // Call Ren
+    
+    var ren_name, ren_texture;
+    
+    ren_name = this.p_name+"_ren";
+    
+    if (this.ren_texture === "") {
+        if (this.gender === "male") {
+            ren_texture = "male_ren";
+        } else {
+            ren_texture = "female_ren";
+        }  
+    } else {
+        ren_texture = this.ren_texture;
+    }
+    
+    
+    this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
+        group: "ren", 
+        texture: ren_texture, 
+        p_name: this.p_name,
+        p_id: this.usr_id,
+        dialogue_name: this.p_name
+    });
+
+    this.ren_sprite.visible = false;
+    
+    
+    this.events.onInputOver.add(this.game_state.hud.alt.show_alt, this);
+    this.events.onInputOut.add(this.game_state.hud.alt.hide_alt, this);
+};
+
 
 Mst.OtherPlayer.prototype.collide_layer_tile = function () {
     "use strict";
@@ -278,10 +275,8 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                 break;
                 
             case 2:
-                if (!this.ren_sprite.visible) {
+                if (!this.ren_sprite.visible && player.opened_ren === "" && !player.infight) {
                     player.update_relation(other_player, "player", 1);
-                    player.set_opened_ren(this.name);
-                    console.log("Op.ren: " + this.name);
                     options = ["speak"];
                     var isnotacc = true;
                     if (typeof (this.ren_sprite.quest.state) !== 'undefined') {
@@ -429,6 +424,26 @@ Mst.OtherPlayer.prototype.test_badge = function (badge) {
     }
     
     return key;
+};
+
+Mst.OtherPlayer.prototype.test_nurse = function () {
+    "use strict";
+    
+    if (this.game_state.prefabs.player.killed && this.nurse) {
+        console.log(this);
+        
+        if (this.usr_id === 53) {
+            this.ren_sprite.show_dialogue("Říkám to pořád, zelenáči by se měli držet máminy sukně. Ale ne, oni prostě musí vlézt do lesa, kde zakopávaji o vlastní stín, plaší zvěř a krmí slimy. Máš štěstí, ze jsem tě našel dřív, než jsi vykrvácel, nebo si na tobě pochutnali ghúlové.");
+        } else {
+            this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
+        }
+        
+        this.game_state.prefabs.player.update_relation(this, "player", 5);
+        
+
+    }
+    
+    return this.nurse;
 };
 
 

@@ -13,6 +13,7 @@ Mst.Ren = function (game_state, name, position, properties) {
     this.p_id = properties.p_id;
     this.options = [];
     this.quest = {};
+    this.all_quests = {};
     this.b_speak = false;
     
 };
@@ -41,15 +42,26 @@ Mst.Ren.prototype.update = function () {
 
 Mst.Ren.prototype.show_dialogue = function (text, options, type, heart) {
     "use strict";
-    this.show();
     
-    this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text, type, heart);
+    var okay = false;
+    var player = this.game_state.prefabs.player;
     
-    this.quest.showed = true;
+    if (!this.visible && player.opened_ren === "" && !player.infight) {
+        player.set_opened_ren(this.name);
+        this.show();
+
+        this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text, type, heart);
+
+        this.quest.showed = true;
+
+        if (typeof(options) !== 'undefined') {
+            this.show_options(options);
+        }
+        
+        okay = true;
+    } 
     
-    if (typeof(options) !== 'undefined') {
-        this.show_options(options);
-    }
+    return okay;
 };
 
 Mst.Ren.prototype.show_options = function (options) {
