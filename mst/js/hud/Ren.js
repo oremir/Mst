@@ -46,6 +46,8 @@ Mst.Ren.prototype.show_dialogue = function (text, options, type, heart) {
     var okay = false;
     var player = this.game_state.prefabs.player;
     
+    //console.log(player);
+    
     if (!this.visible && player.opened_ren === "" && !player.infight) {
         player.set_opened_ren(this.name);
         this.show();

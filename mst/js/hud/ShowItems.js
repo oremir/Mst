@@ -1157,7 +1157,15 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                 case 117: //Nůž
                     if (opened_chest !== "") {
                         var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        var chest_frame = chest.closed_frame;   
+                        
+                        item = chest.index_item(39); //Kůže
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(185, 10); //Řemínek
+                            
+                            player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
                         
                         item = chest.index_item(142); //Safran
                         if (item.index > -1) {
@@ -1278,6 +1286,52 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             
                         } else {    
                             this.add_item(item_frame, 1);
+                        }
+                    }
+                    break;
+                case 185: //reminek
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;
+                        
+                        item = chest.index_item(43); //Vetev
+                        if (item.index > -1) {
+                            if (item.quantity > 3) {
+                                chest.subtract_item(item.index, 4);
+                                chest.add_item(114, 1); //Ram
+
+                                player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            }
+                        }
+                        
+                        item = chest.index_item(116); //Hrot
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(117, 1); //Nuz
+                            
+                            player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }   
+                        
+                        item = chest.index_item(186); //Paz. hrot
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(187, 1); //Paz. nuz
+                            
+                            player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                    }
+                    break;
+                case 186: //Paz. hrot
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;   
+                        
+                        item = chest.index_item(39); //Kůže
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(185, 5); //Řemínek
+                            
+                            player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                     }
                     break;

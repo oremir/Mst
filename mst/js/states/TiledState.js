@@ -122,7 +122,7 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data, quest_
 
 Mst.TiledState.prototype.create = function () {
     "use strict";
-    var group_name, object_layer, object_key, collision_tiles, load_player, key;
+    var group_name, object_layer, object_key, collision_tiles, load_player, key, foreg;
     
     if (this.root_data.usr_id > 0) {
         this.save = {
@@ -133,6 +133,7 @@ Mst.TiledState.prototype.create = function () {
         // create map layers
         console.log(this.map);
         this.layers = {};
+        foreg = false;
         this.map.layers.forEach(function (layer) {
             if (layer.name !== "foreground") {
                 this.layers[layer.name] = this.map.createLayer(layer.name);
@@ -150,6 +151,8 @@ Mst.TiledState.prototype.create = function () {
                     }, this);
                     this.map.setCollision(collision_tiles, true, layer.name);
                 }
+            } else {
+                foreg = true;
             }
         }, this);
         // resize the world to be the size of the current layer
@@ -199,7 +202,9 @@ Mst.TiledState.prototype.create = function () {
         
         this.prefabs.player.make_followers();
         
-        this.layers["foreground"] = this.map.createLayer("foreground");
+        if (foreg) {
+            this.layers["foreground"] = this.map.createLayer("foreground");
+        }
         
         this.core_data.groupshud.forEach(function (group_name) {
             this.groups[group_name] = this.game.add.group();
@@ -253,13 +258,20 @@ Mst.TiledState.prototype.create = function () {
         console.log("Items:");
         console.log(this.items);
         
-        var quest_state;
+        var quest_state, quest_new;
         var quests = this.quest_data.quests;
         var player = this.prefabs.player;
         
         for (var i = 0; i < quests.length; i++) {
             quest_state = player.test_quest("idstate", quests[i].qid);
-            console.log(quests[i].qid + " " + quest_state);
+            if (quest_state !== "fin") {
+                console.log(quests[i].qid + " " + quest_state);
+                
+                quest_new = quests[i];
+                quest_new.state = quest_state;
+                
+                player.quests[quest_new.qid] = quest_new;
+            }            
         }
         
         this.groups.NPCs.forEachAlive(function (NPC) {

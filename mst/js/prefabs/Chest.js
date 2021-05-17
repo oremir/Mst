@@ -736,7 +736,8 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                     var rnd_test = Math.floor(Math.random() * 100);
                     if (chest.s1type === "tree" && player.opened_ren === "" && rnd_test > 70) {
                         chest.krlz_sprite =  new Mst.NPC(chest.game_state, "kurolez", {x: chest.x, y: chest.y}, {
-                            group: "NPCs", 
+                            group: "NPCs",
+                            pool: "NPCs",
                             texture: "blank_image",
                             p_name: "kurolez",
                             unique_id: 0,
@@ -745,6 +746,8 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
                             region: 0,
                             o_type: "NPC"
                         });
+                        
+                        chest.krlz_sprite.add_ren();
                         
                         chest.krlz_sprite.touch_player(chest.krlz_sprite, player);
 

@@ -446,6 +446,120 @@ Mst.OtherPlayer.prototype.test_nurse = function () {
     return this.nurse;
 };
 
+Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    "use strict";
+    
+    var quests, owner_id, target_id, player, test_q, is_quest, condi, condi1;
+    //console.log(this.game_state.quest_data);
+    
+    player = this.game_state.prefabs.player;
+    quests = player.quests;
+    is_quest = false;
+    
+//    if (this.game_state.prefabs.player.test_quest("owner", this.usr_id)) {
+//        this.show_bubble(3); // ! exclamation mark - quest
+//    }
+    
+    
+    for (key in quests) {
+        console.log(quests[key]);
+        
+        owner_id = parseInt(quests[key].properties.owner);
+        target_id = parseInt(quests[key].properties.target);
+        
+        if (quests[key].properties.target_type === "player" && target_id === this.usr_id) {
+            //console.log(quests[i]);
+            test_q = true;
+            
+            if (typeof(quests[key].properties.qconditions) !== 'undefined') {
+                var cond = quests[key].properties.qconditions;
+                for (var j = 0; j < cond.length; j++) {
+                    condi = cond[j].split("_");
+                    switch (condi[0]) {
+                        case "pq":
+                            //condi1 = parseInt(condi[1]);
+                            test_q = player.test_quest("idfin", condi[1]);
+                        break;
+                        case "badge":
+                            
+                        break;
+                    }
+                }
+            }
+            
+            test_q = !test_q;
+            
+            if (!test_q) {
+                if (quest[key].state !== "new") {
+                    this.ren_sprite.quest = quests[key];
+                    this.ren_sprite.quest.state = quest[key].state;
+                    
+                    if(quest[key].state !== "ass") {
+                        this.show_bubble(4); // ! exclamation mark - quest assigned
+                    } else {
+                        this.show_bubble(5); // ! question mark - quest accomplished
+                    }
+                    is_quest = true;
+                    break;
+                }
+            }
+        }
+        
+        if (quests[key].properties.owner_type === "player" && owner_id === this.usr_id) {
+            console.log(quests[key]);
+            test_q = true;
+            
+            if (typeof(quests[key].properties.qconditions) !== 'undefined') {
+                var cond = quests[key].properties.qconditions;
+                for (var j = 0; j < cond.length; j++) {
+                    condi = cond[j].split("_");
+                    console.log(condi);
+                    switch (condi[0]) {
+                        case "pq":
+                            condi1 = parseInt(condi[1]);
+                            //console.log(condi1);
+                            test_q = player.test_quest("idfin", condi[1]);
+                            console.log(test_q);
+                        break;
+                    }
+                }
+            }
+            
+            test_q = !test_q;
+            
+            if (!test_q) {
+                this.ren_sprite.quest = quests[key];
+                this.ren_sprite.quest.state = quest[key].state;
+                
+                if (isNaN(target_id)) {
+                    if (quest[key].state !== "ass") {
+                        this.show_bubble(4); // ! exclamation mark - quest assigned
+                    }
+                        
+                    if (quest[key].state !== "acc") {
+                        this.show_bubble(5); // ! question mark - quest accomplished
+                    }
+                }
+                
+                if (quest[key].state !== "pre") {
+                    if (quests[key].properties.ending_conditions.type === 'textpow') {
+                        console.log('\x1b[102mShow dialogue pre ' + quests[key].name);
+                        this.ren_sprite.show_dialogue(quests[key].properties.quest_text);
+                        player.assign_quest(quests[key]);
+                        player.update_quest("by_quest_name", quests[key].name);
+                    }
+                }
+                
+                is_quest = true;
+                break;
+            }
+        }
+    }
+    
+    console.log(this.ren_sprite.quest);
+    
+    return is_quest;
+};
 
 Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";

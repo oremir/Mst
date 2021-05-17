@@ -195,6 +195,8 @@ Mst.Player = function (game_state, name, position, properties) {
     this.o_exp_alert.timer = this.game_state.time.create(false);
     
     this.get_chest_timer = this.game_state.time.create(false);
+    
+    this.quests = {};
         
     this.save = {
         type: "player",
@@ -1282,7 +1284,7 @@ Mst.Player.prototype.test_quest = function (type, condition) {
             }
             break;
         case "idstate":
-            ret = "";
+            ret = "pre";
             if (typeof (this.stats.quests.fin) !== 'undefined') {
                 key = this.stats.quests.fin.indexOf(condition);
                 test = (key > -1);

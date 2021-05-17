@@ -143,9 +143,9 @@ Mst.Enemy = function (game_state, name, position, properties) {
     this.emitter.gravity = 120;
     this.emitter.setAlpha(1, 0, 400);
     
-    if (typeof (this.game_state.prefabs.player) !== 'undefined') {
-        this.game_state.prefabs.player.infight = true;
-    }
+//    if (typeof (this.game_state.prefabs.player) !== 'undefined') {
+//        this.game_state.prefabs.player.infight = true;
+//    }
     
     this.stopped = false;
 
@@ -423,13 +423,16 @@ Mst.Enemy.prototype.reset = function (position) {
         console.log(this.timer_web);
     }
     
-    this.game_state.prefabs.player.infight = true;
+    //this.game_state.prefabs.player.infight = true;
 };
 
 Mst.Enemy.prototype.detect_player = function () {
     "use strict";
     var distance_to_player;
     distance_to_player = this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player);
+    if (distance_to_player <= 200) {
+        this.game_state.prefabs.player.infight = true;
+    }
 
     return distance_to_player <= 200;
 };

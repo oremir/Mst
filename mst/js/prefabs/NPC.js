@@ -160,7 +160,7 @@ Mst.NPC.prototype.update = function () {
     }
 };
 
-Mst.OtherPlayer.prototype.add_ren = function () {
+Mst.NPC.prototype.add_ren = function () {
     "use strict";
 
     // Call Ren 

@@ -67,22 +67,10 @@ Mst.Follower = function (game_state, name, position, properties) {
     
     // Call Ren
     
-    var ren_name;
-    
-    ren_name = this.stype + "_ren";
+    this.ren_name = this.stype + "_ren";
     if (this.stype === "pet") {
-        ren_name = properties.ren_texture;
+        this.ren_name = properties.ren_texture;
     }
-    
-    this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
-        group: "ren", 
-        texture: ren_name, 
-        p_name: this.p_name, 
-        p_id: this.unique_id,
-        dialogue_name: this.name
-    });
-
-    this.ren_sprite.visible = false;
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -162,6 +150,22 @@ Mst.Follower.prototype.update = function () {
         
         this.updated = false;
     }
+};
+
+Mst.Follower.prototype.add_ren = function () {
+    "use strict";
+
+    // Call Ren 
+        
+    this.ren_sprite =  new Mst.Ren(this.game_state, this.ren_name, {x: 0, y:20}, {
+        group: "ren", 
+        texture: this.ren_name, 
+        p_name: this.p_name, 
+        p_id: this.unique_id,
+        dialogue_name: this.name
+    });
+    
+    this.ren_sprite.visible = false;
 };
 
 Mst.Follower.prototype.show_bubble = function (type) {

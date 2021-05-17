@@ -200,6 +200,10 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
             chest_new.closed_frame = 108;
             chest_new.opened_frame = 108;
             break;
+        case 114:
+            chest_new.closed_frame = 114;
+            chest_new.opened_frame = 114;
+            break;
         case 126:
             if (b) {
                 chest_new.closed_frame = 126;

@@ -594,6 +594,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                     player.subtract_item(index, 1);
                                     index = player.add_item(44, 1); // sekeromlat
                                     player.equip(index, 44);
+                                    player.update_quest("make", 44);
                                     player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                                 } else {
                                     chest.take_all();
@@ -688,6 +689,51 @@ Mst.Sword.prototype.cut_chest = function (chest) {
 
                         }
                     break;
+                    case 9: //větev
+                        switch (chest.closed_frame) {
+                            case 21: //kámen
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.get_chest(chest);
+                                    index = player.test_item(21, 1);
+                                    player.subtract_item(index, 1);
+                                    index = player.unequip();
+                                    player.subtract_item(index, 1);
+                                    index = player.add_item(44, 1); // sekeromlat
+                                    player.equip(index, 44);
+                                    player.update_quest("make", 44);
+                                    player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.get_chest(chest);
+                                    player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                            case 31: //špalek
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.get_chest(chest);
+                                    index = player.test_item(31, 1);
+                                    player.subtract_item(index, 1);
+                                    index = player.unequip();
+                                    player.subtract_item(index, 1);
+                                    index = player.add_item(38, 1); // palice
+                                    player.equip(index, 38);
+                                    player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.get_chest(chest);
+                                    player.work_rout("forager", "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+                            break;
+                        }
+                    break;
                     case 13: //kladivo
                         switch (chest.closed_frame) {
                             case 98: //zelezo
@@ -777,7 +823,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
 
 Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_frame) {
     "use strict";
-    var work, tw, in_chest, empty, change_f, index, success;
+    var work, tw, in_chest, empty, change_f, index, key, item, cond, success;
     
     success = false;
     work = this.game_state.core_data.items[chest.closed_frame].properties.work;
@@ -821,6 +867,25 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
                     player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
                     success = true;
                 break;
+                case "changeitem":
+                    for (key in tw.item) {
+                        item = tw.item[key];                        
+                        console.log(item);
+                        index = chest.test_item(item.i, 1);
+                        console.log(index);
+                        if (index > -1) {
+                            chest.subtract_item(index, 1);                            
+                            if (typeof(item.q) !== 'undefined') {
+                                    chest.add_item(item.add, item.q);
+                                } else {
+                                    chest.add_item(item.add, 1);
+                                }
+                            player.work_rout(item.skill, item.ability, item.w[0], item.w[1], item.w[2], item.w[3]);
+                            success = true;
+                            break;
+                        }
+                    }
+                break;
                 case "recipe":
                     in_chest = chest.in_chest_ord();
                     console.log(in_chest.length);
@@ -840,6 +905,23 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
                             player.update_quest("make", tw.padd);
                             player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
                         }
+                    }
+                break;
+                case "cond":
+                    in_chest = chest.in_chest_ord();
+                    console.log(in_chest.length);
+
+                    if (in_chest.length < 1) {
+                        cond = tw.cond[0];
+                        chest.change_frame(cond.i);
+                        chest.add_item(cond.add, 1);
+                        player.work_rout(cond.skill, cond.ability, cond.w[0], cond.w[1], cond.w[2], cond.w[3]); 
+                    }  else {
+                        cond = tw.cond[0];
+                        chest.take_all();
+                        player.put_all(in_chest);
+                        chest.get_chest(chest);
+                        player.work_rout(cond.skill, cond.ability, cond.w[0], cond.w[1], cond.w[2], cond.w[3]); 
                     }
                 break;
             }
