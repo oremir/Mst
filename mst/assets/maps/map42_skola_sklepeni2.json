@@ -79,7 +79,7 @@
                      "spawn_time_max":"18",
                      "spawn_time_min":"5",
                      "spec":"spider_spritesheet",
-                     "texture":"rabite_spritesheet",
+                     "texture":"spider_spritesheet",
                      "walking_distance":100,
                      "walking_speed":50,
                      "xdif":"11",

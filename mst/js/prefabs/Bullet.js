@@ -47,6 +47,7 @@ Mst.Bullet.prototype.update = function () {
         this.game_state.game.physics.arcade.collide(this, this.game_state.prefabs.player, this.hit_player, null, this);
     } else {
         this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_enemy, null, this);
+        this.game_state.game.physics.arcade.collide(this, this.game_state.groups.wildanimals, this.hit_animal, null, this);
     }
     
     
@@ -110,6 +111,33 @@ Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
                 enemy.hit_enemy_meat(player, enemy);
             } else {
                 enemy.hit_enemy_throw(player, enemy);
+            }            
+        }
+        
+    }
+    
+    bullet.kill();
+};
+
+Mst.Bullet.prototype.hit_animal = function (bullet, enemy) {
+    "use strict";
+    
+    var player = this.game_state.prefabs.player;
+    
+    console.log("Bullet texture:");
+    console.log(this.key);
+    
+    if (this.key === "magic1") {
+        enemy.hit_animal_magic(player, enemy);
+    } else {
+        console.log(this.frame);
+        if (this.frame === 0) {
+            enemy.hit_animal_arrow(player, enemy);
+        } else {
+            if (this.frame === 2) {
+                enemy.hit_animal_meat(player, enemy);
+            } else {
+                enemy.hit_animal_throw(player, enemy);
             }            
         }
         

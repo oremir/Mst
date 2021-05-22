@@ -82,7 +82,7 @@
                  "height":16,
                  "id":3,
                  "name":"goout03",
-				 "properties":
+                 "properties":
                     {
                      "go_position_x":"488",
                      "go_position_y":"125",
@@ -102,8 +102,6 @@
                     },
                  "rotation":0,
                  "type":"goout",
-                 "rotation":0,
-                 "type":"goout",
                  "visible":true,
                  "width":16,
                  "x":488,
@@ -120,6 +118,45 @@
                  "width":16,
                  "x":728,
                  "y":900
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":5,
+                 "name":"enemyspawner",
+                 "rotation":0,
+                 "type":"enemy_spawner",
+                 "properties":
+                    {
+                     "direction":1,
+                     "group":"spawners",
+                     "pool":"enemies",
+                     "level":2,
+                     "spawn_time_max":"8",
+                     "spawn_time_min":"1",
+                     "texture":"rabite_spritesheet",
+                     "walking_distance":100,
+                     "walking_speed":50,
+                     "xdif":"8",
+                     "ydif":"9"
+                    },
+                 "propertytypes":
+                    {
+                     "direction":"int",
+                     "group":"string",
+                     "pool":"string",
+                     "spawn_time_max":"string",
+                     "spawn_time_min":"string",
+                     "texture":"string",
+                     "walking_distance":"int",
+                     "walking_speed":"int",
+                     "xdif":"string",
+                     "ydif":"string"
+                    },
+                 "visible":true,
+                 "width":16,
+                 "x":240,
+                 "y":672
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -127,7 +164,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":5,
+ "nextobjectid":6,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -136,7 +173,7 @@
         {
          "columns":52,
          "firstgid":1,
-         "image":"..\/images\/Les1.2.png",
+         "image":"..\/images\/map25_les1.2.png",
          "imageheight":832,
          "imagewidth":832,
          "margin":0,

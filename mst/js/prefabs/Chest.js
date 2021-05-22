@@ -227,6 +227,8 @@ Mst.Chest = function (game_state, name, position, properties) {
         }
     }
     
+    this.taken = {};
+    
     this.is_opened = false;
     
     this.body.immovable = true;
@@ -686,6 +688,7 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
         chest.save.properties.items = chest.stats.items;
         chest.save.properties.opened_frame = chest.opened_frame;
         chest.save.properties.closed_frame = chest.closed_frame;
+        chest.save.properties.taken = chest.save_taken();
         chest.save.action = "OPEN";
 
         var d = new Date();
@@ -791,6 +794,7 @@ Mst.Chest.prototype.close_chest = function () {
     this.save.properties.items = this.stats.items;
     this.save.properties.opened_frame = this.opened_frame;
     this.save.properties.closed_frame = this.closed_frame;
+    this.save.properties.taken = this.save_taken();
     this.save.action = "CLOSE";
     
     console.log(this.save.properties.stype);
@@ -847,6 +851,23 @@ Mst.Chest.prototype.close_chest = function () {
     
 };
 
+Mst.Chest.prototype.save_taken = function () {
+    "use strict";
+    
+    var taken_a = [];
+    var taken = "";
+    
+    console.log("TAKEN");
+    console.log(this.taken);
+    
+    for (var key in this.taken) {
+        taken = key + "?" + this.taken[key];
+        taken_a.push(taken);        
+    }
+    
+    return "TAKEN-UID:" + this.game_state.root_data.usr_id + "|" + taken_a.join("|");
+};
+
 Mst.Chest.prototype.save_chest = function () {
     "use strict";
         
@@ -858,6 +879,7 @@ Mst.Chest.prototype.save_chest = function () {
     this.save.properties.items = this.stats.items;
     this.save.properties.opened_frame = this.opened_frame;
     this.save.properties.closed_frame = this.closed_frame;
+    this.save.properties.taken = this.save_taken();
     this.save.action = "CLOSE";
 
     if (this.stat !== "open") {
@@ -913,6 +935,8 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     console.log(chest);
 
                     closed_frame = chest.closed_frame;
+                    
+                    chest.save.properties.taken = chest.save_taken();
 
                     switch(closed_frame) {
                         case 3: //věci 
@@ -1143,8 +1167,22 @@ Mst.Chest.prototype.add_item = function (item_frame, quantity) {
 
 Mst.Chest.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
+    var item;
     
-    this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
+    item = this.game_state.prefabs.chestitems.subtract_item(item_index, quantity);
+};
+
+Mst.Chest.prototype.change_taken = function (frame, quantity) {
+    "use strict";
+    
+    if (typeof (this.taken[frame]) === 'undefined') {
+        this.taken[frame] = quantity;
+    } else {
+        this.taken[frame] += quantity;
+    }    
+    
+    console.log("TAKEN CHNG");
+    console.log(this.taken);
 };
 
 Mst.Chest.prototype.subtract_all = function (item_index) {

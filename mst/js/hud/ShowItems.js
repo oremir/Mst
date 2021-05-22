@@ -334,7 +334,7 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
 
 Mst.ShowItems.prototype.put_down_item = function (one_item) {
     "use strict";
-    var item_index, item_frame, item_quantity, item, quant_put, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
+    var item_sub, item_index, item_frame, item_quantity, item, quant_put, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
     
     console.log("put down " + this.put_type);
     console.log(one_item);
@@ -359,7 +359,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     
                     // ------------------------------------- - item -----------------------------------------
 
-                    item_quantity = this.subtract_item(item_index, quant_put);
+                    item_sub = this.subtract_item(item_index, quant_put);
+                    item_quantity = item_sub.q;
 
                     // ------------------------------------- + item -----------------------------------------
                     
@@ -985,7 +986,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         
                         // ------------------------------------- - item -----------------------------------------
                         
-                        item_quantity = this.subtract_item(item_index, tquant);
+                        item_sub = this.subtract_item(item_index, tquant);
+                        item_quantity = item_sub.q;
 
                         // ------------------------------------- + item -----------------------------------------
                         
@@ -1361,7 +1363,7 @@ Mst.ShowItems.prototype.collide_tile = function () {
 
 Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
-    var item_frame, item_quantity;
+    var item_frame, item_quantity, item;
     
     console.log("Subtract: " + this.prefab_name + " " + this.name + " " + this.stat);
     
@@ -1369,14 +1371,25 @@ Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {
     item_frame = this.stats[item_index].frame;
     item_quantity = parseInt(this.stats[item_index].quantity);
         
-    item_quantity -= parseInt(quantity);
+    quantity = parseInt(quantity);
+    item_quantity -= quantity;
     
     this.stats[item_index].quantity = item_quantity;
     this.texts[item_index].text = item_quantity;
     
     this.update_item(item_index, item_frame, item_quantity);
     
-    return item_quantity;
+    if (this.name === 'chestitems') {
+        this.game_state.prefabs[this.prefab_name].change_taken(item_frame, -quantity);
+    }
+    
+    item = {
+        i: item_index,
+        f: item_frame,
+        q: item_quantity
+    }
+    
+    return item;
 };
 
 Mst.ShowItems.prototype.subtract_all = function (item_index) {
@@ -1408,15 +1421,17 @@ Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
     
     other_item = this.index_by_frame(item_frame);
     item_index = other_item.index;
+    
+    quantity = parseInt(quantity);
 
     if (other_item.is_in) {
         item_quantity = parseInt(other_item.quantity);
-        item_quantity += parseInt(quantity);
+        item_quantity += quantity;
         this.texts[item_index].text = item_quantity;
         this.stats[item_index].quantity = item_quantity;
     } else {
         item_index = -1;
-        item_quantity = parseInt(quantity);
+        item_quantity = quantity;
     }
     
     if (this.prefab_name === "player") {
@@ -1425,6 +1440,11 @@ Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
     }
 
     item_index = this.update_item(item_index, item_frame, item_quantity);
+    
+    if (this.name === 'chestitems') {
+        this.game_state.prefabs[this.prefab_name].change_taken(item_frame, quantity);
+    }
+    
     return item_index;
 };
 

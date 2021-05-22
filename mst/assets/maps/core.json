@@ -52,6 +52,7 @@
         "angostura_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "angostura-v_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura-v_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
         "spider_spritesheet": { "type": "spritesheet", "source": "assets/images/spider_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
+        "doe_spritesheet": { "type": "spritesheet", "source": "assets/images/doe_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
         "male_ren": { "type": "image", "source": "assets/images/ren/ren_male.png" },
@@ -135,6 +136,7 @@
         "playerbullets",
         "enemybullets",        
         "enemies",
+        "wildanimals",
         "NPCs",
         "signposts",
         "otherplayers",
@@ -163,7 +165,8 @@
         "wasp": { "spritesheet": "wasp_spritesheet", "loot": [ 90 ] },
         "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] },
         "angostura": { "spritesheet": "angostura_spritesheet", "loot": [ 90 ] },
-        "angostura-v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] }
+        "angostura-v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] },
+        "doe": { "spritesheet": "doe_spritesheet", "loot": [ 36, 39 ] }
     },
     
     "items": [

@@ -6,25 +6,7 @@ Mst.EnemySpawner = function (game_state, name, position, properties) {
     
     Mst.Spawner.call(this, game_state, name, position, properties);
     
-    var max_level = 4;
-    
     this.frames = properties.frames;
-    if (typeof(properties.level) !== 'undefined') {
-        if (properties.level > max_level) {
-            this.level = max_level;
-        } else {
-            this.level = properties.level;
-        }
-    } else {
-        this.level = max_level;
-    }
-    
-    if (typeof(properties.spec) !== 'undefined') {
-        this.spec = properties.spec;
-    } else {
-        this.spec = "";
-    }
-   
 
 };
 
@@ -36,6 +18,7 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
     var max;
     
     // return new Enemy with random frame
+    console.log("Spawner level: " + this.level);
     
     switch (this.game_state.game.rnd.between(1, this.level)) {
         case 1:
@@ -55,9 +38,16 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
         break;
     }
     
+    console.log(this.spec);
+    
     if (this.spec !== '') {
         properties.texture = "spider_spritesheet";
     }
+    
+    console.log(properties.texture);
+    
+    properties.group = "enemies";
+    properties.pool = "enemies";
     
     return new Mst.Enemy(this.game_state, name, position, properties);
 };

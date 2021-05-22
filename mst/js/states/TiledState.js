@@ -18,6 +18,7 @@ Mst.TiledState = function () {
         "chest_creator": Mst.ChestCreator.prototype.constructor,
         "chest": Mst.Chest.prototype.constructor,
         "enemy": Mst.Enemy.prototype.constructor,
+        "wildanimal": Mst.WildAnimal.prototype.constructor,
         "sword": Mst.Sword.prototype.constructor,
         "signpost": Mst.Signpost.prototype.constructor,
         "bed": Mst.Bed.prototype.constructor,
@@ -486,6 +487,7 @@ Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
             game_state.save.objects.push(resp.obj);
         
             otherplayer = new Mst.OtherPlayer(game_state, name, position, properties);
+            otherplayer.add_ren();
         
             //console.log(otherplayer);
         

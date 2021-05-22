@@ -70,35 +70,37 @@ switch ($type) {
                     case "CLOSE":
                         $radek_l2 =  $radek_l2 . " Close|";
                         if ($live == 1) {
+                            $taken = $apost["properties"]["taken"];
                             $object = $apost;
                             $new_obj = json_encode($apost);
                             $sql = "UPDATE `objects` SET JSON = '".$new_obj."', open = 0, time = '".time()."' WHERE ID = ".$obj_id;
 
                             if ($mysqli->query($sql) === TRUE) {
-                                $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                                $radek_l2 =  $radek_l2 . $taken. "|Record updated successfully\n";
                             } else {
                                 $status = "error";
-                                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                                $radek_l2 =  $radek_l2 . $taken. "|Error updating record: " . $mysqli->error . "\n";
                             }
                         } else {
                             $status = "dead";
-                            $radek_l2 =  $radek_l2 . "Record is not alive\n";
+                            $radek_l2 =  $radek_l2 . $taken. "|Record is not alive\n";
                         }
                         break;
                     case "GET":
                         $radek_l2 =  $radek_l2 . " Get|";
                         if ($live == 1) {
+                            $taken = $apost["properties"]["taken"];
                             $sql = "UPDATE `objects` SET live = 0, time = '".time()."' WHERE ID = ".$obj_id;
 
                             if ($mysqli->query($sql) === TRUE) {
-                                $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+                                $radek_l2 =  $radek_l2 . $taken. "|Record updated successfully\n";
                             } else {
                                 $status = "error";
-                                $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                                $radek_l2 =  $radek_l2 . $taken. "|Error updating record: " . $mysqli->error . "\n";
                             }
                         } else {
                             $status = "dead";
-                            $radek_l2 =  $radek_l2 . "Record is not alive\n";
+                            $radek_l2 =  $radek_l2 . $taken. "|Record is not alive\n";
                         }
                         break;
                     default:
