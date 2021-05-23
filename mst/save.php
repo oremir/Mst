@@ -177,22 +177,14 @@ FClose($fp);*/
 
 // -------------------------- test write postavy -------------------
 
-$path_postavy = "./assets/postavy/postavy.json";
+/*$path_postavy = "./assets/postavy/postavy.json";
 
-//$postavy = json_decode(file_get_contents($path_postavy));
+
 $postavy = file_get_contents($path_postavy);
-
-//$i = indexOfUsrID($usr_id, $postavy);
-//
-//if ($i != -1):
-//    $postavy[$i] = $user;
-//else:
-//    array_push($postavy, $user);
-//endif;
 
 $postavy = $postavy . $user_en1 . "\n";
 
-file_put_contents($path_postavy, $postavy);
+file_put_contents($path_postavy, $postavy);*/
 
 // --------------------------- update pswd --------------------------
 

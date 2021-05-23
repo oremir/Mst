@@ -131,7 +131,7 @@ if (isset($aget["mapi"])):
             else:
                 array_push($map->objects, $user_i);
             
-                $radek_l2 =  $radek_l2 . "Insert\n";
+                $radek_l2 =  $radek_l2 . "Insert ";
             
                 $radek_l2 = $radek_l2 . json_encode($user_i) . "\n";
                 //$radek_l2 = $radek_l2 . $row["JSON"] . "\n";
