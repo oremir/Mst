@@ -179,6 +179,24 @@
                  "height":16,
                  "id":5,
                  "name":"goout05",
+				 "properties":
+                    {
+                     "go_position_x":"94",
+                     "go_position_y":"791",
+                     "group":"goouts",
+                     "next_map":"47",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -191,6 +209,24 @@
                  "height":16,
                  "id":6,
                  "name":"goout06",
+				 "properties":
+                    {
+                     "go_position_x":"94",
+                     "go_position_y":"248",
+                     "group":"goouts",
+                     "next_map":"47",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
                  "rotation":0,
                  "type":"",
                  "visible":true,

@@ -1440,8 +1440,11 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                         case "have":
                             if (quest.endc.type === 'have') {
                                 item_frame = parseInt(quest.endc.what);
+                                console.log(item_frame);
                                 if (item_frame === condition.f) {
                                     quantity = parseInt(quest.endc.quantity);
+                                    condition.q += parseInt(quest.acc.q);
+                                    console.log("cq:" + condition.q + " q:" + quantity);
                                     if (condition.q < quantity) {
                                         return_obj.updated = true;
                                         quest.acc.q = condition.q;
@@ -1784,34 +1787,11 @@ Mst.Player.prototype.next_broadcast = function () {
     "use strict";
     var b_nxt, b_nxtt, b_nexta, key;
     
-    b_nxt = this.broadcast.snt.shift();
-    
-    console.log("Broadcast SNT: " + b_nxt);
-    
-    if (typeof(b_nxt) !== 'undefined') {
-        b_nexta = b_nxt.split("|");
-    
-        console.log(b_nexta);
+    if (typeof (this.broadcast.snt) !== 'undefined') {
+        b_nxt = this.broadcast.snt.shift();
 
-        key = this.game_state.playerOfUsrID(b_nexta[1]);
-        if (key !== "") {
-            this.game_state.prefabs[key].ren_sprite.show_dialogue(b_nexta[4]);
-        } else {
-            this.save.properties.broadcast.push(b_nxt);
-            console.log("PUSH broadcast.player " + JSON.stringify(this.broadcast.player));
-            console.log("PUSH save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
-            this.next_broadcast();
-        }
-    } else {
-        console.log("broadcast.player " + JSON.stringify(this.broadcast.player));
-        console.log("save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
-        b_nxt = this.broadcast.player.shift();
-        b_nxtt = this.save.properties.broadcast[0];
-        
-        if (b_nxt !== b_nxtt) { console.log("!!!!!!!!!!!!") };
-        
-        console.log("Broadcast Player: " + b_nxt + " Save: " + b_nxtt);
-        
+        console.log("Broadcast SNT: " + b_nxt);
+
         if (typeof(b_nxt) !== 'undefined') {
             b_nexta = b_nxt.split("|");
 
@@ -1822,12 +1802,35 @@ Mst.Player.prototype.next_broadcast = function () {
                 this.game_state.prefabs[key].ren_sprite.show_dialogue(b_nexta[4]);
             } else {
                 this.save.properties.broadcast.push(b_nxt);
+                console.log("PUSH broadcast.player " + JSON.stringify(this.broadcast.player));
+                console.log("PUSH save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
                 this.next_broadcast();
+            }
+        } else {
+            console.log("broadcast.player " + JSON.stringify(this.broadcast.player));
+            console.log("save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
+            b_nxt = this.broadcast.player.shift();
+            b_nxtt = this.save.properties.broadcast[0];
+
+            if (b_nxt !== b_nxtt) { console.log("!!!!!!!!!!!!") };
+
+            console.log("Broadcast Player: " + b_nxt + " Save: " + b_nxtt);
+
+            if (typeof(b_nxt) !== 'undefined') {
+                b_nexta = b_nxt.split("|");
+
+                console.log(b_nexta);
+
+                key = this.game_state.playerOfUsrID(b_nexta[1]);
+                if (key !== "") {
+                    this.game_state.prefabs[key].ren_sprite.show_dialogue(b_nexta[4]);
+                } else {
+                    this.save.properties.broadcast.push(b_nxt);
+                    this.next_broadcast();
+                }
             }
         }
     }
-    
-
 };
 
 Mst.Player.prototype.new_day = function () {

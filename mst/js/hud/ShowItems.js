@@ -1436,6 +1436,7 @@ Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
     
     if (this.prefab_name === "player") {
         var item = { f: item_frame, q: item_quantity };
+        console.log(item);
         this.game_state.prefabs.player.update_quest("have", item);
     }
 
