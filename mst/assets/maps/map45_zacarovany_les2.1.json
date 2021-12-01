@@ -213,15 +213,16 @@
                     {
                      "direction":1,
                      "group":"spawners",
-                     "level":1,
+                     "level":4,
                      "pool":"enemies",
                      "spawn_time_max":"18",
                      "spawn_time_min":"5",
-                     "texture":"rabite_spritesheet",
+                     "spec":"rotulice_spritesheet",
+                     "texture":"rotulice_spritesheet",
                      "walking_distance":100,
                      "walking_speed":50,
-                     "xdif":"6",
-                     "ydif":"6"
+                     "xdif":"11",
+                     "ydif":"7"
                     },
                  "propertytypes":
                     {

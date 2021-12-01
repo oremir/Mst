@@ -88,7 +88,7 @@
                      "group":"chests",
                      "is_takeable":"false",
                      "items":"",
-                     "obj_id":"18",
+                     "obj_id":"15",
                      "opened_frame":"80",
                      "pool":"chests",
                      "texture":"items_spritesheet"
@@ -122,7 +122,7 @@
                      "group":"chests",
                      "is_takeable":"false",
                      "items":"",
-                     "obj_id":"19",
+                     "obj_id":"16",
                      "opened_frame":"80",
                      "pool":"chests",
                      "texture":"items_spritesheet"

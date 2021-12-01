@@ -144,6 +144,11 @@ Mst.Sword.prototype.swing = function () {
                 player.work_rout("thrower", "dexterity", 0, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
             }
         }
+        
+        if (player.opened_chest !== "") {
+            var chest = this.game_state.prefabs[player.opened_chest];
+            this.cut_chest(chest);
+        }
         console.log("!!! CUT: " + this.cut);
         console.log(this.game_state.prefabs.sword);
     }
@@ -341,6 +346,8 @@ Mst.Sword.prototype.cut_chest = function (chest) {
     if (tool_frame == 14) {tool_frame = 13;}
     if (tool_frame == 19) {tool_frame = 18;}
     if (tool_frame == 21) {tool_frame = 20;}
+    
+    console.log("player.opened_chest: " + player.opened_chest + " CN: " + chest.name);
     
     if (player.opened_chest !== "") {
         if (player.opened_chest === chest.name) {
@@ -542,6 +549,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                     if (index > -1) {
                                         chest.subtract_item(index, 1);
                                         chest.add_item(59,2); //kam. blok
+                                        player.update_quest("make", 59);
                                         chest.updated = true;
                                         player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                                     } else {
@@ -566,6 +574,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                             break;
                             case 59: //kam. blok
                                 chest.change_frame(60); //kam. nádoba
+                                player.update_quest("make", 60);
                                 player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
                             case 91: //hrib
@@ -615,6 +624,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                     player.subtract_item(index, 1);
                                     index = player.add_item(38, 1); // palice
                                     player.equip(index, 38);
+                                    player.update_quest("make", 38);
                                     player.work_rout("toolmaker", "dexterity", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
                                 } else {
                                     chest.take_all();
@@ -681,6 +691,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                         index = chest.test_item(32, 2);
                                         chest.subtract_item(index, 2);
                                         chest.add_item(29, 1); // prac. stůl
+                                        player.update_quest("make", 29);
                                         chest.updated = true;
                                         player.work_rout("toolmaker", "exploration", 1, 4, 3, 3); // stress, stand_exp, skill_exp, abil_p
                                     }
@@ -841,6 +852,11 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
                     player.put_all(in_chest);
                     chest.is_takeable = true;
                     chest.get_chest(chest);
+                    player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
+                    chest.rnd_take(chest.closed_frame, tw.skill);
+                    success = true;
+                break;
+                case "rtake":
                     player.work_rout(tw.skill, tw.ability, tw.w[0], tw.w[1], tw.w[2], tw.w[3]);
                     chest.rnd_take(chest.closed_frame, tw.skill);
                     success = true;

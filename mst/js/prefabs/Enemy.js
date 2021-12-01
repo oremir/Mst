@@ -133,6 +133,34 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.monster_type = "angostura-v";
             this.monster_loot = this.game_state.core_data.creatures["angostura-v"].loot;
         break;
+        case "rotulice_spritesheet":
+            this.health_max = 150;
+            this.health = this.health_max;
+            
+            this.en_attack = 3;
+            
+            this.animations.add("go", [0, 1, 2, 3], 15, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);            
+            
+            this.monster_type = "rotulice";
+            this.monster_loot = this.game_state.core_data.creatures["rotulice"].loot;
+        break;        
+        case "cmelotrysk_spritesheet":
+            this.health_max = 150;
+            this.health = this.health_max;
+    
+            this.en_attack = 0;
+            
+            this.animations.add("go", [0, 1], 5, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);
+            
+            this.monster_type = "cmelotrysk";
+            this.monster_loot = this.game_state.core_data.creatures["cmelotrysk"].loot;
+        break;
     }
     
     this.b_pool = this.game_state.groups.enemybullets;
@@ -544,3 +572,73 @@ Mst.Enemy.prototype.create_vyh = function () {
     }
 };
 
+Mst.Enemy.prototype.c_stop = function (player) {
+    "use strict";
+    
+    this.body.immovable = true;
+};
+
+Mst.Enemy.prototype.cmelo_stop = function (player) {
+    "use strict";
+    
+    this.body.immovable = true;
+    var player = this.game_state.prefabs.player;
+    
+    this.cmelotrysk_sprite =  new Mst.NPC(this.game_state, "cmelotrysk", {x: this.x, y: this.y}, {
+                group: "NPCs",
+                pool: "NPCs",
+                texture: "blank_image",
+                p_name: "cmelotrysk",
+                unique_id: 0,
+                stype: "cmelotrysk",
+                relations_allowed : "false",
+                region: 0,
+                o_type: "NPC"
+            });
+    this.cmelotrysk_sprite.add_ren();
+    
+    var position = { x: player.x, y: player.y };
+    var properties = {
+        group: "shadows",
+        pool: "shadows",
+        stype: "shadow",
+        items: "",
+        closed_frame: 41,
+        opened_frame: 41,        
+        texture: "blank_image"
+    };
+
+    player.shadow = new Mst.Chest(this.game_state, "cpgive", position, properties);
+    player.opened_chest = "cpgive";
+    player.shadow.open_chest(player, player.shadow);
+    
+    player.infight = false;                        
+    this.cmelotrysk_sprite.touch_player(this.cmelotrysk_sprite, player);        
+};
+
+Mst.Enemy.prototype.spec_attack = function (player) {
+    "use strict";
+    var attack = this.en_attack;
+    
+    switch (this.monster_type) {
+        case "rotulice":
+            if (player.index_buff(1) < 0) {
+                attack = player.stats.health_max + 1;
+            }
+        break;
+        case "cmelotrysk":
+            console.log("čmelotrysk");
+            var index = player.test_item(112, 1); //kopřiva
+            if (index > -1) {
+                attack = 0;
+                this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.3, this.cmelo_stop, this);
+            } else {
+                attack = 20;
+            }
+        break;
+        default:
+        break;
+    }
+    
+    return attack;
+};

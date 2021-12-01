@@ -168,7 +168,7 @@
                      "texture":"string"
                     },
                  "rotation":0,
-                 "type":"",
+                 "type":"goout",
                  "visible":true,
                  "width":16,
                  "x":867,

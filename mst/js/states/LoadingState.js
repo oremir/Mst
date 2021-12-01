@@ -25,6 +25,9 @@ Mst.LoadingState.prototype.preload = function () {
         var root_assets = new Object();
         root_assets.map_assets = this.map_data.assets;
         root_assets.core_assets = this.core_data.assets;
+        
+        var d = new Date();
+        var n = d.getTime(); 
     
         for (root_asset_key in root_assets) {
             assets = root_assets[root_asset_key];
@@ -39,7 +42,7 @@ Mst.LoadingState.prototype.preload = function () {
                         this.load.spritesheet(asset_key, asset.source, asset.frame_width, asset.frame_height, asset.frames, asset.margin, asset.spacing);
                         break;
                     case "tilemap":
-                        this.load.tilemap(asset_key, asset.source, null, Phaser.Tilemap.TILED_JSON);
+                        this.load.tilemap(asset_key, asset.source+"?time="+n, null, Phaser.Tilemap.TILED_JSON);
                         break;
                     case "audio":
                         this.load.audio(asset_key, asset.source);

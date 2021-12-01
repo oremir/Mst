@@ -151,7 +151,7 @@
                  "name":"goout04",
 				 "properties":
                     {
-                     "go_position_x":264",
+                     "go_position_x":"264",
                      "go_position_y":"110",
                      "group":"goouts",
                      "next_map":"48",
@@ -181,7 +181,7 @@
                  "name":"goout05",
 				 "properties":
                     {
-                     "go_position_x":616",
+                     "go_position_x":"616",
                      "go_position_y":"110",
                      "group":"goouts",
                      "next_map":"48",

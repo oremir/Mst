@@ -230,7 +230,7 @@
                      "group":"chests",
                      "is_takeable":"false",
                      "items":"",
-                     "obj_id":"30",
+                     "obj_id":"26",
                      "opened_frame":"80",
                      "pool":"chests",
                      "texture":"items_spritesheet"
@@ -264,7 +264,7 @@
                      "group":"chests",
                      "is_takeable":"false",
                      "items":"",
-                     "obj_id":"33",
+                     "obj_id":"22",
                      "opened_frame":"80",
                      "pool":"chests",
                      "texture":"items_spritesheet"

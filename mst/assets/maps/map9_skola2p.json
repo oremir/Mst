@@ -154,6 +154,36 @@
                  "width":16,
                  "x":112,
                  "y":257
+                }, 
+                {
+                 "gid":1,
+                 "height":16,
+                 "id":7,
+                 "name":"goout05",
+                 "properties":
+                    {
+                     "go_position_x":"264",
+                     "go_position_y":"356",
+                     "group":"goouts",
+                     "next_map":"54",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
+                 "rotation":0,
+                 "type":"goout",
+                 "visible":true,
+                 "width":16,
+                 "x":272,
+                 "y":113
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -161,7 +191,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":7,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
@@ -170,7 +200,7 @@
         {
          "columns":43,
          "firstgid":1,
-         "image":"..\/..\/..\/..\/..\/..\/Users\/Oremir\/Documents\/GitHub\/W-Mst\/Work-Img-Sprites-map\/map9_skola2p.png",
+         "image":"..\/..\/..\/..\/..\/..\/Users\/Milan Dian\/Documents\/GitHub\/W-Mst\/Work-Img-Sprites-map\/map9_skola2p.png",
          "imageheight":448,
          "imagewidth":688,
          "margin":0,
@@ -183,7 +213,7 @@
         {
          "columns":46,
          "firstgid":1205,
-         "image":"..\/..\/..\/..\/..\/..\/Users\/Oremir\/Documents\/GitHub\/W-Mst\/Work-Img-Sprites-map\/map8_skola1.png",
+         "image":"..\/..\/..\/..\/..\/..\/Users\/Milan Dian\/Documents\/GitHub\/W-Mst\/Work-Img-Sprites-map\/map8_skola1.png",
          "imageheight":688,
          "imagewidth":736,
          "margin":0,

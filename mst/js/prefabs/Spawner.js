@@ -12,6 +12,7 @@ Mst.Spawner = function (game_state, name, position, properties) {
     this.properties = properties;
     this.position = position;
     
+    this.etype = "enemy";
     this.group = properties.group;
     this.pool = this.game_state.groups[properties.pool];
     this.game_state.groups[this.group].add(this);
@@ -57,13 +58,6 @@ Mst.Spawner = function (game_state, name, position, properties) {
     this.wave_max = 3;
     this.wave_mmax = 6;
     this.wave_time = 0;
-    
-    this.spawn();
-    
-    console.log("Spawn level: " + this.level);
-    if (this.level > 1) {
-        this.spawn_animal();
-    }
 };
 
 Mst.Spawner.prototype = Object.create(Mst.Prefab.prototype);
@@ -76,6 +70,17 @@ Mst.Spawner.prototype.schedule_spawn = function (time) {
     
     this.spawn_timer.add(Phaser.Timer.SECOND * time, this.spawn, this);
     this.spawn_timer.start();
+};
+
+Mst.Spawner.prototype.activate = function () {
+    "use strict";
+    
+    this.spawn();
+    
+    console.log("Spawn level: " + this.level);
+    if (this.level > 1) {
+        this.spawn_animal();
+    }
 };
 
 Mst.Spawner.prototype.schedule_spawn_animal = function (time) {

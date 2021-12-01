@@ -265,6 +265,8 @@ Mst.WildAnimal.prototype.hit_animal = function (player, animal, type, ability, d
             player.add_exp("standard", animal_health_max);
             player.add_exp(type, animal_health_max / 2);
             player.add_exp("hunter", animal_health_max / 2);
+            player.add_sin(1);
+            console.log("Player sin: " + player.stats.sin);
             
             var i_frame;
             var m_length = this.animal_loot.length;

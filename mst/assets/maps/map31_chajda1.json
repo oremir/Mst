@@ -76,6 +76,9 @@
                      "go_position_y":"429",
                      "group":"goouts",
                      "next_map":"32",
+                     "locked":"true",
+                     "key_permit":"53",
+                     "permit_type":"player",
                      "pool":"goouts",
                      "texture":"blank_image"
                     },

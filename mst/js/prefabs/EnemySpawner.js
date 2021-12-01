@@ -41,7 +41,7 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
     console.log(this.spec);
     
     if (this.spec !== '') {
-        properties.texture = "spider_spritesheet";
+        properties.texture = this.spec;
     }
     
     console.log(properties.texture);

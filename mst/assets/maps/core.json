@@ -4,6 +4,7 @@
         "items_blank": { "type": "spritesheet", "source": "assets/images/items_blank.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 30 },
         "arrow_spritesheet": { "type": "spritesheet", "source": "assets/images/arrow_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
+        "equip_spritesheet": { "type": "spritesheet", "source": "assets/images/equip_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
         "abilities_spritesheet": { "type": "spritesheet", "source": "assets/images/abilities_spritesheet.png", "frame_width": 20, "frame_height": 20, "frames": 5 },
         "signs_spritesheet": { "type": "spritesheet", "source": "assets/images/signs_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 5 },
         "hearts_spritesheet": { "type": "spritesheet", "source": "assets/images/hearts_spritesheet.png", "frame_width": 13, "frame_height": 13, "frames": 5 },
@@ -52,6 +53,8 @@
         "angostura_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "angostura-v_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura-v_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
         "spider_spritesheet": { "type": "spritesheet", "source": "assets/images/spider_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
+        "rotulice_spritesheet": { "type": "spritesheet", "source": "assets/images/rotulice_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 4 },
+        "cmelotrysk_spritesheet": { "type": "spritesheet", "source": "assets/images/cmelotrysk_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "doe_spritesheet": { "type": "spritesheet", "source": "assets/images/doe_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
         "hit": { "type": "spritesheet", "source": "assets/images/hit32.png", "frame_width": 32, "frame_height": 32, "frames": 5},
@@ -82,11 +85,14 @@
         "girl_st_ren": { "type": "image", "source": "assets/images/ren/ren_girl_st.png" },
         "boy_st_ren": { "type": "image", "source": "assets/images/ren/ren_boy_st.png" },
         "kurolez_ren": { "type": "image", "source": "assets/images/ren/ren_kurolez.png" },
+        "cmelotrysk_ren": { "type": "image", "source": "assets/images/ren/ren_cmelotrysk.png" },
         "dino_ren": { "type": "image", "source": "assets/images/ren/ren_dino.png" },
         "btiger_ren": { "type": "image", "source": "assets/images/ren/ren_btiger.png" },
         "cir_ren": { "type": "image", "source": "assets/images/ren/ren_cir.png" },
         "agnes_ren": { "type": "image", "source": "assets/images/ren/ren_agnes.png" },
         "agnes": { "type": "image", "source": "assets/images/player/agnes.png" },
+        "kovar-petr_ren": { "type": "image", "source": "assets/images/ren/ren_kovar.png" },
+        "kovar-petr": { "type": "image", "source": "assets/images/player/smith-kuba.png" },
         "magic1": { "type": "image", "source": "assets/images/magic1.png" },
         "arrow1": { "type": "image", "source": "assets/images/arrow1.png" },
         "sting": { "type": "image", "source": "assets/images/sting.png" },
@@ -109,6 +115,7 @@
         "em": { "type": "image", "source": "assets/images/em.png" },
         "right_window": { "type": "image", "source": "assets/images/frame-gold-227-300.png" },
         "middle_window": { "type": "image", "source": "assets/images/frame-gold-300-180.png" },
+        "book": { "type": "image", "source": "assets/images/book.png" },
         "alt": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
         "alt_80_35": { "type": "image", "source": "assets/images/frame-alt-80-35.png" },
         "alt_160_20": { "type": "image", "source": "assets/images/frame-alt-160-20.png" },
@@ -116,6 +123,7 @@
         "frame_item": { "type": "image", "source": "assets/images/frame_item.png" },
         "frame_item_fial": { "type": "image", "source": "assets/images/frame_item_fial.png" },
         "frame_bot": { "type": "image", "source": "assets/images/frame-bot.png" },
+        "fpoint": { "type": "image", "source": "assets/images/fpoint.png" },
         "dialogue": { "type": "image", "source": "assets/images/DialogueBox2.png" },        
         "dialogue_small": { "type": "image", "source": "assets/images/DialogueBoxSmall2.png" },
         "alert": { "type": "image", "source": "assets/images/frame-alt-80-20.png" },
@@ -166,6 +174,8 @@
         "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] },
         "angostura": { "spritesheet": "angostura_spritesheet", "loot": [ 90 ] },
         "angostura-v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] },
+        "rotulice": { "spritesheet": "rotulice_spritesheet", "loot": [ 190 ] },
+        "cmelotrysk": { "spritesheet": "cmelotrysk_spritesheet", "loot": [ 90 ] },
         "doe": { "spritesheet": "doe_spritesheet", "loot": [ 36, 39 ] }
     },
     
@@ -291,7 +301,7 @@
         { "name": "Džbán pln.", "istool": "false", "properties": { "sub_water": 6 } },
         { "name": "Měď. kotlík pln.", "istool": "false", "properties": { "sub_water": 52 } },
         { "name": "Žel. kotlík pln.", "istool": "false", "properties": { "sub_water": 53,  "work": {
-                "17": { "n": "Skl. tyčinka", "act": "recipe", "recipe": [{"f": 144, "q": 1}, {"f": 145, "q": 1}, {"f": 147, "q": 1}, {"f": 149, "q": 1}, {"f": 150, "q": 1}], "padd": 152, "pq": 3, "npa": "Inkoust", "skill": "alchemist", "ability":"dexterity", "w": [1, 20, 18, 3] } 
+                "17": { "n": "Skl. tyčinka", "act": "recipe", "recipe": [{"f": 144, "q": 1}, {"f": 145, "q": 1}, {"f": 147, "q": 1}, {"f": 149, "q": 1}, {"f": 150, "q": 1}], "padd": 152, "pq": 3, "npa": "Inkoust", "skill": "alchemy", "ability":"dexterity", "w": [1, 20, 18, 3] } 
         } } },
         { "name": "Měď. kotlík pln. hori", "istool": "false", "properties": { "sub_water": 54 } },
         { "name": "Měď. kotlík pln. hori", "istool": "false", "properties": {} },
@@ -340,7 +350,7 @@
             { "cut_type": "nul", "tool_fr_left": "13", "tool_fr_right": "14" } 
         },
         { "name": "Kovadlina", "istool": "false", "properties": {"work": {
-                "13": { "n": "Kladivo", "act": "recipe", "recipe": [{"f": 176, "q": 1}, {"f": 181, "q": 1}, {"f": 183, "q": 1}], "padd": 182, "npa": "Amu. p. uštknutí", "skill": "alchemist", "ability":"dexterity", "w": [1, 20, 18, 3] }
+                "13": { "n": "Kladivo", "act": "recipe", "recipe": [{"f": 176, "q": 1}, {"f": 181, "q": 1}, {"f": 183, "q": 1}], "padd": 182, "npa": "Amu. p. uštknutí", "skill": "alchemy", "ability":"dexterity", "w": [1, 20, 18, 3] }
         } } },
         { "name": "Žh. žel. tyč", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Žel. tyč", "istool": "false", "properties": {} },
@@ -380,8 +390,10 @@
                 "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] },
                 "10": { "n": "sekeromlat", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }
         } } },
-		{ "name": "Strom malý", "istool": "false", "properties": { "rtake": ["33_0", "119_1"], "work": { 
+		{ "name": "Strom malý", "istool": "false", "properties": { "rtake": ["33_0", "43_0", "119_1"], "work": {
+                "0": { "n": "ruka", "act": "rtake", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
                 "1": { "n": "sekera", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] },
+                "9": { "n": "větev", "act": "rtake", "skill": "forager", "ability":"exploration", "w": [1, 2, 1, 3] },
                 "10": { "n": "sekeromlat", "act": "take", "skill": "woodcutter", "ability":"strength", "w": [1, 2, 1, 3] }       
         } } },
         { "name": "Keř", "istool": "false", "properties": { "work": {
@@ -443,12 +455,24 @@
         { "name": "Kotvičník", "istool": "false", "properties": {} },
         { "name": "Pavučina", "istool": "false", "properties": {} },
         { "name": "Terra sigillata", "istool": "false", "properties": {} },
-        { "name": "Amu. p. uštknutí", "istool": "false", "properties": {} },
+        { "name": "Amu. p. uštknutí", "istool": "true", "properties": { "eq":"6" } },
         { "name": "Žhav. měď", "istool": "false", "properties": { "fluid": "true" } },
         { "name": "Výh. angostury", "istool": "false", "properties": {} },
         { "name": "Řemínek", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Paz. hrot", "istool": "false", "properties": {} },
-        { "name": "Paz. nůž", "istool": "false", "properties": {} }
+        { "name": "Paz. nůž", "istool": "false", "properties": {} },
+        { "name": "Antilevitační lektvar", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Antilevitační lekt. l.", "istool": "false", "properties": { "use_sub": "true" } },
+		{ "name": "Žihadlo rotulice", "istool": "false", "properties": {} },
+        { "name": "Dopis", "istool": "false", "properties": {} },
+        { "name": "Dóza", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Cukr", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Trnkový kompot", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Trnkový kompot l.", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Med čmelotryska", "istool": "false", "properties": { "fluid": "true" } },
+        { "name": "Med čmelotryska l.", "istool": "false", "properties": { "use_sub": "true" } },
+        { "name": "Deník", "istool": "false", "properties": {} },
+		{ "name": "Ukradena", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 
@@ -549,21 +573,6 @@
                     "stats_group": "stats"
                 }
             },
-            "level": {
-                "type": "show_stat_with_text",
-                "region": "center_top",
-                "properties": {
-                    "texture": "level_image",
-                    "group": "hud",
-                    "scale": {"x": 2, "y": 2},
-                    "stat_to_show": "player.level",
-                    "stats_group": "stats",
-                    "text_style": {
-                        "font": "12px Arial",
-                        "fill": "#FFFFFF"
-                    }
-                }
-            },
             "exp": {
                 "type": "show_stat_with_text",
                 "region": "center_top",
@@ -574,7 +583,22 @@
                     "stat_to_show": "player.exp",
                     "stats_group": "stats",
                     "text_style": {
-                        "font": "12px Arial",
+                        "font": "11px Arial",
+                        "fill": "#FFFFFF"
+                    }
+                }
+            },
+            "level": {
+                "type": "show_stat_with_text",
+                "region": "center_top",
+                "properties": {
+                    "texture": "level_image",
+                    "group": "hud",
+                    "scale": {"x": 2, "y": 2},
+                    "stat_to_show": "player.level",
+                    "stats_group": "stats",
+                    "text_style": {
+                        "font": "11px Arial",
                         "fill": "#FFFFFF"
                     }
                 }

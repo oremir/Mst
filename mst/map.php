@@ -94,7 +94,7 @@ if (isset($aget["mapi"])):
 //            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
 //        }
     } else {
-        $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - SAVE\n";
+        $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - M1 SAVE\n";
     }
 
 // -------------------------- SQL Select users --------------------------
@@ -131,14 +131,14 @@ if (isset($aget["mapi"])):
             else:
                 array_push($map->objects, $user_i);
             
-                $radek_l2 =  $radek_l2 . "Insert ";
+                $radek_l2 =  $radek_l2 . "Insert\n";
             
-                $radek_l2 = $radek_l2 . json_encode($user_i) . "\n";
+                //$radek_l2 = $radek_l2 . json_encode($user_i) . "\n";
                 //$radek_l2 = $radek_l2 . $row["JSON"] . "\n";
             endif;
         }
     } else {
-        $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - SAVE\n";
+        $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - M2 SAVE\n";
     }
 
     $result = $mysqli->query("SELECT * FROM `objects` WHERE live = 1 and on_map = '".$map_int."'");
@@ -176,7 +176,7 @@ if (isset($aget["mapi"])):
             endif;
         }
     } else {
-        $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - SAVE\n";
+        $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|MAP:" . $map_int . "| 0 results - M3 SAVE\n";
     }
 
     $path_log = "log.log";

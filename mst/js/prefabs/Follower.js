@@ -269,6 +269,12 @@ Mst.Follower.prototype.close_business = function () {
     this.game_state.prefabs.player.opened_business = "";
 };
 
+Mst.Follower.prototype.test_nurse = function () {
+    "use strict";
+    
+    return false;
+};
+
 Mst.Follower.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
     

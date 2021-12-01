@@ -54,7 +54,7 @@ Mst.Ren.prototype.show_dialogue = function (text, options, type, heart) {
 
         this.game_state.hud.dialogue.show_dialogue(this.dialogue_name, this.p_name, text, type, heart);
 
-        this.quest.showed = true;
+        //this.quest.showed = true;
 
         if (typeof(options) !== 'undefined') {
             this.show_options(options);
@@ -173,6 +173,8 @@ Mst.Ren.prototype.option_quest = function (option) {
     
     if (typeof (this.quest.state) !== 'undefined') {
         if (this.quest.state === "pre") {
+            this.quest.showed = true;
+
             text = this.quest.properties.quest_text;
             console.log("\x1b[102mQuest Pre dialogue: " + this.quest.name);
             if (this.quest.properties.ending_conditions.type !== 'text') {
@@ -257,6 +259,7 @@ Mst.Ren.prototype.option_rumour = function (option) {
     
     if (typeof(rumour.text) !== 'undefined') {
         this.show_dialogue(rumour.text);
+        this.game_state.prefabs.player.add_rumour(rumour.tid);
     }
 };
 

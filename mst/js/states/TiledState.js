@@ -216,6 +216,7 @@ Mst.TiledState.prototype.create = function () {
         this.hud = {};
         this.hud.right_window = new Mst.hud(this, "right_window");
         this.hud.middle_window = new Mst.hud(this, "middle_window");
+        this.hud.book = new Mst.hud(this, "book");
         this.hud.alt = new Mst.hud(this, "alt");
         this.hud.dialogue = new Mst.hud(this, "dialogue");
         this.hud.alert = new Mst.hud(this, "alert");
@@ -307,6 +308,9 @@ Mst.TiledState.prototype.create = function () {
         console.log("Prefabs:");
         console.log(this.prefabs);
         console.log(this.groups);
+        
+        console.log(this.map_data);
+        this.hud.alert.show_alert("M:" + this.map_data.map.map_int);
     }
       
 };
@@ -516,13 +520,14 @@ Mst.TiledState.prototype.playerOfUsrID = function (usr_id) {
     var key, object_key, uid;
     key = "";
     for (object_key in this.prefabs) {
-//            console.log(object_key);
-//            console.log(objects[object_key]);
-//            console.log(usr_id);
+        //console.log(object_key);
+        //console.log(this.prefabs[object_key]);
+        //console.log(usr_id);
         if (typeof(this.prefabs[object_key].usr_id) != 'undefined') {
             usr_id = parseInt(usr_id);
             uid = parseInt(this.prefabs[object_key].usr_id);
-            if (uid == usr_id) {
+            console.log(uid);
+            if (uid === usr_id) {
                 key = object_key;
                 console.log(key);
             }
@@ -547,6 +552,30 @@ Mst.TiledState.prototype.NPCofID = function (usr_id) {
             usr_id = parseInt(usr_id);
             uid = parseInt(this.prefabs[object_key].unique_id);
             if (uid === usr_id) {
+                key = object_key;
+                console.log(key);
+            }
+        }
+    }
+
+    return key;
+};
+
+Mst.TiledState.prototype.objectofID = function (obj_id) {
+    "use strict";
+    
+    console.log("objectofID:" + obj_id);
+    
+    var key, object_key, oid;
+    key = "";
+    for (object_key in this.prefabs) {
+//            console.log(object_key);
+//            console.log(objects[object_key]);
+//            console.log(usr_id);
+        if (typeof(this.prefabs[object_key].obj_id) != 'undefined') {
+            obj_id = parseInt(obj_id);
+            oid = parseInt(this.prefabs[object_key].obj_id);
+            if (oid === obj_id) {
                 key = object_key;
                 console.log(key);
             }
@@ -585,7 +614,7 @@ Mst.TiledState.prototype.keyOfName = function (name) {
     "use strict";
     
     console.log("keyOfName:" + name);
-    console.log(this.save.objects);
+    //console.log(this.save.objects);
     
     var key, object_key;
     key = "";
@@ -605,6 +634,38 @@ Mst.TiledState.prototype.keyOfName = function (name) {
     }
 
     return key;
+};
+
+Mst.TiledState.prototype.get_players = function () {
+    "use strict";
+    var object_key, uid, players;
+    
+    players = [];
+    for (object_key in this.prefabs) {
+        if (typeof(this.prefabs[object_key].usr_id) != 'undefined') {
+            uid = parseInt(this.prefabs[object_key].usr_id);
+            players.push(uid);
+        }
+    }
+
+    return players;
+};
+
+Mst.TiledState.prototype.get_NPCs = function () {
+    "use strict";
+    var object_key, uid, NPCs;
+    
+    NPCs = [];
+    for (object_key in this.prefabs) {
+        if (typeof(this.prefabs[object_key].unique_id) != 'undefined') {
+            uid = parseInt(this.prefabs[object_key].unique_id);
+            if (uid > 0) {
+                NPCs.push(uid);
+            }
+        }
+    }
+
+    return NPCs;
 };
 
 Mst.hud = function (game_state, name) {
@@ -676,7 +737,22 @@ Mst.hud = function (game_state, name) {
             
             this.inputEnabled = true;
             this.input.useHandCursor = true;
-            this.events.onInputDown.add(this.hide_mw, this);
+            this.events.onInputDown.add(this.hide_mw_onclick, this);
+            
+            break;
+        case "book":            
+            this.game_state.groups.hud.add(this);
+            text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
+            this.text_book = this.game_state.game.add.text(162, 69, "", text_style);
+            this.text_book.fixedToCamera = true;
+            this.reset(10, 42);
+            this.visible = false;
+            this.fixedToCamera = true;
+            this.texts = [];
+            
+            this.inputEnabled = true;
+            this.input.useHandCursor = true;
+            this.events.onInputDown.add(this.hide_book, this);
             
             break;
         case "alert":
@@ -760,6 +836,8 @@ Mst.hud.prototype.hide = function () {
 
 Mst.hud.prototype.show_mw = function (text, object, options) {
     "use strict";
+    this.game_state.prefabs.player.close_state.push("MW");
+    this.game_state.prefabs.player.close_context.push(object.name);
     this.visible = true;
     this.alpha = 0.7;
     this.text_mw.text = text;
@@ -770,6 +848,13 @@ Mst.hud.prototype.show_mw = function (text, object, options) {
     if (typeof(options) !== 'undefined') {
         this.show_options(options);
     }
+};
+
+Mst.hud.prototype.hide_mw_onclick = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.pop();
+    this.game_state.prefabs.player.close_context.pop();
+    this.hide_mw();
 };
 
 Mst.hud.prototype.hide_mw = function () {
@@ -809,6 +894,14 @@ Mst.hud.prototype.show_options = function (options) {
                 text.text = "[ne]";
                 text.events.onInputDown.add(this.option_no, this);
                 break;
+            case "ok":
+                text.text = "[ok]";
+                text.events.onInputDown.add(this.option_ok, this);
+                break;
+            case "steal":
+                text.text = "[ukrást]";
+                text.events.onInputDown.add(this.option_steal, this);
+                break;
         }
         
         this.options.push(text);
@@ -825,13 +918,80 @@ Mst.hud.prototype.hide_options = function () {
 Mst.hud.prototype.option_yes = function () {
     "use strict";
     this.mw_object.option_yes();
-    this.hide_mw();
+    this.hide_mw_onclick();
 };
 
 Mst.hud.prototype.option_no = function () {
     "use strict";
     this.mw_object.option_no();
-    this.hide_mw();
+    this.hide_mw_onclick();
+};
+
+Mst.hud.prototype.option_ok = function () {
+    "use strict";
+    this.mw_object.option_ok();
+    this.hide_mw_onclick();
+};
+
+Mst.hud.prototype.option_steal = function () {
+    "use strict";
+    this.mw_object.option_steal();
+    this.hide_mw_onclick();
+};
+
+Mst.hud.prototype.show_book = function () {
+    "use strict";
+    this.visible = true;
+    this.alpha = 1;
+    
+    this.game_state.prefabs.items.kill_stats();
+    this.game_state.prefabs.equip.hide();
+    
+    this.book_acquaintance(0);
+};
+
+Mst.hud.prototype.hide_book = function () {
+    "use strict";
+    this.visible = false;
+    this.texts.forEach(function (text) {
+        text.destroy();
+    });
+    this.texts = [];
+    
+    this.game_state.prefabs.items.show_initial_stats();
+    this.game_state.prefabs.equip.show();
+};
+
+Mst.hud.prototype.book_acquaintance = function (n) {
+    "use strict";
+    var text_style, index, index2, rel, key, text_value, text;
+    
+    rel = this.game_state.prefabs.player.stats.relations;
+    rel.sort(function(a, b){return b.exp - a.exp});
+    
+    text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
+    index = 0;
+    index2 = 0;
+    
+    for (key in rel) {
+        if (key < 18) {
+            text_value = rel[key].name + "\t " + rel[key].exp;
+            //text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
+            text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
+            text.fixedToCamera = true;
+            this.texts.push(text);
+            index ++;
+        }
+        if (key > 17 && key < 35) {
+            text_value = rel[key].name + "\t " + rel[key].exp;
+            text = this.game_state.game.add.text(310, 105 + 14 * index2, text_value, text_style);
+            //text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
+            text.fixedToCamera = true;
+            this.texts.push(text);
+            index2 ++;
+        }
+        
+    }
 };
 
 Mst.hud.prototype.show_alt = function (obj) {
@@ -1051,37 +1211,40 @@ Mst.hud.prototype.hide_dialogue_onclick = function (next) {
                             is_ok = false;
                         }
                     }
+                    console.log(is_ok);
 
                     if (is_ok) {
                         if (quest.state !== "pre") {
-                            console.log("Next quest & is not target | target is actual");
+                            console.log("Next quest exist & (target not exist | target is actual) & not pre ");
                             quest.state = "fin";
                             player.finish_quest(quest);
+                            
                             console.log(this.game_state.quest_data.quests);
                             var quests = this.game_state.quest_data.quests;
                             var ind = parseInt(quest.properties.nextq);
-
                             console.log("Next quest: " + quest.properties.nextq);
                             console.log("Owner: " + quests[ind].properties.owner);
 
                             var key = this.game_state.playerOfUsrID(quests[ind].properties.owner);
 
                             this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
-                            console.log('\x1b[102mShow dialogue tiled pre ' + quests[ind].name);
+                            console.log('\x1b[102mShow dialogue tiled not pre ' + quests[ind].name);
                             this.game_state.prefabs[key].ren_sprite.show_dialogue(quests[ind].properties.quest_text);
                             player.assign_quest(quests[ind]);
 
                             if (typeof(quests[ind].properties.target) !== 'undefined') {
-                                this.game_state.prefabs[key].hide_bubble();
+                                this.game_state.prefabs[key].hide_bubble(0);
 
                                 key = this.game_state.playerOfUsrID(quests[ind].properties.target);
                                 if (key !== "") {
                                     this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
                                     this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
                                 }     
+                            }  else {
+                                this.game_state.prefabs[key].test_bubble();
                             }
                         } else {
-                            console.log("Quest has nextq, pre not target | target is actual");
+                            console.log("Next quest exist & pre & (target not exist | target is actual) & pre");
                             console.log(quest.showed + " " + quest.state);
                             console.log(quest);
                             if (typeof(quest.showed) === 'undefined') {
@@ -1090,10 +1253,10 @@ Mst.hud.prototype.hide_dialogue_onclick = function (next) {
                             if (quest.properties.ending_conditions.type === "text" && quest.showed) {
                                 quest.state = "fin";
                                 player.finish_quest(quest);
+                                
                                 console.log(this.game_state.quest_data.quests);
                                 var quests = this.game_state.quest_data.quests;
                                 var ind = parseInt(quest.properties.nextq);
-
                                 console.log("Next quest: " + quest.properties.nextq);
                                 console.log("Owner: " + quests[ind].properties.owner);
 
@@ -1105,13 +1268,15 @@ Mst.hud.prototype.hide_dialogue_onclick = function (next) {
                                 player.assign_quest(quests[ind]);
 
                                 if (typeof(quests[ind].properties.target) !== 'undefined') {
-                                    this.game_state.prefabs[key].hide_bubble();
+                                    this.game_state.prefabs[key].hide_bubble(0);
 
                                     key = this.game_state.playerOfUsrID(quests[ind].properties.target);
                                     if (key !== "") {
                                         this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
                                         this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
                                     }     
+                                } else {
+                                    this.game_state.prefabs[key].test_bubble();
                                 }
                             }
                         }

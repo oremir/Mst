@@ -322,7 +322,7 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
 
 Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
     "use strict";
-    var item_index, item_frame, item_cost, f_cost, item_quantity, index_gold;
+    var item_index, item_frame, item_cost, f_cost, fcpom, item_quantity, index_gold;
     
     var player = this.game_state.prefabs.player;
     
@@ -397,9 +397,19 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
                     // ------------------------------------- Player + gold ---------------------------------------
 
                     f_cost = item_cost*quant_put;
+                    fcpom = f_cost;
                     console.log(f_cost);
                     if (quant_put > 1) {
                         f_cost = Math.ceil((f_cost + item_cost*quant_put*Math.pow(0.95, quant_put))/2);
+                        
+                        if (f_cost < fcpom*0.7) {
+                            f_cost = Math.ceil(fcpom*0.7);
+                        }
+                        
+                        if (f_cost < quant_put) {
+                            f_cost = quant_put;
+                        }
+                        
                         console.log(f_cost);
                     }
 

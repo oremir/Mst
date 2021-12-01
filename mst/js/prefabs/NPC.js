@@ -102,6 +102,9 @@ Mst.NPC = function (game_state, name, position, properties) {
     if (this.stype === "kurolez") {
         this.ren_name = "kurolez_ren";
     }
+    if (this.stype === "cmelotrysk") {
+        this.ren_name = "cmelotrysk_ren";
+    }
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -142,11 +145,11 @@ Mst.NPC.prototype.update = function () {
 //        }, this);
     }
     
-    if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 35 && this.game_state.prefabs.player.opened_ren === this.name) {
-            console.log(this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player));
-            console.log("NPC is too far!");
-            this.save_NPC();
-        }
+//    if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 35 && this.game_state.prefabs.player.opened_ren === this.name) {
+//            console.log(this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player));
+//            console.log("NPC is too far!");
+//            this.save_NPC();
+//        }
     
     if (this.bubble_showed) {
         this.bubble.x = this.x;
@@ -268,6 +271,24 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             }
             
             console.log("merchant");
+            
+            var quest = this.ren_sprite.quest;
+            console.log(quest);
+            
+            if (typeof (quest.properties) !== 'undefined') {
+                if (quest.properties.ending_conditions.type === 'have') {
+                    console.log("Test have");
+                    var qt = parseInt(quest.properties.ending_conditions.quantity);
+                    var fr = parseInt(quest.properties.ending_conditions.what);
+                    var index = player.test_item(fr,qt);
+                    console.log(index);
+                    if (index > -1) {
+                        var item = { f: fr, q: qt };
+                        player.update_quest("have", item);
+                    }
+                }
+            }
+            
             player.open_business(player, NPC);
             var arr_buss = ["buy_sell", "quest"];
             if (player.usr_id === this.owner) {
@@ -291,6 +312,13 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             
             console.log("kurolez");
             this.ren_sprite.show_dialogue("Hhhhrrarrhhh?", [], "item");
+            open = true;
+        }
+        
+        if (NPC.stype === "cmelotrysk") {
+            
+            console.log("cmelotrysk");
+            this.ren_sprite.show_dialogue("Bzzzzzzzzzzz?", [], "item");
             open = true;
         }
         
@@ -349,7 +377,7 @@ Mst.NPC.prototype.open_business = function (player) {
 Mst.NPC.prototype.close_business = function () {
     "use strict";
     this.game_state.prefabs.businessitems.kill_stats();
-    this.save_NPC;
+    this.save_NPC();
     this.game_state.prefabs.player.opened_business = "";
 };
 

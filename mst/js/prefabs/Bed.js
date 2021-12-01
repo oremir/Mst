@@ -11,10 +11,13 @@ Mst.Bed = function (game_state, name, position, properties) {
     
     this.owner = properties.owner;
     
-    if (typeof(properties.is_takeable) !== 'undefined') {
-        this.is_takeable = (properties.is_takeable === 'true');
+    this.is_takeable = properties.is_takeable;
+    if (typeof(this.is_takeable) === 'string') {
+        this.is_takeable = (properties.is_takeable === 'true')
     } else {
-        this.is_takeable = true;
+        if (typeof(properties.is_takeable) !== 'undefined') {
+            this.is_takeable = false;
+        }
     }
     
     this.hited = false;

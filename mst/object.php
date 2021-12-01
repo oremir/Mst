@@ -10,6 +10,13 @@ else:
     $uid = 0;
 endif;
 
+if (isset($apost["string"])):
+    $string = $apost["string"];
+else:
+    $string = "";
+    $week = 0;
+endif;
+
 $type = $apost["type"];
 $action = $apost["action"];
 $obj_id = $apost["obj_id"];
@@ -252,6 +259,137 @@ switch ($type) {
         }
         break;
         
+    case "stream":
+        
+        $result = $mysqli->query("SELECT * FROM `objects` WHERE ID = '1'");
+
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while($row = $result->fetch_assoc()) {
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $string;
+                $object = json_decode($row["JSON"]);
+                $s = $object->s;
+                $s1 = (array)$s;
+                $s1[$uid] = $string;
+                $s2 = array();
+                
+                $gt = $object->gtime;
+                $gtime = (int)$gt;
+                //echo($gtime);
+                $r_arr = explode("|", $string);
+                //echo($r_arr[2]);
+                $gtimenew = (int)substr($r_arr[2], 0, -3);
+                //echo($gtimenew);
+
+                if ($gtime > $gtimenew) {
+                    $gtimenew = $gtime;
+                }
+                
+                foreach($s1 as $rows1) {
+                    //echo($rows1);
+                    $r_arr = explode("|", $rows1);
+                    $time1 = substr($r_arr[1], 1, -3);
+                    $time2 = (int)$time1 + 3600;
+                    $gtimen = (int)substr($r_arr[2], 0, -3);
+                    //echo($gtimenew);
+                    //echo($gtimen);
+                    if ($time2 > time()) {
+                        $s2[$r_arr[0]] = $rows1;
+                    }
+                    
+                    if ($gtimen > $gtimenew) {
+                        $gtimenew = $gtimen;
+                    }
+                }
+                $object->gtime = $gtimenew;
+                
+                $object->s = (object)$s2;
+    
+                switch ($action) {
+                    case "STREAM":                   
+                        $new_obj = json_encode($object);
+                        
+                        $sql = "UPDATE `objects` SET JSON = '".$new_obj."', time = '".time()."' WHERE ID = '1'";
+
+                        if ($mysqli->query($sql) === TRUE) {
+                            $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
+                        } else {
+                            $status = "error";
+                            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                        }
+                        break;
+                } // --- end of switch ---
+            } // --- end of while ---
+        }
+        break;
+        
+    case "ftprint":
+        
+        $result = $mysqli->query("SELECT * FROM `objects` WHERE ID = '".$obj_id."'");
+
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while($row = $result->fetch_assoc()) {
+                $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $string;
+                $object = json_decode($row["JSON"]);
+                $cases = $object->properties->cases;
+                $cases1 = (array)$cases;
+                $cid = $apost["properties"]["cid"];
+                $ftprint_new = $apost["ftprint"];
+                $witness_new = $apost["witness"];
+                $new_map_int = $apost["map_int"];
+                
+                foreach($cases1 as $case1) {
+                    if ($case1->CID == $cid) {
+                        $ftprints = $case1->ftprints;
+                        $ftprints1 = (array)$ftprints;
+                        $ftpl = count($ftprints1);
+                        $ftprints1[$ftpl] = $ftprint_new;
+                        //array_push($ftprints1, $ftprint_new);
+                        $case1->ftprints = (object)$ftprints1;
+                        
+                        if ($witness_new !== "") {
+                            $witness = $case1->witness;
+                            
+                            //echo json_encode($witness);
+                            
+                            $lid = $case1->witness->lid;
+                            $witness1 = (array)$witness;
+                            $lid1 = (int)$lid;
+                            
+                            //echo in_array($map_int, $witness1);
+                            
+                            if (!in_array($new_map_int, $witness1)) {
+                                $lid1++;
+                                $witness_new["id"] = $lid1;
+                                $witness1["lid"] = $lid1;
+                                $witness1[$new_map_int] = $witness_new;
+                                $case1->witness = (object)$witness1;
+                            }
+                        }
+                    }
+                }
+                
+                $object->properties->cases = (object)$cases1;
+                
+                switch ($action) {
+                    case "FTPRINT":                   
+                        $new_obj = json_encode($object);
+                        
+                        $sql = "UPDATE `objects` SET JSON = '".$new_obj."', time = '".time()."' WHERE ID = '".$obj_id."'";
+
+                        if ($mysqli->query($sql) === TRUE) {
+                            $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
+                        } else {
+                            $status = "error";
+                            $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+                        }
+                        break;
+                } // --- end of switch ---
+            } // --- end of while ---
+        }
+        break;
+
     default:
         $radek_l2 =  date(DATE_ATOM) . "|" . time() . "|" . "Object - Unknown Type of Object: ".$type."\n";
 }
@@ -262,7 +400,7 @@ $fp = FOpen($path_log, "a");
 FPutS($fp,$radek_l2);
 FClose($fp);
 
-$vystup = array("usr_id" => $uid, "obj" => $object, "stat" => $status);
+$vystup = array("usr_id" => $uid, "obj" => $object, "stat" => $status, "time" => time());
 
 echo json_encode($vystup);
 

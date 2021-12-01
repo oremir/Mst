@@ -198,6 +198,9 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                 case 173: // Cistici l.
                     gframe_str = "frame_item_fial";
                 break;
+                case 188: // Antilevitacni l.
+                    gframe_str = "frame_item_fial";
+                break;
             }
         break;
         case 74: // zel. kotlik plny hori
@@ -481,6 +484,18 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         console.log("Sem to nejde polozit");
                                         this.game_state.hud.alert.show_alert("Sem to nejde položit");
                                     break;
+                                    case 112: //kopřiva
+                                        console.log(player.opened_ren);
+                                        var index = player.test_item(192,1); //dóza
+                                        if (player.opened_ren === 'cmelotrysk_ren' && index > -1) {
+                                            player.subtract_item(index, 1);
+                                            player.add_item(197, 1); // Med čmelotryska l.
+                                            player.add_exp("standard", 50);
+                                            player.add_exp("magcrecare", 45);
+                                            console.log("Med");
+                                            this.game_state.hud.alert.show_alert("Dar: med!");
+                                        }
+                                    break;
                                     default:
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
@@ -618,6 +633,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 }
                             break;
                             default:
+                                console.log(item_frame);
                                 switch (item_frame) {
                                     case 41: //batoh
                                         if (player.stats.bag !== "") {
@@ -629,8 +645,22 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                             this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                         }
                                     break;
+                                    case 112: //kopřiva
+                                        console.log(player.opened_ren);
+                                        var index = player.test_item(192,1); //dóza
+                                        if (player.opened_ren === 'cmelotrysk_ren' && index > -1) {
+                                            player.subtract_item(index, 1);
+                                            player.add_item(197, 1); // Med čmelotryska l.
+                                            player.add_exp("standard", 50);
+                                            player.add_exp("magcrecare", 45);
+                                            console.log("Med");
+                                            this.game_state.hud.alert.show_alert("Dar: med!");
+                                        }
+                                        
+                                    break;
                                     case 135: //stinka
-                                        if (player.opened_ren === 'kurolez') {
+                                        console.log(player.opened_ren);
+                                        if (player.opened_ren === 'kurolez_ren') {
                                             player.add_item(136, 1);
                                             player.add_exp("standard", 50);
                                             player.add_exp("magcrecare", 45);
@@ -775,6 +805,42 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
                                 } else {
                                     takeit = false;  
+                                }
+                            break;
+                            case 188: //Antilevitacni lek.
+                                var index = player.test_item(154, 1); //Lahvicka
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 189; //Antilevitacni lek. l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {                                    
+                                    takeit = false;       
+                                }
+                            break;
+                            case 194: //Trnkový kompot
+                                var index = player.test_item(192, 1); //Doza
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 195; //Trnkový kompot l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {                                    
+                                    takeit = false;       
+                                }
+                            break;
+                            case 196: //Med čmelotryska
+                                var index = player.test_item(192, 1); //Doza
+                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                                if (index > -1 && in_chest.length == 1) {
+                                    player.subtract_item(index, 1);
+                                    item_frame = 197; //Med čmelotryska l.
+                                    
+                                    this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                } else {
+                                    takeit = false;       
                                 }
                             break;
                             default:
@@ -1205,15 +1271,16 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(157, 1); //Bioodpad
                             
                             var rnd_test = Math.floor(Math.random() * 4);
-                            var test_q = test_q = player.test_quest("idass", "quest_36");
-                            console.log("Test quest 32 knife: " + test_q + "RT " + rnd_test);
+                            var test_q = player.test_quest("idass", "quest_36");
+                            console.log("Test quest 36 knife: " + test_q + "RT " + rnd_test);
+                            if (rnd_test < 1) {
+                                rnd_test = 1;
+                            }
                             if (test_q && rnd_test < 2) {
                                 rnd_test = 2;
                             }
                             
-                            if (rnd_test > 0) {
-                                chest.add_item(177, rnd_test); //Kotvičník plod
-                            }                            
+                            chest.add_item(177, rnd_test); //Kotvičník plod
                             
                             player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
@@ -1247,6 +1314,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 this.add_item(item_frame, 1);
                             }
                         }
+                    } else {
+                        this.add_item(item_frame, 1);
                     }
                     break;
                 case 148: //Tintura l.
@@ -1260,6 +1329,17 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         } else {
                             this.add_item(item_frame, 1);
                         }
+                    } else {
+                        this.add_item(item_frame, 1);
+                    }
+                    break;
+                case 154: //Lahvička
+                    if (opened_chest !== "") {
+                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+
+                        this.add_item(item_frame, 1);
+                    } else {
+                        this.add_item(item_frame, 1);
                     }
                     break;
                 case 174: //Cistici lektvar l.
@@ -1321,6 +1401,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             
                             player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
+                    } else {
+                        this.add_item(item_frame, 1);
                     }
                     break;
                 case 186: //Paz. hrot
@@ -1336,6 +1418,53 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                     }
+                    break;
+                case 189: //Antilevitační lekt. l.
+                    player.add_buff(1, 60); // antilevitace 10 min
+                    this.add_item(154, 1); //Lahvicka
+                    break;
+                case 192: //Doza
+                    if (opened_chest !== "") {
+                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+
+                        this.add_item(item_frame, 1);
+                    } else {
+                        this.add_item(item_frame, 1);
+                    }
+                    break;
+                case 193: //cukr
+                    player.add_health(22);
+                    player.subtract_stress(32);
+                    break;
+                case 195: //Trnkový kompot l.
+                    player.add_health(40);
+                    player.subtract_stress(58);
+                    this.add_item(192, 1); //Doza
+                    break;
+                case 197: //Med čmelotryska l.
+                    if (opened_chest !== "") {
+                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        
+                        if (chest_frame == 53 || chest_frame == 71) { //Žel. kotlík
+                            this.game_state.prefabs[opened_chest].change_frame(71); //Zel. kotlik s vodou
+                            this.game_state.prefabs[opened_chest].add_item(196, 1); //Med čmelotryska
+                            this.add_item(192, 1); //Doza
+                        } else {
+                            if (chest_frame == 77 || chest_frame == 79) { //Žel. kotlík na drevu
+                                this.game_state.prefabs[opened_chest].change_frame(79); //Zel. kotlik s vodou na drevu
+                                this.game_state.prefabs[opened_chest].add_item(196, 1); //Med čmelotryska
+                                this.add_item(192, 1); //Doza
+                            } else { 
+                                this.add_item(item_frame, 1);
+                            }
+                        }
+                    } else {
+                        player.add_health(18);
+                        player.subtract_stress(25);
+                    }
+                    break;
+                case 198: //denik
+                    this.game_state.hud.book.show_book();
                     break;
             }
             break;
@@ -1365,7 +1494,7 @@ Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {
     "use strict";
     var item_frame, item_quantity, item;
     
-    console.log("Subtract: " + this.prefab_name + " " + this.name + " " + this.stat);
+    console.log("Subtract: I: " + item_index + "/" + quantity + " " + this.prefab_name + " " + this.name + " " + this.stat);
     
     console.log(this.stats);
     item_frame = this.stats[item_index].frame;
@@ -1417,6 +1546,7 @@ Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
     var item_index, item_quantity, other_item;
     
     console.log("Add: " + this.prefab_name + " " + this.name + " " + this.stat);
+    //console.log(this.stat);
     
     
     other_item = this.index_by_frame(item_frame);
@@ -1439,12 +1569,14 @@ Mst.ShowItems.prototype.add_item = function (item_frame, quantity) {
         console.log(item);
         this.game_state.prefabs.player.update_quest("have", item);
     }
-
-    item_index = this.update_item(item_index, item_frame, item_quantity);
     
+    //console.log(this.name);
     if (this.name === 'chestitems') {
+        //console.log(this.prefab_name);
         this.game_state.prefabs[this.prefab_name].change_taken(item_frame, quantity);
     }
+
+    item_index = this.update_item(item_index, item_frame, item_quantity);
     
     return item_index;
 };

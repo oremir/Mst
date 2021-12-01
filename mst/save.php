@@ -72,12 +72,12 @@ if ($result->num_rows > 0) {
     $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".$user_en1."', time = '".time()."' WHERE UID = ".$usr_id;
 
     if ($mysqli->query($sql) === TRUE) {
-        $radek_l2 =  $radek_l2 . "Record updated successfully\n";
+        $radek_l2 =  $radek_l2 . $user_en1 . "|Record updated successfully\n";
     } else {
         $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
     }
 } else {
-    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "| 0 results - SAVE\n";
+    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "| ------- 0 results - SAVE\n";
 }
 
 // -------------------------- Update Objects -----------------------
@@ -169,11 +169,9 @@ if ($result->num_rows > 0) {
     $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|MAP-OBJ 0 results - SAVE\n";
 }
 
-$path_log = "log.log";
+*/
 
-$fp = FOpen($path_log, "a");
-FPutS($fp,$radek_l2);
-FClose($fp);*/
+
 
 // -------------------------- test write postavy -------------------
 
@@ -290,6 +288,14 @@ else:
   file_put_contents($path_map, json_encode($map));
 
 endif;*/
+
+
+
+$path_log = "log.log";
+
+$fp = FOpen($path_log, "a");
+FPutS($fp,$radek_l2);
+FClose($fp);
 
 echo json_encode($apost);
 ?>

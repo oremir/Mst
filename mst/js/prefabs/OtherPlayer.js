@@ -239,20 +239,42 @@ Mst.OtherPlayer.prototype.show_bubble = function (type) {
 
 Mst.OtherPlayer.prototype.hide_bubble = function (hidecond) {
     "use strict";
-    this.bubble_showed = false;
+    
     console.log("Bubble hide " + this.usr_id);
-    
-    //console.log(this.bubble.visible);
+    this.bubble_showed = false;
     this.bubble.visible = false;
+    
+    this.test_bubble();
+    
     //console.log(this.bubble.visible);
     
-    console.log(hidecond);
+    //console.log(hidecond);
     //console.log(this.bubble);
     
     //console.log(this.bubble.visible);
     
-    if (hidecond !== 0) {
-        this.test_quest();
+//    if (hidecond !== 0) {
+//        this.test_quest();
+//    }
+};
+
+Mst.OtherPlayer.prototype.test_bubble = function () {
+    "use strict";
+    
+    console.log("Test bubble");
+    console.log(this.ren_sprite.quest.state);
+    if (typeof (this.ren_sprite.quest.state) !== 'undefined') {
+        switch (this.ren_sprite.quest.state) {
+            case "pre":
+                this.show_bubble(3); // ! exclamation mark - quest ready
+            break;
+            case "ass":
+                this.show_bubble(4); // ! exclamation mark - quest assigned
+            break;
+            case "acc":
+                this.show_bubble(5); // ! question mark - quest accomplished
+            break;
+        }
     }
 };
 
@@ -292,6 +314,18 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                                 this.ren_sprite.option_quest();
                                 isnotacc = false;
                                 
+                            }
+                            if (quest.properties.ending_conditions.type === 'deliver') {
+                                var item = parseInt(quest.properties.ending_conditions.what);
+                                var index = player.test_item(item, 1);
+                                if (index > -1) {
+                                    player.subtract_item(index, 1);
+                                    player.update_quest("by_quest_name", quest.name);
+                                    this.ren_sprite.quest.state = "acc";
+                                    this.show_bubble(5); // ! question mark - quest accomplished
+                                    this.ren_sprite.option_quest();
+                                    isnotacc = false;
+                                }
                             }
                         } else {
                             quest.close = "close";
@@ -381,7 +415,7 @@ Mst.OtherPlayer.prototype.prepare_rumour = function () {
 
 Mst.OtherPlayer.prototype.cond_rumour = function (rumour) {
     "use strict";
-    var key, rumour, index, rc, rci, ri, test_q;
+    var key, rumour, index, rc, rci, rci1, ri, test_q;
     
     ri = rumour.tid;
     rc = rumour.rconditions;
@@ -564,10 +598,12 @@ Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!
 Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
     
-    var quests, owner_id, target_id, player, test_q, is_quest, condi, condi1;
+    var quests, owner_id, target_id, player, test_q, is_quest, condi, condi1, players_end;
     //console.log(this.game_state.quest_data);
     quests = this.game_state.quest_data.quests;
     player = this.game_state.prefabs.player;
+    players_end = {};
+    players_end[this.usr_id] = true;
     is_quest = false;
     
 //    if (this.game_state.prefabs.player.test_quest("owner", this.usr_id)) {
@@ -579,124 +615,128 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
         target_id = parseInt(quests[i].properties.target);
         //console.log(quests[i]);
         //console.log("Other Player ID: " + this.usr_id);
+        test_q = player.test_quest("idfin", quests[i].qid);
+        if (!test_q) {
+            if (quests[i].properties.target_type === "player" && target_id === this.usr_id) {
+                //console.log(quests[i]);
+                test_q = true;
 
-        if (quests[i].properties.target_type === "player" && target_id === this.usr_id) {
-            //console.log(quests[i]);
-            test_q = true;
-            
-            if (typeof(quests[i].properties.qconditions) !== 'undefined') {
-                var cond = quests[i].properties.qconditions;
-                for (var j = 0; j < cond.length; j++) {
-                    condi = cond[j].split("_");
-                    switch (condi[0]) {
-                        case "pq":
-                            //condi1 = parseInt(condi[1]);
-                            test_q = player.test_quest("idfin", condi[1]);
-                        break;
-                        case "badge":
-                            
-                        break;
+                if (typeof(quests[i].properties.qconditions) !== 'undefined') {
+                    var cond = quests[i].properties.qconditions;
+                    for (var j = 0; j < cond.length; j++) {
+                        condi = cond[j].split("_");
+                        switch (condi[0]) {
+                            case "pq":
+                                //condi1 = parseInt(condi[1]);
+                                test_q = player.test_quest("idfin", condi[1]);
+                            break;
+                            case "badge":
+
+                            break;
+                        }
                     }
                 }
-            }
-                
-            if (test_q) {
-                test_q = player.test_quest("idfin", quests[i].qid);
-            } else {
-                test_q = true;
-            }            
-
-            if (!test_q) {                
-                test_q = player.test_quest("idass", quests[i].name);
 
                 if (test_q) {
-                    this.ren_sprite.quest = quests[i];
-                    this.ren_sprite.quest.state = "ass";
-                    this.show_bubble(4); // ! exclamation mark - quest assigned
-                    is_quest = true;
-                    break;
+                    test_q = player.test_quest("idfin", quests[i].qid);
                 } else {
-                    test_q = player.test_quest("idacc", quests[i].name);
+                    test_q = true;
+                }            
+
+                if (!test_q) {                
+                    test_q = player.test_quest("idass", quests[i].name);
+
                     if (test_q) {
                         this.ren_sprite.quest = quests[i];
-                        this.ren_sprite.quest.state = "acc";
-                        this.show_bubble(5); // ! question mark - quest accomplished
-                        is_quest = true;
-                        break;            
-                    }
-                }
-            }
-        }
-        
-        //console.log(test_q);
-
-        if (quests[i].properties.owner_type === "player" && owner_id === this.usr_id) {
-            console.log(quests[i]);
-            test_q = true;
-            
-            if (typeof(quests[i].properties.qconditions) !== 'undefined') {
-                var cond = quests[i].properties.qconditions;
-                for (var j = 0; j < cond.length; j++) {
-                    condi = cond[j].split("_");
-                    console.log(condi);
-                    switch (condi[0]) {
-                        case "pq":
-                            condi1 = parseInt(condi[1]);
-                            //console.log(condi1);
-                            test_q = player.test_quest("idfin", condi[1]);
-                            console.log(test_q);
-                        break;
-                    }
-                }
-            }
-                
-            if (test_q) {
-                test_q = player.test_quest("idfin", quests[i].qid);
-            } else {
-                test_q = true;
-            }
-
-            if (!test_q) {                
-                test_q = player.test_quest("idass", quests[i].name);
-
-                if (test_q) {
-                    this.ren_sprite.quest = quests[i];
-                    this.ren_sprite.quest.state = "ass";
-                    if (isNaN(target_id)) {
+                        this.ren_sprite.quest.state = "ass";
                         this.show_bubble(4); // ! exclamation mark - quest assigned
+                        is_quest = true;
+                        break;
+                    } else {
+                        test_q = player.test_quest("idacc", quests[i].name);
+                        if (test_q) {
+                            this.ren_sprite.quest = quests[i];
+                            this.ren_sprite.quest.state = "acc";
+                            this.show_bubble(5); // ! question mark - quest accomplished
+                            is_quest = true;
+                            break;            
+                        }
                     }
-                    is_quest = true;
-                    break;
+                }
+            }
+
+            //console.log(test_q);
+
+            if (quests[i].properties.owner_type === "player" && owner_id === this.usr_id && players_end[this.usr_id]) {
+                console.log(quests[i]);
+                test_q = true;
+
+                if (typeof(quests[i].properties.qconditions) !== 'undefined') {
+                    var cond = quests[i].properties.qconditions;
+                    for (var j = 0; j < cond.length; j++) {
+                        condi = cond[j].split("_");
+                        console.log(condi);
+                        switch (condi[0]) {
+                            case "pq":
+                                condi1 = parseInt(condi[1]);
+                                //console.log(condi1);
+                                test_q = player.test_quest("idfin", condi[1]);
+                                console.log(test_q);
+                                players_end[this.usr_id] = false;
+                                console.log("Players end false");
+                            break;
+                        }
+                    }
+                }
+
+                if (test_q) {
+                    test_q = player.test_quest("idfin", quests[i].qid);
                 } else {
-                    test_q = player.test_quest("idacc", quests[i].name);
+                    test_q = true;
+                }
+
+                if (!test_q) {                
+                    test_q = player.test_quest("idass", quests[i].name);
+
                     if (test_q) {
                         this.ren_sprite.quest = quests[i];
-                        this.ren_sprite.quest.state = "acc";
-                        //console.log(target_id);
-                        //console.log(isNaN(target_id));
+                        this.ren_sprite.quest.state = "ass";
                         if (isNaN(target_id)) {
-                            this.show_bubble(5); // ! question mark - quest accomplished
+                            this.show_bubble(4); // ! exclamation mark - quest assigned
                         }
                         is_quest = true;
-                        break;            
-                    } else {
-                        this.ren_sprite.quest = quests[i];
-                        this.ren_sprite.quest.state = "pre";
-                        this.show_bubble(3); // ! exclamation mark - quest ready
-                        is_quest = true;
-
-                        if (quests[i].properties.ending_conditions.type === 'textpow') {
-                            console.log('\x1b[102mShow dialogue pre ' + quests[i].name);
-                            this.ren_sprite.show_dialogue(quests[i].properties.quest_text);
-                            player.assign_quest(quests[i]);
-                            player.update_quest("by_quest_name", quests[i].name);
-                        }
-                        
-//                        if (quests[i].properties.ending_conditions.type === 'text') {
-//                            player.assign_quest(quests[i]);
-//                            player.update_quest("by_quest_name", quests[i].name);
-//                        }
                         break;
+                    } else {
+                        test_q = player.test_quest("idacc", quests[i].name);
+                        if (test_q) {
+                            this.ren_sprite.quest = quests[i];
+                            this.ren_sprite.quest.state = "acc";
+                            //console.log(target_id);
+                            //console.log(isNaN(target_id));
+                            if (isNaN(target_id)) {
+                                this.show_bubble(5); // ! question mark - quest accomplished
+                            }
+                            is_quest = true;
+                            break;            
+                        } else {
+                            this.ren_sprite.quest = quests[i];
+                            this.ren_sprite.quest.state = "pre";
+                            this.show_bubble(3); // ! exclamation mark - quest ready
+                            is_quest = true;
+
+                            if (quests[i].properties.ending_conditions.type === 'textpow') {
+                                console.log('\x1b[102mShow dialogue pre ' + quests[i].name);
+                                this.ren_sprite.show_dialogue(quests[i].properties.quest_text);
+                                player.assign_quest(quests[i]);
+                                player.update_quest("by_quest_name", quests[i].name);
+                            }
+
+    //                        if (quests[i].properties.ending_conditions.type === 'text') {
+    //                            player.assign_quest(quests[i]);
+    //                            player.update_quest("by_quest_name", quests[i].name);
+    //                        }
+                            break;
+                        }
                     }
                 }
             }

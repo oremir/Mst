@@ -70,8 +70,26 @@
                  "height":16,
                  "id":2,
                  "name":"goout02",
+                 "properties":
+                    {
+                     "go_position_x":"132",
+                     "go_position_y":"160",
+                     "group":"goouts",
+                     "next_map":"56",
+                     "pool":"goouts",
+                     "texture":"blank_image"
+                    },
+                 "propertytypes":
+                    {
+                     "go_position_x":"string",
+                     "go_position_y":"string",
+                     "group":"string",
+                     "next_map":"string",
+                     "pool":"string",
+                     "texture":"string"
+                    },
                  "rotation":0,
-                 "type":"",
+                 "type":"goout",
                  "visible":true,
                  "width":16,
                  "x":815,

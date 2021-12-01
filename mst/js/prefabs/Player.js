@@ -64,6 +64,10 @@ Mst.Player = function (game_state, name, position, properties) {
             stress: 0
         };
     }
+    
+    if (typeof (properties.stats.sin) === 'undefined') {
+        properties.stats.sin = 0;
+    }
 
     this.health = +properties.stats.health || 100;
     
@@ -105,7 +109,17 @@ Mst.Player = function (game_state, name, position, properties) {
     if (typeof (properties.rumours) === 'undefined') {
         properties.rumours = [];
     }
-        
+    
+    if (typeof (properties.buffs) === 'undefined') {
+        properties.buffs = [];
+    }    
+    
+    if (typeof (properties.culprit) !== 'undefined') {
+        this.culprit = properties.culprit;
+    } else {
+        this.culprit = [];
+    }
+    
     if (typeof (properties.broadcast) === 'undefined') {
         properties.broadcast = [];
     }
@@ -123,6 +137,10 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.followers = [];
     }
     
+    if (typeof (properties.expequip) === 'undefined') {
+        properties.expequip = [0,0,0,0,0,0,0,0,0];
+    }
+    
     
 //    var dt = new Date();
 //    var tm = dt.getTime();
@@ -134,6 +152,7 @@ Mst.Player = function (game_state, name, position, properties) {
         health: +properties.stats.health,
         health_max: +properties.stats.health_max || 100,
         stress: parseInt(properties.stats.stress),
+        sin: parseInt(properties.stats.sin),
         moon_moon: 5,
         moon: parseInt(properties.moon) || 5,
         moon_max: 5,
@@ -149,7 +168,9 @@ Mst.Player = function (game_state, name, position, properties) {
         badges: properties.badges,
         rumours: properties.rumours,
         quests: properties.quests,
+        buffs: properties.buffs,
         equip: properties.equip,
+        expequip: properties.expequip,
         items: properties.items,
         bag: properties.bag,
         keys: properties.keys
@@ -169,6 +190,12 @@ Mst.Player = function (game_state, name, position, properties) {
     console.log(this.gtime.obj);
     var gtimepom = this.stats.gtime.split(":");
     this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
+     
+    var result = this.get_week(this.gtime.ms, 0);
+    var result2 = this.get_week(this.gtime.ms, 1);
+        
+    this.stats.gtimeweek = result;
+    this.stats.gtimeday = result2 + " " + this.gtime.obj.toString().substr(0,11);
     
     this.stats.moon_loop -= (tt - properties.time);
     if (this.stats.moon_loop < 1) {
@@ -197,6 +224,20 @@ Mst.Player = function (game_state, name, position, properties) {
     this.get_chest_timer = this.game_state.time.create(false);
     
     this.quests = {};
+    
+    console.log("Bufs");
+    
+    for (var i = 0; i < this.stats.buffs.length; i++) {
+        var buff = this.stats.buffs[i];
+        var bufftime = parseInt(buff.endtm) - tt;
+        console.log("End time: " + buff.endtm + " A time: " + tt + " Ev time: " + bufftime);
+        if (bufftime > 0) {
+            this.game_state.game.time.events.add(bufftime, this.close_buff, this, this.stats.buffs[i]);
+            console.log(this.game_state.game.time.events);
+        } else {
+            this.close_buff(this.stats.buffs[i]);
+        }
+    }
         
     this.save = {
         type: "player",
@@ -285,15 +326,36 @@ Mst.Player = function (game_state, name, position, properties) {
     this.shadow = {};
     
     console.log("Badge: " + this.test_badge(1));
-    
-    var pusher = new Pusher('6e9750ce5661bfd14c35', {
-      cluster: 'eu'
-    });
 
-    var channel = pusher.subscribe('my-channel');
-    channel.bind('my-event', function(data) {
-      console.log("Pusher: " + JSON.stringify(data));
-    });
+    this.stream = {
+        type: "stream",
+        name: "stream",
+        obj_id: 1,
+        x: 0,
+        y: 0,
+        properties: {
+            group: "stream",
+            items: "",
+            texture: "blank",
+            time: ""
+        },
+        action: "STREAM",
+        string: "",
+        map_int: 0
+    };
+    this.stream_sent = false;
+    this.stream_new = this.usr_id + "|F" + tt + "|" + this.gtime.ms + "|" + this.x + ";" + this.y;
+    console.log("Stream: " + this.stream_new);
+    this.stream_put();
+    
+//    var pusher = new Pusher('6e9750ce5661bfd14c35', {
+//      cluster: 'eu'
+//    });
+//
+//    var channel = pusher.subscribe('my-channel');
+//    channel.bind('my-event', function(data) {
+//      console.log("Pusher: " + JSON.stringify(data));
+//    });
 };
 
 Mst.Player.prototype = Object.create(Mst.Prefab.prototype);
@@ -432,6 +494,7 @@ Mst.Player.prototype.final_tests = function () {
         console.log("KILLED!");
         this.game_state.groups.NPCs.forEachAlive(function (NPC) {
             if (!nurse) {
+                //console.log(NPC);
                 nurse = NPC.test_nurse();
             }
         }, this);
@@ -461,6 +524,29 @@ Mst.Player.prototype.final_tests = function () {
         }
         
     }
+    
+    var sp_dist = 100000;
+    var en_sp = {};
+    this.game_state.groups.spawners.forEachAlive(function (spawner) {
+        console.log("Test spawner: " + spawner.name + " " + spawner.etype);
+        if (spawner.etype === "enemy") {
+            //console.log(spawner);
+            var dist = this.game_state.game.physics.arcade.distanceBetween(spawner, this);
+            console.log("Spawner dist: " + dist);
+            if (dist < sp_dist) {
+                sp_dist = dist;
+                en_sp = spawner;
+            }
+        }
+    }, this);
+    
+    if (typeof (en_sp.etype) !== 'undefined') {
+        //console.log(en_sp);
+        en_sp.activate();
+    }
+    
+    this.test_culprit();
+    this.add_ftprints(0);
 };
 
 Mst.Player.prototype.key_right = function () {
@@ -544,6 +630,9 @@ Mst.Player.prototype.key_close = function () {
           case "Abilities":
             this.game_state.prefabs[close_context].hide_window();
             break;
+          case "MW":
+            this.game_state.hud.middle_window.hide_mw();
+            break;
         }
 
         //this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.5, this.key_close_delay, this);
@@ -592,25 +681,28 @@ Mst.Player.prototype.set_opened_ren = function (name) {
 Mst.Player.prototype.hit_player = function (player, enemy) {
     "use strict";
     if (!enemy.knockbacked) {
-        var stress = enemy.en_attack + 2;
-
-        player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
-
         enemy.knockback_by_player(enemy, player);
+        
+        var attack = enemy.spec_attack(player);
+        
+        if (attack > 0) {
+            player.subtract_health(attack);
 
-        player.subtract_health(enemy.en_attack);
+            var stress = attack + 2;
+            player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
 
-        this.emitter.x = this.x;
-        this.emitter.y = this.y;
-    //    var px = enemy.body.velocity.x;
-    //    var py = enemy.body.velocity.y;
-    //
-    //    px *= -0.8 + Math.random()*0.4;
-    //    py *= -0.8 + Math.random()*0.4;
-    //
-    //    this.emitter.minParticleSpeed.set(px, py);
-    //    this.emitter.maxParticleSpeed.set(px, py);
-        this.emitter.start(true, 1000, null, 8);
+            this.emitter.x = this.x;
+            this.emitter.y = this.y;
+        //    var px = enemy.body.velocity.x;
+        //    var py = enemy.body.velocity.y;
+        //
+        //    px *= -0.8 + Math.random()*0.4;
+        //    py *= -0.8 + Math.random()*0.4;
+        //
+        //    this.emitter.minParticleSpeed.set(px, py);
+        //    this.emitter.maxParticleSpeed.set(px, py);
+            this.emitter.start(true, 1000, null, 8);
+        }
     } else {
         console.log("Enemy knockbacked");
     }
@@ -703,16 +795,20 @@ Mst.Player.prototype.subtract_stress = function (quantity) {
     this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 };
 
+Mst.Player.prototype.add_sin = function (quantity) {
+    "use strict";
+
+    this.stats.sin += quantity;
+};
+
 
 Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";
-    var owner;
+    var owner, stat;
     
     console.log(this.get_chest_timer.length);
     
     if (this.get_chest_timer.length < 1) {
-          
-        
         if (this.opened_chest === "") {
             console.log("Open! " + chest.name + " / Stat: " + chest.stat + " / Owner: " + chest.owner + " UsrID: " + player.usr_id + " / ObjID: " + chest.obj_id + " / Opened chest: " + player.opened_chest + " / Stats: ");
             console.log(chest);
@@ -732,19 +828,7 @@ Mst.Player.prototype.open_chest = function (player, chest) {
             }
 
             if (chest.stat !== "open") {
-                if (owner !== 0) {
-                    if (owner === player.usr_id) {
-                        chest.open_chest(player, chest);
-                    } else {
-                        console.log("Chest is owned by other player");
-                        chest.game_state.hud.alert.show_alert("To patří jinému!");
-                        this.get_chest_timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
-                        this.get_chest_timer.start();
-                        this.opened_chest = "";
-                    }
-                } else {
-                    chest.open_chest(player, chest);
-                }
+                chest.open_chest(player, chest);
             } else {
                 console.log("Chest is open by other player");
                 chest.game_state.hud.alert.show_alert("Otevřel ji někdo jiný!");
@@ -755,6 +839,30 @@ Mst.Player.prototype.open_chest = function (player, chest) {
         }
     }
     
+};
+
+Mst.Player.prototype.open_chest_fin = function (player, chest) {
+    "use strict";
+    console.log("Player open chest fin");
+    var owner = parseInt(chest.owner);
+    
+    console.log(owner);
+    
+    if (chest.stat !== "open") {
+        if (owner !== 0) {
+            if (owner === player.usr_id) {
+                chest.open_chest_fin(player, chest);
+            } else {
+                console.log("Chest is owned by other player");
+                this.game_state.hud.middle_window.show_mw("To patří jinému!", chest, ["ok", "steal"]);
+                this.get_chest_timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
+                this.get_chest_timer.start();
+                //this.opened_chest = "";
+            }
+        } else {
+            chest.open_chest_fin(player, chest);
+        }
+    }
 };
 
 Mst.Player.prototype.open_signpost = function (player, signpost) {
@@ -1428,6 +1536,28 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                     //this.game_state.hud.alert.show_alert("Úkol byl splněn!");}
 
                 break;
+                case "deliver":          
+                    return_obj.updated = true;
+                    return_obj.accomplished = true;
+
+                    this.stats.quests.ass[condition].acc.is = 'true';
+
+                    if (this.stats.quests.ass[condition].tt !== 'NPC') {
+                        key = this.game_state.playerOfUsrID(this.stats.quests.ass[condition].target);
+                    } else {
+                        key = this.game_state.NPCofID(this.stats.quests.ass[condition].target);
+                    }
+                    console.log(key);
+                    if (key !== "") {
+                        this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                        this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                    }
+
+                    //this.quest_bubble();
+
+                    //this.game_state.hud.alert.show_alert("Úkol byl splněn!");}
+
+                break;
             }
         } else {
             console.log(this.stats.quests.ass);
@@ -1441,6 +1571,7 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                             if (quest.endc.type === 'have') {
                                 item_frame = parseInt(quest.endc.what);
                                 console.log(item_frame);
+                                console.log(condition);
                                 if (item_frame === condition.f) {
                                     quantity = parseInt(quest.endc.quantity);
                                     condition.q += parseInt(quest.acc.q);
@@ -1831,22 +1962,55 @@ Mst.Player.prototype.next_broadcast = function () {
             }
         }
     }
+
+
+};
+
+Mst.Player.prototype.get_week = function (time, param) {
+    "use strict";
+    
+    var date = new Date(time);
+    var date0 = new Date(0);
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    if (param > 0) {
+        var week1 = new Date(date.getFullYear(), 0, 4);
+    } else {
+        var week1 = new Date(date0.getFullYear(), 0, 4);
+    }
+    var result = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                    - 3 + (week1.getDay() + 6) % 7) / 7);
+    return result;
+};
+
+Mst.Player.prototype.set_time = function (time) {
+    "use strict";
+    
+    this.gtime.ms = time;
+    this.gtime.obj = new Date(this.gtime.ms);
+    
+    console.log("DATUM");
+    console.log(this.gtime.obj);
+    
+    this.stats.gtime = this.gtime.obj.toLocaleTimeString();
+    var gtimepom = this.stats.gtime.split(":");
+    this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
+    this.save.properties.gtimems = this.gtime.ms;
 };
 
 Mst.Player.prototype.new_day = function () {
     "use strict";
     
     if (this.gtime.obj.getHours() < 7) {
-        this.gtime.obj.setHours(7);
+        this.gtime.obj.setHours(7,0);
     } else {
         this.gtime.obj.setDate(this.gtime.obj.getDate() + 1);
-        this.gtime.obj.setHours(7);
+        this.gtime.obj.setHours(7,0);
     }
+    
     this.gtime.ms = this.gtime.obj.getTime();
-    console.log("DATUM");
-    console.log(this.gtime.obj);
+    this.set_time(this.gtime.ms);
     this.save.properties.gtimealpha = 0;
-    this.save.properties.gtimems = this.gtime.ms;
 };
 
 Mst.Player.prototype.add_minutes = function (mins) {
@@ -1855,30 +2019,91 @@ Mst.Player.prototype.add_minutes = function (mins) {
     console.log("Hodina: " + this.gtime.obj.getHours());
     if (this.gtime.obj.getHours() < 7 || this.gtime.obj.getHours() > 20) {
         mins = 1;
-        if (this.gtime.obj.getHours() > 2) {
-            mins = 0.25;
-        }
-        if (this.gtime.obj.getHours() > 4) {
-            mins = 0.01;
-        }
-        if (this.gtime.obj.getHours() > 5) {
-            mins = 0;
+        if (this.gtime.obj.getHours() < 7) {
+            if (this.gtime.obj.getHours() > 2) {
+                mins = 0.25;
+            }
+            if (this.gtime.obj.getHours() > 4) {
+                mins = 0.01;
+            }
+            if (this.gtime.obj.getHours() > 5) {
+                mins = 0;
+            }
         }
         
         this.save.properties.gtimealpha = this.game_state.night.add_night();
     }
     
     this.gtime.ms += mins * 60000;
-    this.gtime.obj = new Date(this.gtime.ms);
+    this.set_time(this.gtime.ms);
+};
+
+Mst.Player.prototype.index_buff = function (btype) {
+    "use strict";
     
-    this.stats.gtime = this.gtime.obj.toLocaleTimeString();
-    var gtimepom = this.stats.gtime.split(":");
-    this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
+    var index = -1;
+    console.log(this.stats.buffs);
+    for (var i = 0; i < this.stats.buffs.length; i++) {
+        console.log(btype + " " + this.stats.buffs[i].btp);
+        if (btype === parseInt(this.stats.buffs[i].btp)) {
+            index = i;
+            break;
+        }
+    }
     
-    console.log("DATUM");
-    console.log(this.gtime.obj);
+    console.log("Buff index: " + index);
     
-    this.save.properties.gtimems = this.gtime.ms;
+    return index;
+};
+
+Mst.Player.prototype.add_buff = function (btype, time) {
+    "use strict";
+    
+    var btnm, endtime, dt, tt, index, newendtime;
+    
+    index = this.index_buff(btype);
+    
+    dt = new Date();
+    tt = dt.getTime();
+    
+    endtime = tt + time * 1000;
+    
+    switch (btype) {
+            case 1:
+                btnm = "Antilevitace";
+            break;
+    }
+    
+    if (index < 0) {
+        var new_buff = {
+            "btp" : btype,
+            "btnm" : btnm,
+            "endtm" : endtime
+        }
+
+        this.stats.buffs.push(new_buff);
+    } else {
+        newendtime = time * 1000 + parseInt(this.stats.buffs[index].endtm);
+        new_buff = this.stats.buffs[index];
+        this.stats.buffs[index].endtm = newendtime;
+    }
+    
+    this.game_state.game.time.events.add(Phaser.Timer.SECOND * time, this.close_buff, this, new_buff);
+    console.log(this.stats.buffs);
+};
+
+Mst.Player.prototype.close_buff = function (buff) {
+    "use strict";
+    
+    console.log(buff);
+    
+    var index = this.index_buff(buff.btp);
+    
+    if (index > -1) {
+        this.stats.buffs.splice(index, 1);
+    }
+    
+    console.log(this.stats.buffs);
 };
 
 Mst.Player.prototype.make_followers = function () {
@@ -1937,6 +2162,135 @@ Mst.Player.prototype.save_followers = function (go_position, go_map_int) {
 
 };
 
+Mst.Player.prototype.add_rumour = function (rumour) {
+    "use strict";
+    
+    this.stats.rumours.push(rumour);
+    this.save.properties.rumours = this.stats.rumours;
+    
+};
+
+Mst.Player.prototype.add_culprit = function (culprit) {
+    "use strict";
+    
+    this.culprit.push(culprit);
+    this.save.properties.culprit = this.culprit;
+};
+
+Mst.Player.prototype.test_culprit = function () {
+    "use strict";
+    
+    var map = this.game_state.root_data.map_int;
+    var new_culprit = [];
+    var count, wt, mapc;
+    
+    for (var key in this.culprit) {
+        count = parseInt(this.culprit[key].count);
+        wt = parseInt(this.culprit[key].wt);
+        mapc = parseInt(this.culprit[key].M);
+        if (map !== mapc) {
+            count++;
+        }
+        
+        this.culprit[key].count = count;
+        
+        if (count < 6) {
+            new_culprit.push(this.culprit[key]);
+        } else {
+            if (wt < 1 && count < 15) {
+                new_culprit.push(this.culprit[key]);
+            }
+        }
+    }
+        
+    this.culprit = new_culprit;
+    this.save.properties.culprit = new_culprit;
+};
+
+Mst.Player.prototype.add_ftprints = function (cc) {
+    "use strict";
+    
+    console.log("Add ftprints");
+    
+    var map = this.game_state.root_data.map_int;
+    
+    var ftprint = {
+        m: map,
+        x: Math.round((this.game_state.prefabs.player.x - 8 )/16)*16 + 8,
+        y: Math.round((this.game_state.prefabs.player.y + 8 )/16)*16 - 8
+    };
+    
+    var witness = "";
+    
+    if (cc === 0) {
+        var players = this.game_state.get_players();
+        var NPCs = this.game_state.get_NPCs();
+        
+        if (players.length > 0 || NPCs.length > 0) {
+            witness = {
+                "m": map,
+                "p": players,
+                "n": NPCs,
+                "id": 0
+            };
+        }
+    }
+    
+    console.log(this.culprit);
+    for (var key in this.culprit) {
+        if (this.culprit[key].M === map) {
+            console.log("Ft same map");
+            
+            var ccase = this.game_state.objectofID(this.culprit[key].ID);
+            this.game_state.prefabs[ccase].steal_add_ftprints(this.culprit[key].CID);
+            if (this.open_chest !== ccase) {
+                this.game_state.prefabs[ccase].save_chest();
+            }
+        } else {
+            console.log("Ft other map");
+            var ftprint_save = {
+                type: "ftprint",
+                name: "ftprint",
+                obj_id: this.culprit[key].ID,
+                x: 0,
+                y: 0,
+                properties: {
+                    group: "ftprint",
+                    items: "",
+                    texture: "blank",
+                    time: "",
+                    cid: this.culprit[key].CID
+                },
+                action: "FTPRINT",
+                ftprint: ftprint,
+                witness: witness,
+                map_int: map
+            };
+            
+            var d = new Date();
+            var n = d.getTime();
+            ftprint_save.properties.time = n;
+            var usr_id = this.usr_id;
+            
+            console.log("Ftprint insert:");
+            console.log(ftprint_save);
+            
+            $.post("object.php?time=" + n + "&uid=" + usr_id, ftprint_save)
+                .done(function (data) {
+                    console.log("Ftprint save success");
+                    console.log(data);
+                    var resp = JSON.parse(data);
+
+                    console.log("Ftprint is saved");
+                })
+                .fail(function (data) {
+                    console.log("Ftprint save error");
+                    console.log(data);
+                });
+        }
+    }
+};
+
 Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     "use strict";
     var name, dt;
@@ -1948,14 +2302,18 @@ Mst.Player.prototype.save_player = function (go_position, go_map_int) {
         this.game_state.prefabs[name].close_chest();
     }
     
+    this.add_ftprints(1);
+    
     this.save.x = go_position.x;
     this.save.y = go_position.y;
     
     this.save.properties.stats.health = this.health;
     this.save.properties.stats.health_max = this.stats.health_max;
     this.save.properties.stats.stress = this.stats.stress;
+    this.save.properties.stats.sin = this.stats.sin;
     this.save.properties.items = this.stats.items;
     this.save.properties.equip = this.stats.equip;
+    this.save.properties.expequip = this.stats.expequip;
     
     dt = new Date();
     this.save.properties.time = dt.getTime();
@@ -2028,5 +2386,77 @@ Mst.Player.prototype.collide_layer_tile = function (player, tile) {
     }
     
     //console.log(dist);
+    
+};
+
+Mst.Player.prototype.stream_put = function () {
+    "use strict";
+
+    if (!this.stream_sent) {
+        var d = new Date();
+        var n = d.getTime();
+        this.stream.properties.time = n;
+        
+        var usr_id = this.usr_id;
+        var player = this;
+        
+        this.stream_sent = true;
+        this.stream.string = this.stream_new;
+        
+        console.log("Stream sent: " + this.stream_new);
+        console.log(this.stream);
+        console.log(JSON.stringify(this.stream));
+        
+        $.post("object.php?time=" + n + "&uid=" + usr_id, this.stream)
+            .done(function (data) {
+                console.log("Stream save success");
+                console.log(data);
+                var resp = JSON.parse(data);
+                player.stream_load(resp);
+            
+                console.log("Stream is saved");
+            })
+            .fail(function (data) {
+                console.log("Stream save error");
+                console.log(data);
+            });
+    }
+};
+
+Mst.Player.prototype.stream_load = function (stream) {
+    "use strict";
+    
+    var gtime = stream.obj.gtime * 1000;
+    console.log(gtime);
+    console.log(this.gtime.ms);
+    console.log(this.gtime.obj);
+    
+    var result = this.get_week(gtime, 0);
+    
+    var datex = new Date(gtime);
+    var day = datex.getDay();
+    if (day < 1) { day = 7 };
+    var date1 = new Date(gtime - ((day - 1) * 86400000));
+    date1.setHours(7,0);
+    
+    console.log(result);
+    console.log(datex);
+    console.log(date1);
+    console.log(datex.getDay());
+    
+    if (date1 > this.gtime.obj) {
+        console.log("New week from other player");
+        
+        var date1t = date1.getTime();
+        var result = this.get_week(date1t, 0);
+        var result2 = this.get_week(date1t, 1);
+        
+        this.stats.gtimeweek = result;
+        this.stats.gtimeday = result2 + " " + date1.toString().substr(0,11);
+        this.game_state.prefabs.time.text1.text = " " + this.stats.gtimeday;
+        
+        this.set_time(date1t);
+    }
+    
     
 };

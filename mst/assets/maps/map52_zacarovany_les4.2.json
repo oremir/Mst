@@ -17,6 +17,14 @@
          "height":60,
          "name":"grass",
          "opacity":1,
+         "properties":
+            {
+             "grass":"true"
+            },
+         "propertytypes":
+            {
+             "grass":"string"
+            },
          "type":"tilelayer",
          "visible":true,
          "width":60,
@@ -28,6 +36,14 @@
          "height":60,
          "name":"collision",
          "opacity":1,
+         "properties":
+            {
+             "collision":"true"
+            },
+         "propertytypes":
+            {
+             "collision":"string"
+            },
          "type":"tilelayer",
          "visible":true,
          "width":60,
@@ -39,11 +55,11 @@
          "name":"objects",
          "objects":[
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":1,
                  "name":"goout01",
-				 "properties":
+                 "properties":
                     {
                      "go_position_x":"152",
                      "go_position_y":"865",
@@ -69,11 +85,11 @@
                  "y":92
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":2,
                  "name":"goout02",
-				 "properties":
+                 "properties":
                     {
                      "go_position_x":"850",
                      "go_position_y":"184",
@@ -99,11 +115,11 @@
                  "y":184
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":3,
                  "name":"goout03",
-				 "properties":
+                 "properties":
                     {
                      "go_position_x":"850",
                      "go_position_y":"648",
@@ -129,7 +145,7 @@
                  "y":646
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":4,
                  "name":"goout04",
@@ -141,11 +157,11 @@
                  "y":882
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":5,
                  "name":"goout05",
-				 "properties":
+                 "properties":
                     {
                      "go_position_x":"615",
                      "go_position_y":"864",
@@ -171,11 +187,11 @@
                  "y":92
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":6,
                  "name":"goout06",
-				 "properties":
+                 "properties":
                     {
                      "go_position_x":"279",
                      "go_position_y":"865",
@@ -201,11 +217,11 @@
                  "y":92
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":7,
                  "name":"enemyspawner01",
-				 "properties":
+                 "properties":
                     {
                      "direction":1,
                      "group":"spawners",
@@ -241,11 +257,11 @@
                  "y":473
                 }, 
                 {
-                 "gid":2714,
+                 "gid":0,
                  "height":16,
                  "id":8,
                  "name":"itemspawner01",
-				 "properties":
+                 "properties":
                     {
                      "group":"spawners",
                      "level":1,
@@ -289,7 +305,7 @@
         {
          "columns":52,
          "firstgid":1,
-         "image":"..\/tajemn\u00fd les_4x2.png",
+         "image":"..\/images\/map52_zacarovany_les4.2.png",
          "imageheight":832,
          "imagewidth":832,
          "margin":0,
@@ -308,20 +324,20 @@
          "margin":0,
          "name":"tajemn\u00fd les_3x2",
          "spacing":0,
-         "tilecount":2704,
+         "tilecount":0,
          "tileheight":16,
          "tilewidth":16
         }, 
         {
          "columns":52,
-         "firstgid":5409,
+         "firstgid":2705,
          "image":"..\/tajemn\u00fd les_4x1.png",
          "imageheight":832,
          "imagewidth":832,
          "margin":0,
          "name":"tajemn\u00fd les_4x1",
          "spacing":0,
-         "tilecount":2704,
+         "tilecount":0,
          "tileheight":16,
          "tilewidth":16
         }],

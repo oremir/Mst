@@ -231,6 +231,12 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
                         this.texts.push(text);
                         index ++;
                     }
+                    
+                    text_value = "sin:\t" + this.game_state.prefabs.player.stats.sin;
+                    text = this.game_state.game.add.text(293, 95 + 14 * (index + 1), text_value, text_style);
+                    text.fixedToCamera = true;
+                    this.texts.push(text);
+                    index ++;
                     break;
                 case "quests":
                     for (key in this.game_state.prefabs.player.stats.quests) {
