@@ -110,6 +110,11 @@ switch ($type) {
                             $radek_l2 =  $radek_l2 . $taken. "|Record is not alive\n";
                         }
                         break;
+                    case "LOAD":                        
+                        $status = "load";
+                        $object = json_decode($row["JSON"]);
+                        $radek_l2 =  $radek_l2 . "|Load chest\n";
+                        break;
                     default:
                         $status = "error";
                         $radek_l2 =  $radek_l2 . "|Unknown Action: ".$action."\n";

@@ -78,7 +78,7 @@ Mst.Spawner.prototype.activate = function () {
     this.spawn();
     
     console.log("Spawn level: " + this.level);
-    if (this.level > 1) {
+    if (this.level > 1 && this.spec === "") {
         this.spawn_animal();
     }
 };

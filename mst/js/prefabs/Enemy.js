@@ -458,12 +458,22 @@ Mst.Enemy.prototype.detect_player = function () {
     "use strict";
     var distance_to_player;
     distance_to_player = this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player);
-    if (distance_to_player <= 200) {
+    if (distance_to_player <= 70) {
         this.game_state.prefabs.player.infight = true;
+    } else {
+        this.game_state.game.time.events.add(Phaser.Timer.SECOND * 10, this.close_fight, this);
     }
 
     return distance_to_player <= 200;
 };
+
+Mst.Enemy.prototype.close_fight = function () {
+    "use strict";
+    if (this.game_state.prefabs.player.infight) {
+        console.log("Close fight");
+        this.game_state.prefabs.player.infight = false;
+    }
+}
 
 Mst.Enemy.prototype.create_bullet = function () {
     "use strict";

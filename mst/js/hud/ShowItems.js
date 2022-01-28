@@ -494,7 +494,23 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                             player.add_exp("magcrecare", 45);
                                             console.log("Med");
                                             this.game_state.hud.alert.show_alert("Dar: med!");
+                                        } else {
+                                            this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                         }
+                                    break;                                    
+                                    case 195: //Trnkový kompot l.
+                                        console.log(player.opened_ren);
+                                        if (player.opened_ren === 'kerik_ren') {
+                                            player.add_item(200, 1); // svetlokvet
+                                            player.add_item(192, 1); //dóza
+                                            player.add_exp("standard", 50);
+                                            player.add_exp("magcrecare", 45);
+                                            console.log("světlokvět");
+                                            this.game_state.hud.alert.show_alert("Dar: světlokvět!");
+                                        } else {
+                                            this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                        }
+                                        
                                     break;
                                     default:
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
@@ -632,6 +648,24 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     break;
                                 }
                             break;
+                            case 213: //bariera II
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;                                     
+                                    case 43: //vetev
+                                        this.game_state.prefabs[opened_chest].change_frame(214); //hranice
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
                             default:
                                 console.log(item_frame);
                                 switch (item_frame) {
@@ -655,6 +689,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                             player.add_exp("magcrecare", 45);
                                             console.log("Med");
                                             this.game_state.hud.alert.show_alert("Dar: med!");
+                                        } else {
+                                            this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                         }
                                         
                                     break;
@@ -671,6 +707,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         }
                                         
                                     break;
+                                    
                                     default:
                                         this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                     break;
@@ -1040,6 +1077,15 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 break;
                             }
                         break;
+                        case 214: // hranice
+                            switch (item_frame) {
+                                case 43: // vetev
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(213); //bariera II
+                                    }
+                                break;
+                            }
+                        break;
                      }
                     
                     if (takeit) {
@@ -1098,6 +1144,20 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         this.add_item(item_frame, 1);
                     }
 
+                    break;
+                case 21: //Kamen
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;
+                        
+                        item = chest.index_item(96); //Pazourek
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, item.quantity);
+                            chest.add_item(186, item.quantity); //Pazourkove ostri
+                            
+                            player.work_rout("survival", "exploration", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                    }
                     break;
                 case 33: //Trnka
                     player.add_health(5);
@@ -1171,6 +1231,16 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                 chest.subtract_item(item.index, item.quantity);
                                 chest.add_item(92, item.quantity*2); //Ohen
                             break;
+                            case 214: //hranice
+                                item = chest.index_item(43); //vetev
+                                if (item.index > -1) {
+                                    chest.subtract_item(item.index, item.quantity);
+                                    chest.add_item(92, item.quantity + 1); //Ohen
+                                    
+                                    chest.chest_loop_frame = 83; //hori
+                                    chest.change_frame(83);
+                                }
+                            break;
                             default:
                                 
                             break;
@@ -1241,10 +1311,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(155, 1); //Šafrán. čnělka
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.floor(Math.random() * 4);
-                            if (rnd_test > 0) {
-                                chest.add_item(161, rnd_test); //Šafrán. seminko
-                            }                            
+                            var rnd_test = Math.ceil(Math.random() * 4);
+                            
+                            chest.add_item(161, rnd_test); //Šafrán. seminko
                             
                             player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
@@ -1256,10 +1325,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(165, 1); //Medunka list
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.floor(Math.random() * 4);
-                            if (rnd_test > 0) {
-                                chest.add_item(162, rnd_test); //Medunka seminko
-                            }                            
+                            var rnd_test = Math.ceil(Math.random() * 4);
+                            
+                            chest.add_item(162, rnd_test); //Medunka seminko
                             
                             player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
@@ -1270,12 +1338,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.floor(Math.random() * 4);
+                            var rnd_test = Math.ceil(Math.random() * 5);
                             var test_q = player.test_quest("idass", "quest_36");
                             console.log("Test quest 36 knife: " + test_q + "RT " + rnd_test);
-                            if (rnd_test < 1) {
-                                rnd_test = 1;
-                            }
+                            
                             if (test_q && rnd_test < 2) {
                                 rnd_test = 2;
                             }
@@ -1465,6 +1531,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 198: //denik
                     this.game_state.hud.book.show_book();
+                    break;
+                case 225: //noviny
+                    this.game_state.hud.newsppr.show_newsppr();
                     break;
             }
             break;

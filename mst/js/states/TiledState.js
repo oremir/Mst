@@ -123,13 +123,15 @@ Mst.TiledState.prototype.init = function (core_data, map_data, root_data, quest_
 
 Mst.TiledState.prototype.create = function () {
     "use strict";
-    var group_name, object_layer, object_key, collision_tiles, load_player, key, foreg;
+    var group_name, object_layer, object_key, collision_tiles, load_player, key, foreg, grid, col;
     
     if (this.root_data.usr_id > 0) {
         this.save = {
             player: {},
             objects: this.map_data.objects
         };
+        
+        this.finder = new EasyStar.js();
         
         // create map layers
         console.log(this.map);
@@ -142,15 +144,23 @@ Mst.TiledState.prototype.create = function () {
                 console.log(this.layers[layer.name])
                 if (layer.properties.collision) { // collision layer
                     collision_tiles = [];
+                    grid = [];
                     layer.data.forEach(function (data_row) { // find tiles used in the layer
+                        col = [];
                         data_row.forEach(function (tile) {
                             // check if it's a valid tile index and isn't already in the list
                             if (tile.index > 0 && collision_tiles.indexOf(tile.index) === -1) {
                                 collision_tiles.push(tile.index);
+                                col.push(1);
+                            } else {
+                                col.push(0);
                             }
-                        }, this);
+                        }, this);   
+                        grid.push(col);
                     }, this);
                     this.map.setCollision(collision_tiles, true, layer.name);
+                    this.grid = grid;
+                    console.log(this.grid);
                 }
             } else {
                 foreg = true;
@@ -217,7 +227,9 @@ Mst.TiledState.prototype.create = function () {
         this.hud.right_window = new Mst.hud(this, "right_window");
         this.hud.middle_window = new Mst.hud(this, "middle_window");
         this.hud.book = new Mst.hud(this, "book");
+        this.hud.newsppr = new Mst.hud(this, "newsppr");
         this.hud.alt = new Mst.hud(this, "alt");
+        this.hud.question = new Mst.hud(this, "question");
         this.hud.dialogue = new Mst.hud(this, "dialogue");
         this.hud.alert = new Mst.hud(this, "alert");
         
@@ -463,11 +475,81 @@ Mst.TiledState.prototype.save_data = function (go_position, next_map_int, save_s
     console.log("save");
 };
 
+Mst.TiledState.prototype.make_object = function (position, oid, type) {
+    "use strict";
+    
+    var game_state = this;
+    var chest = {};
+    var player = this.prefabs.player;
+    var uid = player.usr_id;
+    var a_type = type.split("|");
+    if (typeof (a_type[1]) !== 'undefined') {
+        type = a_type[0];
+    }
+        
+    var save = {};
+    save.type = "chest"
+    save.action = "LOAD";
+    save.obj_id = oid;
+    save.name = "";
+
+    var d = new Date();
+    var n = d.getTime();
+
+    console.log(save);
+
+    $.post("object.php?time=" + n + "&uid=" + uid, save)
+        .done(function (data) {
+            console.log("Chest load success");
+            console.log(data);
+            var resp, name, properties;
+            resp = JSON.parse(data);
+            properties = resp.obj.properties;
+            name = resp.obj.name;
+        
+            game_state.save.objects.push(resp.obj);
+        
+            if (type === 'test witness' || type === 'Prepare ftp' || type === '14' || type === 'Questions') {
+                properties.texture = "blank_spritesheet";
+            }
+        
+            chest = new Mst.Chest(game_state, name, position, properties);
+            
+            if (type === "Questions") {
+                var dname = parseInt(a_type[2]);
+                console.log("Make - witness name: " + dname);
+                var ren = game_state.prefabs[dname].ren_sprite;
+                console.log(ren);
+
+                ren.next_question("", "");
+            }
+        
+            if (type === 'Prepare ftp') {
+                player.prepare_ftprints_onmap();
+            }
+        })
+        .fail(function (data) {
+            console.log("Chest load error");
+            console.log(data);
+
+            success = false;
+        });
+        
+    return chest;
+};
+
 Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
     "use strict";
     
     var game_state = this;
     var otherplayer = {};
+    var player = this.prefabs.player;
+    var a_type = type.split("|");
+    if (typeof (a_type[1]) !== 'undefined') {
+        type = a_type[0];
+    }
+    
+    
     var save = {};
     save.type = "player"
     save.action = "LOAD";
@@ -490,16 +572,82 @@ Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
         
             game_state.save.objects.push(resp.obj);
         
+            if (type === "investigate") {
+                properties.texture = "blank_spritesheet";
+            }
+        
             otherplayer = new Mst.OtherPlayer(game_state, name, position, properties);
             otherplayer.add_ren();
+            otherplayer.test_quest();
         
             //console.log(otherplayer);
         
             if (type === "dead") {
                 var nurse = otherplayer.test_nurse();
                 
-                game_state.prefabs.player.killed = false;
-                game_state.prefabs.player.save.properties.killed = false;
+                player.killed = false;
+                player.save.properties.killed = false;
+            }
+        
+            if (type === "investigate") {
+                player.cases_loaded.person[uid] = otherplayer;
+                
+                console.log(a_type);
+                var pcid_id = a_type.length - 2;
+                var nid_id = a_type.length - 1;
+                var bt3_id = a_type.length - 3;
+                
+                var pcid = parseInt(a_type[pcid_id]);
+                var nid = parseInt(a_type[nid_id]);              
+                var bt = a_type[1];
+                var bt2 = a_type[2];
+                var bt3 = a_type[bt3_id];
+                
+                if (bt !== 'P1' && bt !== 'Book') {
+                //var badge = otherplayer.badges[bt];
+                    
+                    var ub_val2 = player.get_badge_val("14", bt2, uid, type, "");
+                    var ub_val3 = player.get_badge_val("14", bt3, uid, type, "");
+                    
+                    var new_evidence = "";
+
+                    if (a_type.length < 6) {
+                        if (ub_val2 !== '') {
+                            new_evidence = bt + "|" + bt2 + "|" + ub_val;
+                            player.cases[pcid].evidences.push(new_evidence);
+                        }
+                    } else {
+                        if (ub_val3 !== '') {
+                            for (var i = 1; i < pcid_id; i++) {
+                                new_evidence += a_type[i];
+                                if (i < bt3_id) {
+                                    new_evidence += "|";
+                                } else {
+                                    new_evidence += ub_val3;
+                                }
+                            }
+
+                            player.cases[pcid].evidences[nid] = new_evidence;
+                        }
+                    }
+                    const t2 = {
+                        pcid: pcid,
+                        c_type: "evidence"
+                    };
+
+                    game_state.hud.book.book_investigate(t2);
+                } else {
+                    if (bt === 'Book') {
+                        const t2 = {
+                            pcid: nid,
+                            pcid1: pcid,
+                            c_type: "evidence",
+                            c_type1: "show"
+                        };
+                        
+                        game_state.hud.book.book_investigate(t2);
+                    }
+                }
             }
         })
         .fail(function (data) {
@@ -570,7 +718,7 @@ Mst.TiledState.prototype.objectofID = function (obj_id) {
     key = "";
     for (object_key in this.prefabs) {
 //            console.log(object_key);
-//            console.log(objects[object_key]);
+//            console.log(this.prefabs[object_key]);
 //            console.log(usr_id);
         if (typeof(this.prefabs[object_key].obj_id) != 'undefined') {
             obj_id = parseInt(obj_id);
@@ -597,7 +745,7 @@ Mst.TiledState.prototype.keyOfUsrID = function (usr_id) {
 //            console.log(object_key);
 //            console.log(objects[object_key]);
 //            console.log(usr_id);
-        if (typeof(this.save.objects[object_key].usr_id) != 'undefined') {
+        if (typeof(this.save.objects[object_key].usr_id) !== 'undefined') {
             usr_id = parseInt(usr_id);
             uid = parseInt(this.save.objects[object_key].usr_id);
             if (uid == usr_id) {
@@ -677,6 +825,10 @@ Mst.hud = function (game_state, name) {
         name_img = "alert";
     } else {
         name_img = name;
+        
+        if (name === 'newsppr') {
+            name_img = "newspprf_back";
+        }
     }
     
     Phaser.Image.call(this, game_state.game, 273, 47, name_img);
@@ -702,6 +854,23 @@ Mst.hud = function (game_state, name) {
             this.text_alt = {};
             
             
+            
+            break;
+            
+        case "question":
+            this.game_state.groups.hud.add(this);
+            text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
+            this.text_question = this.game_state.game.add.text(16, 242, "", text_style);
+            this.text_question.fixedToCamera = true;
+            this.reset(8, 240);
+            this.visible = false;
+            this.fixedToCamera = true;
+            
+            this.question_obj = {};
+            
+            this.inputEnabled = true;
+            this.input.useHandCursor = true;
+            this.events.onInputDown.add(this.use_question, this);
             
             break;
         case "dialogue":            
@@ -749,10 +918,29 @@ Mst.hud = function (game_state, name) {
             this.visible = false;
             this.fixedToCamera = true;
             this.texts = [];
+            this.book_obj = [];
+            this.nid = -1;
+            this.act_case = -1;
+            
+            this.inputEnabled = true;
+            this.events.onInputDown.add(this.hide_book_onclick, this);
+            
+            break;
+        case "newsppr":            
+            this.game_state.groups.hud.add(this);
+            text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
+            this.text_nwpr = this.game_state.game.add.text(162, 69, "", text_style);
+            this.text_nwpr.fixedToCamera = true;
+            this.reset(10, 49);
+            this.visible = false;
+            this.fixedToCamera = true;
+            this.texts = [];
+            this.np_obj = [];
+            this.o_text = "";
             
             this.inputEnabled = true;
             this.input.useHandCursor = true;
-            this.events.onInputDown.add(this.hide_book, this);
+            this.events.onInputDown.add(this.hide_newsppr_onclick, this);
             
             break;
         case "alert":
@@ -836,17 +1024,28 @@ Mst.hud.prototype.hide = function () {
 
 Mst.hud.prototype.show_mw = function (text, object, options) {
     "use strict";
-    this.game_state.prefabs.player.close_state.push("MW");
-    this.game_state.prefabs.player.close_context.push(object.name);
-    this.visible = true;
-    this.alpha = 0.7;
-    this.text_mw.text = text;
-    console.log(this.text_mw);
+    var player = this.game_state.prefabs.player;
     
-    this.mw_object = object;
+    console.log(player.opened_mw);
     
-    if (typeof(options) !== 'undefined') {
-        this.show_options(options);
+    if (player.opened_mw === '') {
+        player.opened_mw = "MW";
+        player.close_state.push("MW");
+        player.close_context.push(object.name);
+        this.visible = true;
+        this.alpha = 0.7;
+        this.text_mw.text = text;
+        console.log(this.text_mw);
+
+        this.mw_object = object;
+
+        if (typeof(options) !== 'undefined') {
+            this.show_options(options);
+        }
+        
+        return true;
+    } else {
+        return false;
     }
 };
 
@@ -860,6 +1059,7 @@ Mst.hud.prototype.hide_mw_onclick = function () {
 Mst.hud.prototype.hide_mw = function () {
     "use strict";
     this.visible = false;
+    this.game_state.prefabs.player.opened_mw = "";
     this.text_mw.text = "";
     this.hide_options();
     this.mw_object.hited = false;
@@ -902,6 +1102,10 @@ Mst.hud.prototype.show_options = function (options) {
                 text.text = "[ukrást]";
                 text.events.onInputDown.add(this.option_steal, this);
                 break;
+            case "investigate":
+                text.text = "[vyšetřit]";
+                text.events.onInputDown.add(this.option_investigate, this);
+                break;
         }
         
         this.options.push(text);
@@ -939,58 +1143,626 @@ Mst.hud.prototype.option_steal = function () {
     this.hide_mw_onclick();
 };
 
+Mst.hud.prototype.option_investigate = function () {
+    "use strict";
+    this.mw_object.option_investigate();
+    this.hide_mw_onclick();
+};
+
 Mst.hud.prototype.show_book = function () {
     "use strict";
+    this.game_state.prefabs.player.close_state.push("Book");
+    this.game_state.prefabs.player.close_context.push("Book");
+    
     this.visible = true;
     this.alpha = 1;
     
     this.game_state.prefabs.items.kill_stats();
     this.game_state.prefabs.equip.hide();
     
-    this.book_acquaintance(0);
+    this.book_main();
 };
 
-Mst.hud.prototype.hide_book = function () {
+Mst.hud.prototype.hide_book_content = function () {
     "use strict";
-    this.visible = false;
+    
+    this.book_obj.forEach(function (obj) {
+        obj.destroy();
+    });
+    this.np_obj = [];
+    
     this.texts.forEach(function (text) {
         text.destroy();
     });
     this.texts = [];
+};
+
+Mst.hud.prototype.hide_book_onclick = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.pop();
+    this.game_state.prefabs.player.close_context.pop();
+    this.hide_book();
+};
+
+Mst.hud.prototype.hide_book = function () {
+    "use strict";
+    
+    //console.log(this);
+    
+    this.visible = false;
+    this.hide_book_content();    
     
     this.game_state.prefabs.items.show_initial_stats();
     this.game_state.prefabs.equip.show();
 };
 
+Mst.hud.prototype.book_main = function (n) {
+    "use strict";
+    
+    this.book_make_bookmark(0, 0, "main");
+    this.book_make_bookmark(1, 1, "acquaintance");
+    this.book_make_bookmark(2, 1, "investigate");    
+    
+    const player = this.game_state.prefabs.player;
+    
+    const text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
+    const text_value = player.name;
+    let text = this.game_state.game.add.text(60, 105, text_value, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    
+    let f_texture = "";
+    if (player.ren_texture === "") {
+        if (player.gender === "male") {
+            f_texture = "male_f";
+        } else {
+            f_texture = "female_f";
+        }  
+    } else {
+        f_texture = player.ren_texture.substring(0, player.ren_texture.length - 3) + "f";
+    }
+    
+    console.log(f_texture);
+    
+    const photo = this.game_state.groups.hud.create(60, 124, f_texture);
+    photo.fixedToCamera = true;
+    photo.visible = true;
+    this.book_obj.push(photo);
+    
+    const stopy = player.stats.badges['14'];
+    const vzhled = player.stats.badges['15'];
+    console.log(stopy);
+    console.log(vzhled);
+    const stopy_a = stopy.split("|");
+    const vzhled_a = vzhled.split("|");
+    
+    let ind = parseInt(vzhled_a[0].substr(1,vzhled_a[0].length));
+    const rasa = this.game_state.core_data.rasa[ind];
+    text = this.game_state.game.add.text(130, 125, rasa, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    
+    let vyskavaha = stopy_a[0].substr(1,stopy_a[0].length) + " cm, ";
+    vyskavaha += stopy_a[1].substr(1,stopy_a[1].length) + " kg ";
+    text = this.game_state.game.add.text(130, 138, vyskavaha, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    
+    const bota = "Bota: " + stopy_a[2].substr(1,stopy_a[2].length);
+    text = this.game_state.game.add.text(130, 151, bota, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    
+    const vek = "cca " + vzhled_a[1].substr(1,vzhled_a[1].length) + " let";
+    text = this.game_state.game.add.text(130, 164, vek, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    
+    text = this.game_state.game.add.text(130, 177, "Vlasy:", text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    ind = parseInt(vzhled_a[3].substr(1,vzhled_a[3].length));
+    const vlasy = this.game_state.core_data.barva[ind];
+    text = this.game_state.game.add.text(135, 190, vlasy, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    ind = parseInt(vzhled_a[4].substr(1,vzhled_a[4].length));
+    const vlasyd = this.game_state.core_data.delkavlasu[ind];
+    text = this.game_state.game.add.text(135, 203, vlasyd, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+    
+    ind = parseInt(vzhled_a[2].substr(1,vzhled_a[2].length));
+    const postava = "Postava: " + this.game_state.core_data.postava[ind];
+    text = this.game_state.game.add.text(60, 220, postava, text_style);
+    text.fixedToCamera = true;
+    this.texts.push(text);
+};
+    
+    
+
 Mst.hud.prototype.book_acquaintance = function (n) {
     "use strict";
-    var text_style, index, index2, rel, key, text_value, text;
     
-    rel = this.game_state.prefabs.player.stats.relations;
+    this.book_make_bookmark(0, 1, "main");
+    this.book_make_bookmark(1, 0, "acquaintance");
+    this.book_make_bookmark(2, 1, "investigate");
+    
+    const rel = this.game_state.prefabs.player.stats.relations;
     rel.sort(function(a, b){return b.exp - a.exp});
     
-    text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
-    index = 0;
-    index2 = 0;
+    const text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
+    let index = 0;
+    let index2 = 0;
     
-    for (key in rel) {
+    for (let key in rel) {
         if (key < 18) {
-            text_value = rel[key].name + "\t " + rel[key].exp;
+            const text_value = rel[key].name + "\t " + rel[key].exp;
             //text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
-            text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
+            const text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
             text.fixedToCamera = true;
             this.texts.push(text);
             index ++;
         }
         if (key > 17 && key < 35) {
-            text_value = rel[key].name + "\t " + rel[key].exp;
-            text = this.game_state.game.add.text(310, 105 + 14 * index2, text_value, text_style);
+            const text_value = rel[key].name + "\t " + rel[key].exp;
+            const text = this.game_state.game.add.text(310, 105 + 14 * index2, text_value, text_style);
             //text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
             text.fixedToCamera = true;
             this.texts.push(text);
             index2 ++;
         }
         
+    }
+};
+
+Mst.hud.prototype.book_investigate = function (t1) {
+    "use strict";
+    var text_style, index, index2, rel, key, text_value, text, bk_mrk, character, f_texture;
+    var lupa, new_evidence, a_ne, ane_l, ane_nid, e_type, e_uid, e_name, evidences, near, near2;
+    var ind, stopy, vzhled, stopy_a, vzhled_a, rasa, vyskavaha, bota, vek, vlasy, postava;
+    
+    console.log(t1);
+    
+    let nid = -1;
+    if (typeof (t1) === 'undefined') {
+        nid = this.nid;
+    } else {
+        nid = t1.pcid;
+    }
+    
+    this.hide_book_content();
+    
+    this.book_make_bookmark(0, 1, "main");
+    this.book_make_bookmark(1, 1, "acquaintance");
+    this.book_make_bookmark(2, 0, "investigate");
+    
+    const player = this.game_state.prefabs.player;
+    const cases = player.cases;
+    const cases_loaded = player.cases_loaded;
+    
+    text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
+    index = 0;
+    
+    if (nid < 0) {
+        for (let pcid in cases) {
+            text_value = "#" + pcid + " ";
+            switch (cases[pcid].type) {
+                case "stolen":
+                    text_value += "Krádež";
+                break;
+            }
+            text_value += " na M: " + cases[pcid].M;
+            text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
+            
+            text.inputEnabled = true;
+            text.input.useHandCursor = true;
+            text.pcid = pcid;
+            text.c_type = "evidence";
+            text.events.onInputDown.add(this.book_investigate, this, text);
+            text.fixedToCamera = true;
+            this.texts.push(text);
+            
+            if (pcid === this.act_case) {
+                console.log(pcid + ": active");
+            }
+            
+            index++;
+        }
+    } else {
+        if (t1.c_type === 'evidence') {
+            evidences = cases[nid].evidences;
+            this.act_case = nid;
+            
+            text_value = "#" + nid + " ";
+            switch (cases[nid].type) {
+                case "stolen":
+                    text_value += "Krádež";
+                break;
+            }
+            text_value += " na M: " + cases[nid].M;
+            text = this.game_state.game.add.text(60, 105, text_value, text_style);
+            text.fixedToCamera = true;
+            this.texts.push(text);
+
+            index++;
+            for (let id in evidences) {
+                a_ne = evidences[id].split("|");
+                e_type = a_ne[0];
+                if (e_type === 'NPC' || e_type === 'player') {
+                    e_uid = parseInt(a_ne[1]);
+                    e_name = player.get_relation_name(e_uid, e_type)
+                    text_value = "- " + e_name;
+                    console.log(e_name + " - evidence: " + evidences[id]);
+                } else {
+                    text_value = "- " + evidences[id];
+                }
+                text = this.game_state.game.add.text(70, 105 + 13 * index, text_value, text_style);
+                text.fixedToCamera = true;
+                text.inputEnabled = true;
+                text.pcid = nid;
+                text.pcid1 = id;
+                text.c_type = "evidence";
+                text.c_type1 = "show";
+                text.input.useHandCursor = true;
+                text.events.onInputDown.add(this.book_investigate, this, text);
+                this.texts.push(text);
+
+                near = player.near_ftprints(evidences[id])
+                console.log(near);
+                near2 = player.test_ftprint(id, evidences);
+                console.log(near2);
+                if (near && near2.b) {
+                    lupa = this.game_state.groups.hud.create(57, 106 + 13 * index, 'lupa11', 0);
+                    lupa.inputEnabled = true;
+                    lupa.input.useHandCursor = true;
+                    lupa.pcid = id;
+                    lupa.pcid1 = nid;
+                    lupa.c_type = "ftp";
+                    lupa.events.onInputDown.add(this.book_investigate, this, lupa);
+                    lupa.fixedToCamera = true;
+                    lupa.visible = true;
+                    this.book_obj.push(lupa);
+                }
+
+                index++;
+            } 
+            
+            if (t1.c_type1 === 'show') {
+                text_value = evidences[t1.pcid1];
+                text = this.game_state.game.add.text(310, 105 + 13, text_value, text_style);
+                text.fixedToCamera = true;
+                this.texts.push(text);
+                
+                
+                a_ne = evidences[t1.pcid1].split("|");
+                e_type = a_ne[0];
+                if (e_type === 'NPC' || e_type === 'player') {
+                    e_uid = parseInt(a_ne[1]);
+                    
+                    character = player.get_full_person(e_uid, e_type, "Book|" + t1.pcid1 + "|" + nid);
+                    
+                    console.log(character);
+                    
+                    if (typeof (character) !== 'undefined') {
+                        text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
+                        text_value = character.name;
+                        text = this.game_state.game.add.text(310, 105, text_value, text_style);
+                        text.fixedToCamera = true;
+                        this.texts.push(text);
+
+                        if (character.ren_texture === "") {
+                            if (character.gender === "male") {
+                                f_texture = "male_f";
+                            } else {
+                                f_texture = "female_f";
+                            }  
+                        } else {
+                            f_texture = character.ren_texture.substring(0, character.ren_texture.length - 3) + "f";
+                        }
+
+                        console.log(f_texture);
+
+                        bk_mrk = this.game_state.groups.hud.create(310, 124, f_texture);
+                        bk_mrk.fixedToCamera = true;
+                        bk_mrk.visible = true;
+                        this.book_obj.push(bk_mrk);
+
+                        stopy = character.badges['14'];
+                        vzhled = character.badges['15'];
+                        console.log(stopy);
+                        console.log(vzhled);
+
+
+                        if (typeof (vzhled) !== 'undefined') {
+                            vzhled_a = vzhled.split("|");
+
+                            ind = parseInt(vzhled_a[0].substr(1,vzhled_a[0].length));
+                            rasa = this.game_state.core_data.rasa[ind];
+                            text = this.game_state.game.add.text(130 + 250, 125, rasa, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                        }
+
+                        if (typeof (stopy) !== 'undefined') {
+                            stopy_a = stopy.split("|");
+
+                            vyskavaha = stopy_a[0].substr(1,stopy_a[0].length) + " cm, ";
+                            vyskavaha += stopy_a[1].substr(1,stopy_a[1].length) + " kg ";
+                            text = this.game_state.game.add.text(130 + 250, 138, vyskavaha, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+
+                            bota = "Bota: " + stopy_a[2].substr(1,stopy_a[2].length);
+                            text = this.game_state.game.add.text(130 + 250, 151, bota, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                        }
+
+                        if (typeof (vzhled) !== 'undefined') {
+                            vek = "cca " + vzhled_a[1].substr(1,vzhled_a[1].length) + " let";
+                            text = this.game_state.game.add.text(130 + 250, 164, vek, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+
+                            text = this.game_state.game.add.text(130 + 250, 177, "Vlasy:", text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                            ind = parseInt(vzhled_a[3].substr(1,vzhled_a[3].length));
+                            vlasy = this.game_state.core_data.barva[ind];
+                            text = this.game_state.game.add.text(135 + 250, 190, vlasy, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                            ind = parseInt(vzhled_a[4].substr(1,vzhled_a[4].length));
+                            vlasy = this.game_state.core_data.delkavlasu[ind];
+                            text = this.game_state.game.add.text(135 + 250, 203, vlasy, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+
+                            ind = parseInt(vzhled_a[2].substr(1,vzhled_a[2].length));
+                            postava = "Postava: " + this.game_state.core_data.postava[ind];
+                            text = this.game_state.game.add.text(60 + 250, 220, postava, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                        }
+                    }
+                }
+                
+                
+                
+                
+                
+                
+            }
+        } else {
+            evidences = cases[t1.pcid1].evidences; 
+            new_evidence = player.investigate_ftprint(nid, evidences);
+            console.log(new_evidence);
+            if (new_evidence !== '') {
+                a_ne = new_evidence.split("|");
+                ane_nid = parseInt(a_ne.pop());
+                new_evidence = a_ne.join("|");
+                
+                if (a_ne.length < 4) {
+                    player.cases[t1.pcid1].evidences.push(new_evidence);
+                } else {
+                    player.cases[t1.pcid1].evidences[ane_nid] = new_evidence;
+                }
+            }
+            const t2 = {
+                pcid: t1.pcid1,
+                c_type: "evidence"
+            }; 
+            
+            this.book_investigate(t2);
+        }
+    }
+};
+
+Mst.hud.prototype.book_make_bookmark = function (n, m, o_text) {
+    "use strict";
+    
+    let bk_mrk = this.game_state.groups.hud.create(502, 85 + 45 * n, 'book_bm_spritesheet', m);
+    bk_mrk.inputEnabled = true;
+    bk_mrk.input.useHandCursor = true;
+    bk_mrk.events.onInputDown.add(this.book_bookmark, this);
+    bk_mrk.fixedToCamera = true;
+    bk_mrk.o_text = o_text;
+    bk_mrk.visible = true;
+    this.book_obj.push(bk_mrk);
+    
+    bk_mrk = this.game_state.groups.hud.create(512, 92 + 45 * n, 'book_ico_spritesheet', n);
+    bk_mrk.fixedToCamera = true;
+    bk_mrk.visible = true;
+    this.book_obj.push(bk_mrk);
+};
+
+Mst.hud.prototype.book_bookmark = function (bm) {
+    "use strict";
+    
+    this.hide_book_content();
+    
+    switch(bm.o_text) {
+        case "main":
+            console.log(bm.o_text);
+        
+            this.book_main();
+        break;
+        case "acquaintance":
+            console.log(bm.o_text);
+        
+            this.book_acquaintance(0);
+        break;
+            
+        case "investigate":
+            console.log(bm.o_text);
+        
+            this.book_investigate();
+        break;
+    }
+};
+
+Mst.hud.prototype.show_question = function (obj, text) {
+    "use strict";
+    this.game_state.prefabs.player.close_state.push("Question");
+    this.game_state.prefabs.player.close_context.push("Question");
+    
+    console.log(text);
+    
+    this.question_obj = obj;
+    
+    this.text_question.text = text;
+    this.visible = true;
+    this.alpha = 0.6;
+};
+
+Mst.hud.prototype.use_question = function () {
+    "use strict";
+    var text = this.question_obj.new_answer_text;
+    var context = this.question_obj.answer_context;
+    
+    this.question_obj.next_question(text, context);
+    this.hide_question_onclick();
+};
+
+Mst.hud.prototype.hide_question_onclick = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.pop();
+    this.game_state.prefabs.player.close_context.pop();
+    this.hide_question();
+};
+
+Mst.hud.prototype.hide_question = function () {
+    "use strict";
+    
+    //console.log(this);
+    console.log("Hide question: " + this.text_question.text);
+    this.visible = false;
+    this.text_question.text = "";
+};
+
+Mst.hud.prototype.show_newsppr = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.push("Newsppr");
+    this.game_state.prefabs.player.close_context.push("Newsppr");
+    
+    this.visible = true;
+    this.alpha = 1;
+    
+    this.game_state.prefabs.items.kill_stats();
+    this.game_state.prefabs.equip.hide();
+    
+    this.show_np_content("");
+};
+
+Mst.hud.prototype.show_np_content = function (cont) {
+    "use strict";
+    var np_img, np, article, text_style, text_title, text;
+    
+    console.log("Show content newspaper");
+    
+    this.np_i = 16;
+    np = this.game_state.quest_data.texts[16];
+    console.log(np);
+    
+    console.log(cont);
+    
+    if (cont === '') {
+        var a_np_ass = [
+            { n: "np_1h-poklad", o: "poklad", x: 35, y: 140},
+            { n: "np_arti", o: "poklad", x: 30, y: 180},
+            { n: "np_horline", x: 30, y: 310},
+            { n: "np_vertlinei", x: 140, y: 130},
+            { n: "np_1h-art-pelargon", o: "pelargon", x: 170, y: 130},
+            { n: "np_vertlinei", x: 360, y: 130},
+            { n: "np_1h-diplomat", o: "diplomat", x: 395, y: 140},
+            { n: "np_artii", o: "diplomat", x: 390, y: 180},
+            { n: "np_1h-mse", o: "mse", x: 35, y: 325},
+            { n: "np_artwide", o: "mse", x: 30, y: 345},
+            { n: "np_vertlineii", x: 260, y: 330},        
+            { n: "np_1h-kouty", o: "kouty", x: 285, y: 325},
+            { n: "np_artwide", o: "kouty", x: 280, y: 345}
+        ];
+
+        for (var i = 0; i < a_np_ass.length; i++) {
+            np_img = {};
+            np_img = this.game_state.groups.hud.create(a_np_ass[i].x, a_np_ass[i].y, a_np_ass[i].n);
+            np_img.visible = true;
+            np_img.alpha = 1;
+            np_img.fixedToCamera = true;
+            if (typeof (a_np_ass[i].o) !== 'undefined') {
+                np_img.o_text = a_np_ass[i].o;
+                np_img.inputEnabled = true;
+                np_img.input.useHandCursor = true;
+                np_img.events.onInputDown.add(this.show_np_content, this);
+            }
+
+            this.np_obj.push(np_img);
+            //console.log(this.np_obj);
+        }
+    } else {
+        this.hide_np_content();
+        console.log(cont.o_text);
+        
+        this.game_state.prefabs.player.close_state.push("Newsppr");
+        this.game_state.prefabs.player.close_context.push("Newsppr");
+        this.o_text = cont.o_text;
+        article = np.content[cont.o_text];
+        console.log(article);
+        
+        if (typeof (article.r) !== 'undefined') {
+            this.game_state.prefabs.player.add_rumour(article.r);
+        }
+        
+        text_style = {"font": "bold 16px Bookman Old Style", "fill": "#000000", tabs: 40 };
+        text_title = this.game_state.game.add.text(40, 135, article.title, text_style);
+        text_title.fixedToCamera = true;
+        this.texts.push(text_title);
+        text_style = {"font": "10px Bookman Old Style", "fill": "#000000", wordWrap: true, wordWrapWidth: this.width - 55};
+        text = this.game_state.game.add.text(40, 160, article.c, text_style);
+        text.fixedToCamera = true;
+        this.texts.push(text);
+    }
+};
+
+Mst.hud.prototype.hide_np_content = function () {
+    "use strict";
+    
+    this.np_obj.forEach(function (obj) {
+        obj.destroy();
+    });
+    this.np_obj = [];
+};
+
+Mst.hud.prototype.hide_newsppr_onclick = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.pop();
+    this.game_state.prefabs.player.close_context.pop();
+    this.hide_newsppr();
+};
+
+Mst.hud.prototype.hide_newsppr = function () {
+    "use strict";
+    
+    //console.log(this);
+    console.log("Hide newspaper: " + this.o_text);
+    
+    this.texts.forEach(function (text) {
+        text.destroy();
+    });
+    this.texts = [];
+    
+    if (this.o_text === "") {
+        this.visible = false;
+        
+        this.hide_np_content();
+
+        this.game_state.prefabs.items.show_initial_stats();
+        this.game_state.prefabs.equip.show();
+    } else {
+        this.o_text = "";
+        
+        this.show_np_content("");
     }
 };
 
@@ -1184,6 +1956,8 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, type, heart) {
 
 Mst.hud.prototype.hide_dialogue_onclick = function (next) {
     "use strict";
+    var quest, new_quest, ren_player, new_ren_player, text;
+    
     console.log('\x1b[102mHide dialogue tiled');
     
     var player = this.game_state.prefabs.player;
@@ -1195,130 +1969,168 @@ Mst.hud.prototype.hide_dialogue_onclick = function (next) {
         console.log("Next dialogue");
     } else {
         console.log(this.game_state.prefabs[this.dialogue_name].ren_sprite.quest);
-        var quest = this.game_state.prefabs[this.dialogue_name].ren_sprite.quest;
-        var ren_player = this.game_state.prefabs[this.dialogue_name];
+        quest = this.game_state.prefabs[this.dialogue_name].ren_sprite.quest;
+        ren_player = this.game_state.prefabs[this.dialogue_name];
         
         console.log("Hide dialogue continue / Quest name: " + quest.name);
         if (typeof(quest.name) !== 'undefined') {
-            if (quest !== 'close') {
-                if (typeof(quest.properties.nextq) !== 'undefined') {
-                    var is_ok = true;
-                    if (typeof(quest.properties.target) !== 'undefined') {
-                        var target = parseInt(quest.properties.target);
-                        console.log(target);
-                        console.log(ren_player.usr_id);
-                        if (target !== ren_player.usr_id) {
-                            is_ok = false;
-                        }
+            if (typeof(quest.properties.nextq) !== 'undefined') {
+                var is_ok = true;
+                if (typeof(quest.properties.target) !== 'undefined') {
+                    var target = parseInt(quest.properties.target);
+                    console.log(target);
+                    console.log(ren_player.usr_id);
+                    if (target !== ren_player.usr_id) {
+                        is_ok = false;
                     }
-                    console.log(is_ok);
+                }
+                console.log(is_ok);
+                console.log(quest.state);
 
-                    if (is_ok) {
-                        if (quest.state !== "pre") {
-                            console.log("Next quest exist & (target not exist | target is actual) & not pre ");
+                if (is_ok) {
+                    if (quest.state !== "pre") {
+                        console.log("Next quest exist & (target not exist | target is actual) & not pre ");
+                        quest.state = "fin";
+                        player.finish_quest(quest);
+
+                        console.log(this.game_state.quest_data.quests);
+                        var quests = this.game_state.quest_data.quests;
+                        var ind = parseInt(quest.properties.nextq);
+                        new_quest = quests[ind];
+                        console.log("Next quest: " + ind);
+                        console.log("Owner: " + new_quest.properties.owner);
+
+                        var key = this.game_state.playerOfUsrID(new_quest.properties.owner);
+                        new_ren_player = this.game_state.prefabs[key];
+
+                        new_ren_player.ren_sprite.new_quest(new_quest);
+                        new_quest = new_ren_player.ren_sprite.quest;
+                        console.log('\x1b[102mShow dialogue tiled not pre ' + new_quest.name);
+
+                        if (new_quest.properties.ptype === 'multi') {
+                            text = new_ren_player.ren_sprite.get_quest_ptext(0);
+                        } else {
+                            text = new_quest.properties.quest_text;
+                            player.assign_quest(new_quest);
+                        }
+                        new_ren_player.ren_sprite.show_dialogue(text);   
+
+                        if (typeof(new_quest.properties.target) !== 'undefined') {
+                            new_ren_player.hide_bubble(0);
+
+                            key = this.game_state.playerOfUsrID(new_quest.properties.target);
+                            if (key !== "") {
+                                new_ren_player = this.game_state.prefabs[key];
+                                new_ren_player.ren_sprite.new_quest(new_quest);
+                                new_ren_player.show_bubble(4); // ! exclamation mark - quest assigned
+                            }     
+                        }  else {
+                            new_ren_player.test_bubble();
+                        }
+                    } else {
+                        console.log("Next quest exist & (target not exist | target is actual) & pre");
+                        console.log("Quest showed? " + quest.showed + " " + quest.state);
+                        console.log(quest);
+                        if (typeof(quest.showed) === 'undefined') {
+                            quest.showed = false;
+                        }
+                        if (quest.properties.ending_conditions.type === "text" && quest.showed) {
                             quest.state = "fin";
                             player.finish_quest(quest);
-                            
+
                             console.log(this.game_state.quest_data.quests);
                             var quests = this.game_state.quest_data.quests;
                             var ind = parseInt(quest.properties.nextq);
-                            console.log("Next quest: " + quest.properties.nextq);
-                            console.log("Owner: " + quests[ind].properties.owner);
+                            new_quest = quests[ind];
+                            console.log("Next quest: " + ind);
+                            console.log("Owner: " + new_quest.properties.owner);
 
-                            var key = this.game_state.playerOfUsrID(quests[ind].properties.owner);
+                            var key = this.game_state.playerOfUsrID(new_quest.properties.owner);
+                            new_ren_player = this.game_state.prefabs[key];
 
-                            this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
-                            console.log('\x1b[102mShow dialogue tiled not pre ' + quests[ind].name);
-                            this.game_state.prefabs[key].ren_sprite.show_dialogue(quests[ind].properties.quest_text);
-                            player.assign_quest(quests[ind]);
+                            new_ren_player.ren_sprite.new_quest(new_quest);
+                            new_quest = new_ren_player.ren_sprite.quest;
+                            console.log('\x1b[102mShow dialogue tiled pre ' + new_quest.name);
 
-                            if (typeof(quests[ind].properties.target) !== 'undefined') {
-                                this.game_state.prefabs[key].hide_bubble(0);
+                            if (new_quest.properties.ptype === 'multi') {
+                                text = new_ren_player.ren_sprite.get_quest_ptext(0);
+                            } else {
+                                text = new_quest.properties.quest_text;
+                                player.assign_quest(new_quest);
+                            }
+                            new_ren_player.ren_sprite.show_dialogue(text);
+
+                            if (typeof(new_quest.properties.target) !== 'undefined') {
+                                new_ren_player.hide_bubble(0);
 
                                 key = this.game_state.playerOfUsrID(quests[ind].properties.target);
                                 if (key !== "") {
-                                    this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
-                                    this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
+                                    new_ren_player = this.game_state.prefabs[key];
+                                    new_ren_player.ren_sprite.new_quest(new_quest);
+                                    new_ren_player.show_bubble(4); // ! exclamation mark - quest assigned
                                 }     
-                            }  else {
-                                this.game_state.prefabs[key].test_bubble();
-                            }
-                        } else {
-                            console.log("Next quest exist & pre & (target not exist | target is actual) & pre");
-                            console.log(quest.showed + " " + quest.state);
-                            console.log(quest);
-                            if (typeof(quest.showed) === 'undefined') {
-                                quest.showed = false;
-                            }
-                            if (quest.properties.ending_conditions.type === "text" && quest.showed) {
-                                quest.state = "fin";
-                                player.finish_quest(quest);
-                                
-                                console.log(this.game_state.quest_data.quests);
-                                var quests = this.game_state.quest_data.quests;
-                                var ind = parseInt(quest.properties.nextq);
-                                console.log("Next quest: " + quest.properties.nextq);
-                                console.log("Owner: " + quests[ind].properties.owner);
-
-                                var key = this.game_state.playerOfUsrID(quests[ind].properties.owner);
-
-                                this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
-                                console.log('\x1b[102mShow dialogue tiled pre ' + quests[ind].name);
-                                this.game_state.prefabs[key].ren_sprite.show_dialogue(quests[ind].properties.quest_text);
-                                player.assign_quest(quests[ind]);
-
-                                if (typeof(quests[ind].properties.target) !== 'undefined') {
-                                    this.game_state.prefabs[key].hide_bubble(0);
-
-                                    key = this.game_state.playerOfUsrID(quests[ind].properties.target);
-                                    if (key !== "") {
-                                        this.game_state.prefabs[key].ren_sprite.quest = quests[ind];
-                                        this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
-                                    }     
-                                } else {
-                                    this.game_state.prefabs[key].test_bubble();
-                                }
+                            } else {
+                                new_ren_player.test_bubble();
                             }
                         }
-                    } else {
-
-                        if(quest.state === 'pre' && quest.close !== 'close') {
-                            console.log("Next quest / other person: " + quest.name);
-
-                            ren_player.ren_sprite.show_dialogue(quest.properties.quest_text);
-                            player.assign_quest(quest);
-                        } else {
-                            console.log(quest.close);
-                            if (quest.close !== 'close') {
-                                console.log("Same quest / other person: " + quest.properties.target);
-                                ren_player.hide_bubble(0);
-                                console.log(player.opened_ren);
-
-                                var key = this.game_state.playerOfUsrID(quest.properties.target);
-                                if (key !== "") {
-                                    this.game_state.prefabs[key].ren_sprite.quest = quest;
-                                    this.game_state.prefabs[key].show_bubble(4); // ! exclamation mark - quest assigned
-                                }
-                            }
-                        }
-
-
-
                     }
                 } else {
-                    console.log(quest.properties.ending_conditions.type);
-                    if (quest.properties.ending_conditions.type === "textpow" || quest.properties.ending_conditions.type === "text") {
-                        if (quest.close !== 'close') {
-                            quest.state = "fin";
-                            player.finish_quest(quest);
-                            this.game_state.prefabs[this.dialogue_name].ren_sprite.quest = {};
-                            console.log("Tiled / not next - Test Quest");
-                            this.game_state.prefabs[this.dialogue_name].test_quest();
-                        }
+
+                    if(quest.state === 'pre') {
+                        console.log("Next quest pre / other person: " + quest.name);
+//
+//                        if (quest.properties.ptype === 'multi') {
+//                            text = ren_player.ren_sprite.get_quest_ptext(0);
+//                        } else {
+//                            text = quest.properties.quest_text;
+//                            player.assign_quest(quest);
+//                        }
+//
+//                        ren_player.ren_sprite.show_dialogue(text);
+                    } else {
+                        console.log("Same quest not pre / other person: " + quest.properties.target);
+                        
+//                        ren_player.hide_bubble(0);
+//                        console.log(player.opened_ren);
+//
+//                        var key = this.game_state.playerOfUsrID(quest.properties.target);
+//                        if (key !== "") {
+//                            new_ren_player = this.game_state.prefabs[key];
+//                            new_ren_player.ren_sprite.new_quest(quest);
+//                            new_ren_player.show_bubble(4); // ! exclamation mark - quest assigned
+//                        }
                     }
                 }
             } else {
-                console.log("Quest is close");
+                console.log(quest.properties.ending_conditions.type);
+                if (quest.properties.ending_conditions.type === "textpow" || quest.properties.ending_conditions.type === "text") {
+                    quest.state = "fin";
+                    player.finish_quest(quest);
+                    this.game_state.prefabs[this.dialogue_name].ren_sprite.quest = {};
+                    console.log("Tiled / not next - Test Quest");
+                    this.game_state.prefabs[this.dialogue_name].test_quest();
+                }
+                if (quest.properties.ptype === 'multi') {
+                    text = ren_player.ren_sprite.get_quest_ptext(1);
+
+                    if (text !== 'finish') {
+                        var p_max = ren_player.ren_sprite.quest.i_point_m - 1;
+
+                        if (ren_player.ren_sprite.quest.i_point === p_max) {
+                            console.log('\x1b[102mShow dialogue multi end ' + quest.name);
+
+                            if(quest.state !== 'ass') {
+                                ren_player.ren_sprite.show_dialogue(text, ["assign"]);
+                            } else {
+                                ren_player.ren_sprite.show_dialogue(text);
+                            }
+                        } else {
+                            console.log('\x1b[102mShow dialogue multi ' + quest.name);
+
+                            ren_player.ren_sprite.show_dialogue(text);
+                        }
+                    }
+                }
             }
         } else {
             console.log("Next broadcast");

@@ -152,7 +152,7 @@ Mst.ShowEquip.prototype.show = function () {
 
 Mst.ShowEquip.prototype.search = function () {
     "use strict";
-    var b, tilex, tiley, tile, dist, test_ok, b_null, stype, sign;
+    var b, tilex, tiley, tile, dist, test_ok, b_null, stype, sign, ftp, t1;
     
     var player = this.game_state.prefabs.player;
     b = true;
@@ -173,56 +173,83 @@ Mst.ShowEquip.prototype.search = function () {
         }
     }
     
-    if (typeof(this.game_state.layers.grass) !== 'undefined') {
-        tilex = this.game_state.layers.grass.getTileX(player.x);
-        tiley = this.game_state.layers.grass.getTileX(player.y);
-        tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
-        console.log("Grass: " + player.x + ">" + tilex*16 + "|" + player.y + ">" + tiley*16);
-        console.log(tile);
+    if (b_null) {
+        ftp = player.return_ftprints();
+        
+        if (ftp.length > 0) {
+            player.add_minutes(12);
+            this.game_state.hud.alert.show_alert("Nález: stopy!");            
+            player.work_rout("tracer", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
+            
+            t1 = {
+                pcid: -1,
+                c_type: "evidence"
+            };            
+            t1.pcid = player.add_ftprints_tocase(ftp[0]);
+            console.log(ftp[0]);
+            if (t1.pcid > -1) {
+                this.game_state.hud.book.show_book();
+                this.game_state.hud.book.book_investigate(t1);
+            }
+            b_null = false;
+        }
+    }
+    
+    if (b_null) {    
+        if (typeof(this.game_state.layers.grass) !== 'undefined') {
+            tilex = this.game_state.layers.grass.getTileX(player.x);
+            tiley = this.game_state.layers.grass.getTileX(player.y);
+            tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
+            console.log("Grass: " + player.x + ">" + tilex*16 + "|" + player.y + ">" + tiley*16);
+            console.log(tile);
 
-        if (tile === null) {
-            b = true;
-            console.log("Not grass tile");
-        } else {
-            b = false;
-            console.log("Grass tile");
+            if (tile === null) {
+                b = true;
+                console.log("Not grass tile");
+            } else {
+                b = false;
+                console.log("Grass tile");
+            }
+        }
+
+        stype = "wild";
+
+        this.game_state.groups.spawners.forEachAlive(function (spawner) {
+            dist = Math.sqrt(Math.pow((player.x - spawner.x),2) + Math.pow((player.y - spawner.y),2));
+            console.log("Test search spawner: " + spawner.name + " " + dist);
+            console.log(spawner.name.substr(0, 11));
+
+            if (dist < 180 && spawner.name.substr(0, 11) === 'itemspawner') {
+                b = false;
+                console.log("Itemspawner close");
+                stype = spawner.stype;
+            }
+
+        }, this);
+
+        test_ok = false;
+        if (!b) {
+            if (stype === 'wild') {
+                test_ok = this.game_state.prefabs.sword.rnd_take(20, "seeker");
+            } else {
+                test_ok = this.game_state.prefabs.sword.rnd_take(21, "seeker");
+            }
+        }
+
+        if (test_ok) {
+            player.add_minutes(12);
+            player.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
+            b_null = false;
         }
     }
     
-    stype = "wild";
-    
-    this.game_state.groups.spawners.forEachAlive(function (spawner) {
-        dist = Math.sqrt(Math.pow((player.x - spawner.x),2) + Math.pow((player.y - spawner.y),2));
-        console.log("Test search spawner: " + spawner.name + " " + dist);
-        console.log(spawner.name.substr(0, 11));
-        
-        if (dist < 180 && spawner.name.substr(0, 11) === 'itemspawner') {
-            b = false;
-            console.log("Itemspawner close");
-            stype = spawner.stype;
-        }
-        
-    }, this);
-    
-    test_ok = false;
-    if (!b && b_null) {
-        if (stype === 'wild') {
-            test_ok = this.game_state.prefabs.sword.rnd_take(20, "seeker");
-        } else {
-            test_ok = this.game_state.prefabs.sword.rnd_take(21, "seeker");
-        }
+    if (b_null) {
+        player.add_minutes(16);
+        player.work_rout("seeker", "exploration", 5, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+        this.game_state.hud.alert.show_alert("Nic jsi nenašel!");
     }
     
-    if (test_ok) {
-        player.add_minutes(12);
-        player.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
-    } else {
-        if (b_null) {
-            player.add_minutes(16);
-            player.work_rout("seeker", "exploration", 5, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
-            this.game_state.hud.alert.show_alert("Nic jsi nenašel!");
-        }
-    }
+    
 };
 
 Mst.ShowEquip.prototype.menu = function () {

@@ -28,6 +28,9 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     
     if (typeof (properties.gender) === 'undefined') {
         properties.gender = "";
+        this.gender = "";
+    } else {
+        this.gender = properties.gender;
     }
     
     if (typeof (properties.nurse) === 'undefined') {
@@ -52,6 +55,9 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     console.log(this.badges);
     
     this.gender = properties.gender;
+    
+    this.gtimems = parseInt(properties.gtimems);
+    this.gweek = 0;
     
     var key;
     key = this.game_state.keyOfName(this.name);
@@ -91,7 +97,8 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     this.inputEnabled = true;
     this.input.useHandCursor = true;
     
-    this.move_out_NPC = "left"; 
+    this.move_out_NPC = "left";
+    this.moving_to = false;
     
     
 };
@@ -113,7 +120,7 @@ Mst.OtherPlayer.prototype.update = function () {
         //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
         var newx, newy;        
         
-        this.game_state.game.physics.arcade.collide(this, NPC);
+        this.game_state.game.physics.arcade.collide(this, NPC, this.collide_NPC, null, this);
         
         if (this.game_state.game.physics.arcade.distanceBetween(this, NPC) < 10) {
             switch (this.move_out_NPC) {
@@ -147,16 +154,18 @@ Mst.OtherPlayer.prototype.update = function () {
         this.bubble.y = this.y - 16;
     }
     
-    if (Math.abs(this.body.velocity.x) > 7) {
-        this.body.velocity.x *= 0.96;
-    } else {
-        this.body.velocity.x = 0;
-    }
-    
-    if (Math.abs(this.body.velocity.y) > 7) {
-        this.body.velocity.y *= 0.96;
-    } else {
-        this.body.velocity.y = 0;
+    if (!this.moving_to) {
+        if (Math.abs(this.body.velocity.x) > 7) {
+            this.body.velocity.x *= 0.96;
+        } else {
+            this.body.velocity.x = 0;
+        }
+
+        if (Math.abs(this.body.velocity.y) > 7) {
+            this.body.velocity.y *= 0.96;
+        } else {
+            this.body.velocity.y = 0;
+        }
     }
     
     if (this.updated) {
@@ -189,8 +198,11 @@ Mst.OtherPlayer.prototype.add_ren = function () {
     
     this.ren_sprite =  new Mst.Ren(this.game_state, ren_name, {x: 0, y:20}, {
         group: "ren", 
-        texture: ren_texture, 
+        texture: ren_texture,
         p_name: this.p_name,
+        o_name: this.name,
+        o_type: "player",
+        gender: this.gender,
         p_id: this.usr_id,
         dialogue_name: this.p_name
     });
@@ -220,6 +232,17 @@ Mst.OtherPlayer.prototype.collide_layer_tile = function () {
             this.move_out_NPC = "left";
         break;
 
+    }
+    
+};
+
+Mst.OtherPlayer.prototype.collide_NPC = function (oplayer, NPC) {
+    "use strict";
+            
+    if (NPC.stype === "kerik") {
+        NPC.kerik_run = false;
+        this.game_state.game.physics.arcade.moveToObject(NPC, oplayer, -50);
+        console.log("Not run kerik! " + NPC.name);
     }
 };
 
@@ -297,7 +320,12 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                 break;
                 
             case 2:
+                console.log("Case 2 " + this.ren_sprite.visible + " " + player.opened_ren + " " + player.infight);
                 if (!this.ren_sprite.visible && player.opened_ren === "" && !player.infight) {
+                    var wit = player.test_witness(-1, other_player.usr_id, "player");
+                    console.log(wit);
+                    var is_investg = (player.cases.length > 0);
+                    
                     player.update_relation(other_player, "player", 1);
                     options = ["speak"];
                     var isnotacc = true;
@@ -327,8 +355,18 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                                     isnotacc = false;
                                 }
                             }
-                        } else {
-                            quest.close = "close";
+                        } else {            
+                            if (quest.properties.ending_conditions.type === 'have') {
+                                console.log("Test have");
+                                var qt = parseInt(quest.properties.ending_conditions.quantity);
+                                var fr = parseInt(quest.properties.ending_conditions.what);
+                                var index = player.test_item(fr,qt);
+                                console.log(index);
+                                if (index > -1) {
+                                    var item = { f: fr, q: qt };
+                                    player.update_quest("have", item);
+                                }
+                            }
                         }
                         
                         if (isnotacc) {
@@ -340,6 +378,10 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                     console.log(this.rumour);
                     if (typeof(this.rumour.text) !== 'undefined') {
                         options.push("rumour");
+                    }
+                    
+                    if (is_investg) {
+                        options.push("investigate");
                     }
                     
                     if (isnotacc) {
@@ -375,18 +417,22 @@ Mst.OtherPlayer.prototype.collide_with_player_delay = function () {
 
 Mst.OtherPlayer.prototype.prepare_rumour = function () {
     "use strict";
-    var key, rumour, act_rumour, index, ri, test_q;
+    var key, rumour, act_rumour, index, ri, rii, test_q;
     var pom_rumours = [];    
     rumour = {};
     
+    console.log(this.rumours);
+    
     for (var i = 0; i < this.rumours.length; i++) {
-        ri = this.rumours[i].tid;
+        ri = this.rumours[i];
+        rii = parseInt(ri);
+        act_rumour = this.game_state.quest_data.texts[rii];
         
-        test_q = this.cond_rumour(this.rumours[i]);
+        test_q = this.cond_rumour(act_rumour, 0);
         
         key = this.game_state.prefabs.player.stats.rumours.indexOf(ri);
         if (key < 0 && test_q) {
-            pom_rumours.push(this.rumours[i]);
+            pom_rumours.push(act_rumour);
         }
     }
     
@@ -395,7 +441,7 @@ Mst.OtherPlayer.prototype.prepare_rumour = function () {
             act_rumour = this.game_state.quest_data.act_rumours[i];
             ri = act_rumour.tid;
 
-            test_q = this.cond_rumour(act_rumour);
+            test_q = this.cond_rumour(act_rumour, 1);
 
             key = this.game_state.prefabs.player.stats.rumours.indexOf(ri);
             if (key < 0 && test_q) {
@@ -413,7 +459,7 @@ Mst.OtherPlayer.prototype.prepare_rumour = function () {
 };
 
 
-Mst.OtherPlayer.prototype.cond_rumour = function (rumour) {
+Mst.OtherPlayer.prototype.cond_rumour = function (rumour, run) {
     "use strict";
     var key, rumour, index, rc, rci, rci1, ri, test_q;
     
@@ -442,6 +488,13 @@ Mst.OtherPlayer.prototype.cond_rumour = function (rumour) {
 
                 console.log(test_q);
             break;
+            case "newspaper":
+                if (run === 1) {
+                    test_q = false;
+                }
+
+                console.log(test_q);
+            break;
         }
     }
     
@@ -458,6 +511,32 @@ Mst.OtherPlayer.prototype.test_badge = function (badge) {
     }
     
     return key;
+};
+
+Mst.OtherPlayer.prototype.unpack_badge = function (badge) {
+    "use strict";
+    var val, val2, ab, bnew, key, ret;
+    
+    console.log(this.badges[badge]);
+    if (typeof(this.badges[badge]) !== 'undefined') {
+        val = this.badges[badge];
+        ab = val.split("|");
+        console.log(val);
+        
+        if (typeof (ab[1]) !== 'undefined') {
+            ret = {};
+            for (var id in ab) {
+                key = ab[id].substr(0,1);
+                val2 = ab[id].substr(1,ab[id].length);
+                ret[key] = val2;
+            }
+        } else {
+            ret = val;
+        }
+    }
+    
+    console.log(ret);
+    return ret;
 };
 
 Mst.OtherPlayer.prototype.test_nurse = function () {
@@ -525,7 +604,7 @@ Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!
             
             if (!test_q) {
                 if (quest[key].state !== "new") {
-                    this.ren_sprite.quest = quests[key];
+                    this.ren_sprite.new_quest(quests[key]);
                     this.ren_sprite.quest.state = quest[key].state;
                     
                     if(quest[key].state !== "ass") {
@@ -562,7 +641,7 @@ Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!
             test_q = !test_q;
             
             if (!test_q) {
-                this.ren_sprite.quest = quests[key];
+                this.ren_sprite.new_quest(quests[key]);
                 this.ren_sprite.quest.state = quest[key].state;
                 
                 if (isNaN(target_id)) {
@@ -647,7 +726,7 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                     test_q = player.test_quest("idass", quests[i].name);
 
                     if (test_q) {
-                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.new_quest(quests[i]);
                         this.ren_sprite.quest.state = "ass";
                         this.show_bubble(4); // ! exclamation mark - quest assigned
                         is_quest = true;
@@ -655,7 +734,7 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                     } else {
                         test_q = player.test_quest("idacc", quests[i].name);
                         if (test_q) {
-                            this.ren_sprite.quest = quests[i];
+                            this.ren_sprite.new_quest(quests[i]);
                             this.ren_sprite.quest.state = "acc";
                             this.show_bubble(5); // ! question mark - quest accomplished
                             is_quest = true;
@@ -699,7 +778,7 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                     test_q = player.test_quest("idass", quests[i].name);
 
                     if (test_q) {
-                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.new_quest(quests[i]);
                         this.ren_sprite.quest.state = "ass";
                         if (isNaN(target_id)) {
                             this.show_bubble(4); // ! exclamation mark - quest assigned
@@ -709,7 +788,7 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                     } else {
                         test_q = player.test_quest("idacc", quests[i].name);
                         if (test_q) {
-                            this.ren_sprite.quest = quests[i];
+                            this.ren_sprite.new_quest(quests[i]);
                             this.ren_sprite.quest.state = "acc";
                             //console.log(target_id);
                             //console.log(isNaN(target_id));
@@ -719,7 +798,7 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                             is_quest = true;
                             break;            
                         } else {
-                            this.ren_sprite.quest = quests[i];
+                            this.ren_sprite.new_quest(quests[i]);
                             this.ren_sprite.quest.state = "pre";
                             this.show_bubble(3); // ! exclamation mark - quest ready
                             is_quest = true;

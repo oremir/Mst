@@ -81,12 +81,19 @@ Mst.Chest = function (game_state, name, position, properties) {
         }
         this.cases = cases;
         
-        this.stolen = true;
+        this.stolen = false;
+        if (this.cases.length > 0) {
+            this.stolen = true;
+        }        
         this.case_id = -1;
+        this.culprit_id = -1;
+        this.mw_context = "";
     } else {
         this.cases = [];
         this.stolen = false;
-        this.case_id = -1;
+        this.case_id = -1;        
+        this.culprit_id = -1;
+        this.mw_context = "";
     } 
     
     var d = new Date();
@@ -792,6 +799,7 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
         chest.save.properties.opened_frame = chest.opened_frame;
         chest.save.properties.closed_frame = chest.closed_frame;
         chest.save.properties.taken = chest.save_taken();
+        chest.taken = {};
         chest.save.action = "OPEN";
 
         var d = new Date();
@@ -893,7 +901,8 @@ Mst.Chest.prototype.close_chest = function () {
     this.game_state.prefabs.player.opened_chest = "";
     this.game_state.prefabs.items.set_put_type("equip");
     
-    var game_state, chest, name, usr_id, d, n;
+    var game_state, chest, name, usr_id, d, n, tkc, is_empty_item;
+    
     game_state = this.game_state;
     chest = this;
     name = this.name;
@@ -902,13 +911,22 @@ Mst.Chest.prototype.close_chest = function () {
     this.save.properties.opened_frame = this.opened_frame;
     this.save.properties.closed_frame = this.closed_frame;
     this.save.properties.taken = this.save_taken();
-    this.steal_add_taken();
+    if (this.case_id > -1) {
+        tkc = this.steal_check_taken();
+        if (tkc) {
+            this.steal_add_taken();
+        } else {
+            this.steal_rollback();
+        }
+    }
+    
     this.save.action = "CLOSE";
     
     console.log(this.save.properties.stype);
     
     if (this.save.properties.stype === "shadow") {
-        if (this.name = 'bag') {
+        console.log("Shadow name: " + this.name);
+        if (this.name === 'bag') {
             game_state.prefabs.player.stats.bag = this.stats.items;
             game_state.prefabs.player.save.properties.bag = this.stats.items;
         }
@@ -916,39 +934,50 @@ Mst.Chest.prototype.close_chest = function () {
         game_state.prefabs.chestitems.kill_stats();
         chest.destroy();
     } else {
-        if (this.stat !== "open" && chest.is_opened) {
-            d = new Date();
-            n = d.getTime();
-            this.save.properties.time = n;
+        console.log(chest.obj_id + "|" + chest.stats.items + "|" + chest.name.substr(0, 5));
+        is_empty_item = (chest.obj_id === 0 && chest.stats.items === '' && chest.name.substr(0, 5) === 'item_');
+        console.log("Empty item: " + is_empty_item);
+        if (!is_empty_item) {
+            console.log("Chest is not empty item");
+        
+            if (this.stat !== "open" && chest.is_opened) {
+                d = new Date();
+                n = d.getTime();
+                this.save.properties.time = n;
 
-            console.log("CLOSE CHEST");
-            console.log(this.save);
+                console.log("CLOSE CHEST");
+                console.log(this.save);
 
-            $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
-                .done(function (data) {
-                    console.log("Chest close success");
-                    console.log(data);
-                    var resp, obj_id;
-                    resp = JSON.parse(data);
-                    obj_id = resp.obj.obj_id;
-                    console.log("ObjID: " + obj_id);
+                $.post("object.php?time=" + n + "&uid=" + usr_id, this.save)
+                    .done(function (data) {
+                        console.log("Chest close success");
+                        console.log(data);
+                        var resp, obj_id;
+                        resp = JSON.parse(data);
+                        obj_id = resp.obj.obj_id;
+                        console.log("ObjID: " + obj_id);
 
-                    chest.set_obj_id(obj_id);
+                        chest.set_obj_id(obj_id);
 
-                    game_state.prefabs.chestitems.kill_stats();
+                        game_state.prefabs.chestitems.kill_stats();
 
-                    console.log("Chest is closed");
-                    chest.game_state.hud.alert.show_alert("Zavřena!");
-                })
-                .fail(function (data) {
-                    console.log("Chest close error");
-                    console.log(data);
-                });
+                        console.log("Chest is closed");
+                        chest.game_state.hud.alert.show_alert("Zavřena!");
+                    })
+                    .fail(function (data) {
+                        console.log("Chest close error");
+                        console.log(data);
+                    });
 
-            console.log("save chest close");
+                console.log("save chest close");
 
+            } else {
+                game_state.prefabs.chestitems.kill_stats();
+            }
         } else {
+            console.log("Chest close is empty item");
             game_state.prefabs.chestitems.kill_stats();
+            chest.game_state.hud.alert.show_alert("Zavřena!");
         }
         
         if (typeof(this.krlz_sprite) !== 'undefined') {
@@ -964,14 +993,39 @@ Mst.Chest.prototype.close_chest = function () {
 Mst.Chest.prototype.option_ok = function () {
     "use strict";
     
-    console.log("Chest close: ok");
+    console.log("Chest option ok - close: ok");
     this.game_state.prefabs.player.opened_chest = "";
+};
+
+Mst.Chest.prototype.option_no = function () {
+    "use strict";
+    
+    console.log("Chest option no");
+    
+    if (this.mw_context === 'investigate') {
+        for (var id in this.cases) {
+            if (this.cases[id].PCID === -1) {
+                this.cases[id].PCID = -2;
+                
+                console.log(this.cases[id]);
+                
+                break;
+            }
+        }
+    }
+};
+
+Mst.Chest.prototype.option_investigate = function () {
+    "use strict";
+    
+    console.log("Chest option investigate");
+    this.game_state.prefabs.player.add_case(this);
 };
 
 Mst.Chest.prototype.option_steal = function () {
     "use strict";
     
-    console.log("Chest close: steal");
+    console.log("Chest option steal");
     console.log("Owner: " + this.owner);
     
     this.game_state.prefabs.player.add_sin(8);
@@ -984,7 +1038,7 @@ Mst.Chest.prototype.option_steal = function () {
         owner.ren_sprite.show_dialogue("To je moje!");
         this.game_state.prefabs.player.opened_chest = "";
     } else {
-        if (this.game_state.prefabs.player.stats.sin > 2000) {
+        if (this.game_state.prefabs.player.stats.sin > 200) {
             this.game_state.prefabs.player.opened_chest = this.name;
             this.steal();
         } else {
@@ -992,6 +1046,28 @@ Mst.Chest.prototype.option_steal = function () {
             this.game_state.prefabs.player.opened_chest = "";
         }
     }
+};
+
+Mst.Chest.prototype.add_case_pcid = function (id, pcid) {
+    "use strict";
+    
+    this.cases[id].PCID = pcid;
+    this.save.properties.cases = this.cases;    
+};
+
+Mst.Chest.prototype.test_new_cases = function () {
+    "use strict";
+    
+    var b = false;
+    
+    for (var id in this.cases) {
+        if (this.cases[id].PCID === -1 || typeof (this.cases[id].PCID) === 'undefined') {
+            b = true;
+            break;
+        }
+    }
+    
+    return b;
 };
 
 Mst.Chest.prototype.steal = function () {
@@ -1006,9 +1082,14 @@ Mst.Chest.prototype.steal = function () {
     var new_case = {
         "CID": this.case_id,
         "ID": this.obj_id,
+        "PCID": -1,
         "Owner": this.owner,
         "Culprit": player.usr_id,
+        "C14": player.badge["14"],
+        "C15": player.badge["15"],
+        "CpID": -1,
         "M": map,
+        "type":"stolen",
         "gtms": player.gtime.ms,
         "gweek": player.stats.gtimeweek,
         "taken": "",
@@ -1048,12 +1129,28 @@ Mst.Chest.prototype.steal = function () {
         "count": 0
     }
     
-    player.add_culprit(new_culprit);
+    this.culprit_id = player.add_culprit(new_culprit);
+    this.cases[this.case_id].CpID = this.culprit_id;
+    
+    
     this.open_chest_fin(player, this);
     
     console.log("Stolen");
     console.log(this);
     console.log(player);
+};
+
+Mst.Chest.prototype.steal_rollback = function () {
+    "use strict";
+    
+    var id = this.case_id;
+    var culprit_id = this.cases[id].CpID;
+    
+    this.case_id = -1;
+    this.cases.splice(id, 1);
+    this.save.properties.cases = this.cases;
+    this.culprit_id = -1;
+    this.game_state.prefabs.player.rollback_culprit(culprit_id);
 };
 
 Mst.Chest.prototype.steal_add_witness = function (cid) {
@@ -1117,6 +1214,24 @@ Mst.Chest.prototype.steal_add_taken = function () {
     }
 };
 
+Mst.Chest.prototype.steal_check_taken = function () {
+    "use strict";
+    
+    var taken_a = [];
+    var bt = false;
+    
+    console.log("TAKEN check");
+    console.log(this.taken);
+    
+    for (var key in this.taken) {
+        if (this.taken[key] < 0) {
+            bt = true;
+        }
+    }
+    
+    return bt;
+};
+
 Mst.Chest.prototype.save_taken = function () {
     "use strict";
     
@@ -1130,6 +1245,8 @@ Mst.Chest.prototype.save_taken = function () {
         taken = key + "?" + this.taken[key];
         taken_a.push(taken);        
     }
+    
+    console.log(this.steal_check_taken());
     
     return "TAKEN-UID:" + this.game_state.root_data.usr_id + "|" + taken_a.join("|");
 };
@@ -1184,7 +1301,7 @@ Mst.Chest.prototype.save_chest = function () {
 
 Mst.Chest.prototype.get_chest = function (chest) {
     "use strict";
-    var chest_name, closed_frame, key, usr_id, d, n, success, player;
+    var chest_name, closed_frame, key, usr_id, d, n, success, player, tkc;
     success = true;
     
     player = this.game_state.prefabs.player;
@@ -1203,7 +1320,14 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     closed_frame = chest.closed_frame;
                     
                     chest.save.properties.taken = chest.save_taken();
-                    chest.steal_add_taken();
+                    if (this.case_id > -1) {
+                        tkc = chest.steal_check_taken();
+                        if (tkc) {
+                            chest.steal_add_taken();
+                        } else {
+                            chest.steal_rollback();
+                        }
+                    }
 
                     switch(closed_frame) {
                         case 3: //věci 
@@ -1247,6 +1371,9 @@ Mst.Chest.prototype.get_chest = function (chest) {
                         break;
                         case 131: //Strom malý
                             player.add_item(30, 1); //Kmen
+                        break;
+                        case 213: //bariera II
+                            player.add_item(43, 1); //vetev
                         break;
                         default: //ostatní bedny
                             player.add_item(closed_frame, 1);

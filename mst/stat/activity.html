@@ -29,12 +29,16 @@
                 with(datt){
                     on = getTime();
                     d = getDate();
-                    m = getMonth();
+                    m = getMonth() + 1;
                     r = getYear() + 1900;
                     h = getHours();
                     mi = getMinutes();
                     s = getSeconds();
                 }
+                
+                //console.log(datt);
+                //console.log(m);
+                //console.log(d);
                 
                 dd = new Date();
                 dn = dd.getTime(); 

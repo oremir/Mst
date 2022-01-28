@@ -1,16 +1,16 @@
-var Mst = Mst || {};
-var Phaser = Phaser || {};
-var console = console || {};
+//const Mst = Mst || {};
+//const Phaser = Phaser || {};
+//const console = console || {};
 
 Mst.Player = function (game_state, name, position, properties) {
-    "use strict";
-    var load_player;
+    "use strict";    
     
     console.log("player");
     
     Mst.Prefab.call(this, game_state, "player", position, properties);
     
-    /*load_player = JSON.parse(localStorage.getItem("player"));
+    /*
+    const load_player = JSON.parse(localStorage.getItem("player"));
     if (typeof(load_player) != 'undefined') {
         this.x = load_player.x;
         this.y = load_player.y;
@@ -41,11 +41,11 @@ Mst.Player = function (game_state, name, position, properties) {
     if (typeof (properties.ren_texture) === 'undefined') {
         properties.ren_texture = "";
     }
+    this.ren_texture = properties.ren_texture;
     
     if (typeof (properties.gender) === 'undefined') {
         properties.gender = "";
-    }
-    
+    }    
     this.gender = properties.gender;
     
     if (typeof (properties.skills) === 'undefined') {
@@ -110,6 +110,11 @@ Mst.Player = function (game_state, name, position, properties) {
         properties.rumours = [];
     }
     
+    if (typeof (properties.newsppr) === 'undefined') {
+        properties.newsppr = [];
+    }
+    this.newsppr = properties.newsppr;
+    
     if (typeof (properties.buffs) === 'undefined') {
         properties.buffs = [];
     }    
@@ -118,6 +123,14 @@ Mst.Player = function (game_state, name, position, properties) {
         this.culprit = properties.culprit;
     } else {
         this.culprit = [];
+    }
+    
+    if (typeof (properties.cases) !== 'undefined') {
+        this.cases = properties.cases;
+        this.cases_loaded = {};
+    } else {
+        this.cases = [];
+        this.cases_loaded = {};
     }
     
     if (typeof (properties.broadcast) === 'undefined') {
@@ -142,8 +155,8 @@ Mst.Player = function (game_state, name, position, properties) {
     }
     
     
-//    var dt = new Date();
-//    var tm = dt.getTime();
+//    const dt = new Date();
+//    const tm = dt.getTime();
     
     console.log("Equip: " + properties.equip + " " + typeof(properties.equip));
     
@@ -180,27 +193,27 @@ Mst.Player = function (game_state, name, position, properties) {
     this.gtime.ms = parseInt(properties.gtimems);
     this.gtime.obj = new Date(this.gtime.ms);
     
-    var dt = new Date();
-    var tt = dt.getTime();
+    const dt = new Date();
+    const tt = dt.getTime();
     console.log("Time: " + properties.time + " " + tt + " " + (tt - properties.time) + " " + Math.floor(this.gtime.ms/86400000));
     
     //this.stats.gtime = " " + dt.getHours() + ":" + dt.getMinutes();
     this.stats.gtime = this.gtime.obj.toLocaleTimeString();
     console.log("Date:");
     console.log(this.gtime.obj);
-    var gtimepom = this.stats.gtime.split(":");
+    const gtimepom = this.stats.gtime.split(":");
     this.stats.gtime = " " + gtimepom[0] + ":" + gtimepom[1];
      
-    var result = this.get_week(this.gtime.ms, 0);
-    var result2 = this.get_week(this.gtime.ms, 1);
+    const result = this.get_week(this.gtime.ms, 0);
+    const result2 = this.get_week(this.gtime.ms, 1);
         
     this.stats.gtimeweek = result;
     this.stats.gtimeday = result2 + " " + this.gtime.obj.toString().substr(0,11);
     
     this.stats.moon_loop -= (tt - properties.time);
     if (this.stats.moon_loop < 1) {
-        var p_loop = - this.stats.moon_loop;
-        var new_moon = Math.floor(p_loop/180000);
+        const p_loop = - this.stats.moon_loop;
+        let new_moon = Math.floor(p_loop/180000);
         new_moon += this.stats.moon;
         if (new_moon >= this.stats.moon_max) {
             this.stats.moon = this.stats.moon_max;
@@ -227,9 +240,9 @@ Mst.Player = function (game_state, name, position, properties) {
     
     console.log("Bufs");
     
-    for (var i = 0; i < this.stats.buffs.length; i++) {
-        var buff = this.stats.buffs[i];
-        var bufftime = parseInt(buff.endtm) - tt;
+    for (let i in this.stats.buffs) {
+        const buff = this.stats.buffs[i];
+        const bufftime = parseInt(buff.endtm) - tt;
         console.log("End time: " + buff.endtm + " A time: " + tt + " Ev time: " + bufftime);
         if (bufftime > 0) {
             this.game_state.game.time.events.add(bufftime, this.close_buff, this, this.stats.buffs[i]);
@@ -238,6 +251,9 @@ Mst.Player = function (game_state, name, position, properties) {
             this.close_buff(this.stats.buffs[i]);
         }
     }
+    
+    
+    this.ftprints = [];
         
     this.save = {
         type: "player",
@@ -257,6 +273,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.opened_ren = "";
     this.opened_signpost = "";
     this.opened_overlap = "";
+    this.opened_mw = "";
     
     //console.log(properties.items);
     //console.log(this.stats.items);
@@ -348,11 +365,11 @@ Mst.Player = function (game_state, name, position, properties) {
     console.log("Stream: " + this.stream_new);
     this.stream_put();
     
-//    var pusher = new Pusher('6e9750ce5661bfd14c35', {
+//    const pusher = new Pusher('6e9750ce5661bfd14c35', {
 //      cluster: 'eu'
 //    });
 //
-//    var channel = pusher.subscribe('my-channel');
+//    const channel = pusher.subscribe('my-channel');
 //    channel.bind('my-event', function(data) {
 //      console.log("Pusher: " + JSON.stringify(data));
 //    });
@@ -364,6 +381,7 @@ Mst.Player.prototype.constructor = Mst.Player;
 Mst.Player.prototype.update = function () {
     "use strict";
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.collide_layer_tile, null, this);
+    this.game_state.game.physics.arcade.overlap(this, this.game_state.layers.collision, this.overlap_layer_tile, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_player, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.open_chest, null, this);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.signposts, this.open_signpost, null, this);
@@ -434,6 +452,7 @@ Mst.Player.prototype.update = function () {
     this.stats.moon_moon = Math.ceil(this.stats.moon / Math.ceil(this.stats.moon_max / 5));
     if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {
         if (this.stats.moon_loop > 0) {
+            let time_str = this.game_state.prefabs.moon.timer_moon.duration.toFixed(0);
             if (typeof (this.game_state.prefabs.moon.timer_first.timer) === 'undefined') {
                 console.log("moon und");
                 this.game_state.prefabs.moon.timer_first = this.game_state.game.time.events.add(this.stats.moon_loop, this.game_state.prefabs.moon.update_timer_moon, this);
@@ -441,9 +460,7 @@ Mst.Player.prototype.update = function () {
             //console.log("Timer: ")
             //console.log(this.game_state.prefabs.moon.timer_first.timer.duration.toFixed(0));
             //this.game_state.prefabs.moon.timer_first = this.game_state.game.time.events.add(this.stats.moon_loop, this.key_close_delay, this);
-            var time_str = this.game_state.prefabs.moon.timer_first.timer.duration.toFixed(0);
-        } else {
-            var time_str = this.game_state.prefabs.moon.timer_moon.duration.toFixed(0);
+            time_str = this.game_state.prefabs.moon.timer_first.timer.duration.toFixed(0);
         }
         this.game_state.prefabs.moon.text_moon.text = this.stats.moon + "/" + this.stats.moon_max + " > " + Math.floor(((time_str / 1000) / 60) % 60) + ":" + Math.floor((time_str / 1000) % 60);
         this.save.properties.moon_loop = time_str;
@@ -465,14 +482,13 @@ Mst.Player.prototype.update = function () {
 
 //Mst.Player.prototype.key_attack_enter = function () {
 //    "use strict";
-//    var pins;
 //    
 //    if (!this.speak_b) {
 //        this.game_state.prefabs.sword.swing();
 //    } else {
 //        this.speak_b = false;
 //        
-//        pins = this.speak_ren.p_id + "|" + this.usr_id + "|0|1|" + this.speak_ren.inp_speak.value;
+//        const pins = this.speak_ren.p_id + "|" + this.usr_id + "|0|1|" + this.speak_ren.inp_speak.value;
 //        console.log(pins);
 //        
 //        $.get( "broadcast.php", { ins: pins} )
@@ -488,7 +504,7 @@ Mst.Player.prototype.update = function () {
 
 Mst.Player.prototype.final_tests = function () {
     "use strict";
-    var nurse = false;
+    let nurse = false;
     
     if (this.killed) {
         console.log("KILLED!");
@@ -504,11 +520,13 @@ Mst.Player.prototype.final_tests = function () {
                 if (!nurse) {
                     nurse = otherplayer.test_nurse();
                 }
+                
+                otherplayer.gweek = this.get_week(otherplayer.gtimems, 0);
             }, this);
         }
         
         if (!nurse) {
-            var region = parseInt(this.game_state.map_data.map.region);
+            const region = parseInt(this.game_state.map_data.map.region);
             
             switch (region) {
                 case 2:
@@ -518,20 +536,29 @@ Mst.Player.prototype.final_tests = function () {
                     this.game_state.make_otherplayer({ "x": 234, "y": 186 }, 53, "dead");
                 break;
             }
-        } else {                
-            this.killed = false;
-            this.save.properties.killed = false;
-        }
-        
+        }    
+        this.killed = false;
+        this.save.properties.killed = false;        
     }
     
-    var sp_dist = 100000;
-    var en_sp = {};
+    const index = this.test_item(195,1);
+    console.log("Kompot " + index);
+   
+    this.game_state.groups.NPCs.forEachAlive(function (NPC) {
+        if (NPC.stype === "kerik") {
+            if (index > -1) {
+                NPC.condi(true);
+            }
+        }
+    }, this);
+    
+    let sp_dist = 100000;
+    let en_sp = {};
     this.game_state.groups.spawners.forEachAlive(function (spawner) {
         console.log("Test spawner: " + spawner.name + " " + spawner.etype);
         if (spawner.etype === "enemy") {
             //console.log(spawner);
-            var dist = this.game_state.game.physics.arcade.distanceBetween(spawner, this);
+            const dist = this.game_state.game.physics.arcade.distanceBetween(spawner, this);
             console.log("Spawner dist: " + dist);
             if (dist < sp_dist) {
                 sp_dist = dist;
@@ -547,6 +574,8 @@ Mst.Player.prototype.final_tests = function () {
     
     this.test_culprit();
     this.add_ftprints(0);
+
+    this.prepare_ftprints_onmap();
 };
 
 Mst.Player.prototype.key_right = function () {
@@ -600,14 +629,14 @@ Mst.Player.prototype.key_down = function () {
 
 Mst.Player.prototype.key_action = function () {
     "use strict";
-    var opened_chest = this.opened_chest;    
+    const opened_chest = this.opened_chest;    
     console.log(opened_chest);    
     
-    if (opened_chest !== "") {
-        var chest = this.game_state.prefabs[opened_chest];
+    if (opened_chest !== '') {
+        const chest = this.game_state.prefabs[opened_chest];
         console.log(chest);
         
-        if (chest.stats.items == "") {
+        if (chest.stats.items === '') {
             chest.get_chest(chest);
         }
     }
@@ -616,12 +645,11 @@ Mst.Player.prototype.key_action = function () {
 
 Mst.Player.prototype.key_close = function () {
     "use strict";
-    var close_state, close_context;
     
     //if (this.close_not_delay) {
         //this.close_not_delay = false;
-        close_state = this.close_state.pop();
-        close_context = this.close_context.pop();
+        const close_state = this.close_state.pop();
+        const close_context = this.close_context.pop();
         console.log(close_state);
         switch (close_state) {
           case "Dialogue":
@@ -632,6 +660,15 @@ Mst.Player.prototype.key_close = function () {
             break;
           case "MW":
             this.game_state.hud.middle_window.hide_mw();
+            break;
+          case "Book":
+            this.game_state.hud.book.hide_book();
+            break;
+          case "Newsppr":
+            this.game_state.hud.newsppr.hide_newsppr();
+            break;
+          case "Question":
+            this.game_state.hud.question.hide_question();
             break;
         }
 
@@ -666,9 +703,15 @@ Mst.Player.prototype.collide_other_player = function (player, other_player) {
 Mst.Player.prototype.collide_NPC = function (player, NPC) {
     "use strict";
     
-    console.log(this.opened_ren);
+    //console.log(this.opened_ren);
     if (this.opened_ren === "" && NPC.type !== "follower") {
         NPC.touch_player(NPC, player);
+    }
+    
+    if (NPC.stype === "kerik") {
+        NPC.kerik_run = false;
+        this.game_state.game.physics.arcade.moveToObject(NPC, player, -50);
+        //console.log("Not run kerik! " + NPC.name);
     }
 };
 
@@ -683,18 +726,18 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
     if (!enemy.knockbacked) {
         enemy.knockback_by_player(enemy, player);
         
-        var attack = enemy.spec_attack(player);
+        const attack = enemy.spec_attack(player);
         
         if (attack > 0) {
             player.subtract_health(attack);
 
-            var stress = attack + 2;
+            const stress = attack + 2;
             player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
 
             this.emitter.x = this.x;
             this.emitter.y = this.y;
-        //    var px = enemy.body.velocity.x;
-        //    var py = enemy.body.velocity.y;
+        //    let px = enemy.body.velocity.x;
+        //    let py = enemy.body.velocity.y;
         //
         //    px *= -0.8 + Math.random()*0.4;
         //    py *= -0.8 + Math.random()*0.4;
@@ -710,7 +753,7 @@ Mst.Player.prototype.hit_player = function (player, enemy) {
 
 Mst.Player.prototype.hit_player_by_bullet = function (bullet, player) {
     "use strict";
-    var stress = bullet.en_attack + 2;
+    const stress = bullet.en_attack + 2;
     
     player.work_rout("fighter", "constitution", stress, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
     
@@ -733,7 +776,7 @@ Mst.Player.prototype.add_health = function (quantity) {
 Mst.Player.prototype.subtract_health = function (quantity) {
     "use strict";
     
-    var region = parseInt(this.game_state.map_data.map.region);
+    const region = parseInt(this.game_state.map_data.map.region);
     
     this.health -= quantity;
     
@@ -804,7 +847,6 @@ Mst.Player.prototype.add_sin = function (quantity) {
 
 Mst.Player.prototype.open_chest = function (player, chest) {
     "use strict";
-    var owner, stat;
     
     console.log(this.get_chest_timer.length);
     
@@ -815,15 +857,15 @@ Mst.Player.prototype.open_chest = function (player, chest) {
             console.log(chest.stats);
             
             player.opened_chest = chest.name;
-            owner = parseInt(chest.owner);
+            const owner = parseInt(chest.owner);
             
-            var d = new Date();
-            var n = d.getTime();
+            const d = new Date();
+            const n = d.getTime();
             
             console.log("Player - Chest open time > 20: " + (n - chest.time)/100000);
             console.log(n + " " + chest.time + " " + chest.ctime);
             if (chest.stat === 'open' && (n - chest.time)/100000 > 20) {
-                var new_stat = "ok";
+                const new_stat = "ok";
                 chest.set_stat(new_stat);
             }
 
@@ -839,21 +881,53 @@ Mst.Player.prototype.open_chest = function (player, chest) {
         }
     }
     
+//    console.log("collide chest");
+//    console.log(player.position);
+//    console.log(player.body);
+    //console.log(tile);
+    
+    const dist = {
+        x: player.x - chest.x,
+        y: player.y - chest.y
+    };
+    
+    if (player.direction_chest.x === 0) {
+        if (dist.x > 0) {
+            player.x++;
+        } else {
+            player.x--;
+        }
+    } else {
+        if (dist.y > 0) {
+            player.y++;
+        } else {
+            player.y--;
+        }
+    }
+    
 };
 
 Mst.Player.prototype.open_chest_fin = function (player, chest) {
     "use strict";
     console.log("Player open chest fin");
-    var owner = parseInt(chest.owner);
+    const owner = parseInt(chest.owner);
     
     console.log(owner);
     
     if (chest.stat !== "open") {
         if (owner !== 0) {
             if (owner === player.usr_id) {
+                if (chest.stolen) {
+                    //if (chest.test_new_cases()) {
+                        chest.mw_context = "investigate";
+                        this.game_state.hud.middle_window.show_mw("Vykradeno! Chcete to vyšetřit?", chest, ["no", "investigate"]);
+                    //}
+                }                
+                
                 chest.open_chest_fin(player, chest);
             } else {
                 console.log("Chest is owned by other player");
+                chest.mw_context = "steal";
                 this.game_state.hud.middle_window.show_mw("To patří jinému!", chest, ["ok", "steal"]);
                 this.get_chest_timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
                 this.get_chest_timer.start();
@@ -908,7 +982,7 @@ Mst.Player.prototype.hide_overlap = function () {
     console.log("Hide overlap");
     
     if (this.opened_overlap !== "") {
-        var overlap = this.game_state.prefabs[this.opened_overlap];
+        const overlap = this.game_state.prefabs[this.opened_overlap];
         console.log(overlap);
         
         overlap.kill();
@@ -938,12 +1012,11 @@ Mst.Player.prototype.subtract_all = function (item_index) {
 
 Mst.Player.prototype.put_all = function (content) {
     "use strict";
-    var frame, quantity;
     
     if (content.length > 0) {
-        for (var i = 0; i < content.length; i++) {
-            frame = content[i].f;
-            quantity = content[i].q;
+        for (let i in content) {
+            const frame = content[i].f;
+            const quantity = content[i].q;
             this.add_item(frame, quantity);
         }
     }
@@ -951,9 +1024,8 @@ Mst.Player.prototype.put_all = function (content) {
 
 Mst.Player.prototype.test_item = function (item_frame, quantity) {
     "use strict";
-    var index;
     
-    index = this.game_state.prefabs.items.test_item(item_frame, quantity);
+    const index = this.game_state.prefabs.items.test_item(item_frame, quantity);
     console.log(index);
     return index;
 };
@@ -970,12 +1042,33 @@ Mst.Player.prototype.unequip = function () {
     return this.game_state.prefabs.equip.unequip();
 };
 
+Mst.Player.prototype.add_newsppr = function (num) {
+    "use strict";
+    let ret = false;
+    
+    if (this.newsppr.indexOf(num) < 0) {
+        ret = true;
+        this.newsppr.push(num);
+        this.save.properties.newsppr = this.newsppr;
+        
+        this.game_state.prefabs.items.add_item(225, 1);
+        
+        this.game_state.hud.alert.show_alert("+noviny");
+    }
+    
+    return ret;
+};
+
 Mst.Player.prototype.add_exp = function (skill, quantity) {
     "use strict";
-    var text;
     
     function level_add(skill, exp, level) {
-        var pom_exp;
+        let pom_exp;
+        
+        quantity = Math.floor(quantity);
+        if (quantity < 1) {
+            quantity = 1;
+        }
         
         switch (skill) {
           case "fighter":
@@ -1028,7 +1121,7 @@ Mst.Player.prototype.add_exp = function (skill, quantity) {
 
 Mst.Player.prototype.level = function (skill) {
     "use strict";
-    var level = 0;
+    let level = 0;
     if (typeof(this.stats.skills[skill]) !== 'undefined') {
         level = parseInt(this.stats.skills[skill].level);
     }    
@@ -1047,7 +1140,7 @@ Mst.Player.prototype.work_rout = function (skill, ability, stress, stand_exp, sk
 
 Mst.Player.prototype.alert_exp = function (skill, quantity) {
     "use strict";
-    var text = skill + " exp: +" + quantity;
+    const text = skill + " exp: +" + quantity;
     console.log(text);
 
     if (!this.o_exp_alert.timer.running) {
@@ -1070,17 +1163,16 @@ Mst.Player.prototype.alert_exp = function (skill, quantity) {
 
 Mst.Player.prototype.alert_exp_done = function () {
     "use strict";
-    var text, skill, iz;
     
     console.log("Alert timer end");
     
-    var eal = Object.values(this.o_exp_alert.alerts);
-    iz = 0;
+    const eal = Object.values(this.o_exp_alert.alerts);
+    let iz = 0;
     
-    for (var i = 0; i < eal.length; i++) {
+    for (let i in eal) {
         if (eal[i].q > 0) {
-            skill = eal[i].s;
-            text =  skill + " exp: +" + eal[i].q;
+            const skill = eal[i].s;
+            const text =  skill + " exp: +" + eal[i].q;
             this.game_state.hud.alert.show_alert(text);
             iz += eal[i].q;
             this.o_exp_alert.alerts[skill].q = 0;
@@ -1098,7 +1190,6 @@ Mst.Player.prototype.alert_exp_done = function () {
 
 Mst.Player.prototype.add_ability = function (ability, num1, num2) {
     "use strict";
-    var quantity, rnd_test;
     
     if (typeof (this.stats.abilities[ability]) === 'undefined') {
         this.stats.abilities[ability] = 8;
@@ -1106,7 +1197,8 @@ Mst.Player.prototype.add_ability = function (ability, num1, num2) {
     
     this.stats.abilities[ability] = parseInt(this.stats.abilities[ability]);
     
-    quantity = 0;
+    let quantity = 0;
+    let rnd_test = 0;
     
     if (this.stats.abilities[ability] < 100) {
         rnd_test = Math.floor(Math.random() * 200);
@@ -1137,19 +1229,34 @@ Mst.Player.prototype.add_ability = function (ability, num1, num2) {
         this.stats.abilities[ability] = 999;
     }
     
+    if (ability === 'constitution') {
+        this.stats.health_max = Math.ceil(this.stats.abilities[ability]/2);
+        const hmpom = Math.ceil(this.stats.abilities[ability]/4 + 80);
+        
+        if (this.stats.health_max < hmpom) {
+            this.stats.health_max = hmpom;
+        }
+        
+        if (this.stats.health_max < 100) {
+            this.stats.health_max = 100;
+        }
+        
+        this.save.properties.stats.health = this.stats.health_max;
+    }
+    
     this.stats.abilities[ability] += quantity;
     this.save.properties.abilities[ability] = this.stats.abilities[ability];
 };
 
 Mst.Player.prototype.update_place = function () {
     "use strict";
-    var map, key, place_selected;
+    var place_selected;
     console.log("Update place");
     
-    map = this.game_state.map_data.map;
+    const map = this.game_state.map_data.map;
     //place_selected = {};
     
-    for (key in this.stats.places) {
+    for (let key in this.stats.places) {
         //console.log(this.stats.places[key]);
         //if (parseInt(place.map_int) === parseInt(map.map_int) && parseInt(place.region) === parseInt(map.region)) {
         if (this.stats.places[key].map_int === map.map_int && this.stats.places[key].region === map.region) {
@@ -1177,7 +1284,7 @@ Mst.Player.prototype.update_place = function () {
 
 Mst.Player.prototype.update_relation = function (person, type, exp) {
     "use strict";
-    var key, relation_selected, uid, ruid, rname, otype;
+    var relation_selected, uid, ruid, otype;
     console.log("Update relation");
     console.log(person);
     
@@ -1194,10 +1301,11 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
         }
     }
     
-    for (key in this.stats.relations) {
+    for (let key in this.stats.relations) {
         //console.log(this.stats.relations[key]);
         //if (parseInt(relation.map_int) === parseInt(map.map_int) && parseInt(relation.region) === parseInt(map.region)) {
         if (typeof (this.stats.relations[key].uid) === 'undefined') { // jen docasne !!!!!!!!
+            let rname = "";
             if (person.name === 'nun_1') {
                 rname = "nun";
             }
@@ -1223,7 +1331,7 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
                 relation_selected = this.stats.relations[key];
                 console.log(relation_selected);
                 
-                for (var i = parseInt(key) + 1; i < this.stats.relations.length; i++) { // jen docasne ... odstran multi
+                for (let i = parseInt(key) + 1; i < this.stats.relations.length; i++) { // jen docasne ... odstran multi
                     ruid = parseInt(this.stats.relations[i].uid);
                     if (this.stats.relations[i].type === otype && ruid === uid) {
                         relation_selected.exp = parseInt(relation_selected.exp);
@@ -1269,6 +1377,39 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
 //    }, this);
 //};
 
+Mst.Player.prototype.get_relation = function (uid, type) {
+    "use strict";
+    var relation_selected;
+    
+    for (let id in this.stats.relations) {
+        const ruid = parseInt(this.stats.relations[id].uid);
+        //console.log("Relation [" + key + "] r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
+        if (this.stats.relations[id].type === type && ruid === uid) {
+            relation_selected = this.stats.relations[id];
+            console.log(relation_selected);
+            break;
+        }
+    }
+    
+    return relation_selected;
+};
+
+Mst.Player.prototype.get_relation_name = function (uid, type) {
+    "use strict";
+    var ruid, name;
+    
+    name = "";
+    for (var id in this.stats.relations) {
+        ruid = parseInt(this.stats.relations[id].uid);
+        if (this.stats.relations[id].type === type && ruid === uid) {
+            name = this.stats.relations[id].name;
+            break;
+        }
+    }
+    
+    return name;
+};
+
 Mst.Player.prototype.return_relation = function (person, type) {
     "use strict";
     var uid, ruid, otype, relation_selected, exp;
@@ -1285,7 +1426,7 @@ Mst.Player.prototype.return_relation = function (person, type) {
     
     for (var key in this.stats.relations) {
         ruid = parseInt(this.stats.relations[key].uid);
-        console.log("Relation [" + key + "] r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
+        //console.log("Relation [" + key + "] r type: " + this.stats.relations[key].type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
         if (this.stats.relations[key].type === otype && ruid === uid) {
             relation_selected = this.stats.relations[key];
             console.log(relation_selected);
@@ -1323,11 +1464,7 @@ Mst.Player.prototype.assign_quest = function (quest) {
         }
         this.stats.quests.ass[quest.name] = new_quest;
         
-        if (new_quest.ot !== 'NPC') {
-            key = this.game_state.playerOfUsrID(new_quest.owner);
-        } else {
-            key = quest.ow_name;
-        }
+        key = quest.ow_name;
         this.game_state.prefabs[key].ren_sprite.quest.state = "ass";
     }
     this.save.properties.quests = this.stats.quests;
@@ -2165,8 +2302,638 @@ Mst.Player.prototype.save_followers = function (go_position, go_map_int) {
 Mst.Player.prototype.add_rumour = function (rumour) {
     "use strict";
     
-    this.stats.rumours.push(rumour);
-    this.save.properties.rumours = this.stats.rumours;
+    var key = this.stats.rumours.indexOf(rumour);
+    if (key < 0) {
+        this.stats.rumours.push(rumour);
+        this.save.properties.rumours = this.stats.rumours;
+    }
+    console.log(this.stats.rumours);
+};
+
+Mst.Player.prototype.load_witness = function (pcasel) {
+    "use strict";
+    var model_wcase, new_wcase, uidw, witness, ntype, a_wit, pcid;
+    
+    console.log(pcasel);
+    
+    if (typeof (this.cases_loaded.witness) === 'undefined') {
+        this.cases_loaded.witness = {};
+        this.cases_loaded.witness.cases = [];
+    }
+    
+    model_wcase = {
+        uid: "",
+        type: "",
+        map: pcasel.M,                
+        cid: pcasel.CID,
+        id: pcasel.ID,
+        pcid: pcasel.PCID,
+        culprit: false
+    };
+    
+    pcid = pcasel.PCID;
+    
+    this.cases_loaded.witness.cases.push(pcasel.PCID);
+    
+    for (var m in pcasel.witness) {
+        console.log(m);
+        if (m !== 'lid') {
+            witness = pcasel.witness[m];
+            console.log(witness);
+
+            ntype = 'player';
+            a_wit = witness.p;
+
+            for (var id in a_wit) {
+                console.log(ntype + " i: " + id + " uid " + a_wit[id]);
+                uidw = a_wit[id];
+                
+                new_wcase = JSON.parse(JSON.stringify(model_wcase));
+                new_wcase.map = m;
+                new_wcase.type = ntype;
+                new_wcase.uid = uidw;
+
+                if (uidw === pcasel.Culprit) {
+                    new_wcase.culprit = true;
+                } else {
+                    new_wcase.culprit = false;
+                }
+
+                if (typeof(this.cases_loaded.witness[ntype]) === 'undefined') {
+                    this.cases_loaded.witness[ntype] = {};
+                }
+                if (typeof(this.cases_loaded.witness[ntype][uidw]) === 'undefined') {
+                    this.cases_loaded.witness[ntype][uidw] = {};
+                }                        
+                this.cases_loaded.witness[ntype][uidw][pcid] = new_wcase;
+                console.log(new_wcase);
+                console.log(this.cases_loaded.witness[ntype]);
+            }
+
+            ntype = 'NPC';
+            a_wit = witness.n;
+
+            for (var id in a_wit) {
+                console.log(ntype + " i: " + id + " uid " + a_wit[id]);
+                uidw = a_wit[id];
+                
+                new_wcase = JSON.parse(JSON.stringify(model_wcase));
+                new_wcase.map = m;
+                new_wcase.type = ntype;
+                new_wcase.uid = uidw;
+
+                if (typeof(this.cases_loaded.witness[ntype]) === 'undefined') {
+                    this.cases_loaded.witness[ntype] = {};
+                }
+                if (typeof(this.cases_loaded.witness[ntype][uidw]) === 'undefined') {
+                    this.cases_loaded.witness[ntype][uidw] = {};
+                }                        
+                this.cases_loaded.witness[ntype][uidw][pcid] = new_wcase;
+                console.log(new_wcase);
+                console.log(this.cases_loaded.witness[ntype]);
+            }
+        }
+    }
+    console.log(this.cases_loaded.witness);
+};
+
+Mst.Player.prototype.test_witness = function (n, uid, type) {
+    "use strict";
+    var pcase, witness, a_wit, uids, key, new_wcase, f_witness, ntype;
+    var map = this.game_state.root_data.map_int;
+    uids = String(uid);
+    console.log(uids);
+    console.log(type);
+        
+    if (n < 0) {
+        for (var pcid in this.cases) {
+            pcase = this.get_full_case(pcid, "test witness");
+            console.log(pcase);
+            if (typeof (pcase.pcl) !== 'undefined') {
+                if (typeof (this.cases_loaded.witness) === 'undefined') {
+                    this.load_witness(pcase.pcl);
+                } else {
+                    key = this.cases_loaded.witness.cases.indexOf(pcid);
+                    if (key < 0) {
+                        this.load_witness(pcase.pcl);
+                    }
+                }
+                console.log(this.cases_loaded.witness[type]);
+                console.log(this.cases_loaded.witness[type][uids]);
+                if (typeof (this.cases_loaded.witness[type]) !== 'undefined') {
+                    if (typeof (this.cases_loaded.witness[type][uids]) !== 'undefined') {
+                        f_witness = this.cases_loaded.witness[type][uids];
+                    }
+                }
+            }
+        }
+    } else {
+        pcase = this.get_full_case(n, "test witness");
+        if (typeof (pcase.pcl) !== 'undefined') {            
+            if (typeof (this.cases_loaded.witness) === 'undefined') {
+                this.load_witness(pcase.pcl);
+            } else {
+                key = this.cases_loaded.witness.cases.indexOf(pcid);
+                if (key < 0) {
+                    this.load_witness(pcase.pcl);
+                }
+            }
+
+            if (typeof (this.cases_loaded.witness[type]) !== 'undefined') {
+                if (typeof (this.cases_loaded.witness[type][uids]) !== 'undefined') {
+                    f_witness = this.cases_loaded.witness[type][uids];
+                }
+            }
+        }
+    }
+    
+    return f_witness;
+};
+
+Mst.Player.prototype.unpack_witness = function (wit) {
+    "use strict";
+    var a_wit, o_wit, key, val;
+    
+    a_wit = wit.split("|");
+    
+    o_wit = {
+        type: a_wit[0],
+        uid: a_wit[1]        
+    };
+    
+    o_wit.o = {};
+    
+    for (var i = 2; i < a_wit.length; i++) {
+        key = a_wit[i].substr(0,1);
+        val = a_wit[i].substr(1,a_wit[i].length);
+        o_wit.o[key] = val;
+    }
+    
+    return o_wit;
+};
+
+Mst.Player.prototype.prepare_ftprints_onmap = function () {
+    "use strict";
+    
+    var map = this.game_state.root_data.map_int;
+    var a_pcid = [];
+    
+    for (var pcid in this.cases) {
+        this.get_full_case(pcid, "Prepare ftp");
+    }
+    
+    this.game_state.groups.chests.forEachAlive(function(chest) {
+        var ccase, ftprints, new_ftprints, b_in, m, gweek, pcid, pcl, p_in;
+        
+        //console.log(chest.cases);
+        
+        for (var cid in chest.cases) {
+            ccase = chest.cases[cid];
+            b_in = false;
+            
+            p_in = false;
+            pcid = parseInt(ccase.PCID);
+            pcl = this.cases_loaded[pcid];
+            if (typeof (pcl) !== 'undefined') {
+                if (pcl.ftp_vis === 1) {
+                    p_in = true;
+                } else {
+                    pcl.ftp_vis = 1;
+                }
+            }
+            
+            if (!p_in) {
+                ftprints = ccase.ftprints;
+                gweek = parseInt(ccase.gweek) + 3;
+                for (var id in ftprints) {
+                    m = parseInt(ftprints[id].m);
+                    //console.log(m + "|" + map + " " + gweek + "|" + this.stats.gtimeweek);
+
+                    if (m === map && gweek > this.stats.gtimeweek) {
+                        new_ftprints = JSON.parse(JSON.stringify(ftprints[id]));
+                        new_ftprints.cid = ccase.CID;
+                        new_ftprints.id = ccase.ID;
+                        new_ftprints.fid = id;
+                        new_ftprints.pcid = ccase.PCID;
+                        new_ftprints.owner = ccase.Owner;
+                        new_ftprints.culprit = ccase.Culprit;
+                        this.ftprints.push(new_ftprints);
+                        b_in = true;
+                    }
+                }
+
+                if (b_in && ccase.Owner === this.usr_id) {
+                    a_pcid.push(ccase.PCID);
+                }
+            }
+        }
+    }, this);
+    console.log("Prepared ftprints");
+    console.log(this.ftprints);
+};
+
+Mst.Player.prototype.return_ftprints = function () {
+    "use strict";
+    var x, y, dist;
+    var ftp = [];
+    
+    for (var id in this.ftprints) {
+        x = parseInt(this.ftprints[id].x);
+        y = parseInt(this.ftprints[id].y);
+        dist = this.game_state.game.physics.arcade.distanceToXY(this, x, y);
+        console.log(dist);
+        
+        if (typeof (this.ftprints[id].v) === 'undefined') {
+            this.ftprints[id].v = 0;
+        }
+        
+        if (dist < 35 && this.ftprints[id].v < 1) {
+            this.ftprints[id].v = 1;
+            this.ftprints[id].mfid = id;
+            ftp.push(this.ftprints[id]);
+            break;
+        }
+    }
+    
+    return ftp;
+};
+
+Mst.Player.prototype.near_ftprints = function (ftp) {
+    "use strict";
+    var x, y, dist, a_ftp, n_ftp, n_ftp2, fid, bf;
+    
+    bf = false;
+    
+    a_ftp = ftp.split("|");
+    console.log(a_ftp);
+    
+    if (a_ftp[0] === 'ftp') {
+        if (typeof (a_ftp[4]) !== 'undefined') {
+            fid = parseInt(a_ftp[4]);
+            
+            if (typeof (this.ftprints[fid]) !== 'undefined') {
+                x = parseInt(this.ftprints[fid].x);
+                y = parseInt(this.ftprints[fid].y);
+                dist = this.game_state.game.physics.arcade.distanceToXY(this, x, y);
+                console.log(dist);
+
+                n_ftp = this.ftprints[fid].x + "|" + this.ftprints[fid].y;
+                n_ftp2 = a_ftp[2] + "|" + a_ftp[3];
+
+                if (dist < 40 && n_ftp === n_ftp2) {
+                    bf = true;
+                }
+            }
+        } else {
+            for (var id in this.ftprints) {
+                x = parseInt(this.ftprints[id].x);
+                y = parseInt(this.ftprints[id].y);
+                dist = this.game_state.game.physics.arcade.distanceToXY(this, x, y);
+                console.log(dist);
+
+                n_ftp = this.ftprints[id].x + "|" + this.ftprints[id].y;
+                n_ftp2 = a_ftp[2] + "|" + a_ftp[3];
+
+                if (dist < 40 && n_ftp === n_ftp2) {
+                    bf = true;
+                }
+            }
+        }
+    }
+    
+    return bf;
+};
+
+Mst.Player.prototype.test_ftprint = function (nid, ftp) {
+    "use strict";
+    
+    const ret = {
+        b: false,
+        n: -1,
+        s: "",
+        l: -1
+    };
+    const a_ftp = ftp[nid].split("|");
+    console.log(a_ftp);
+    
+    if (a_ftp[0] === 'ftp') {        
+        if (typeof (a_ftp[4]) !== 'undefined') {
+            let n_ftp = 0;
+            let n_oev14 = 0
+            let l_oev14 = -1;
+            let last_a2 = "";
+            for (let id in ftp) {
+                const a2_ftp = ftp[id].split("|");
+                
+                if (a2_ftp[0] === 'ftp') { 
+                    n_ftp++;
+                } else {
+                    if (a2_ftp[0] === '14') {
+                        n_oev14++;
+                        l_oev14 = id;
+                        ret.s = a2_ftp[1];
+                        ret.l = a2_ftp.length;
+                        console.log(a2_ftp);
+                        console.log(ret);                        
+                        last_a2 = a2_ftp[ret.l - 1].substr(0,1);
+                        console.log(last_a2);
+                    }
+                }
+            }
+            
+            console.log("F: " + n_ftp + " 14: " + (ret.l - 2));
+            ret.b = (n_ftp > (ret.l - 2));
+            
+            if (last_a2 === 'M') {
+                ret.b = false;
+            }
+            
+            ret.n = l_oev14;        
+            console.log(ret);
+        }
+    }
+    
+    return ret;
+};
+
+Mst.Player.prototype.investigate_ftprint = function (nid, ftp) {
+    "use strict";
+    var a_ftp, fid, len, oev14_type, oev14_id, t_ftp, pcid, uid, full_case, n_evidence, uid, cont2, badge, ubadge, ub_val, bb;
+    
+    console.log("Investigate ftp: " + ftp[nid]);
+    
+    n_evidence = "";    
+    a_ftp = ftp[nid].split("|");
+    console.log(a_ftp);
+    
+    if (a_ftp[0] === 'ftp') {        
+        if (typeof (a_ftp[4]) !== 'undefined') {
+            fid = parseInt(a_ftp[4]);
+            t_ftp = this.ftprints[fid];
+            
+            bb = this.test_ftprint(nid, ftp);
+            if (bb.b) {
+                oev14_type = "new";
+                if (bb.n > -1) {
+                    oev14_type = bb.s;
+                    oev14_id = bb.n;
+                }
+                
+                console.log(oev14_type);
+                
+                switch (oev14_type) {
+                    case "new":
+                        pcid = parseInt(this.ftprints[fid].pcid);
+                        cont2 = "14|W|" + pcid  + "|" + nid;
+                        full_case = this.get_full_case(pcid, cont2);
+                        
+                        console.log(pcid);
+                        console.log(full_case);
+                        
+                        if (typeof (full_case.pcl) !== 'undefined') {
+                            n_evidence = "14|W|" + full_case.pcl.gweek + "|" + oev14_id;
+                        }
+                    break;
+                    case "W":
+                        len = bb.l;
+                        console.log(len);
+                        switch (len) {
+                            case 3:
+                                cont2 = ftp[oev14_id] + "|F|" + this.ftprints[fid].pcid + "|" + oev14_id;
+                                uid = parseInt(this.ftprints[fid].culprit);
+                                
+                                ub_val = this.get_badge_val("14", "F", uid, "player", cont2);
+                                if (ub_val !== '') {
+                                    n_evidence = ftp[oev14_id] + "|F" + ub_val + "|" + oev14_id;
+                                }
+                            break;
+                            case 4:
+                                cont2 = ftp[oev14_id] + "|S|" + this.ftprints[fid].pcid + "|" + oev14_id;
+                                uid = parseInt(this.ftprints[fid].culprit);
+                                
+                                ub_val = this.get_badge_val("14", "S", uid, "player", cont2);
+                                if (ub_val !== '') {
+                                    n_evidence = ftp[oev14_id] + "|S" + ub_val + "|" + oev14_id;
+                                }
+                            break;
+                            case 5:
+                                cont2 = ftp[oev14_id] + "|H|" + this.ftprints[fid].pcid + "|" + oev14_id;
+                                uid = parseInt(this.ftprints[fid].culprit);
+                                
+                                ub_val = this.get_badge_val("14", "H", uid, "player", cont2);
+                                if (ub_val !== '') {
+                                    n_evidence = ftp[oev14_id] + "|H" + ub_val + "|" + oev14_id;
+                                }
+                            break;                            
+                            case 6:
+                                cont2 = ftp[oev14_id] + "|M|" + this.ftprints[fid].pcid + "|" + oev14_id;
+                                uid = parseInt(this.ftprints[fid].culprit);
+                                
+                                ub_val = this.get_badge_val("14", "M", uid, "player", cont2);
+                                if (ub_val !== '') {
+                                    n_evidence = ftp[oev14_id] + "|M" + ub_val + "|" + oev14_id;
+                                }
+                            break;
+                        }
+                    break;
+                }
+            }
+        }
+    }
+    
+    return n_evidence;
+};
+
+Mst.Player.prototype.get_full_case = function (pcid, context) {
+    "use strict";
+    var full_case, oid, cid, oname, obj;
+    full_case = {};
+    
+    full_case.pc = this.cases[pcid];    
+    
+    if (typeof (this.cases_loaded[pcid]) === 'undefined') {
+        oid = parseInt(full_case.pc.ID);
+        cid = parseInt(full_case.pc.CID);
+        oname = this.game_state.objectofID(oid);
+        console.log(oname);
+        
+        if (oname !== "") {
+            obj = this.game_state.prefabs[oname];
+            this.cases_loaded[pcid] = JSON.parse(JSON.stringify(obj.cases[cid]));
+            full_case.pcl = JSON.parse(JSON.stringify(obj.cases[cid]));
+        } else {
+            this.game_state.make_object({ "x": 0, "y": 0 }, oid, context);
+        }
+    } else {
+        full_case.pcl = JSON.parse(JSON.stringify(this.cases_loaded[pcid]));
+    }
+    
+    return full_case;
+};
+
+Mst.Player.prototype.get_full_person = function (uid, type, context) {
+    "use strict";
+    var oid, cid, uname, person, cont2;
+    
+    if (type === 'player') {
+        if (typeof (this.cases_loaded.person) !== 'undefined') {
+            person = this.cases_loaded.person[uid];
+        } else {
+            person = this.cases_loaded.person;
+            this.cases_loaded.person = {};
+        }
+        
+        if (typeof (person) === 'undefined') {
+            uname = this.game_state.playerOfUsrID(uid);
+            if (uname !== '') {
+                person = this.game_state.prefabs[uname];
+                this.cases_loaded.person[uid] = person;
+
+                return person
+            } else {
+                cont2 = "investigate|" + context;
+                this.game_state.make_otherplayer({ "x": 0, "y": 0 }, uid, cont2);
+            }
+        } else {
+            return person;
+        }
+    } else {
+        if (typeof (this.cases_loaded.NPC) !== 'undefined') {
+            person = this.cases_loaded.NPC[uid];
+        } else {
+            person = this.cases_loaded.NPC;
+            this.cases_loaded.NPC = {};
+        } 
+        
+        if (typeof (person) === 'undefined') {
+            uname = this.game_state.NPCofID(uid);
+            if (uname !== '') {
+                person = this.game_state.prefabs[uname];
+                this.cases_loaded.NPC[uid] = person;
+
+                return person
+            } else {
+                cont2 = "investigate|" + context;
+                //this.game_state.make_otherplayer({ "x": 0, "y": 0 }, uid, cont2); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+        } else {
+            return person;
+        }
+    }
+};
+
+Mst.Player.prototype.get_badge_val = function (b_id, b_key, uid, type, context) {
+    "use strict";
+    
+    var ret = "";
+    var ubadge = this.unpack_badge(b_id, uid, type, context);
+    
+    if (typeof (ubadge) !== 'undefined') {
+        ret = ubadge[b_key];
+    }
+    
+    return ret;
+};
+
+Mst.Player.prototype.unpack_badge = function (b_id, uid, type, context) {
+    "use strict";
+    
+    var full_person = this.get_full_person(uid, type, context);
+    
+    console.log(uid);
+    console.log(full_person);
+
+    if (typeof (full_person) !== 'undefined') {
+        var ubadge = full_person.unpack_badge(b_id);
+    }
+    
+    return ubadge;
+};
+
+Mst.Player.prototype.add_ftprints_tocase = function (ftp) {
+    "use strict";
+    var owner, pcid, fpcid, cpcid, n_ftp, o_ftp, bf, aid;
+    
+    pcid = -1;
+    aid = -1;
+    owner = parseInt(ftp.owner);
+    fpcid = parseInt(ftp.pcid);
+    if (owner = this.usr_id) {
+        for (var id in this.cases) {
+            cpcid = parseInt(this.cases[id].PCID);
+            if (fpcid === cpcid) {
+                n_ftp = "ftp|";
+                n_ftp += ftp.m + "|" + ftp.x + "|" + ftp.y + "|" + ftp.mfid;
+                
+                if (typeof (this.cases[id].evidences) === 'undefined') {
+                    this.cases[id].evidences = [];
+                }
+                
+                o_ftp = this.cases[id].evidences;
+                bf = true;
+                
+                for (var eid in o_ftp) {
+                    if (o_ftp[eid] === n_ftp) {
+                        bf = false;
+                    }
+                }
+                
+                if (bf) {
+                    console.log(n_ftp);
+                    this.cases[id].evidences.push(n_ftp);
+                    aid = id;
+                }
+            }
+        }
+    }
+    
+    console.log(this.cases);
+    return aid;
+};
+
+Mst.Player.prototype.add_case = function (c) {
+    "use strict";
+    var new_case, p_id, c_id, p_cid, c_cid, pcid, bcc;
+    
+    for (var id in c.cases) {
+        bcc = false;
+        c_id = parseInt(c.cases[id].ID);
+        c_cid = parseInt(c.cases[id].CID);
+        for (var idp in this.cases) {
+            p_id = parseInt(this.cases[idp].ID);
+            p_cid = parseInt(this.cases[idp].CID);
+            if (p_id === c_id && p_cid === c_cid) {
+                bcc = true;
+            }
+        }
+        
+        if (!bcc) {
+            if (typeof (c.cases[id].type) === 'undefined') {
+                c.cases[id].type = "stolen";
+            }
+            
+            pcid = this.cases.length;
+            new_case = {
+                "PCID": pcid,
+                "CID": c_cid,
+                "ID": c_id,
+                "M": c.cases[id].M,
+                "type": c.cases[id].type,
+                "questions": "",
+                "witness": {},
+                "evidences": []
+            };
+            
+            this.cases.push(new_case);
+            this.save.properties.cases = this.cases;
+            this.cases_loaded[pcid] = JSON.parse(JSON.stringify(c.cases[id]));
+            c.add_case_pcid(id, pcid);
+            
+            console.log(this.cases);
+            console.log(this.cases_loaded);
+        }
+    }
+    
     
 };
 
@@ -2174,6 +2941,15 @@ Mst.Player.prototype.add_culprit = function (culprit) {
     "use strict";
     
     this.culprit.push(culprit);
+    this.save.properties.culprit = this.culprit;
+    
+    return this.culprit.length - 1;
+};
+
+Mst.Player.prototype.rollback_culprit = function (id) {
+    "use strict";
+    
+    this.culprit.splice(id, 1);
     this.save.properties.culprit = this.culprit;
 };
 
@@ -2347,6 +3123,58 @@ Mst.Player.prototype.collide_layer_tile = function (player, tile) {
 //    console.log(player.position);
 //    console.log(player.body);
     //console.log(tile);
+    
+    dist = {
+        x: player.x - (tile.worldX + 8),
+        y: player.y - (tile.worldY + 8)
+    };
+    
+    if (player.direction_chest.x === 0) {
+        if (tile.faceLeft && tile.faceRight) {
+            if (dist.x > 0) {
+                player.x++;
+            } else {
+                player.x--;
+            }
+        } else {
+            if (tile.faceLeft) {
+                player.x--;
+            }
+            if (tile.faceRight) {
+                player.x++;
+            }
+        }
+    } else {
+        if (tile.faceTop && tile.faceBottom) {
+            if (dist.y > 0) {
+                player.y++;
+            } else {
+                player.y--;
+            }
+        } else {
+            if (tile.faceTop) {
+                player.y--;
+            }
+            if (tile.faceBottom) {
+                player.y++;
+            }
+        }
+    }
+    
+    //console.log(dist);
+    
+};
+
+Mst.Player.prototype.overlap_layer_tile = function (player, tile) {
+    "use strict";
+    var dist;
+    
+ //   console.log("collide:");
+//    console.log(player.position);
+//    console.log(player.body);
+    //console.log(tile);
+    
+    //console.log("L: " + tile.faceLeft + " R: " + tile.faceRight + " T: " + tile.faceTop + " B: " + tile.faceBottom);
     
     dist = {
         x: player.x - (tile.worldX + 8),

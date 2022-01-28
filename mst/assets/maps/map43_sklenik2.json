@@ -151,13 +151,23 @@
                  "name":"angostura01",
                  "properties":
                     {
-                     "direction":1,
+                     "direction":"1",
                      "group":"enemies",
-                     "level":1,
+                     "level":"1",
                      "pool":"enemies",
                      "texture":"angostura_spritesheet",
-                     "walking_distance":100,
-                     "walking_speed":0
+                     "walking_distance":"100",
+                     "walking_speed":"0"
+                    },
+                 "propertytypes":
+                    {
+                     "direction":"string",
+                     "group":"string",
+                     "level":"string",
+                     "pool":"string",
+                     "texture":"string",
+                     "walking_distance":"string",
+                     "walking_speed":"string"
                     },
                  "rotation":0,
                  "type":"enemy",
@@ -173,13 +183,23 @@
                  "name":"angostura02",
                  "properties":
                     {
-                     "direction":1,
+                     "direction":"1",
                      "group":"enemies",
-                     "level":1,
+                     "level":"1",
                      "pool":"enemies",
                      "texture":"angostura_spritesheet",
-                     "walking_distance":100,
-                     "walking_speed":0
+                     "walking_distance":"100",
+                     "walking_speed":"0"
+                    },
+                 "propertytypes":
+                    {
+                     "direction":"string",
+                     "group":"string",
+                     "level":"string",
+                     "pool":"string",
+                     "texture":"string",
+                     "walking_distance":"string",
+                     "walking_speed":"string"
                     },
                  "rotation":0,
                  "type":"enemy",
@@ -187,6 +207,84 @@
                  "width":16,
                  "x":376,
                  "y":392
+                }, 
+                {
+                 "gid":24,
+                 "height":16,
+                 "id":8,
+                 "name":"kerik01",
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"0",
+                     "pool":"NPCs",
+                     "p_name":"Světlokvět",
+                     "sprtype":"2",
+                     "stype":"kerik",
+                     "immovable":"false",
+                     "relations_allowed":"false",
+                     "region":"2",
+                     "items":"",
+                     "texture":"kerik_spritesheet"
+                    },
+                 "rotation":0,
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":230,
+                 "y":352
+                }, 
+                {
+                 "gid":24,
+                 "height":16,
+                 "id":9,
+                 "name":"kerik02",
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"0",
+                     "pool":"NPCs",
+                     "p_name":"Světlokvět",
+                     "sprtype":"2",                                       
+                     "stype":"kerik",
+                     "immovable":"false",
+                     "relations_allowed":"false",
+                     "region":"2",
+                     "items":"",
+                     "texture":"kerik_spritesheet"
+                    },
+                 "rotation":0,
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":290,
+                 "y":368
+                }, 
+                {
+                 "gid":24,
+                 "height":16,
+                 "id":10,
+                 "name":"kerik03",
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"0",
+                     "pool":"NPCs",
+                     "p_name":"Světlokvět",
+                     "sprtype":"2",                                      
+                     "stype":"kerik",
+                     "immovable":"false",
+                     "relations_allowed":"false",
+                     "region":"2",
+                     "items":"",
+                     "texture":"kerik_spritesheet"
+                    },
+                 "rotation":0,
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":255,
+                 "y":382
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -194,7 +292,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":8,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",

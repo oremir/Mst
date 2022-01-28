@@ -329,7 +329,7 @@ Mst.WildAnimal.prototype.detect_player = function () {
     "use strict";
     var distance_to_player;
     distance_to_player = this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player);
-    if (distance_to_player <= 200) {
+    if (distance_to_player <= 70) {
         this.game_state.prefabs.player.infight = true;
     }
 

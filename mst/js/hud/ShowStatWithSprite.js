@@ -252,6 +252,7 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
                     for (key in this.game_state.prefabs.player.stats) {
                         text_value = key + "\t" + this.game_state.prefabs.player.stats[key];                        
                         console.log(key + ":" + typeof(this.game_state.prefabs.player.stats[key]));
+                        console.log(this.game_state.prefabs.player.stats[key]);
                         if (typeof(this.game_state.prefabs.player.stats[key]) !== 'object') {
                             text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
                             text.fixedToCamera = true;

@@ -300,7 +300,7 @@ Mst.Follower.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!
                 test_q = player.test_quest("idass", quests[i].name);
                 
                 if (test_q) {
-                    this.ren_sprite.quest = quests[i];
+                    this.ren_sprite.new_quest(quests[i]);
                     this.ren_sprite.quest.state = "ass";
                     this.show_bubble(4); // ! exclamation mark - quest assigned
                     is_quest = true;
@@ -308,13 +308,13 @@ Mst.Follower.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!
                 } else {
                     test_q = player.test_quest("idacc", quests[i].name);
                     if (test_q) {
-                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.new_quest(quests[i]);
                         this.ren_sprite.quest.state = "acc";
                         this.show_bubble(5); // ! question mark - quest accomplished
                         is_quest = true;
                         break;            
                     } else {
-                        this.ren_sprite.quest = quests[i];
+                        this.ren_sprite.new_quest(quests[i]);
                         this.ren_sprite.quest.state = "pre";
                         this.show_bubble(3); // ! exclamation mark - quest ready
                         is_quest = true;

@@ -347,11 +347,11 @@ Mst.Sword.prototype.cut_chest = function (chest) {
     if (tool_frame == 19) {tool_frame = 18;}
     if (tool_frame == 21) {tool_frame = 20;}
     
-    console.log("player.opened_chest: " + player.opened_chest + " CN: " + chest.name);
+    console.log("player.opened_chest: " + player.opened_chest + " CN: " + chest.name + " MW: " + this.game_state.hud.middle_window.visible + " op: " + chest.is_opened);
     
-    if (player.opened_chest !== "") {
+    if (player.opened_chest !== "" && !this.game_state.hud.middle_window.visible && chest.is_opened) {
         if (player.opened_chest === chest.name) {
-            console.log("Chest frame: " + chest.closed_frame + " op: " + chest.is_opened);
+            console.log("Chest frame: " + chest.closed_frame);
             console.log("Tool frame: " + tool_frame);
             
             var uuse = { t: tool_frame, on: chest.closed_frame };
@@ -744,6 +744,45 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                 }
                             break;
                         }
+                    break;
+                    case 10: //sekeromlat
+                        switch (chest.closed_frame) {
+                            case 21: //kámen
+                                in_chest = chest.in_chest_ord();
+                                console.log(in_chest.length);
+
+                                if (in_chest.length < 1) {
+                                    chest.change_frame(58); //op. kamen
+                                    player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                }  else {
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.is_takeable = true;
+                                    chest.get_chest(chest);
+                                    player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                }
+
+                                chest.rnd_take(21, "stonebreaker");
+                            break;
+                            case 58: //op. kámen
+                                index = chest.test_item(21, 1); //kámen
+                                console.log(index);
+                                if (index > -1) {
+                                    chest.subtract_item(index, 1);
+                                    chest.add_item(58, 2); //op. kámen
+                                    chest.updated = true;
+                                    player.work_rout("stonebreaker", "strength", 1, 3, 2, 3); // stress, stand_exp, skill_exp, abil_p
+                                } else {
+                                    in_chest = chest.in_chest_ord();
+                                    chest.take_all();
+                                    player.put_all(in_chest);
+                                    chest.is_takeable = true;
+                                    chest.get_chest(chest);
+                                    player.work_rout("stonebreaker", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                    chest.rnd_take(21, "stonebreaker");
+                                }
+                            break;                     
+                        }                        
                     break;
                     case 13: //kladivo
                         switch (chest.closed_frame) {
