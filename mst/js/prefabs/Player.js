@@ -169,8 +169,8 @@ Mst.Player = function (game_state, name, position, properties) {
         moon_moon: 5,
         moon: parseInt(properties.moon) || 5,
         moon_max: 5,
-        moon_time: +properties.time || 0,
-        moon_loop: +properties.moon_loop || 0,
+        moon_loop: +properties.moon_loop || 0,        
+        time: +properties.time || 0,
         gtime: "0",
         exp: +properties.skills.standard.exp || +properties.exp || 1,
         level: +properties.skills.standard.level || 1,
@@ -450,9 +450,9 @@ Mst.Player.prototype.update = function () {
     this.stats.health = this.health;
     
     this.stats.moon_moon = Math.ceil(this.stats.moon / Math.ceil(this.stats.moon_max / 5));
-    if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {
+    if (this.game_state.prefabs.player.stats.moon < this.game_state.prefabs.player.stats.moon_max) {        
+        let time_str = this.game_state.prefabs.moon.timer_moon.duration.toFixed(0);
         if (this.stats.moon_loop > 0) {
-            let time_str = this.game_state.prefabs.moon.timer_moon.duration.toFixed(0);
             if (typeof (this.game_state.prefabs.moon.timer_first.timer) === 'undefined') {
                 console.log("moon und");
                 this.game_state.prefabs.moon.timer_first = this.game_state.game.time.events.add(this.stats.moon_loop, this.game_state.prefabs.moon.update_timer_moon, this);
@@ -571,6 +571,11 @@ Mst.Player.prototype.final_tests = function () {
         //console.log(en_sp);
         en_sp.activate();
     }
+    
+    const d = new Date();
+    const n = d.getTime();
+    const cwait = { type: "wait", tm: n };
+    this.update_quest("wait", cwait);
     
     this.test_culprit();
     this.add_ftprints(0);
@@ -1440,8 +1445,8 @@ Mst.Player.prototype.return_relation = function (person, type) {
 
 Mst.Player.prototype.assign_quest = function (quest) {
     "use strict";
-    var new_quest, key;
-    new_quest = {
+    
+    const new_quest = {
         name: quest.name,
         qid: quest.qid,
         owner: quest.properties.owner,
@@ -1459,12 +1464,18 @@ Mst.Player.prototype.assign_quest = function (quest) {
     if (this.test_quest("notassign", quest)) {
         console.log("\x1b[106mAssigned " + quest.name);
         
+        if (new_quest.endc.type === 'wait') {
+            new_quest.acc.tm = this.stats.time;
+            new_quest.acc.lgo = 0;
+            new_quest.acc.slp = 0;
+        }
+        
         if (typeof (this.stats.quests.ass) === 'undefined') {
             this.stats.quests.ass = {};
         }
         this.stats.quests.ass[quest.name] = new_quest;
         
-        key = quest.ow_name;
+        const key = quest.ow_name;
         this.game_state.prefabs[key].ren_sprite.quest.state = "ass";
     }
     this.save.properties.quests = this.stats.quests;
@@ -1558,23 +1569,24 @@ Mst.Player.prototype.test_quest = function (type, condition) {
 
 Mst.Player.prototype.update_quest = function (type, condition) {
     "use strict";
-    var item_frame, quantity, cwhere, con, item, return_obj, quest, qtype, key, uid, oid;
-    return_obj = {updated: false, accomplished: false};
     
-    console.log('\x1b[106mAccomplish ' + type);
+    const return_obj = {updated: false, accomplished: false};
+    
+    console.log('\x1b[106mAccomplish - Update: ' + type);
 
     if (typeof(this.stats.quests.ass) !== 'undefined') {
         console.log(this.stats.quests.ass[condition]);
-
+        let key = "";
         if (type === "by_quest_name") {
             console.log(this.stats.quests.ass[condition].name);
             console.log(this);
-            qtype = this.stats.quests.ass[condition].endc.type;
+            const qtype = this.stats.quests.ass[condition].endc.type;
+            
             switch (qtype) {
                 case "have":
                     if(typeof (this.stats.quests.ass[condition].ending_conditions.have) !== 'undefined') {
-                        item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
-                        item = this.game_state.prefabs.items.index_by_frame(item_frame);
+                        const item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
+                        const item = this.game_state.prefabs.items.index_by_frame(item_frame);
 
                         if (parseInt(this.stats.quests.ass[condition].ending_conditions.have) < item.quantity) {
                             this.stats.quests.ass[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
@@ -1588,8 +1600,8 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                 break;
     /*            case "put":
                     if(typeof (this.stats.quests.ass[condition].ending_conditions.put) !== 'undefined') {
-                        item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
-                        item = this.game_state.prefabs.items.index_by_frame(item_frame);
+                        const item_frame = parseInt(this.stats.quests.ass[condition].ending_conditions.what);
+                        const item = this.game_state.prefabs.items.index_by_frame(item_frame);
 
                         if (parseInt(this.stats.quests.ass[condition].ending_conditions.have) < item.quantity) {
                             this.stats.quests.ass[condition].accomplished.have = this.stats.quests[condition].ending_conditions.have;
@@ -1609,7 +1621,7 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                     console.log(condition);
 
                     this.stats.quests.ass[condition].acc.is = 'true';
-
+            
                     if (this.stats.quests.ass[condition].ot !== 'NPC') {
                         key = this.game_state.playerOfUsrID(this.stats.quests.ass[condition].owner);
                     } else {
@@ -1634,7 +1646,7 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                     console.log(condition);
 
                     this.stats.quests.ass[condition].acc.is = 'true';
-
+                    
                     if (this.stats.quests.ass[condition].ot !== 'NPC') {
                         key = this.game_state.playerOfUsrID(this.stats.quests.ass[condition].owner);
                     } else {
@@ -1698,19 +1710,19 @@ Mst.Player.prototype.update_quest = function (type, condition) {
             }
         } else {
             console.log(this.stats.quests.ass);
-            for (var q_name in this.stats.quests.ass) {
-                quest = this.stats.quests.ass[q_name];
+            for (let q_name in this.stats.quests.ass) {
+                const quest = this.stats.quests.ass[q_name];
                 console.log(quest);
-            //this.stats.quests.ass.forEach(function(quest) {
+                
                 if (quest.acc.is !== 'true') {
                     switch (type) {
                         case "have":
                             if (quest.endc.type === 'have') {
-                                item_frame = parseInt(quest.endc.what);
+                                const item_frame = parseInt(quest.endc.what);
                                 console.log(item_frame);
                                 console.log(condition);
                                 if (item_frame === condition.f) {
-                                    quantity = parseInt(quest.endc.quantity);
+                                    const quantity = parseInt(quest.endc.quantity);
                                     condition.q += parseInt(quest.acc.q);
                                     console.log("cq:" + condition.q + " q:" + quantity);
                                     if (condition.q < quantity) {
@@ -1722,7 +1734,6 @@ Mst.Player.prototype.update_quest = function (type, condition) {
 
                                         quest.acc.is = 'true';
                                         quest.acc.q = condition.q;
-
 
                                         if (quest.ot !== 'NPC') {
                                             key = this.game_state.playerOfUsrID(quest.owner);
@@ -1747,9 +1758,9 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                             console.log("Quest PUT");
                             console.log(condition);
                             if (quest.endc.type === 'put') {
-                                item_frame = parseInt(quest.endc.what);
+                                const item_frame = parseInt(quest.endc.what);
                                 if (item_frame === condition.f) {
-                                    cwhere = parseInt(quest.endc.where);
+                                    const cwhere = parseInt(quest.endc.where);
                                     if (condition.wr === cwhere) {
                                         return_obj.updated = true;
                                         return_obj.accomplished = true;
@@ -1776,9 +1787,9 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                             console.log("Quest USE");
                             console.log(condition);
                             if (quest.endc.type === 'use') {
-                                item_frame = parseInt(quest.endc.what);
+                                const item_frame = parseInt(quest.endc.what);
                                 if (item_frame === condition.t) {
-                                    con = parseInt(quest.endc.on);
+                                    const con = parseInt(quest.endc.on);
                                     if (condition.on === con) {
                                         return_obj.updated = true;
                                         return_obj.accomplished = true;
@@ -1801,9 +1812,9 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                                 }
                             } else {
                                 if (quest.endc.type === 'use2') {
-                                    item_frame = parseInt(quest.endc.what);
+                                    const item_frame = parseInt(quest.endc.what);
                                     if (item_frame === condition.t) {
-                                        con = parseInt(quest.endc.on);
+                                        const con = parseInt(quest.endc.on);
                                         if (condition.on === con) {
                                             return_obj.updated = true;
                                             return_obj.accomplished = true;
@@ -1831,8 +1842,49 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                             console.log("Quest MAKE");
                             console.log(condition);
                             if (quest.endc.type === 'make') {
-                                item_frame = parseInt(quest.endc.what);
+                                const item_frame = parseInt(quest.endc.what);
                                 if (item_frame === condition) {
+                                    return_obj.updated = true;
+                                    return_obj.accomplished = true;
+
+                                    quest.acc.is = 'true';                                    
+
+                                    if (quest.ot !== 'NPC') {
+                                        key = this.game_state.playerOfUsrID(quest.owner);
+                                    } else {                                        
+                                        key = this.game_state.NPCofID(quest.owner);
+                                    }
+                                    console.log(key);
+                                    if (key !== "") {
+                                        this.game_state.prefabs[key].ren_sprite.quest.state = "acc";
+                                        this.game_state.prefabs[key].show_bubble(5); // ! question mark - quest accomplished
+                                    }
+
+                                    this.game_state.hud.alert.show_alert("Úkol byl splněn!");
+                                }
+                            }
+                        break;
+                        case "wait":
+                            console.log("Quest WAIT");
+                            console.log(condition);
+                            if (quest.endc.type === 'wait') {
+                                let lgo = parseInt(quest.acc.lgo);
+                                let slp = parseInt(quest.acc.slp);
+                                
+                                switch (condition.type) {
+                                    case "logout":                                        
+                                        lgo++;
+                                        quest.acc.lgo = lgo;
+                                    break;
+                                    case "sleep":
+                                        slp++;
+                                        quest.acc.slp = slp;
+                                    break;
+                                }
+                                                                
+                                const atime = parseInt(quest.acc.tm) + (3600 * 24 * 6 * 1000);
+                                console.log("Lgo: " + lgo + " Slp: " + slp + " Td: " + (atime - condition.tm));
+                                if ((lgo > 2) && (slp > 2) && (condition.tm > atime)) {
                                     return_obj.updated = true;
                                     return_obj.accomplished = true;
 
@@ -1879,48 +1931,6 @@ Mst.Player.prototype.update_quest = function (type, condition) {
                     }
                 }
                 console.log(quest);
-
-    //            switch (quest.type) {
-    //                case "assigned":
-    //                    if (typeof (quest.endc[type]) !== 'undefined') {
-    //                        switch (type) {
-    //                            case "have":
-    //                                if (typeof (condition) === 'undefined') {
-    //                                    item_frame = parseInt(quest.ending_conditions.what);
-    //                                    item = this.game_state.prefabs.items.index_by_frame(item_frame);
-    //                                    condition = item.quantity;
-    //                                }
-    //                                if (parseInt(quest.ending_conditions[type]) <= condition) {
-    //                                    quest.accomplished[type] = quest.ending_conditions[type];
-    //                                    return_obj.updated = true;
-    //                                    return_obj.accomplished = true;
-    //                                } else {
-    //                                    quest.accomplished[type] = condition;
-    //                                    return_obj.updated = true;
-    //                                }
-    //                                break;
-    //                            default: //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //                                if (typeof (quest.accomplished[type]) !== 'undefined') {
-    //                                    quest.accomplished[type] = 1;
-    //
-    //                                } else {
-    //                                    quest.accomplished[type] = parseInt(quest.accomplished[type]) + 1;
-    //                                }
-    //
-    //                                if (quest.accomplished[type] > (quest.ending_conditions[type] - 1)) {
-    //                                    quest.type = "accomplished";
-    //
-    //
-    //                                }
-    //                        }
-    //                    }
-    //                    break;
-    //                case "accomplished":
-    //
-    //                    break;
-    //            }
-
-            //});
             }
         }
     }
@@ -2137,6 +2147,9 @@ Mst.Player.prototype.set_time = function (time) {
 
 Mst.Player.prototype.new_day = function () {
     "use strict";
+    
+    const cwait = { type: "sleep" };
+    this.update_quest("wait", cwait);
     
     if (this.gtime.obj.getHours() < 7) {
         this.gtime.obj.setHours(7,0);
@@ -2452,20 +2465,26 @@ Mst.Player.prototype.test_witness = function (n, uid, type) {
 
 Mst.Player.prototype.unpack_witness = function (wit) {
     "use strict";
-    var a_wit, o_wit, key, val;
     
-    a_wit = wit.split("|");
+    const a_wit = wit.split("|");
     
-    o_wit = {
+    const o_wit = {
         type: a_wit[0],
         uid: a_wit[1]        
     };
     
     o_wit.o = {};
     
-    for (var i = 2; i < a_wit.length; i++) {
-        key = a_wit[i].substr(0,1);
-        val = a_wit[i].substr(1,a_wit[i].length);
+    for (let i = 2; i < a_wit.length; i++) {
+        let key = a_wit[i].substr(0, 1);
+        let val = "";
+        if (key !== "1") {
+            val = a_wit[i].substr(1, a_wit[i].length);
+        } else {
+            key = a_wit[i].substr(0, 3);
+            val = a_wit[i].substr(3, a_wit[i].length);
+        }
+        
         o_wit.o[key] = val;
     }
     
@@ -3110,6 +3129,9 @@ Mst.Player.prototype.save_player = function (go_position, go_map_int) {
 
 Mst.Player.prototype.set_logoff = function () {
     "use strict";
+    
+    const cwait = { type: "logout" };
+    this.update_quest("wait", cwait);
     
     this.save.logged = false;
 

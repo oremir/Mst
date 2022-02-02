@@ -638,9 +638,11 @@ Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
                     game_state.hud.book.book_investigate(t2);
                 } else {
                     if (bt === 'Book') {
+                        const firstid = parseInt(bt2);
                         const t2 = {
                             pcid: nid,
                             pcid1: pcid,
+                            firstid: firstid,
                             c_type: "evidence",
                             c_type1: "show"
                         };
@@ -1318,9 +1320,7 @@ Mst.hud.prototype.book_acquaintance = function (n) {
 
 Mst.hud.prototype.book_investigate = function (t1) {
     "use strict";
-    var text_style, index, index2, rel, key, text_value, text, bk_mrk, character, f_texture;
-    var lupa, new_evidence, a_ne, ane_l, ane_nid, e_type, e_uid, e_name, evidences, near, near2;
-    var ind, stopy, vzhled, stopy_a, vzhled_a, rasa, vyskavaha, bota, vek, vlasy, postava;
+    var text;
     
     console.log(t1);
     
@@ -1341,19 +1341,19 @@ Mst.hud.prototype.book_investigate = function (t1) {
     const cases = player.cases;
     const cases_loaded = player.cases_loaded;
     
-    text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
-    index = 0;
+    const text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
+    let index = 0;
     
     if (nid < 0) {
         for (let pcid in cases) {
-            text_value = "#" + pcid + " ";
+            let text_value = "#" + pcid + " ";
             switch (cases[pcid].type) {
                 case "stolen":
                     text_value += "Krádež";
                 break;
             }
             text_value += " na M: " + cases[pcid].M;
-            text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
+            const text = this.game_state.game.add.text(60, 105 + 13 * index, text_value, text_style);
             
             text.inputEnabled = true;
             text.input.useHandCursor = true;
@@ -1371,136 +1371,173 @@ Mst.hud.prototype.book_investigate = function (t1) {
         }
     } else {
         if (t1.c_type === 'evidence') {
-            evidences = cases[nid].evidences;
+            //console.log(cases);
+            const evidences = cases[nid].evidences;
             this.act_case = nid;
+            //console.log(this);
             
-            text_value = "#" + nid + " ";
+            let text_value = "#" + nid + " ";
             switch (cases[nid].type) {
                 case "stolen":
                     text_value += "Krádež";
                 break;
             }
             text_value += " na M: " + cases[nid].M;
-            text = this.game_state.game.add.text(60, 105, text_value, text_style);
+            let text = this.game_state.game.add.text(60, 105, text_value, text_style);
             text.fixedToCamera = true;
             this.texts.push(text);
 
             index++;
-            for (let id in evidences) {
-                a_ne = evidences[id].split("|");
-                e_type = a_ne[0];
-                if (e_type === 'NPC' || e_type === 'player') {
-                    e_uid = parseInt(a_ne[1]);
-                    e_name = player.get_relation_name(e_uid, e_type)
-                    text_value = "- " + e_name;
-                    console.log(e_name + " - evidence: " + evidences[id]);
-                } else {
-                    text_value = "- " + evidences[id];
+            
+            let firstid = 0;            
+            console.log(index + evidences.length);
+            if ((index + evidences.length) > 18) {
+                if (typeof(t1.firstid) !== 'undefined') {
+                    firstid = t1.firstid;
                 }
-                text = this.game_state.game.add.text(70, 105 + 13 * index, text_value, text_style);
-                text.fixedToCamera = true;
-                text.inputEnabled = true;
-                text.pcid = nid;
-                text.pcid1 = id;
-                text.c_type = "evidence";
-                text.c_type1 = "show";
-                text.input.useHandCursor = true;
-                text.events.onInputDown.add(this.book_investigate, this, text);
-                this.texts.push(text);
+                
+                if (firstid + 18 < evidences.length) {
+                    const tpage = this.game_state.groups.hud.create(475, 348, 'book_bm_spritesheet', 3);
+                    tpage.inputEnabled = true;
+                    tpage.input.useHandCursor = true;
+                    tpage.pcid = nid;
+                    tpage.firstid = firstid + 17;
+                    tpage.c_type = "evidence";
+                    tpage.events.onInputDown.add(this.book_investigate, this, tpage);
+                    tpage.fixedToCamera = true;
+                    tpage.visible = true;
+                    this.book_obj.push(tpage);
+                    console.log(tpage);
+                }
 
-                near = player.near_ftprints(evidences[id])
-                console.log(near);
-                near2 = player.test_ftprint(id, evidences);
-                console.log(near2);
-                if (near && near2.b) {
-                    lupa = this.game_state.groups.hud.create(57, 106 + 13 * index, 'lupa11', 0);
-                    lupa.inputEnabled = true;
-                    lupa.input.useHandCursor = true;
-                    lupa.pcid = id;
-                    lupa.pcid1 = nid;
-                    lupa.c_type = "ftp";
-                    lupa.events.onInputDown.add(this.book_investigate, this, lupa);
-                    lupa.fixedToCamera = true;
-                    lupa.visible = true;
-                    this.book_obj.push(lupa);
+                if (firstid > 0) {
+                    const tpage1 = this.game_state.groups.hud.create(28, 348, 'book_bm_spritesheet', 2);
+                    tpage1.inputEnabled = true;
+                    tpage1.input.useHandCursor = true;
+                    tpage1.pcid = nid;
+                    tpage1.firstid = firstid - 17;
+                    tpage1.c_type = "evidence";
+                    tpage1.events.onInputDown.add(this.book_investigate, this, tpage1);
+                    tpage1.fixedToCamera = true;
+                    tpage1.visible = true;
+                    this.book_obj.push(tpage1);
+                }
+            }
+            
+            for (let id = firstid; id < evidences.length; id++) {
+                console.log("Index: " + index + " Id: " + id);
+                if (index < 18) {
+                    const a_ne = evidences[id].split("|");
+                    const e_type = a_ne[0];
+                    if (e_type === 'NPC' || e_type === 'player') {
+                        const e_uid = parseInt(a_ne[1]);
+                        const e_name = player.get_relation_name(e_uid, e_type)
+                        text_value = "- " + e_name;
+                        console.log(e_name + " - evidence: " + evidences[id]);
+                    } else {
+                        text_value = "- " + evidences[id];
+                    }
+                    text = this.game_state.game.add.text(70, 105 + 13 * index, text_value, text_style);
+                    text.fixedToCamera = true;
+                    text.inputEnabled = true;
+                    text.pcid = nid;
+                    text.pcid1 = id;
+                    text.firstid = firstid;
+                    text.c_type = "evidence";
+                    text.c_type1 = "show";
+                    text.input.useHandCursor = true;
+                    text.events.onInputDown.add(this.book_investigate, this, text);
+                    this.texts.push(text);
+
+                    const near = player.near_ftprints(evidences[id])
+                    console.log(near);
+                    const near2 = player.test_ftprint(id, evidences);
+                    console.log(near2);
+                    if (near && near2.b) {
+                        const lupa = this.game_state.groups.hud.create(57, 106 + 13 * index, 'lupa11', 0);
+                        lupa.inputEnabled = true;
+                        lupa.input.useHandCursor = true;
+                        lupa.pcid = id;
+                        lupa.pcid1 = nid;
+                        lupa.c_type = "ftp";
+                        lupa.events.onInputDown.add(this.book_investigate, this, lupa);
+                        lupa.fixedToCamera = true;
+                        lupa.visible = true;
+                        this.book_obj.push(lupa);
+                    }
                 }
 
                 index++;
             } 
             
             if (t1.c_type1 === 'show') {
-                text_value = evidences[t1.pcid1];
-                text = this.game_state.game.add.text(310, 105 + 13, text_value, text_style);
-                text.fixedToCamera = true;
-                this.texts.push(text);
+                console.log("Book investigate show");
+                console.log(evidences[t1.pcid1]);
                 
+                const wit_un = player.unpack_witness(evidences[t1.pcid1]);
+                console.log(wit_un);
                 
-                a_ne = evidences[t1.pcid1].split("|");
-                e_type = a_ne[0];
-                if (e_type === 'NPC' || e_type === 'player') {
-                    e_uid = parseInt(a_ne[1]);
-                    
-                    character = player.get_full_person(e_uid, e_type, "Book|" + t1.pcid1 + "|" + nid);
-                    
+                const e_uid = parseInt(wit_un.uid);
+                if (wit_un.type === 'NPC' || wit_un.type === 'player') {
+                    const cont = "Book|" + "|" + firstid + "|" + t1.pcid1 + "|" + nid;
+                    const character = player.get_full_person(e_uid, wit_un.type, cont);
                     console.log(character);
                     
                     if (typeof (character) !== 'undefined') {
-                        text_style = {"font": "11px Arial", "fill": "#000000", tabs: 40 };
                         text_value = character.name;
                         text = this.game_state.game.add.text(310, 105, text_value, text_style);
                         text.fixedToCamera = true;
                         this.texts.push(text);
 
-                        if (character.ren_texture === "") {
-                            if (character.gender === "male") {
-                                f_texture = "male_f";
-                            } else {
-                                f_texture = "female_f";
-                            }  
+                        let fsuff = "";
+                        let f_texture = "";                        
+                        if (character.gender === "male") {
+                            f_texture = "male_f";
                         } else {
+                            f_texture = "female_f";
+                            fsuff = "a";
+                        }  
+                        if (character.ren_texture !== "") {
                             f_texture = character.ren_texture.substring(0, character.ren_texture.length - 3) + "f";
                         }
 
                         console.log(f_texture);
 
-                        bk_mrk = this.game_state.groups.hud.create(310, 124, f_texture);
-                        bk_mrk.fixedToCamera = true;
-                        bk_mrk.visible = true;
-                        this.book_obj.push(bk_mrk);
+                        const photo = this.game_state.groups.hud.create(310, 124, f_texture);
+                        photo.fixedToCamera = true;
+                        photo.visible = true;
+                        this.book_obj.push(photo);
 
-                        stopy = character.badges['14'];
-                        vzhled = character.badges['15'];
+                        const stopy = character.badges['14'];
+                        const vzhled = character.badges['15'];
                         console.log(stopy);
                         console.log(vzhled);
-
-
-                        if (typeof (vzhled) !== 'undefined') {
-                            vzhled_a = vzhled.split("|");
-
-                            ind = parseInt(vzhled_a[0].substr(1,vzhled_a[0].length));
-                            rasa = this.game_state.core_data.rasa[ind];
-                            text = this.game_state.game.add.text(130 + 250, 125, rasa, text_style);
-                            text.fixedToCamera = true;
-                            this.texts.push(text);
-                        }
-
+                        
                         if (typeof (stopy) !== 'undefined') {
-                            stopy_a = stopy.split("|");
+                            const stopy_a = stopy.split("|");
 
-                            vyskavaha = stopy_a[0].substr(1,stopy_a[0].length) + " cm, ";
+                            let vyskavaha = stopy_a[0].substr(1,stopy_a[0].length) + " cm, ";
                             vyskavaha += stopy_a[1].substr(1,stopy_a[1].length) + " kg ";
                             text = this.game_state.game.add.text(130 + 250, 138, vyskavaha, text_style);
                             text.fixedToCamera = true;
                             this.texts.push(text);
 
-                            bota = "Bota: " + stopy_a[2].substr(1,stopy_a[2].length);
+                            const bota = "Bota: " + stopy_a[2].substr(1,stopy_a[2].length);
                             text = this.game_state.game.add.text(130 + 250, 151, bota, text_style);
                             text.fixedToCamera = true;
                             this.texts.push(text);
                         }
 
                         if (typeof (vzhled) !== 'undefined') {
-                            vek = "cca " + vzhled_a[1].substr(1,vzhled_a[1].length) + " let";
+                            const vzhled_a = vzhled.split("|");
+
+                            let ind = parseInt(vzhled_a[0].substr(1,vzhled_a[0].length));
+                            const rasa = this.game_state.core_data.rasa[ind];
+                            text = this.game_state.game.add.text(130 + 250, 125, rasa, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                        
+                            const vek = "cca " + vzhled_a[1].substr(1,vzhled_a[1].length) + " let";
                             text = this.game_state.game.add.text(130 + 250, 164, vek, text_style);
                             text.fixedToCamera = true;
                             this.texts.push(text);
@@ -1509,38 +1546,82 @@ Mst.hud.prototype.book_investigate = function (t1) {
                             text.fixedToCamera = true;
                             this.texts.push(text);
                             ind = parseInt(vzhled_a[3].substr(1,vzhled_a[3].length));
-                            vlasy = this.game_state.core_data.barva[ind];
+                            const vlasy = this.game_state.core_data.barva[ind];
                             text = this.game_state.game.add.text(135 + 250, 190, vlasy, text_style);
                             text.fixedToCamera = true;
                             this.texts.push(text);
                             ind = parseInt(vzhled_a[4].substr(1,vzhled_a[4].length));
-                            vlasy = this.game_state.core_data.delkavlasu[ind];
-                            text = this.game_state.game.add.text(135 + 250, 203, vlasy, text_style);
+                            const vlasyl = this.game_state.core_data.delkavlasu[ind];
+                            text = this.game_state.game.add.text(135 + 250, 203, vlasyl, text_style);
                             text.fixedToCamera = true;
                             this.texts.push(text);
 
                             ind = parseInt(vzhled_a[2].substr(1,vzhled_a[2].length));
-                            postava = "Postava: " + this.game_state.core_data.postava[ind];
+                            const postava = "Postava: " + this.game_state.core_data.postava[ind];
                             text = this.game_state.game.add.text(60 + 250, 220, postava, text_style);
                             text.fixedToCamera = true;
                             this.texts.push(text);
                         }
+                        
+                        if (typeof (wit_un.o.M) !== 'undefined') {
+                            text_value = "Byl" + fsuff + " na mapě " + wit_un.o.M;
+                        } else {
+                            text_value = "Nepamatuje si, kde byl" + fsuff;
+                        }
+                        
+                        text = this.game_state.game.add.text(60 + 250, 246, text_value, text_style);
+                        text.fixedToCamera = true;
+                        this.texts.push(text);
+                        
+                        if (wit_un.o.P === '1' && typeof(wit_un.o.R) !== 'undefined') {
+                            const cgender = wit_un.o.G;
+                            let mztxt = "";
+                            if (cgender === 'M') {
+                                fsuff = "";
+                                mztxt = "muž";
+                            } else {
+                                fsuff = "a";
+                                mztxt = "žena";
+                            }
+                            let ind = parseInt(wit_un.o.R);
+                            let txt = this.game_state.core_data.rasa[ind];
+                            text_value = "Byl to " + txt + ", " + mztxt + ".";                        
+                            text_value += " Výška " + wit_un.o["14H"] + " cm.";
+
+                            text = this.game_state.game.add.text(60 + 250, 259, text_value, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+
+                            text_value = "Věk asi " + wit_un.o.A + " let.";
+
+                            ind = parseInt(wit_un.o.F);
+                            txt = this.game_state.core_data.postava[ind];
+                            text_value += " Postava " + txt + ".";
+
+                            text = this.game_state.game.add.text(60 + 250, 272, text_value, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                        } else {
+                            text_value = "Nikoho neviděl" + fsuff;
+                            text = this.game_state.game.add.text(60 + 250, 259, text_value, text_style);
+                            text.fixedToCamera = true;
+                            this.texts.push(text);
+                        }
                     }
+                } else {                    
+                    text_value = evidences[t1.pcid1];
+                    text = this.game_state.game.add.text(310, 105 + 13, text_value, text_style);
+                    text.fixedToCamera = true;
+                    this.texts.push(text);
                 }
-                
-                
-                
-                
-                
-                
             }
         } else {
-            evidences = cases[t1.pcid1].evidences; 
-            new_evidence = player.investigate_ftprint(nid, evidences);
+            const evidences = cases[t1.pcid1].evidences; 
+            let new_evidence = player.investigate_ftprint(nid, evidences);
             console.log(new_evidence);
             if (new_evidence !== '') {
-                a_ne = new_evidence.split("|");
-                ane_nid = parseInt(a_ne.pop());
+                const a_ne = new_evidence.split("|");
+                const ane_nid = parseInt(a_ne.pop());
                 new_evidence = a_ne.join("|");
                 
                 if (a_ne.length < 4) {

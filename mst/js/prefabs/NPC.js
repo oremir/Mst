@@ -414,6 +414,12 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             open = true;
         }
         
+        if (NPC.stype === "tlustocerv") {
+            
+            console.log("tlustocerv");
+            open = true;
+        }
+        
         console.log(open);
 
         if (!open) {

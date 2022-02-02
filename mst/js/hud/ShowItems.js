@@ -337,11 +337,12 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
 
 Mst.ShowItems.prototype.put_down_item = function (one_item) {
     "use strict";
-    var item_sub, item_index, item_frame, item_quantity, item, quant_put, other_item_prefab, is_not_new_chest, chest_new, player, collide_test;
+    var item_sub, item_index, item_frame, item_quantity, item, quant_put, other_item_prefab, is_not_new_chest, chest_new, collide_test;
     
     console.log("put down " + this.put_type);
     console.log(one_item);
-    player = this.game_state.prefabs.player;
+    const player = this.game_state.prefabs.player;
+    const opened_chest = player.opened_chest;
     
     item_index = one_item.stat_index;
     item_frame = this.stats[item_index].frame;
@@ -354,7 +355,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                 if (this.prefab_name === "player") {
                     //console.log(player.keys.shift.isDown);
                     quant_put = 1;
-                    if (player.keys.shift.isDown && player.opened_chest !== "") {
+                    if (player.keys.shift.isDown && opened_chest !== "") {
                         console.log("SHIFT");
                         quant_put = Math.ceil(parseInt(this.stats[item_index].quantity)/2);
                         
@@ -367,8 +368,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
 
                     // ------------------------------------- + item -----------------------------------------
                     
-                    console.log("Opened chest: " + player.opened_chest);
-                    if (player.opened_chest === "") { // zadna bedna otevrena - delam novou
+                    console.log("Opened chest: " + opened_chest);
+                    if (opened_chest === "") { // zadna bedna otevrena - delam novou
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
                         //this.game_state.game.physics.arcade.collide(chest_new, this.game_state.layers.collision, console.log("kolidy kolidy"), null, this);
@@ -433,12 +434,11 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest_new.get_chest(chest_new);
                         }
                     } else { //má otevřenou jinou truhlu - davam to do ni
-                        var opened_chest = this.game_state.prefabs.player.opened_chest;
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
                         console.log("Put down: " + chest_frame + " item: " + item_frame);
                         
-                        var uput = { f: item_frame, wr: chest_frame };
+                        const uput = { f: item_frame, wr: chest_frame };
                         player.update_quest("put", uput);
                         
                         switch (chest_frame) {
@@ -716,12 +716,11 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         }
                     }
                 } else { // beru z bedny
-                    var is_fluid = (this.game_state.core_data.items[item_frame].properties.fluid === 'true');                    
-                    var takeit = true;
-                    var tquant = 1;
-                    var opened_chest = this.game_state.prefabs.player.opened_chest;
-                    var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
-                    var sub_water = this.game_state.core_data.items[chest_frame].properties.sub_water;
+                    const is_fluid = (this.game_state.core_data.items[item_frame].properties.fluid === 'true');
+                    let takeit = true;
+                    let tquant = 1;
+                    const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                    const sub_water = this.game_state.core_data.items[chest_frame].properties.sub_water;
                     
                     if (is_fluid) {
                         switch (item_frame) {
@@ -1116,8 +1115,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
             player.equip(item_index, item_frame);
             break;
         case "use":
-            var opened_chest = this.game_state.prefabs.player.opened_chest;
-            var use_sub = (this.game_state.core_data.items[item_frame].properties.use_sub === 'true');
+            const use_sub = (this.game_state.core_data.items[item_frame].properties.use_sub === 'true');
     
             console.log(this.game_state.core_data.items[item_frame]);
 
@@ -1126,7 +1124,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
             }
             
             if (opened_chest !== "") {
-                var uuse = { t: item_frame, on: this.game_state.prefabs[opened_chest].closed_frame };
+                const uuse = { t: item_frame, on: this.game_state.prefabs[opened_chest].closed_frame };
                 player.update_quest("use", uuse);
             }
             
@@ -1359,6 +1357,13 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(172, 1); //Bioodpad 2
                             
                             player.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        let recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
+                        let in_chest = chest.in_chest_ord();
+                        if (chest.chest_compare(in_chest, recipe)) {
+                            chest.take_all();
+                            chest.add_item(217, 1); //Ohnova souprava
                         }
                         
                     }

@@ -338,6 +338,83 @@
                  "width":16,
                  "x":117,
                  "y":1055
+                }, 
+                {
+                 "gid":6270,
+                 "height":16,
+                 "id":10,
+                 "name":"tlustocerv01",
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"0",
+                     "pool":"NPCs",
+                     "p_name":"Tlustočerv",
+                     "sprtype":"2",
+                     "stype":"tlustocerv",
+                     "immovable":"false",
+                     "relations_allowed":"false",
+                     "region":"2",
+                     "items":"",
+                     "texture":"tlustocerv_spritesheet"
+                    },
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":303,
+                 "y":495
+                }, 
+                {
+                 "gid":6270,
+                 "height":16,
+                 "id":11,
+                 "name":"tlustocerv02",
+                 "rotation":0,
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"0",
+                     "pool":"NPCs",
+                     "p_name":"Tlustočerv",
+                     "sprtype":"2",
+                     "stype":"tlustocerv",
+                     "immovable":"false",
+                     "relations_allowed":"false",
+                     "region":"2",
+                     "items":"",
+                     "texture":"tlustocerv_spritesheet"
+                    },
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":354,
+                 "y":556
+                }, 
+                {
+                 "gid":6270,
+                 "height":16,
+                 "id":12,
+                 "name":"tlustocerv03",
+                 "properties":
+                    {
+                     "group":"NPCs",
+                     "unique_id":"0",
+                     "pool":"NPCs",
+                     "p_name":"Tlustočerv",
+                     "sprtype":"2",
+                     "stype":"tlustocerv",
+                     "immovable":"false",
+                     "relations_allowed":"false",
+                     "region":"2",
+                     "items":"",
+                     "texture":"tlustocerv_spritesheet"
+                    },                 
+                 "rotation":0,
+                 "type":"NPC",
+                 "visible":true,
+                 "width":16,
+                 "x":383,
+                 "y":463
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -345,7 +422,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":10,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
