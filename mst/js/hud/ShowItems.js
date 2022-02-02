@@ -1490,6 +1490,84 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         }
                     }
                     break;
+                case 187: //Paz. nůž
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;   
+                        
+                        item = chest.index_item(39); //Kůže
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(185, 10); //Řemínek
+                            
+                            player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(142); //Safran
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(155, 1); //Šafrán. čnělka
+                            chest.add_item(157, 1); //Bioodpad
+                            
+                            var rnd_test = Math.ceil(Math.random() * 4);
+                            
+                            chest.add_item(161, rnd_test); //Šafrán. seminko
+                            
+                            player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(164); //Medunka
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(165, 1); //Medunka list
+                            chest.add_item(157, 1); //Bioodpad
+                            
+                            var rnd_test = Math.ceil(Math.random() * 4);
+                            
+                            chest.add_item(162, rnd_test); //Medunka seminko
+                            
+                            player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(179); //Kotvičník
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(157, 1); //Bioodpad
+                            
+                            var rnd_test = Math.ceil(Math.random() * 5);
+                            var test_q = player.test_quest("idass", "quest_36");
+                            console.log("Test quest 36 knife: " + test_q + "RT " + rnd_test);
+                            
+                            if (test_q && rnd_test < 2) {
+                                rnd_test = 2;
+                            }
+                            
+                            chest.add_item(177, rnd_test); //Kotvičník plod
+                            
+                            player.work_rout("farmer", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            player.work_rout("herbology", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        item = chest.index_item(169); //Šváb
+                        if (item.index > -1) {
+                            chest.subtract_item(item.index, 1);
+                            chest.add_item(170, 2); //Oko svaba
+                            chest.add_item(172, 1); //Bioodpad 2
+                            
+                            player.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                        }
+                        
+                        let recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
+                        let in_chest = chest.in_chest_ord();
+                        if (chest.chest_compare(in_chest, recipe)) {
+                            chest.take_all();
+                            chest.add_item(217, 1); //Ohnova souprava
+                        }
+                        
+                    }
+                    break;
                 case 189: //Antilevitační lekt. l.
                     player.add_buff(1, 60); // antilevitace 10 min
                     this.add_item(154, 1); //Lahvicka
@@ -1536,6 +1614,47 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 198: //denik
                     this.game_state.hud.book.show_book();
+                    break;
+                case 217: //Ohn. souprava
+                    if (opened_chest !== "") {
+                        var chest = this.game_state.prefabs[opened_chest];
+                        var chest_frame = chest.closed_frame;
+                        
+                        switch (chest_frame) {
+                            case 7: //Drevo
+                                chest.chest_loop_frame = 83; //Ohen
+                                chest.change_frame(83);
+                                chest.add_item(92, 2); //Ohen
+                            break;
+                            case 77: //Zel. kotlik na drevu
+                                chest.chest_loop_frame = 56; //hori
+                                chest.change_frame(56);
+                                item = chest.test_item(32); //Prkno
+                                chest.subtract_item(item.index, item.quantity);
+                                chest.add_item(92, item.quantity*2); //Ohen
+                            break;
+                            case 79: //Zel. kotlik s vodou na drevu
+                                chest.chest_loop_frame = 74; //hori
+                                chest.change_frame(74);
+                                item = chest.index_item(32); //Prkno
+                                chest.subtract_item(item.index, item.quantity);
+                                chest.add_item(92, item.quantity*2); //Ohen
+                            break;
+                            case 214: //hranice
+                                item = chest.index_item(43); //vetev
+                                if (item.index > -1) {
+                                    chest.subtract_item(item.index, item.quantity);
+                                    chest.add_item(92, item.quantity + 1); //Ohen
+                                    
+                                    chest.chest_loop_frame = 83; //hori
+                                    chest.change_frame(83);
+                                }
+                            break;
+                            default:
+                                
+                            break;
+                        }
+                    }
                     break;
                 case 225: //noviny
                     this.game_state.hud.newsppr.show_newsppr();

@@ -279,9 +279,6 @@ Mst.Ren.prototype.next_question = function (answer_text, context) {
                             }
 
                             if (typeof (wit2) !== 'undefined') {  // is witness
-                                cont2 = evi_str + "|P1|" + evi_id;
-                                full_person = player.get_full_person(cuid, ctype, cont2);
-
                                 if (map === cmap && map == wmap) {                  
                                     this.answer_context = evi_str + "|P1";
                                     if (this.gender === 'female') {
@@ -305,6 +302,7 @@ Mst.Ren.prototype.next_question = function (answer_text, context) {
                             if (wit_un.o.P === "1") {
                                 question_text = "Můžete ho popsat?";
                                 cont2 = evi_str + "|P1|" + evi_id;
+                                full_person = player.get_full_person(cuid, ctype, cont2);
                                 
                                 this.answer_context = evi_str + "|K0";
                                 ub14 = player.unpack_badge("14", cuid, ctype, cont2);
