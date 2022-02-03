@@ -22,6 +22,8 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     this.game_state.prefabs[name] = this;
     this.name = name;
     
+    this.etype = "item";
+    
     this.xdif = parseInt(properties.xdif)*16;
     this.ydif = parseInt(properties.ydif)*16;
     
@@ -65,30 +67,28 @@ Mst.ItemSpawner.prototype.constructor = Mst.ItemSpawner;
 
 Mst.ItemSpawner.prototype.spawn = function () {
     "use strict";
-    var object_name, object_position, object, index, frame, itst, x, y, tilex, tiley, tile, dist;
-    // get new random position
-    object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
+    var itst, x, y, tilex, tiley, tile, dist;
     
     // return new Item with random frame
     
-    index = this.game_state.game.rnd.between(0, this.items.length - 1);
-    frame = this.items[index].frame;
+    const index = this.game_state.game.rnd.between(0, this.items.length - 1);
+    const frame = this.items[index].frame;
     console.log("I"+index+"F"+frame);
-    
-    // get first dead object from the pool
-    object = this.pool.getFirstDead();
-    
-    //console.log("Item count living:" + this.pool.countLiving());
-    
+        
     if (this.j < this.max_number && this.k < (this.max_number*2)) {
         //console.log(this.game_state.layers);
         
-        var b = false;
+        // get new random position
+        const object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
         
+        let b = false;
+        let tilex = 0;
+        let tliey = 0;
+                
         if (typeof(this.game_state.layers.grass) !== 'undefined') {
             tilex = this.game_state.layers.grass.getTileX(object_position.x);
-            tiley = this.game_state.layers.grass.getTileX(object_position.y);
-            tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
+            tiley = this.game_state.layers.grass.getTileY(object_position.y);
+            const tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
             console.log("Grass: " + object_position.x + ">" + tilex*16 + "|" + object_position.y + ">" + tiley*16);
             console.log(tile);
             
@@ -100,8 +100,8 @@ Mst.ItemSpawner.prototype.spawn = function () {
             }
         } else {
             tilex = this.game_state.layers.collision.getTileX(object_position.x);
-            tiley = this.game_state.layers.collision.getTileX(object_position.y);
-            tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.collision);
+            tiley = this.game_state.layers.collision.getTileY(object_position.y);
+            const tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.collision);
             console.log(object_position.x + ">" + tilex*16 + "|" + object_position.y + ">" + tiley*16);
             console.log(tile);
             
@@ -114,45 +114,76 @@ Mst.ItemSpawner.prototype.spawn = function () {
         }
         
         object_position.x = tilex*16 + 8;
-        object_position.y = tiley*16 + 8;
+        object_position.y = tiley*16 + 8;        
         
+        //this.properties.spawn_field_ind = this.calc_spawn_field_ind(tilex, tiley);
+
+        if (!b) {
+            this.new_item(frame, object_position, 0);
+        }
+        
+        this.k++;
+                
+        // next spawn
+        
+        this.spawn();
+                
+    }
+};
+
+Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
+    "use strict";
+    
+    // get first dead object from the pool
+    let object = this.pool.getFirstDead();
+    
+    //console.log("Item count living:" + this.pool.countLiving());
+        
+    let b = false;
+    
+    if (cond === 0) {
         this.game_state.map_data.objects.forEach(function (map_object) {
             //console.log(map_object.x+"|"+map_object.y);
-            x = parseInt(map_object.x);
-            y = parseInt(map_object.y);
+            const x = parseInt(map_object.x);
+            const y = parseInt(map_object.y);
             //console.log(Math.pow((x - object_position.x),2) + Math.pow((y - object_position.y),2));
-            dist = Math.sqrt(Math.pow((x - object_position.x),2) + Math.pow((y - object_position.y),2));
+            const dist = Math.sqrt(Math.pow((x - object_position.x),2) + Math.pow((y - object_position.y),2));
             //console.log("Dist: "+dist);
             if (dist < 40) {
                 //console.log("Item not created / collision dist");
                 b = true;
             }
         }, this);
-        
-        if (b) {
-            console.log("Item not created / collision dist");
+    } else {
+        b = false;
+    }
+    
+    const tilex = this.game_state.layers.background.getTileX(object_position.x);
+    const tiley = this.game_state.layers.background.getTileY(object_position.y);
+    
+    if (this.game_state.getGridXY(tilex, tiley) === 1) {
+        b = true;
+        console.log("Item grid collision");
+    }
+
+    if (!b) {
+        if (!object) {
+            // if there is no dead object, create a new one            
+
+            const object_name = this.create_name();
+            object = this.create_object(object_name, object_position, this.properties);
+
+            console.log("New item: " + object_name);
+        } else {
+            // if there is a dead object, reset it to the new position and velocity
+            object.reset(object_position);
+
+            console.log("Reset item: " + object.name);
         }
-        
-        if (!b) {
-            this.properties.spawn_field_ind = this.calc_spawn_field_ind(tilex, tiley);
-        
-        
-            if (!object) {
-                // if there is no dead object, create a new one            
+        console.log(object);
 
-                object_name = this.create_name();
-                object = this.create_object(object_name, object_position, this.properties);
-
-                console.log("New item: " + object_name);
-            } else {
-                // if there is a dead object, reset it to the new position and velocity
-                object.reset(object_position);
-
-                console.log("Reset item: " + object.name);
-            }
-            //console.log(object);
-
-            var a = this.game_state.layers.collision.getTiles(object.x, object.y, 3, 3);
+        if (cond === 0) {
+            const a = this.game_state.layers.collision.getTiles(object.x, object.y, 3, 3);
 
             //console.log(a);
             a.forEach(function(tile) {
@@ -161,7 +192,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
                     b = true;
                 }
             });
-            //console.log(b);
+            console.log(b);
             //var testik = chest_new.collide_test();
 
             this.b_test = false;
@@ -170,9 +201,13 @@ Mst.ItemSpawner.prototype.spawn = function () {
                 this.game_state.game.physics.arcade.overlap(object, one_chest, this.test, null, this);
             }, this);
 
-            //console.log(this.b_test);
+            console.log(this.b_test);
             b = b || this.b_test;
-            //console.log(b);        
+        } else {
+            b = false;
+        }
+        
+        console.log(b);
 
 //            this.game_state.map_data.objects.forEach(function (map_object) {
 //                x = map_object.x;
@@ -186,49 +221,51 @@ Mst.ItemSpawner.prototype.spawn = function () {
 //            }, this);
 
 
-    //        this.pool.forEachAlive(function(ob) {
-    //            if (ob.name !== object.name) {
-    //                console.log(ob);
-    //                if (ob.overlap(object)) {                    
-    //                    b = true;
-    //                    console.log(b);
-    //                }
-    //            }
-    //        });
+//        this.pool.forEachAlive(function(ob) {
+//            if (ob.name !== object.name) {
+//                console.log(ob);
+//                if (ob.overlap(object)) {                    
+//                    b = true;
+//                    console.log(b);
+//                }
+//            }
+//        });
 
-            //console.log(b);
+        //console.log(b);
 
-            if (!b) {
-                object.stats.items = "";
-                object.closed_frame = frame;
-                object.opened_frame = frame;
-                object.frame = frame;
-                //object.updated = true;
+        if (!b) {
+            object.stats.items = "";
+            object.closed_frame = frame;
+            object.opened_frame = frame;
+            object.frame = frame;
+            //object.updated = true;
 
-                if (object.closed_frame == 22) {
-                    object.is_takeable = false;
-                    object.save.properties.is_takeable = false;
-                } else {
-                    object.is_takeable = true;
-                    object.save.properties.is_takeable = true;              
-                }
-
-
-
+            if (object.closed_frame == 22) {
+                object.is_takeable = false;
+                object.save.properties.is_takeable = false;
             } else {
-                console.log("Item killed / collision");
-                object.kill();
+                object.is_takeable = true;
+                object.save.properties.is_takeable = true;              
             }
+            
+            object.exist = true;
+        } else {
+            console.log("Item killed / collision");
+            object.kill();
+            object.exist = false;
         }
+    } else {
+        console.log("Item not created / collision dist");  
         
-        this.k++;
-                
-        // next spawn
-        
-        this.spawn();
-                
+        if (!object) {
+            object = {};
+        }
+        object.exist = false;
     }
+        
+   return object;
 };
+
 
 Mst.ItemSpawner.prototype.create_object = function (name, position, properties) {
     "use strict";

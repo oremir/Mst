@@ -373,15 +373,18 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         // - create new chest
                         chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
                         //this.game_state.game.physics.arcade.collide(chest_new, this.game_state.layers.collision, console.log("kolidy kolidy"), null, this);
-                        var a = this.game_state.layers.collision.getTiles(chest_new.x, chest_new.y, 3, 3);
-                        var b = false;
-                        console.log(a);
-                        a.forEach(function(tile) {
-                            console.log(tile.canCollide);
-                            if (tile.canCollide !== null) {
-                                b = true;
-                            }
-                        });
+                        
+                        const b = !chest_new.exist;
+                        
+//                        var a = this.game_state.layers.collision.getTiles(chest_new.x, chest_new.y, 3, 3);
+//                        console.log(a);
+//                        a.forEach(function(tile) {
+//                            console.log(tile.canCollide);
+//                            if (tile.canCollide !== null) {
+//                                b = true;
+//                            }
+//                        });
+                        
                         console.log(b);
                         //var testik = chest_new.collide_test();
                         if (!b) {

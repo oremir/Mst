@@ -57,6 +57,10 @@ Mst.Sword.prototype.update = function () {
         if (typeof (this.game_state.layers.collision_rock) !== 'undefined' && this.cut && (this.cut_type === "stone" || this.cut_type === "uni")) {
             this.game_state.game.physics.arcade.overlap(this, this.game_state.layers.collision_rock,  this.cut_stone, null, this);
             //console.log(this.game_state.layers.collision_forrest);
+        }        
+        if (typeof (this.game_state.layers.grass) !== 'undefined' && this.cut && this.cut_type === "plant") {
+            this.game_state.game.physics.arcade.overlap(this, this.game_state.layers.grass,  this.cut_grass, null, this);
+            //console.log(this.game_state.layers.collision_forrest);
         }
         if (this.cut_type !== "fire" && this.body.rotation > 40 && this.body.rotation < 80) {
             this.kill();
@@ -183,11 +187,11 @@ Mst.Sword.prototype.reequip = function (ef) {
 
 Mst.Sword.prototype.cut_wood = function (tool, wood) {
     "use strict";
-    var x, y, tile, player, rnd_test;
-    player = this.game_state.prefabs.player;
     
-    x = player.direction_chest.x + wood.x;
-    y = player.direction_chest.y + wood.y;
+    const player = this.game_state.prefabs.player;
+    
+    const x = player.direction_chest.x + wood.x;
+    const y = player.direction_chest.y + wood.y;
     
     
     console.log("wood!!!");
@@ -201,7 +205,7 @@ Mst.Sword.prototype.cut_wood = function (tool, wood) {
         
         player.work_rout("woodcutter", "strength", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
         
-        rnd_test = Math.floor(Math.random() * 20);
+        const rnd_test = Math.floor(Math.random() * 20);
         if (rnd_test < 2) {
             player.add_item(33, 1); // trnka
         }
@@ -213,11 +217,11 @@ Mst.Sword.prototype.cut_wood = function (tool, wood) {
 
 Mst.Sword.prototype.cut_stone = function (tool, stone) {
     "use strict";
-    var x, y, tile, player, rnd_test, rnd_core;
-    player = this.game_state.prefabs.player;
     
-    x = player.direction_chest.x + stone.x;
-    y = player.direction_chest.y + stone.y;
+    const player = this.game_state.prefabs.player;
+    
+    const x = player.direction_chest.x + stone.x;
+    const y = player.direction_chest.y + stone.y;
     
     console.log("stone!!!");
     //console.log(wood);
@@ -230,6 +234,7 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
         
         this.rnd_take(21, "stonebreaker");
         
+//        var rnd_test, rnd_core;
 //        rnd_test = Math.floor(Math.random() * 20);
 //        if (rnd_test < 2) {
 //            player.add_item(40, 1); // lichen
@@ -269,6 +274,45 @@ Mst.Sword.prototype.cut_stone = function (tool, stone) {
         
         this.cut = false;
         console.log("!!! Stone CUT: " + this.cut);
+    }
+};
+
+Mst.Sword.prototype.cut_grass = function (tool, grass) {
+    "use strict";
+    
+    const player = this.game_state.prefabs.player;
+    const item_spawner = player.item_spawner;
+    
+//    const x = player.direction_chest.x + grass.x;
+//    const y = player.direction_chest.y + grass.y;
+    
+    const x = player.direction_chest.x + Math.floor(player.x / 16);
+    const y = player.direction_chest.y + Math.floor(player.y / 16);
+    
+    console.log("Position player " + Math.floor(player.x/16) + "|" + Math.floor(player.y/16) + " grass " + x + "|" + y); 
+    
+    let tool_frame = this.frame;
+    
+    if ((tool_frame === 23 || tool_frame === 22) && typeof (item_spawner) !== 'undefined') {
+        console.log("cut grass!!!");
+        //console.log(wood);
+        //console.log(this.game_state.layers.collision_forrest.layer.data[y][x]);
+
+        if (this.game_state.map.getTile(x, y, "grass") !== null) {
+            console.log("Cut grass");
+
+            player.work_rout("farmer", "dexterity", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+    //        const rnd_test = Math.floor(Math.random() * 20);
+    //        if (rnd_test < 2) {
+    //            player.add_item(33, 1); // trnka
+    //        }
+            
+            item_spawner.new_item(126, {x: (x * 16 + 8), y: (y * 16 + 8)}, 1);
+
+            this.cut = false;
+            console.log("!!! Grass CUT: " + this.cut);
+        }
     }
 };
 
@@ -346,6 +390,7 @@ Mst.Sword.prototype.cut_chest = function (chest) {
     if (tool_frame == 14) {tool_frame = 13;}
     if (tool_frame == 19) {tool_frame = 18;}
     if (tool_frame == 21) {tool_frame = 20;}
+    if (tool_frame == 23) {tool_frame = 22;}
     
     console.log("player.opened_chest: " + player.opened_chest + " CN: " + chest.name + " MW: " + this.game_state.hud.middle_window.visible + " op: " + chest.is_opened);
     

@@ -58,15 +58,23 @@ Mst.ChestCreator.prototype.create_new_chest_name = function () {
 };
 
 Mst.ChestCreator.prototype.create_new_chest = function (item_frame) { 
-    "use strict";    
-    var position_new, position_new_player, chest_new, name_new,  tilex, tiley, tile, b;
+    "use strict";
     
-    position_new = {
+    const position_new = {
         x: Math.round((this.game_state.prefabs.player.x - 8 + (this.game_state.prefabs.player.direction_chest.x * 16))/16)*16 + 8,
         y: Math.round((this.game_state.prefabs.player.y + 8 + (this.game_state.prefabs.player.direction_chest.y * 16))/16)*16 - 8
     };
+
+    const tilex = this.game_state.layers.background.getTileX(position_new.x);
+    const tiley = this.game_state.layers.background.getTileY(position_new.y);
     
-    position_new_player = {
+    let b = false;
+    if (this.game_state.getGridXY(tilex, tiley) === 1) {
+        b = true;
+        console.log("Chest grid colision");
+    }
+    
+    const position_new_player = {
         x: Math.round((this.game_state.prefabs.player.x - 8 )/16)*16 + 8,
         y: Math.round((this.game_state.prefabs.player.y + 8 )/16)*16 - 8
     };
@@ -78,8 +86,14 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     this.game_state.prefabs.player.x = position_new_player.x
     this.game_state.prefabs.player.y = position_new_player.y;
     
-    name_new = this.create_new_chest_name();
-    chest_new = this.create_object(name_new, position_new, this.properties);
+    const name_new = this.create_new_chest_name();
+    const chest_new = this.create_object(name_new, position_new, this.properties);
+    
+    if (b) {
+        chest_new.exist = false;
+    } else {
+        chest_new.exist = true;
+    }
     
 //    chest_new = this.pool.getFirstDead();
     
@@ -99,9 +113,7 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     console.log("Items: " + chest_new.stats.items);
     
     if (typeof(this.game_state.layers.grass) !== 'undefined') {
-        tilex = this.game_state.layers.grass.getTileX(chest_new.x);
-        tiley = this.game_state.layers.grass.getTileX(chest_new.y);
-        tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
+        const tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
         console.log("Grass: " + chest_new.x + ">" + tilex*16 + "|" + chest_new.y + ">" + tiley*16);
         console.log(tile);
 

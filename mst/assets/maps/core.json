@@ -614,7 +614,8 @@
         { "name": "Léč. mast", "istool": "false", "properties": {} },
         { "name": "Léč. mast d.m.", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Léč. mast m.", "istool": "false", "properties": { "use_sub": "true" } },
-        { "name": "Noviny", "istool": "false", "properties": {} }
+        { "name": "Noviny", "istool": "false", "properties": {} },
+        { "name": "Motyka", "istool": "true", "properties": { "cut_type": "plant", "tool_fr_left": "22", "tool_fr_right": "23" } }
     ],
 	
 	"objects": { 

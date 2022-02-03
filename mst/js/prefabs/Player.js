@@ -565,6 +565,9 @@ Mst.Player.prototype.final_tests = function () {
                 en_sp = spawner;
             }
         }
+        if (spawner.etype === "item") {
+            this.item_spawner = spawner;
+        }
     }, this);
     
     if (typeof (en_sp.etype) !== 'undefined') {

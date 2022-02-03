@@ -662,6 +662,18 @@ Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
     return otherplayer;    
 };
 
+Mst.TiledState.prototype.getGridXY = function (x, y) {
+    "use strict";
+    
+    return this.grid[y][x];
+};
+
+Mst.TiledState.prototype.setGridXY = function (x, y, val) {
+    "use strict";
+    
+    this.grid[y][x] = val;
+};
+
 Mst.TiledState.prototype.playerOfUsrID = function (usr_id) {
     "use strict";
     

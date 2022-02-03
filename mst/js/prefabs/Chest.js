@@ -14,7 +14,17 @@ Mst.Chest = function (game_state, name, position, properties) {
     };
     
     this.closed_frame = parseInt(properties.closed_frame) || 4;
-    this.opened_frame = parseInt(properties.opened_frame) || 5;
+    this.opened_frame = parseInt(properties.opened_frame) || 5;    
+    
+    
+    console.log(this.game_state.grid);
+    
+    this.tilex = this.game_state.layers.background.getTileX(this.x);
+    this.tiley = this.game_state.layers.background.getTileY(this.y);
+    console.log(this.tilex + "|" + this.tiley);
+    this.game_state.setGridXY(this.tilex, this.tiley, 1);
+    
+    console.log(this.game_state.grid);
     
     var key;
     key = this.game_state.keyOfName(name);
@@ -1387,6 +1397,8 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     //this.obj_id = 0;
                     chest.kill();
                     player.opened_chest = "";
+                    
+                    this.game_state.setGridXY(chest.tilex, chest.tiley, 0);
 
                     key = this.game_state.keyOfName(chest_name);
 
