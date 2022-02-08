@@ -86,6 +86,122 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     this.game_state.prefabs.player.x = position_new_player.x
     this.game_state.prefabs.player.y = position_new_player.y;
     
+    switch (item_frame) {
+        case 4:
+            this.properties.closed_frame = 4;
+            this.properties.opened_frame = 5;
+            break;
+        case 6:
+            this.properties.closed_frame = 6;
+            this.properties.opened_frame = 6;
+            break;
+        case 7:
+            this.properties.closed_frame = 7;
+            this.properties.opened_frame = 7;
+            break;
+        case 21:
+            this.properties.closed_frame = 21;
+            this.properties.opened_frame = 21;
+            break;
+        case 24:
+            this.properties.closed_frame = 19;
+            this.properties.opened_frame = 19;
+            break;
+        case 29:
+            this.properties.closed_frame = 29;
+            this.properties.opened_frame = 29;
+            break;
+        case 30:
+            this.properties.closed_frame = 30;
+            this.properties.opened_frame = 30;
+            break;
+        case 31:
+            this.properties.closed_frame = 31;
+            this.properties.opened_frame = 31;
+            break;
+        case 32:
+            this.properties.closed_frame = 7;
+            this.properties.opened_frame = 7;
+            break;
+        case 41:
+            this.properties.closed_frame = 41;
+            this.properties.opened_frame = 41;
+            break;
+        case 43:
+            this.properties.closed_frame = 213;
+            this.properties.opened_frame = 213;
+            break;
+        case 52:
+            this.properties.closed_frame = 52;
+            this.properties.opened_frame = 52;
+            break;
+        case 53:
+            this.properties.closed_frame = 53;
+            this.properties.opened_frame = 53;
+            break;
+        case 58:
+            this.properties.closed_frame = 58;
+            this.properties.opened_frame = 58;
+            break;
+        case 59:
+            this.properties.closed_frame = 59;
+            this.properties.opened_frame = 59;
+            break;
+        case 60:
+            this.properties.closed_frame = 60;
+            this.properties.opened_frame = 60;
+            break;
+        case 64:
+            this.properties.closed_frame = 64;
+            this.properties.opened_frame = 64;
+            break;
+        case 71:
+            this.properties.closed_frame = 71;
+            this.properties.opened_frame = 71;
+            break;
+        case 98:
+            this.properties.closed_frame = 98;
+            this.properties.opened_frame = 98;
+            break;
+        case 104:
+            this.properties.closed_frame = 104;
+            this.properties.opened_frame = 104;
+            break;
+        case 108:
+            this.properties.closed_frame = 108;
+            this.properties.opened_frame = 108;
+            break;
+        case 114:
+            this.properties.closed_frame = 114;
+            this.properties.opened_frame = 114;
+            break;
+        case 126:
+            if (b) {
+                this.properties.closed_frame = 126;
+                this.properties.opened_frame = 126;
+            } else {
+                this.properties.closed_frame = 3;
+                this.properties.opened_frame = 3;
+            }
+            break;
+        case 138:
+            this.properties.closed_frame = 138;
+            this.properties.opened_frame = 138;
+            break;            
+        case 166:
+            this.properties.closed_frame = 166;
+            this.properties.opened_frame = 166;
+            break;
+        case 237:
+            this.properties.closed_frame = 237;
+            this.properties.opened_frame = 237;
+            break;
+        default:
+            this.properties.closed_frame = 3;
+            this.properties.opened_frame = 3;
+            break;
+    }
+    
     const name_new = this.create_new_chest_name();
     const chest_new = this.create_object(name_new, position_new, this.properties);
     
@@ -125,121 +241,8 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
             console.log("Grass tile");
         }
     }
-                            
     
-    switch (item_frame) {
-        case 4:
-            chest_new.closed_frame = 4;
-            chest_new.opened_frame = 5;
-            break;
-        case 6:
-            chest_new.closed_frame = 6;
-            chest_new.opened_frame = 6;
-            break;
-        case 7:
-            chest_new.closed_frame = 7;
-            chest_new.opened_frame = 7;
-            break;
-        case 21:
-            chest_new.closed_frame = 21;
-            chest_new.opened_frame = 21;
-            break;
-        case 24:
-            chest_new.closed_frame = 19;
-            chest_new.opened_frame = 19;
-            break;
-        case 29:
-            chest_new.closed_frame = 29;
-            chest_new.opened_frame = 29;
-            break;
-        case 30:
-            chest_new.closed_frame = 30;
-            chest_new.opened_frame = 30;
-            break;
-        case 31:
-            chest_new.closed_frame = 31;
-            chest_new.opened_frame = 31;
-            break;
-        case 32:
-            chest_new.closed_frame = 7;
-            chest_new.opened_frame = 7;
-            break;
-        case 41:
-            chest_new.closed_frame = 41;
-            chest_new.opened_frame = 41;
-            break;
-        case 43:
-            chest_new.closed_frame = 213;
-            chest_new.opened_frame = 213;
-            break;
-        case 52:
-            chest_new.closed_frame = 52;
-            chest_new.opened_frame = 52;
-            break;
-        case 53:
-            chest_new.closed_frame = 53;
-            chest_new.opened_frame = 53;
-            break;
-        case 58:
-            chest_new.closed_frame = 58;
-            chest_new.opened_frame = 58;
-            break;
-        case 59:
-            chest_new.closed_frame = 59;
-            chest_new.opened_frame = 59;
-            break;
-        case 60:
-            chest_new.closed_frame = 60;
-            chest_new.opened_frame = 60;
-            break;
-        case 64:
-            chest_new.closed_frame = 64;
-            chest_new.opened_frame = 64;
-            break;
-        case 71:
-            chest_new.closed_frame = 71;
-            chest_new.opened_frame = 71;
-            break;
-        case 98:
-            chest_new.closed_frame = 98;
-            chest_new.opened_frame = 98;
-            break;
-        case 104:
-            chest_new.closed_frame = 104;
-            chest_new.opened_frame = 104;
-            break;
-        case 108:
-            chest_new.closed_frame = 108;
-            chest_new.opened_frame = 108;
-            break;
-        case 114:
-            chest_new.closed_frame = 114;
-            chest_new.opened_frame = 114;
-            break;
-        case 126:
-            if (b) {
-                chest_new.closed_frame = 126;
-                chest_new.opened_frame = 126;
-            } else {
-                chest_new.closed_frame = 3;
-                chest_new.opened_frame = 3;
-            }
-            break;
-        case 138:
-            chest_new.closed_frame = 138;
-            chest_new.opened_frame = 138;
-            break;            
-        case 166:
-            chest_new.closed_frame = 166;
-            chest_new.opened_frame = 166;
-            break;
-        default:
-            chest_new.closed_frame = 3;
-            chest_new.opened_frame = 3;
-            break;
-    }
-    
-    chest_new.frame = chest_new.opened_frame;
+    chest_new.frame = this.properties.opened_frame;
     chest_new.is_opened = true;
     chest_new.updated = true;
     

@@ -17,7 +17,7 @@ Mst.Chest = function (game_state, name, position, properties) {
     this.opened_frame = parseInt(properties.opened_frame) || 5;    
     
     
-    console.log(this.game_state.grid);
+    //console.log(this.game_state.grid);
     
     this.tilex = this.game_state.layers.background.getTileX(this.x);
     this.tiley = this.game_state.layers.background.getTileY(this.y);
@@ -143,8 +143,8 @@ Mst.Chest = function (game_state, name, position, properties) {
     console.log("Chest time diff: " + (n - this.ctime));
     console.log((n - this.ctime)/100000);
     
-    //if ((n - this.ctime)/100000 > 1) {
-    if ((n - this.ctime)/100000 > 846) {
+    if ((n - this.ctime)/100000 > 1) {
+    //if ((n - this.ctime)/100000 > 846) {
         switch (this.closed_frame) {
             case 126: // sazenice
                 var rnd_test = Math.floor(Math.random() * 100);
@@ -219,6 +219,39 @@ Mst.Chest = function (game_state, name, position, properties) {
                         this.s2type = "179";
                         this.save.properties.s2type = "179";
                     break;                    
+                }
+                
+                //this.time = n;
+                this.ctime = n; 
+            break;
+            case 229: // pole zem. zal.
+                this.change_frame(227); // pole zem.
+                //this.time = n;
+                this.ctime = n;
+            break;
+            case 230: // pole sem. zal.
+                this.change_frame(231); // pole saz.
+                //this.time = n;
+                this.ctime = n;
+            break;
+            case 233: // pole saz. zal.
+                this.change_frame(232); // pole rosl.
+                //this.time = n;
+                this.ctime = n;
+            break;
+            case 234: // pole rost. zal.
+                this.change_frame(227); // pole zem.
+                var plant_a1 = this.stats.items.split("_");
+                console.log(plant_a1);
+                var plant_frame = plant_a1[0].split("-")[0];
+                console.log("Plant frame: " + plant_frame);
+                switch (plant_frame) {
+                    case "236": // salat saz.
+                        this.s1type = "plant";
+                        this.save.properties.s1type = "plant";
+                        this.s2type = "237";
+                        this.save.properties.s2type = "237";
+                    break;                  
                 }
                 
                 //this.time = n;
@@ -335,6 +368,33 @@ Mst.Chest = function (game_state, name, position, properties) {
             this.chest_loop = 1;
             this.chest_loop_frame = 166;
         break;
+        case 227: // pole zem.
+            if (typeof(properties.s2type) !== 'undefined') {
+                if (this.s2type !== '') {
+                    var ind = parseInt(this.s2type);
+                    console.log(ind);
+                    this.plant = this.game_state.groups.bubbles.create(this.x - 8, this.y - 12, 'items_spritesheet', 0);
+                    this.plant.loadTexture('items_spritesheet', ind);
+                    //this.plant.frame = ind;
+                    this.chest_loop = 1;
+                    this.chest_loop_frame = 227;
+                }
+            }
+        break;
+        case 231: // pole saz.
+            this.chest_loop = 1;
+            this.chest_loop_frame = 231;
+        break;
+        case 237: // salat
+            console.log("Salat run");
+            this.salat_lives = 100;
+            this.game_state.groups.NPCs.forEachAlive(function (NPC) {
+                if (NPC.stype === "tlustocerv") {
+                    console.log("Tlustocerv salat run");
+                    NPC.condi(true, this);
+                }
+            }, this);
+        break;
         default:
             this.animations.stop();
         break;
@@ -441,6 +501,14 @@ Mst.Chest.prototype.update = function () {
             break;
             case 166: // Kos
                 is_timed = false;
+            break;
+            case 227: //pole zem.
+                if (this.s1type === 'plant') {
+                }
+                is_timed = false;
+            break;
+            case 231: //pole saz.
+                is_timed = true;
             break;
             default:
                 this.animations.stop();
@@ -770,6 +838,20 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                                 this.add_item(167, 1); //vymesek plisnacka
                             }
                         }
+                    }
+                break;
+                case 227: //pole zem.
+                    index = this.test_item(236, 1); //salat saz.
+                    if (index > -1) {
+                        this.subtract_item(index, 1);
+                        this.add_item(237, 1); //salat
+                    }
+                break;                
+                case 231: //pole saz.
+                    index = this.test_item(235, 1); //salat sem.
+                    if (index > -1) {
+                        this.subtract_item(index, 1);
+                        this.add_item(236, 1); //salat saz.
                     }
                 break;
             }
@@ -1309,17 +1391,149 @@ Mst.Chest.prototype.save_chest = function () {
     
 };
 
+Mst.Chest.prototype.get_chest_core = function (chest) {
+    "use strict";
+    
+    const player = this.game_state.prefabs.player;
+    const chest_name = chest.name;
+    const closed_frame = chest.closed_frame;
+
+    chest.save.properties.taken = chest.save_taken();
+    if (this.case_id > -1) {
+        const tkc = chest.steal_check_taken();
+        if (tkc) {
+            chest.steal_add_taken();
+        } else {
+            chest.steal_rollback();
+        }
+    }
+
+    chest.kill();
+    player.opened_chest = "";
+
+    if (typeof(chest.plant) !== 'undefined') {
+        chest.plant.kill();
+    }
+    
+    if (typeof(chest.krlz_sprite) !== 'undefined') {
+        chest.krlz_sprite.kill();
+        player.key_close();
+    }
+
+    if (this.closed_frame === 237) {
+        this.game_state.groups.NPCs.forEachAlive(function (NPC) {
+            if (NPC.stype === "tlustocerv") {
+                console.log("Tlustocerv salat not run");
+                NPC.condi(false);
+            }
+        }, this);
+    }
+
+    this.game_state.setGridXY(chest.tilex, chest.tiley, 0);
+
+    const key = this.game_state.keyOfName(chest_name);
+
+    if (key !== "") {
+        this.game_state.save.objects.splice(key, 1);
+    }
+
+    console.log("Get chest objects:");
+    console.log(this.game_state.save.objects);
+
+    console.log(chest.cases);
+    if (chest.cases.length > 0) {
+        chest.save.properties.closed_frame = "199";
+        chest.save.properties.opened_frame = "199";
+
+        chest.save.properties.is_takeable = false;
+        chest.save.properties.cases = chest.cases;
+
+        const d = new Date();
+        const n = d.getTime();
+        chest.save.properties.time = n;
+        chest.save.properties.ctime = n;
+
+        const usr_id = player.usr_id;
+        chest.save.action = "CLOSE";
+
+        console.log("CLOSE Case CHEST");
+        console.log(this.save);
+
+        $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
+            .done(function (data) {
+                console.log("Chest close success");
+                console.log(data);
+            })
+            .fail(function (data) {
+                console.log("Chest close error");
+                console.log(data);
+            });
+
+        console.log("save chest close");
+    } else  { 
+        if (closed_frame === 22) {
+            chest.save.properties.closed_frame = "126";
+            chest.save.properties.opened_frame = "126";
+
+            chest.save.properties.is_takeable = true;
+
+            const d = new Date();
+            const n = d.getTime();
+            chest.save.properties.time = n;
+            chest.save.properties.ctime = n;
+
+            const usr_id = player.usr_id;
+            chest.save.action = "CLOSE";
+
+            console.log("CLOSE 126 CHEST");
+            console.log(this.save);
+
+            $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
+                .done(function (data) {
+                    console.log("Chest close success");
+                    console.log(data);
+                })
+                .fail(function (data) {
+                    console.log("Chest close error");
+                    console.log(data);
+                });
+
+            console.log("save chest close");
+        } else {
+            if (this.obj_id !== 0) {
+                const usr_id = player.usr_id;
+                chest.save.action = "GET";
+
+                const d = new Date();
+                const n = d.getTime();
+
+                $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
+                    .done(function (data) {
+                        console.log("Chest get success");
+                        console.log(data);
+                    })
+                    .fail(function (data) {
+                        console.log("Chest get error");
+                        console.log(data);
+                    });
+
+                console.log("save chest get");
+            }
+        }
+    } 
+};
+
 Mst.Chest.prototype.get_chest = function (chest) {
     "use strict";
-    var chest_name, closed_frame, key, usr_id, d, n, success, player, tkc;
-    success = true;
     
-    player = this.game_state.prefabs.player;
-    chest_name = chest.name;
+    let success = true;
+    
+    const player = this.game_state.prefabs.player;
+    const chest_name = chest.name;
     
     chest.game_state.prefabs.items.set_put_type("equip");
     
-    console.log("GET CHEST - is takeble: " + chest.is_takeable);
+    console.log("GET CHEST - is takeble: " + chest.is_takeable + " Poch: " + player.opened_chest + " Chn: " + chest_name);
     
     if (player.opened_chest === chest_name) {
         if (chest.is_takeable) {
@@ -1327,18 +1541,8 @@ Mst.Chest.prototype.get_chest = function (chest) {
                 if (chest.stats.items === "") {
                     console.log(chest);
 
-                    closed_frame = chest.closed_frame;
+                    const closed_frame = chest.closed_frame;
                     
-                    chest.save.properties.taken = chest.save_taken();
-                    if (this.case_id > -1) {
-                        tkc = chest.steal_check_taken();
-                        if (tkc) {
-                            chest.steal_add_taken();
-                        } else {
-                            chest.steal_rollback();
-                        }
-                    }
-
                     switch(closed_frame) {
                         case 3: //věci 
 
@@ -1385,6 +1589,12 @@ Mst.Chest.prototype.get_chest = function (chest) {
                         case 213: //bariera II
                             player.add_item(43, 1); //vetev
                         break;
+                        case 227: //pole
+                            player.add_item(238, 1); //hlina
+                        break;
+                        case 229: //pole zal.
+                            player.add_item(238, 1); //hlina
+                        break;
                         default: //ostatní bedny
                             player.add_item(closed_frame, 1);
                         break;
@@ -1393,106 +1603,8 @@ Mst.Chest.prototype.get_chest = function (chest) {
                     if (chest.sskill !== "") {
                         player.work_rout(chest.sskill, "exploration", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
                     }
-
-                    //this.obj_id = 0;
-                    chest.kill();
-                    player.opened_chest = "";
                     
-                    this.game_state.setGridXY(chest.tilex, chest.tiley, 0);
-
-                    key = this.game_state.keyOfName(chest_name);
-
-                    console.log("Get chest key:");
-                    console.log(key);
-
-                    if (key !== "") {
-                        this.game_state.save.objects.splice(key, 1);
-                    }
-                    
-                    console.log("Get chest objects:");
-                    console.log(this.game_state.save.objects);
-                    
-                    console.log(chest.cases);
-                    if (chest.cases.length > 0) {
-                        chest.save.properties.closed_frame = "199";
-                        chest.save.properties.opened_frame = "199";
-                        
-                        chest.save.properties.is_takeable = false;
-                        chest.save.properties.cases = chest.cases;
-                        
-                        d = new Date();
-                        n = d.getTime();
-                        chest.save.properties.time = n;
-                        chest.save.properties.ctime = n;
-                        
-                        usr_id = player.usr_id;
-                        chest.save.action = "CLOSE";
-
-                        console.log("CLOSE Case CHEST");
-                        console.log(this.save);
-
-                        $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
-                            .done(function (data) {
-                                console.log("Chest close success");
-                                console.log(data);
-                            })
-                            .fail(function (data) {
-                                console.log("Chest close error");
-                                console.log(data);
-                            });
-
-                        console.log("save chest close");
-                    } else  { 
-                        if (closed_frame === 22) {
-                            chest.save.properties.closed_frame = "126";
-                            chest.save.properties.opened_frame = "126";
-
-                            chest.save.properties.is_takeable = true;
-
-                            d = new Date();
-                            n = d.getTime();
-                            chest.save.properties.time = n;
-                            chest.save.properties.ctime = n;
-
-                            usr_id = player.usr_id;
-                            chest.save.action = "CLOSE";
-
-                            console.log("CLOSE 126 CHEST");
-                            console.log(this.save);
-
-                            $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
-                                .done(function (data) {
-                                    console.log("Chest close success");
-                                    console.log(data);
-                                })
-                                .fail(function (data) {
-                                    console.log("Chest close error");
-                                    console.log(data);
-                                });
-
-                            console.log("save chest close");
-                        } else {
-                            if (this.obj_id !== 0) {
-                                usr_id = player.usr_id;
-                                chest.save.action = "GET";
-
-                                d = new Date();
-                                n = d.getTime();
-
-                                $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
-                                    .done(function (data) {
-                                        console.log("Chest get success");
-                                        console.log(data);
-                                    })
-                                    .fail(function (data) {
-                                        console.log("Chest get error");
-                                        console.log(data);
-                                    });
-
-                                console.log("save chest get");
-                            }
-                        }
-                    }
+                    this.get_chest_core(chest);
                 } else {
                     success = false;
                     console.log("Chest is not empty!");
@@ -1508,11 +1620,6 @@ Mst.Chest.prototype.get_chest = function (chest) {
     } else {
         success = false;
         console.log("Chest is not open!");
-    }
-    
-    if (typeof(chest.krlz_sprite) !== 'undefined') {
-        chest.krlz_sprite.kill();
-        this.game_state.prefabs.player.key_close();
     }
     
     return success;

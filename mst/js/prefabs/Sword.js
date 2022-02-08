@@ -308,7 +308,12 @@ Mst.Sword.prototype.cut_grass = function (tool, grass) {
     //            player.add_item(33, 1); // trnka
     //        }
             
-            item_spawner.new_item(126, {x: (x * 16 + 8), y: (y * 16 + 8)}, 1);
+            const new_item = item_spawner.new_item(227, {x: (x * 16 + 8), y: (y * 16 + 8)}, 1);
+            console.log("Grass new item");
+            console.log(new_item);
+            if (new_item.exist) {
+                new_item.is_takeable = false;
+            }
 
             this.cut = false;
             console.log("!!! Grass CUT: " + this.cut);
@@ -903,8 +908,57 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                 player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                                 player.work_rout("herbology", "intelligence", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
+                            case 227: //pole
+                                chest.change_frame(229); //pole zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 20, 15, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 228: //pole sem.
+                                chest.change_frame(230); //pole sem. zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 231: //pole saz.
+                                chest.change_frame(233); //pole saz. zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 232: //pole rost.
+                                chest.change_frame(234); //pole rost. zal.
+                                var d = new Date();
+                                var n = d.getTime();
+                                chest.save.properties.ctime = n;
+                                player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
                         }
                     break;
+                    case 22: //motyka                    
+                        switch (chest.closed_frame) {
+                            case 227: //pole
+                                in_chest = chest.in_chest_ord();
+                                chest.is_takeable = true;
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
+                                player.work_rout("farmer", "dexterity", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                            case 229: //pole zal
+                                in_chest = chest.in_chest_ord();
+                                chest.is_takeable = true;
+                                chest.take_all();
+                                player.put_all(in_chest);
+                                chest.get_chest(chest);
+                                player.work_rout("farmer", "dexterity", 1, 2, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                            break;
+                        }
+                    break;
+                        
                         
                 }
             }

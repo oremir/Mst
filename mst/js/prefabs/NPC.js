@@ -8,6 +8,7 @@ Mst.NPC = function (game_state, name, position, properties) {
     Mst.Prefab.call(this, game_state, name, position, properties);
     
     this.game_state.game.physics.arcade.enable(this);
+    this.body.bounce.setTo(0.8);
     
 //    this.stats = {
 //        items: properties.items
@@ -125,6 +126,15 @@ Mst.NPC = function (game_state, name, position, properties) {
         //var index = player.test_item(195,1);
         //console.log("Kompot " + index);
     }
+    if (this.stype === "tlustocerv") {
+        this.ren_name = "blank_image";
+        this.tlustocerv_run = false;
+        this.tlustocerv_target = {};
+        this.tlustocerv_knockbacki = 0;
+        
+        this.body.velocity.x = this.game_state.game.rnd.between(-20, 20);
+        this.body.velocity.y = this.game_state.game.rnd.between(-5, 5);
+    }
     
     this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
@@ -147,7 +157,7 @@ Mst.NPC.prototype.update = function () {
     
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
     this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.collide_chest, null, this);
     //this.game_state.game.physics.arcade.collide(this, this.game_state.groups.players);
     
     //console.log(!this.body.immovable);
@@ -174,7 +184,7 @@ Mst.NPC.prototype.update = function () {
     if (this.sprtype === 2) {
         this.animations.play("go");
         if (Math.sign(this.body.velocity.x) !== 0) {
-            this.scale.setTo(-Math.sign(this.body.velocity.x), 1);
+            this.scale.setTo(Math.sign(this.body.velocity.x), 1);
         }
     }
     
@@ -184,6 +194,20 @@ Mst.NPC.prototype.update = function () {
         } else {
             this.body.velocity.x = 0;
             this.body.velocity.y = 0;
+        }
+    }
+    
+    if (this.stype === "tlustocerv") {
+        if(this.tlustocerv_run && typeof(this.tlustocerv_target.closed_frame) !== 'undefined') {
+            if (this.tlustocerv_knockbacki > 0) {
+                this.tlustocerv_knockbacki--;
+                //console.log("KI: " + this.tlustocerv_knockbacki);
+            } else {
+                this.game_state.game.physics.arcade.moveToObject(this, this.tlustocerv_target, 40);
+            }
+        } else {
+//            this.body.velocity.x = 0;
+//            this.body.velocity.y = 0;
         }
     }
     
@@ -226,6 +250,30 @@ Mst.NPC.prototype.collide_NPC = function (oplayer, NPC) {
         NPC.kerik_run = false;
         this.game_state.game.physics.arcade.moveToObject(NPC, oplayer, -50);
         console.log("Not run kerik! " + NPC.name);
+    }
+    
+    if (NPC.stype === "tlustocerv") {
+        //NPC.tlustocerv_run = false;
+        this.game_state.game.physics.arcade.moveToObject(NPC, oplayer, -30);
+        this.tlustocerv_knockbacki = 6;
+        //console.log("Not run tlustocerv! " + NPC.name);
+    }
+};
+
+Mst.NPC.prototype.collide_chest = function (NPC, chest) {
+    "use strict";
+    console.log("NPC collide chest");
+    //console.log(chest);
+    
+    if (NPC.stype === "tlustocerv") {
+        //NPC.tlustocerv_run = false;
+        this.game_state.game.physics.arcade.moveToObject(NPC, chest, -30);
+        this.tlustocerv_knockbacki = 6;
+        chest.salat_lives--;
+        console.log("Salat lives: " + chest.salat_lives);
+        if (chest.salat_lives < 0) {
+            chest.get_chest_core(chest);
+        }
     }
 };
 
@@ -496,10 +544,19 @@ Mst.NPC.prototype.test_nurse = function () {
     return this.nurse;
 };
 
-Mst.NPC.prototype.condi = function (cond) {
+Mst.NPC.prototype.condi = function (cond, target) {
     if (cond) {
         if(this.stype === "kerik") {
             this.kerik_run = true;
+        }
+        if(this.stype === "tlustocerv") {
+            this.tlustocerv_run = true;
+            this.tlustocerv_target = target;
+        }
+    } else {
+        if(this.stype === "tlustocerv") {
+            this.tlustocerv_run = false;
+            this.tlustocerv_target = {};
         }
     }
 };

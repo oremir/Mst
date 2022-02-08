@@ -244,6 +244,11 @@ Mst.OtherPlayer.prototype.collide_NPC = function (oplayer, NPC) {
         this.game_state.game.physics.arcade.moveToObject(NPC, oplayer, -50);
         console.log("Not run kerik! " + NPC.name);
     }
+    if (NPC.stype === "tlustocerv") {
+        //NPC.tlustocerv_run = false;
+        this.game_state.game.physics.arcade.moveToObject(NPC, oplayer, -30);
+        console.log("Not run tlustocerv! " + NPC.name);
+    }
 };
 
 

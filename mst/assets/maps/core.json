@@ -615,7 +615,19 @@
         { "name": "Léč. mast d.m.", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Léč. mast m.", "istool": "false", "properties": { "use_sub": "true" } },
         { "name": "Noviny", "istool": "false", "properties": {} },
-        { "name": "Motyka", "istool": "true", "properties": { "cut_type": "plant", "tool_fr_left": "22", "tool_fr_right": "23" } }
+        { "name": "Motyka", "istool": "true", "properties": { "cut_type": "plant", "tool_fr_left": "22", "tool_fr_right": "23" } },
+        { "name": "Pole", "istool": "false", "properties": {} },
+        { "name": "Pole oseté", "istool": "false", "properties": {} },
+        { "name": "Pole zal.", "istool": "false", "properties": {} },
+        { "name": "Pole oseté zal.", "istool": "false", "properties": {} },
+        { "name": "Pole saz.", "istool": "false", "properties": {} },
+        { "name": "Pole rost.", "istool": "false", "properties": {} },
+        { "name": "Pole saz. zal.", "istool": "false", "properties": {} },
+        { "name": "Pole rost. zal.", "istool": "false", "properties": {} },
+        { "name": "Sem. salát", "istool": "false", "properties": {} },
+        { "name": "Saz. salát", "istool": "false", "properties": {} },
+        { "name": "Salát", "istool": "false", "properties": {} },
+        { "name": "Hlína", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 

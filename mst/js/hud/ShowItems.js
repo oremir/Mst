@@ -669,6 +669,52 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     break;
                                 }
                             break;
+                            case 227: //pole zem.
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
+                                    case 235: //salat sem.
+                                        this.game_state.prefabs[opened_chest].change_frame(228); //pole sem.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    case 236: //salat saz.
+                                        this.game_state.prefabs[opened_chest].change_frame(231); //pole saz.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
+                            case 229: //pole zem. zal.
+                                switch (item_frame) {
+                                    case 41: //batoh
+                                        this.add_item(item_frame, quant_put);
+                                        
+                                        console.log("Sem to nejde polozit");
+                                        this.game_state.hud.alert.show_alert("Sem to nejde položit");
+                                    break;
+                                    case 235: //salat sem.
+                                        this.game_state.prefabs[opened_chest].change_frame(230); //pole sem. zal.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    case 236: //salat saz.
+                                        this.game_state.prefabs[opened_chest].change_frame(233); //pole saz. zal.
+                                        
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                    default:
+                                        this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
+                                    break;
+                                }
+                            break;
                             default:
                                 console.log(item_frame);
                                 switch (item_frame) {
@@ -1085,6 +1131,94 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     if (item_quantity < 2) { // kdyz seberu vsechny
                                         this.game_state.prefabs[opened_chest].change_frame(213); //bariera II
                                     }
+                                break;
+                            }
+                        break;                            
+                        case 227: // pole zem.
+                            switch (item_frame) {
+                                case 237: // salat
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                            const rnd_test = Math.ceil(Math.random() * 3);
+                                            player.add_item(235, rnd_test); //sem. salat
+                                        }                                        
+                                    }
+                                break;
+                            }
+                        break;
+                        case 228: // pole sem.
+                            switch (item_frame) {
+                                case 235: // salat sem.
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(227); //pole zem.
+                                        console.log(takeit);
+                                    }
+                                break;
+                            }
+                        break;
+                        case 229: // pole zem. zal.
+                            switch (item_frame) {
+                                case 237: // salat
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].s1type = "";
+                                        this.game_state.prefabs[opened_chest].s2type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s1type = "";
+                                        this.game_state.prefabs[opened_chest].save.properties.s2type = "";
+                                        if (typeof(this.game_state.prefabs[opened_chest].plant) !== 'undefined') {
+                                            this.game_state.prefabs[opened_chest].plant.kill();
+                                            const rnd_test = Math.ceil(Math.random() * 3);
+                                            player.add_item(235, rnd_test); //sem. salat
+                                        }                                 
+                                    }
+                                break;
+                            }
+                        break;
+                        case 230: // pole sem. zal.
+                            switch (item_frame) {
+                                case 235: // salat sem.
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(229); //pole zem. zal.
+                                        console.log(takeit);
+                                    }
+                                break;
+                            }
+                        break;
+                        case 231: // pole saz.
+                            switch (item_frame) {
+                                case 236: // salat saz.
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(227); //pole zem.
+                                        console.log(takeit);
+                                    }
+                                break;
+                            }
+                        break;
+                        case 232: // pole rost.
+                            switch (item_frame) {
+                                case 236: // salat saz.
+                                    takeit = false;
+                                break;
+                            }
+                        break;
+                        case 233: // pole saz. zal.
+                            switch (item_frame) {
+                                case 236: // salat saz.
+                                    if (item_quantity < 2) { // kdyz seberu vsechny
+                                        this.game_state.prefabs[opened_chest].change_frame(229); //pole zem. zal.
+                                        console.log(takeit);
+                                    }
+                                break;
+                            }
+                        break;
+                        case 234: // pole rost. zal.
+                            switch (item_frame) {
+                                case 236: // salat saz.
+                                    takeit = false;
                                 break;
                             }
                         break;
