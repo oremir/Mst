@@ -57,6 +57,20 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.monster_type = "rabite";
             this.monster_loot = this.game_state.core_data.creatures["rabite"].loot;
         break;
+        case "boar_spritesheet":
+            this.health_max = 180;
+            this.health = this.health_max;
+    
+            this.en_attack = 20;
+            
+            this.animations.add("go", [0, 1], 5, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);
+            
+            this.monster_type = "boar";
+            this.monster_loot = this.game_state.core_data.creatures["boar"].loot;
+        break;
         case "wasp_spritesheet":
             this.health_max = 150;
             this.health = this.health_max;

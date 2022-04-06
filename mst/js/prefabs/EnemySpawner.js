@@ -28,9 +28,12 @@ Mst.EnemySpawner.prototype.create_object = function (name, position, properties)
             properties.texture = "rabite_spritesheet";
         break;
         case 3:
-            properties.texture = "wasp_spritesheet";
+            properties.texture = "boar_spritesheet";
         break;
         case 4:
+            properties.texture = "wasp_spritesheet";
+        break;
+        case 5:
             properties.texture = "spider_spritesheet";
         break;
         default:

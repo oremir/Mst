@@ -243,7 +243,7 @@
                     {
                      "direction":1,
                      "group":"spawners",
-                     "level":1,
+                     "level":2,
                      "pool":"enemies",
                      "spawn_time_max":"18",
                      "spawn_time_min":"5",

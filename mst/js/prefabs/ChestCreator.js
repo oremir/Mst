@@ -253,3 +253,38 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     
     return chest_new;
 };
+
+Mst.ChestCreator.prototype.drop_new_chest = function (object, item_frame) { 
+    "use strict";
+    
+    const position_new = {
+        x: Math.round((object.x - 8)/16)*16 + 8,
+        y: Math.round((object.y + 8)/16)*16 - 8
+    };
+
+    const tilex = this.game_state.layers.background.getTileX(position_new.x);
+    const tiley = this.game_state.layers.background.getTileY(position_new.y);
+    
+    console.log("create chest " + item_frame);
+    console.log(position_new);
+    
+    this.properties.closed_frame = item_frame;
+    this.properties.opened_frame = item_frame;
+    
+    const name_new = this.create_new_chest_name();
+    let chest_new = {};
+    
+    if (this.game_state.getGridXY(tilex, tiley) === 1) {
+        console.log("Chest grid colision");
+        chest_new.exist = false;
+    } else {
+        chest_new = this.create_object(name_new, position_new, this.properties);
+        chest_new.exist = true;
+        chest_new.stats.items = "";
+        chest_new.frame = this.properties.opened_frame;
+    }
+    
+    console.log(chest_new);
+    
+    return chest_new;
+};

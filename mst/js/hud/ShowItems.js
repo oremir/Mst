@@ -805,9 +805,17 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     item_frame = 95; //Miska s polevkou
                                     
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
-                                } else {                                    
-                                    takeit = false;       
-                                }
+                                } else {                       
+                                    var index = player.test_item(220, 1); //drev. miska
+                                    if (index > -1) {
+                                        player.subtract_item(index, 1);
+                                        item_frame = 221; //drev. miska s polevkou
+
+                                        this.game_state.prefabs[opened_chest].change_frame(sub_water);
+                                    } else {                       
+                                        takeit = false;       
+                                    }   
+                                    }
                             break;
                             case 103: //tav. zelezo
                                 var index = player.test_item(60, 1); //kam. nadoba
@@ -1290,6 +1298,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, item.quantity);
                             chest.add_item(186, item.quantity); //Pazourkove ostri
                             
+                            player.update_quest("make", 186);
                             player.work_rout("survival", "exploration", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                     }
@@ -1437,6 +1446,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(185, 10); //Řemínek
                             
+                            player.update_quest("make", 185);
                             player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                         
@@ -1501,6 +1511,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         if (chest.chest_compare(in_chest, recipe)) {
                             chest.take_all();
                             chest.add_item(217, 1); //Ohnova souprava
+                            player.update_quest("make", 217);
                         }
                         
                     }
@@ -1607,6 +1618,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(187, 1); //Paz. nuz
                             
+                            player.update_quest("make", 187);
                             player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                     } else {
@@ -1623,6 +1635,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(185, 5); //Řemínek
                             
+                            player.update_quest("make", 185);
                             player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                     }
@@ -1637,6 +1650,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(185, 10); //Řemínek
                             
+                            player.update_quest("make", 185);
                             player.work_rout("toolmaker", "dexterity", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                         
@@ -1701,6 +1715,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         if (chest.chest_compare(in_chest, recipe)) {
                             chest.take_all();
                             chest.add_item(217, 1); //Ohnova souprava
+                            player.update_quest("make", 217);
                         }
                         
                     }

@@ -143,8 +143,8 @@ Mst.Chest = function (game_state, name, position, properties) {
     console.log("Chest time diff: " + (n - this.ctime));
     console.log((n - this.ctime)/100000);
     
-    if ((n - this.ctime)/100000 > 1) {
-    //if ((n - this.ctime)/100000 > 846) {
+    //if ((n - this.ctime)/100000 > 1) {
+    if ((n - this.ctime)/100000 > 846) {
         switch (this.closed_frame) {
             case 126: // sazenice
                 var rnd_test = Math.floor(Math.random() * 100);
@@ -750,6 +750,8 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                         index = this.test_item(81, 1); //voda
                         this.subtract_item(index, 1);
                         this.add_item(93, 1); //hrib. polevka
+                        
+                        player.update_quest("make", 93);
                         player.work_rout("cook", "dexterity", 1, 50, 40, 3); // stress, stand_exp, skill_exp, abil_p
                     }
                     
@@ -1177,8 +1179,8 @@ Mst.Chest.prototype.steal = function () {
         "PCID": -1,
         "Owner": this.owner,
         "Culprit": player.usr_id,
-        "C14": player.badge["14"],
-        "C15": player.badge["15"],
+        "C14": player.test_badge("14"),
+        "C15": player.test_badge("15"),
         "CpID": -1,
         "M": map,
         "type":"stolen",
@@ -1442,6 +1444,8 @@ Mst.Chest.prototype.get_chest_core = function (chest) {
 
     console.log(chest.cases);
     if (chest.cases.length > 0) {
+        chest.closed_frame = "199";
+        chest.opened_frame = "199";
         chest.save.properties.closed_frame = "199";
         chest.save.properties.opened_frame = "199";
 
@@ -1456,20 +1460,20 @@ Mst.Chest.prototype.get_chest_core = function (chest) {
         const usr_id = player.usr_id;
         chest.save.action = "CLOSE";
 
-        console.log("CLOSE Case CHEST");
+        console.log("CLOSE Case 199 CHEST");
         console.log(this.save);
 
         $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
             .done(function (data) {
-                console.log("Chest close success");
+                console.log("Chest get stolen success");
                 console.log(data);
             })
             .fail(function (data) {
-                console.log("Chest close error");
+                console.log("Chest get stolen error");
                 console.log(data);
             });
 
-        console.log("save chest close");
+        console.log("save chest get stolen");
     } else  { 
         if (closed_frame === 22) {
             chest.save.properties.closed_frame = "126";
@@ -1490,15 +1494,15 @@ Mst.Chest.prototype.get_chest_core = function (chest) {
 
             $.post("object.php?time=" + n + "&uid=" + usr_id, chest.save)
                 .done(function (data) {
-                    console.log("Chest close success");
+                    console.log("Chest get stump success");
                     console.log(data);
                 })
                 .fail(function (data) {
-                    console.log("Chest close error");
+                    console.log("Chest get stump error");
                     console.log(data);
                 });
 
-            console.log("save chest close");
+            console.log("save chest get stump");
         } else {
             if (this.obj_id !== 0) {
                 const usr_id = player.usr_id;

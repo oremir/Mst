@@ -547,6 +547,10 @@ Mst.OtherPlayer.prototype.unpack_badge = function (badge) {
 Mst.OtherPlayer.prototype.test_nurse = function () {
     "use strict";
     
+    console.log("Test nurse: " + this.usr_id + " " + this.name);    
+    console.log(this.game_state.prefabs.player.killed);
+    console.log(this.nurse);
+    
     if (this.game_state.prefabs.player.killed && this.nurse) {
         console.log(this);
         

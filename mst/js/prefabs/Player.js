@@ -536,9 +536,10 @@ Mst.Player.prototype.final_tests = function () {
                     this.game_state.make_otherplayer({ "x": 234, "y": 186 }, 53, "dead");
                 break;
             }
-        }    
-        this.killed = false;
-        this.save.properties.killed = false;        
+        } else {
+            this.killed = false;
+            this.save.properties.killed = false; 
+        }               
     }
     
     const index = this.test_item(195,1);

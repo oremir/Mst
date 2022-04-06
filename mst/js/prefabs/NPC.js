@@ -131,6 +131,7 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.tlustocerv_run = false;
         this.tlustocerv_target = {};
         this.tlustocerv_knockbacki = 0;
+        this.eaten = 0;
         
         this.body.velocity.x = this.game_state.game.rnd.between(-20, 20);
         this.body.velocity.y = this.game_state.game.rnd.between(-5, 5);
@@ -270,9 +271,12 @@ Mst.NPC.prototype.collide_chest = function (NPC, chest) {
         this.game_state.game.physics.arcade.moveToObject(NPC, chest, -30);
         this.tlustocerv_knockbacki = 6;
         chest.salat_lives--;
+        this.eaten++;
         console.log("Salat lives: " + chest.salat_lives);
         if (chest.salat_lives < 0) {
             chest.get_chest_core(chest);
+            
+            
         }
     }
 };
@@ -557,7 +561,20 @@ Mst.NPC.prototype.condi = function (cond, target) {
         if(this.stype === "tlustocerv") {
             this.tlustocerv_run = false;
             this.tlustocerv_target = {};
+            if (this.eaten > 0) {
+                const rnd = Math.ceil(Math.random() * 4);
+                this.game_state.game.time.events.add(Phaser.Timer.SECOND * rnd, this.drop_item, this);
+            }
+            this.eaten = 0;
         }
+    }
+};
+
+Mst.NPC.prototype.drop_item = function () { 
+    "use strict";
+    
+    if(this.stype === "tlustocerv") {
+        this.game_state.prefabs.chest_creator.drop_new_chest(this, 239); //sliz tlustocerva
     }
 };
 

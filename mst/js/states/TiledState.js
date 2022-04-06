@@ -226,6 +226,7 @@ Mst.TiledState.prototype.create = function () {
         this.hud = {};
         this.hud.right_window = new Mst.hud(this, "right_window");
         this.hud.middle_window = new Mst.hud(this, "middle_window");
+        this.hud.cards = new Mst.hud(this, "cards");
         this.hud.book = new Mst.hud(this, "book");
         this.hud.newsppr = new Mst.hud(this, "newsppr");
         this.hud.alt = new Mst.hud(this, "alt");
@@ -572,6 +573,8 @@ Mst.TiledState.prototype.make_otherplayer = function (position, uid, type) {
         
             game_state.save.objects.push(resp.obj);
         
+            console.log(type);
+        
             if (type === "investigate") {
                 properties.texture = "blank_spritesheet";
             }
@@ -843,6 +846,10 @@ Mst.hud = function (game_state, name) {
         if (name === 'newsppr') {
             name_img = "newspprf_back";
         }
+        
+        if (name === 'cards') {
+            name_img = "blank_image";
+        }
     }
     
     Phaser.Image.call(this, game_state.game, 273, 47, name_img);
@@ -907,6 +914,23 @@ Mst.hud = function (game_state, name) {
             this.events.onInputDown.add(this.hide_dialogue_onclick, this);
             
             break;
+        case "cards":            
+            this.game_state.groups.hud.add(this);
+            text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
+            this.reset(8, 240);
+            this.visible = false;
+            this.fixedToCamera = true;
+            
+            this.inputEnabled = true;
+            this.input.useHandCursor = true;
+            this.events.onInputDown.add(this.hide_cards_onclick, this);
+            
+            this.cards = [];
+            this.cards_player_deck = [];
+            this.cards_enemy_deck = [];
+            this.cards_enemy_draw = [];
+            
+            break;    
         case "middle_window":            
             this.game_state.groups.hud.add(this);
             text_style = {"font": "11px Arial", "fill": "#FFFFFF", wordWrap: true, wordWrapWidth: this.width - 25};
@@ -1161,6 +1185,48 @@ Mst.hud.prototype.option_investigate = function () {
     "use strict";
     this.mw_object.option_investigate();
     this.hide_mw_onclick();
+};
+
+Mst.hud.prototype.show_cards = function () {
+    "use strict";
+    console.log("Show cards");
+    
+    this.game_state.prefabs.player.close_state.push("Cards");
+    this.game_state.prefabs.player.close_context.push("Cards");
+    
+    const card = this.game_state.groups.cards.create(20, 220, 'card_spritesheet', 0);
+    card.fixedToCamera = true;
+    card.inputEnabled = true;
+    card.events.onInputDown.add(this.hide_cards_onclick, this);
+    card.visible = true;
+    this.game_state.hud.cards.cards.push(card);
+    
+    this.game_state.hud.dialogue.hide_dialogue_onclick(1);
+    
+    this.game_state.prefabs.items.kill_stats();
+    this.game_state.prefabs.equip.hide();
+};
+
+Mst.hud.prototype.hide_cards_onclick = function () {
+    "use strict";
+    this.game_state.prefabs.player.close_state.pop();
+    this.game_state.prefabs.player.close_context.pop();
+    this.hide_cards();
+};
+
+Mst.hud.prototype.hide_cards = function () {
+    "use strict";
+    
+    //console.log(this);
+    
+    this.game_state.hud.cards.cards.forEach(function (card) {
+        card.destroy();
+    });
+    
+    this.visible = false;    
+    
+    this.game_state.prefabs.items.show_initial_stats();
+    this.game_state.prefabs.equip.show();
 };
 
 Mst.hud.prototype.show_book = function () {
@@ -2026,15 +2092,21 @@ Mst.hud.prototype.show_dialogue = function (name, p_name, text, type, heart) {
             this.text_dialogue.fixedToCamera = true;
             
             if (heart > 0) {
-                this.heart_sprite = this.game_state.groups.hud.create(this.x + 485, this.y + 6, 'hearts_spritesheet', 0);
+                this.heart_sprite = this.game_state.groups.hud.create(this.x + 465, this.y + 6, 'hearts_spritesheet', 0);
                 this.heart_sprite.fixedToCamera = true;
                 
                 this.text_heart.fixedToCamera = false;
-                this.text_heart.x = 477;
+                this.text_heart.x = 457;
                 this.text_heart.y = 290;
                 this.text_heart.fixedToCamera = true;
                 this.text_heart.text = heart;
             }
+            
+            this.atck_sprite = this.game_state.groups.hud.create(this.x + 485, this.y + 6, 'attack_spritesheet', 0);
+            this.atck_sprite.fixedToCamera = true;
+            this.atck_sprite.inputEnabled = true;
+            this.atck_sprite.input.useHandCursor = true;
+            this.atck_sprite.events.onInputDown.add(this.show_cards, this, this);
         //}
             
 
@@ -2247,6 +2319,10 @@ Mst.hud.prototype.hide_dialogue = function () {
     if (typeof(this.heart_sprite) !== 'undefined') {
         this.heart_sprite.kill();
         this.text_heart.text = "";
+    }
+    
+    if (typeof(this.atck_sprite) !== 'undefined') {
+        this.atck_sprite.kill();
     }
     
     console.log(this.dialogue_name);

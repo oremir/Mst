@@ -48,10 +48,12 @@
         "storhak_spritesheet": { "type": "spritesheet", "source": "assets/images/player/storhak_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "ferda_spritesheet": { "type": "spritesheet", "source": "assets/images/player/ferda_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8},
         "dino_spritesheet": { "type": "spritesheet", "source": "assets/images/player/dino_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10},
+        "ghost_spritesheet": { "type": "spritesheet", "source": "assets/images/player/ghost_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10},
         "btiger_spritesheet": { "type": "spritesheet", "source": "assets/images/blue_tiger.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "cir_spritesheet": { "type": "spritesheet", "source": "assets/images/cir.png", "frame_width": 17, "frame_height": 17, "frames": 2 },
         "slime_spritesheet": { "type": "spritesheet", "source": "assets/images/slime.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "rabite_spritesheet": { "type": "spritesheet", "source": "assets/images/rabite_spritesheet.png", "frame_width": 16, "frame_height": 32, "frames": 7 },
+        "boar_spritesheet": { "type": "spritesheet", "source": "assets/images/boar_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "wasp_spritesheet": { "type": "spritesheet", "source": "assets/images/wasp_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "angostura_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "angostura-v_spritesheet": { "type": "spritesheet", "source": "assets/images/angostura-v_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 8 },
@@ -144,6 +146,8 @@
         "exp_image": { "type": "image", "source": "assets/images/exp.png" },
         "time_image": { "type": "image", "source": "assets/images/time.png" },
         "bubble_spritesheet": { "type": "spritesheet", "source": "assets/images/bubble.png", "frame_width": 16, "frame_height": 16, "frames": 10},
+        "attack_spritesheet": { "type": "spritesheet", "source": "assets/images/attack_spritesheet.png", "frame_width": 12, "frame_height": 12, "frames": 2},
+        "card_spritesheet": { "type": "spritesheet", "source": "assets/images/card_spritesheet.png", "frame_width": 85, "frame_height": 120, "frames": 60},
         "blood": { "type": "spritesheet", "source": "assets/images/blood.png", "frame_width": 4, "frame_height": 4, "frames": 7},
         "level_image": { "type": "image", "source": "assets/images/level.png" },
         "settings_image": { "type": "image", "source": "assets/images/settings.png" },
@@ -217,7 +221,7 @@
         "chestitems",
         "businessitems",
         "items",
-        "quests",
+        "cards",
         "stats",
         "hud",
         "alerts"
@@ -227,6 +231,7 @@
     "creatures": {
         "slime": { "spritesheet": "slime_spritesheet", "loot": [ 23 ] },
         "rabite": { "spritesheet": "rabite_spritesheet", "loot": [ 36, 39 ] },
+        "boar": { "spritesheet": "boar_spritesheet", "loot": [ 36, 39, 208 ] },
         "wasp": { "spritesheet": "wasp_spritesheet", "loot": [ 90 ] },
         "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] },
         "angostura": { "spritesheet": "angostura_spritesheet", "loot": [ 90 ] },
@@ -627,7 +632,8 @@
         { "name": "Sem. salát", "istool": "false", "properties": {} },
         { "name": "Saz. salát", "istool": "false", "properties": {} },
         { "name": "Salát", "istool": "false", "properties": {} },
-        { "name": "Hlína", "istool": "false", "properties": {} }
+        { "name": "Hlína", "istool": "false", "properties": {} },
+        { "name": "Sliz tlustočerva", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 
