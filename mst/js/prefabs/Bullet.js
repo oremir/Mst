@@ -24,6 +24,9 @@ Mst.Bullet = function (game_state, name, position, properties) {
     this.b_type = 2;
     this.angle = -45 * Math.abs(properties.direction.x) - 90 * properties.direction.x + 45 * Math.abs(properties.direction.y) - 90 * properties.direction.y;
     
+    this.ctype = properties.ctype;
+    this.oldframe = properties.oldframe;
+    
     console.log(properties.texture);
     if (properties.texture === "sting") {
         this.b_type = 1;
@@ -76,6 +79,9 @@ Mst.Bullet.prototype.reset = function (position, properties) {
 Mst.Bullet.prototype.hit_chest = function (bullet, chest) {
     "use strict";
     
+    if (this.oldframe > -1) {
+        chest.add_item_u(this.oldframe, 1);        
+    }
     bullet.kill();
 };
 
@@ -110,7 +116,11 @@ Mst.Bullet.prototype.hit_enemy = function (bullet, enemy) {
             if (this.frame === 2) {
                 enemy.hit_enemy_meat(player, enemy);
             } else {
-                enemy.hit_enemy_throw(player, enemy);
+                if (this.ctype === 'sling') {
+                    enemy.hit_enemy_sling(player, enemy);
+                } else {
+                    enemy.hit_enemy_throw(player, enemy);
+                }                
             }            
         }
         

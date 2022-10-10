@@ -34,6 +34,15 @@ Mst.WildAnimal = function (game_state, name, position, properties) {
     this.stand_still = false;
     
     switch (properties.texture) {
+        case "partridge_spritesheet":
+            this.animations.add("go", [0, 1], 5, true);
+            this.animations.play("go");
+    
+            this.anchor.setTo(0.5);
+            
+            this.animal_type = "partridge";
+            this.animal_loot = this.game_state.core_data.creatures["partridge"].loot;
+        break;
         case "doe_spritesheet":
             this.animations.add("go", [0, 1], 5, true);
             this.animations.play("go");

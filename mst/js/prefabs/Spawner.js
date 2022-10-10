@@ -184,6 +184,9 @@ Mst.Spawner.prototype.create_animal = function (name, position, properties) {
     
     switch (this.game_state.game.rnd.between(1, this.level)) {
         case 1:
+            properties.texture = "partridge_spritesheet";
+        break;
+        case 2:
             properties.texture = "doe_spritesheet";
         break;
         default:

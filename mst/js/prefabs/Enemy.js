@@ -323,8 +323,8 @@ Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
 };
 
 Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
-    var damage = 2 + (player.stats.abilities.intelligence/5);
-    damage += player.level("standard") + (player.level("magic")*1.5);
+    var damage = 2 + (player.stats.abilities.intelligence/3);
+    damage += player.level("standard") + (player.level("magic")*1.7);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -332,8 +332,8 @@ Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
 };
 
 Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
-    var damage = 2 + (player.stats.abilities.dexterity/5);
-    damage += player.level("standard") + (player.level("archer")*1.5);
+    var damage = 4 + (player.stats.abilities.dexterity/3);
+    damage += player.level("standard") + (player.level("archer")*1.7);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -343,6 +343,15 @@ Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
 Mst.Enemy.prototype.hit_enemy_throw = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.dexterity/5);
     damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage = Math.floor(damage);
+    console.log("DM: " + damage);
+    
+    this.hit_enemy(player, enemy, "thrower", "dexterity", damage);
+};
+
+Mst.Enemy.prototype.hit_enemy_sling = function (player, enemy) {
+    var damage = 3 + (player.stats.abilities.dexterity/4);
+    damage += player.level("standard") + (player.level("thrower")*1.6);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     

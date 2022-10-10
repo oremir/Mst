@@ -9,9 +9,17 @@ Mst.Chest = function (game_state, name, position, properties) {
     
     this.game_state.game.physics.arcade.enable(this);
     
+    console.log("Items: " + properties.items);
+    if (typeof (properties.items) === 'undefined') {
+        properties.items = "";
+    }
+    
     this.stats = {
         items: properties.items
     };
+    
+    this.items_unpacked = this.unpack_items(properties.items);    
+    console.log(this.items_unpacked);
     
     this.closed_frame = parseInt(properties.closed_frame) || 4;
     this.opened_frame = parseInt(properties.opened_frame) || 5;    
@@ -1001,6 +1009,7 @@ Mst.Chest.prototype.close_chest = function () {
     chest = this;
     name = this.name;
     usr_id = game_state.prefabs.player.usr_id;
+    this.items_unpacked = this.unpack_items(this.stats.items);
     this.save.properties.items = this.stats.items;
     this.save.properties.opened_frame = this.opened_frame;
     this.save.properties.closed_frame = this.closed_frame;
@@ -1700,6 +1709,55 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
     }
 };
 
+Mst.Chest.prototype.unpack_items = function (item) {
+    "use strict";
+    const aitem = item.split("_");
+    console.log(aitem);
+    const ret = {};
+    if (item !== '') {
+        for (let id in aitem) {
+            const ai = aitem[id].split("-");
+            const key = parseInt(ai[0]);
+            ret[key] = parseInt(ai[1]);
+        }
+    }
+    
+    return ret;
+};
+
+Mst.Chest.prototype.pack_items = function (uitem) {
+    "use strict";
+    let i = 0;
+    const an = [];
+    for (let key in uitem) {
+        an[i] = key + "-" + uitem[key];
+        i++;
+    }
+    
+    return an.join("_");
+};
+
+Mst.Chest.prototype.add_item_u = function (item_frame, quantity) {
+    "use strict";
+
+    console.log("Chest add item unpacked: " + item_frame + "x" + quantity + " Opened: " + this.is_opened);
+    
+    if (typeof (this.items_unpacked[item_frame]) !== 'undefined') {
+        const q = parseInt(this.items_unpacked[item_frame]) + parseInt(quantity);
+        this.items_unpacked[item_frame] = q;
+    } else {
+        const q = parseInt(quantity);
+        this.items_unpacked[item_frame] = q;
+    }
+    
+    this.stats.items = this.pack_items(this.items_unpacked);
+    console.log("Item added: " + this.stats.items);
+    console.log(this);
+    if (this.obj_id !== 0) {
+        this.save_chest();
+    }
+};
+
 Mst.Chest.prototype.add_item = function (item_frame, quantity) {
     "use strict";
     var success = true;
@@ -1830,6 +1888,7 @@ Mst.Chest.prototype.load_chest = function (properties, stat) {
     
     this.stats.items = properties.items;
     this.save.properties.items = this.stats.items;
+    this.items_unpacked = this.unpack_items(properties.items);
     
     this.stat = stat;
 };

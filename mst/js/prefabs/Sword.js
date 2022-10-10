@@ -127,12 +127,24 @@ Mst.Sword.prototype.swing = function () {
             if (this.cut_type === "magic") {
                 player.work_rout("magic", "intelligence", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
 
-                this.create_bullet(0);
+                this.create_bullet(0, -1);
+            }
+            
+            if (this.cut_type === "sling") {
+                var index = player.test_item(21, 1); //stone
+                console.log(index);
+                
+                if (index > -1) {
+                    player.subtract_item(index, 1);
+                    player.work_rout("thrower", "dexterity", 0, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+
+                    this.create_bullet(1, 21);
+                }
             }
 
             if (this.cut_type === "throw") {
                 console.log(this.bullet_frame);
-                this.create_bullet(this.bullet_frame);
+                this.create_bullet(this.bullet_frame, this.equip_frame);
                 
                 var index = player.test_item(this.equip_frame, 1);
 
@@ -160,7 +172,7 @@ Mst.Sword.prototype.swing = function () {
 
 Mst.Sword.prototype.hide_bow = function () {
     console.log("Hide bow");
-    this.create_bullet(0);
+    this.create_bullet(0, 125);
     
     this.kill();
 };
@@ -1085,7 +1097,7 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
     return success;
 };
 
-Mst.Sword.prototype.create_bullet = function (bfr) {
+Mst.Sword.prototype.create_bullet = function (bfr, ofr) {
     "use strict";
     var object_name, object_position, object_properties, object;
     
@@ -1100,14 +1112,18 @@ Mst.Sword.prototype.create_bullet = function (bfr) {
         object_properties = {
             direction: this.game_state.prefabs.player.direction_chest,
             texture: "magic1",
-            firstframe: 0,
+            ctype: this.cut_type,
+            firstframe: 0,            
+            oldframe: -1,
             group: "playerbullets"
         };
     } else {
         object_properties = {
             direction: this.game_state.prefabs.player.direction_chest,
             texture: "arrow_spritesheet",
+            ctype: this.cut_type,
             firstframe: bfr,
+            oldframe: ofr,
             group: "playerbullets"
         };
     }

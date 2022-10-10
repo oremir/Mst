@@ -61,6 +61,7 @@
         "rotulice_spritesheet": { "type": "spritesheet", "source": "assets/images/rotulice_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 4 },
         "cmelotrysk_spritesheet": { "type": "spritesheet", "source": "assets/images/cmelotrysk_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "doe_spritesheet": { "type": "spritesheet", "source": "assets/images/doe_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
+        "partridge_spritesheet": { "type": "spritesheet", "source": "assets/images/partridge_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "kerik_spritesheet": { "type": "spritesheet", "source": "assets/images/kerik_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "tlustocerv_spritesheet": { "type": "spritesheet", "source": "assets/images/tlustocerv_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 2 },
         "loader_image": { "type": "image", "source": "assets/images/loader2.png" },
@@ -238,7 +239,8 @@
         "angostura-v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] },
         "rotulice": { "spritesheet": "rotulice_spritesheet", "loot": [ 190 ] },
         "cmelotrysk": { "spritesheet": "cmelotrysk_spritesheet", "loot": [ 90 ] },
-        "doe": { "spritesheet": "doe_spritesheet", "loot": [ 36, 39 ] }
+        "doe": { "spritesheet": "doe_spritesheet", "loot": [ 36, 39 ] },
+        "partridge": { "spritesheet": "partridge_spritesheet", "loot": [ 36, 209 ] }
     },
     
     "rasa": [
@@ -595,7 +597,7 @@
         { "name": "Deník", "istool": "false", "properties": {} },
 		{ "name": "Ukradena", "istool": "false", "properties": {} },
         { "name": "Světlokvět", "istool": "false", "properties": {} },
-        { "name": "Prak", "istool": "false", "properties": {} },
+        { "name": "Prak", "istool": "true", "properties": { "cut_type": "sling", "tool_fr_left": "24", "tool_fr_right": "24" } },
         { "name": "Obvaz", "istool": "false", "properties": {} },        
         { "name": "Prim. obvaz", "istool": "false", "properties": {} },
         { "name": "Použ. obvaz", "istool": "false", "properties": {} },

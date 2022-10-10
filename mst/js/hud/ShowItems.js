@@ -1439,7 +1439,15 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                 case 117: //Nůž
                     if (opened_chest !== "") {
                         var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;   
+                        var chest_frame = chest.closed_frame;
+                        
+                        let recipe = [{f: 39, q: 1}, {f: 185, q: 1}]; //Kůže, reminek
+                        let in_chest = chest.in_chest_ord();
+                        if (chest.chest_compare(in_chest, recipe)) {
+                            chest.take_all();
+                            chest.add_item(201, 1); //Prak
+                            player.update_quest("make", 201);
+                        }
                         
                         item = chest.index_item(39); //Kůže
                         if (item.index > -1) {
@@ -1506,8 +1514,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             player.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                         
-                        let recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
-                        let in_chest = chest.in_chest_ord();
+                        recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
+                        in_chest = chest.in_chest_ord();
                         if (chest.chest_compare(in_chest, recipe)) {
                             chest.take_all();
                             chest.add_item(217, 1); //Ohnova souprava
@@ -1645,6 +1653,14 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         var chest = this.game_state.prefabs[opened_chest];
                         var chest_frame = chest.closed_frame;   
                         
+                        let recipe = [{f: 39, q: 1}, {f: 185, q: 1}]; //Kůže, reminek
+                        let in_chest = chest.in_chest_ord();
+                        if (chest.chest_compare(in_chest, recipe)) {
+                            chest.take_all();
+                            chest.add_item(201, 1); //Prak
+                            player.update_quest("make", 201);
+                        }
+                        
                         item = chest.index_item(39); //Kůže
                         if (item.index > -1) {
                             chest.subtract_item(item.index, 1);
@@ -1710,8 +1726,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             player.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                         
-                        let recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
-                        let in_chest = chest.in_chest_ord();
+                        recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
+                        in_chest = chest.in_chest_ord();
                         if (chest.chest_compare(in_chest, recipe)) {
                             chest.take_all();
                             chest.add_item(217, 1); //Ohnova souprava
