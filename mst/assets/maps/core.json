@@ -4,6 +4,7 @@
         "items_blank": { "type": "spritesheet", "source": "assets/images/items_blank.png", "frame_width": 16, "frame_height": 16, "frames": 200 },
         "tools_spritesheet": { "type": "spritesheet", "source": "assets/images/tools_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 30 },
         "arrow_spritesheet": { "type": "spritesheet", "source": "assets/images/arrow_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
+        "rod_spritesheet": { "type": "spritesheet", "source": "assets/images/rod_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 3 },
         "equip_spritesheet": { "type": "spritesheet", "source": "assets/images/equip_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 10 },
         "abilities_spritesheet": { "type": "spritesheet", "source": "assets/images/abilities_spritesheet.png", "frame_width": 20, "frame_height": 20, "frames": 5 },
         "signs_spritesheet": { "type": "spritesheet", "source": "assets/images/signs_spritesheet.png", "frame_width": 16, "frame_height": 16, "frames": 5 },
@@ -635,7 +636,8 @@
         { "name": "Saz. salát", "istool": "false", "properties": {} },
         { "name": "Salát", "istool": "false", "properties": {} },
         { "name": "Hlína", "istool": "false", "properties": {} },
-        { "name": "Sliz tlustočerva", "istool": "false", "properties": {} }
+        { "name": "Sliz tlustočerva", "istool": "false", "properties": {} },
+        { "name": "Prut", "istool": "true", "properties": { "cut_type": "rod", "tool_fr_left": "25", "tool_fr_right": "26" } }
     ],
 	
 	"objects": { 

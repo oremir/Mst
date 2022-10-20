@@ -41,6 +41,14 @@ Mst.Sword = function (game_state, name, position, properties) {
     this.arrowSound = this.game_state.game.add.audio('arrow_sound');
     
     this.b_pool = this.game_state.groups.playerbullets;
+
+    this.rod = this.game_state.groups.swords.create(this.x, this.y, 'rod_spritesheet', 0);
+    this.rod.anchor.setTo(0.5);
+    this.rod.visible = false;
+    
+    this.float = this.game_state.groups.swords.create(this.x, this.y, 'rod_spritesheet', 1);
+    this.float.anchor.setTo(0.5);
+    this.float.visible = false;
 };
 
 Mst.Sword.prototype = Object.create(Mst.Prefab.prototype);
@@ -128,6 +136,27 @@ Mst.Sword.prototype.swing = function () {
                 player.work_rout("magic", "intelligence", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
 
                 this.create_bullet(0, -1);
+            }
+            
+            if (this.cut_type === "rod") {
+                console.log("Rod");
+                player.work_rout("fisher", "dexterity", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                
+                console.log(this.rod);
+                if (this.rod.visible) {
+                    this.rod.visible = false;
+                    this.float.visible = false;
+                } else {
+                    this.rod.scale.setTo(player.direction_sword.x, 1);
+                                                            
+                    this.rod.x = player.x + player.direction_sword.x * 12;
+                    this.rod.y = player.y + player.direction_sword.y - 3;
+                    this.float.x = player.x + player.direction_sword.x * 20;
+                    this.float.y = player.y + 5 ;
+
+                    this.rod.visible = true;
+                    this.float.visible = true;
+                }
             }
             
             if (this.cut_type === "sling") {
