@@ -596,6 +596,7 @@ Mst.Player.prototype.key_right = function () {
 
     this.direction_sword.x = 1;
     this.game_state.prefabs.sword.hit.scale.setTo(this.direction_sword.x, 1);
+    this.game_state.prefabs.sword.check_rod();
     this.direction_chest = {"x": 1, "y": 0};
     //alert(1);
     //this.scale.setTo(-1, 1);
@@ -609,6 +610,7 @@ Mst.Player.prototype.key_left = function () {
 
     this.direction_sword.x = -1;
     this.game_state.prefabs.sword.hit.scale.setTo(this.direction_sword.x, 1);
+    this.game_state.prefabs.sword.check_rod();
     this.direction_chest = {"x": -1, "y": 0};
     //this.scale.setTo(1, 1);
     
@@ -621,6 +623,7 @@ Mst.Player.prototype.key_up = function () {
     this.animations.play("up");
 
     this.direction_sword.y = -1;
+    this.game_state.prefabs.sword.check_rod();
     this.direction_chest = {"x": 0, "y": -1};
     //this.scale.setTo(1, 1);    
 };
@@ -632,6 +635,7 @@ Mst.Player.prototype.key_down = function () {
     this.animations.play("down");
 
     this.direction_sword.y = 1;
+    this.game_state.prefabs.sword.check_rod();
     this.direction_chest = {"x": 0, "y": 1};
     //this.scale.setTo(1, 1);    
 };

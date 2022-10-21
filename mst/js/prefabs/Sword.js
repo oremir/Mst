@@ -48,6 +48,7 @@ Mst.Sword = function (game_state, name, position, properties) {
     
     this.float = this.game_state.groups.swords.create(this.x, this.y, 'rod_spritesheet', 1);
     this.float.anchor.setTo(0.5);
+    this.float.animations.add('float', [1, 2], 10, true);
     this.float.visible = false;
 };
 
@@ -146,6 +147,7 @@ Mst.Sword.prototype.swing = function () {
                 if (this.rod.visible) {
                     this.rod.visible = false;
                     this.float.visible = false;
+                    this.float.animations.stop();
                 } else {
                     this.rod.scale.setTo(player.direction_sword.x, 1);
                                                             
@@ -153,9 +155,27 @@ Mst.Sword.prototype.swing = function () {
                     this.rod.y = player.y + player.direction_sword.y - 3;
                     this.float.x = player.x + player.direction_sword.x * 20;
                     this.float.y = player.y + 5 ;
+                    
+                    if (typeof(this.game_state.layers.water) !== 'undefined') {
+                        const a = this.game_state.layers.water.getTiles(this.rod.x, this.rod.y + 12, 3, 3);
+                        console.log(a);
+                        
+                        var b = true;
+                        a.forEach(function(tile) {
+                            //console.log(tile.canCollide);
+                            if (tile.index > - 1) {
+                                b = false;
+                            }
+                        });
+                        console.log(b);
 
-                    this.rod.visible = true;
-                    this.float.visible = true;
+                        if (!b) {
+                            this.rod.visible = true;
+                            this.float.visible = true;
+                            
+                            this.game_state.game.time.events.add(Phaser.Timer.SECOND * 5, this.move_float, this);
+                        }
+                    }
                 }
             }
             
@@ -196,6 +216,28 @@ Mst.Sword.prototype.swing = function () {
         }
         console.log("!!! CUT: " + this.cut);
         console.log(this.game_state.prefabs.sword);
+    }
+};
+
+Mst.Sword.prototype.check_rod = function () {
+    "use strict";
+    
+    if (this.rod.visible) {
+        this.rod.visible = false;
+        this.float.visible = false;
+        this.float.animations.stop();
+        
+        return false;
+    } else {
+        return true;
+    }
+};
+
+Mst.Sword.prototype.move_float = function () {
+    "use strict";
+    
+    if (this.rod.visible) {
+        this.float.animations.play("float");
     }
 };
 
