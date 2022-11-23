@@ -637,7 +637,12 @@
         { "name": "Salát", "istool": "false", "properties": {} },
         { "name": "Hlína", "istool": "false", "properties": {} },
         { "name": "Sliz tlustočerva", "istool": "false", "properties": {} },
-        { "name": "Prut", "istool": "true", "properties": { "cut_type": "rod", "tool_fr_left": "25", "tool_fr_right": "26" } }
+        { "name": "Prut", "istool": "true", "properties": { "cut_type": "rod", "tool_fr_left": "25", "tool_fr_right": "26" } },
+		{ "name": "Stará bota", "istool": "false", "properties": {} },
+		{ "name": "Rozbitá láhev", "istool": "false", "properties": {} },
+		{ "name": "Řasa", "istool": "false", "properties": {} },
+		{ "name": "Kapr", "istool": "false", "properties": {} },
+		{ "name": "Okoun", "istool": "false", "properties": {} }
     ],
 	
 	"objects": { 

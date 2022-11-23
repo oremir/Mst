@@ -50,6 +50,7 @@ Mst.Sword = function (game_state, name, position, properties) {
     this.float.anchor.setTo(0.5);
     this.float.animations.add('float', [1, 2], 10, true);
     this.float.visible = false;
+    this.float.trembling = false;
 };
 
 Mst.Sword.prototype = Object.create(Mst.Prefab.prototype);
@@ -145,8 +146,36 @@ Mst.Sword.prototype.swing = function () {
                 
                 console.log(this.rod);
                 if (this.rod.visible) {
+                    if (this.float.trembling) {
+                        const rnd_test = Math.floor(Math.random() * 7);
+                        switch (rnd_test) {
+                            case 0:
+                                player.add_item(241, 1); // stara bota
+                                player.work_rout("fisher", "dexterity", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                break;
+                            case 1:
+                                player.add_item(242, 1); // rozbita lahev
+                                player.work_rout("fisher", "dexterity", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                break;
+                            case 2:
+                                player.add_item(243, 1); // rasa
+                                player.work_rout("fisher", "dexterity", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                break;
+                            case 3:
+                                player.add_item(244, 1); // kapr
+                                player.work_rout("fisher", "dexterity", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                break;
+                            case 4:
+                                player.add_item(245, 1); // okoun
+                                player.work_rout("fisher", "dexterity", 1, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
+                                break;
+                                
+                        }
+                    }
+                    
                     this.rod.visible = false;
                     this.float.visible = false;
+                    this.float.trembling = false;
                     this.float.animations.stop();
                 } else {
                     this.rod.scale.setTo(player.direction_sword.x, 1);
@@ -225,7 +254,8 @@ Mst.Sword.prototype.check_rod = function () {
     if (this.rod.visible) {
         this.rod.visible = false;
         this.float.visible = false;
-        this.float.animations.stop();
+        this.float.trembling = false;
+        this.float.animations.stop();        
         
         return false;
     } else {
@@ -238,6 +268,7 @@ Mst.Sword.prototype.move_float = function () {
     
     if (this.rod.visible) {
         this.float.animations.play("float");
+        this.float.trembling = true;
     }
 };
 
