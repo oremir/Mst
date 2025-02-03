@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Follower = function (game_state, name, position, properties) {
     "use strict";
     
@@ -28,11 +26,8 @@ Mst.Follower = function (game_state, name, position, properties) {
         items: properties.items || ""
     };
     
-    if (typeof (properties.offset) === 'undefined') {
-        var offset = 2;
-    } else {
-        var offset = parseInt(properties.offset);
-    }
+    let offset = 2;
+    if (typeof (properties.offset) !== 'undefined') offset = parseInt(properties.offset);
     
     this.save = {
         type: properties.ftype,
@@ -41,7 +36,7 @@ Mst.Follower = function (game_state, name, position, properties) {
         x: (position.x - (this.game_state.map.tileHeight / 2)),
         y: (position.y + (this.game_state.map.tileHeight / 2)),
         properties: properties
-    }
+    };
     
     if (typeof (properties.sprtype) === 'undefined') {
         this.sprtype = 10;
@@ -278,23 +273,22 @@ Mst.Follower.prototype.test_nurse = function () {
 Mst.Follower.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
     
-    var quests, owner_id, player, test_q, is_quest;
-    //console.log(this.game_state.quest_data);
-    quests = this.game_state.quest_data.quests;
-    player = this.game_state.prefabs.player;
-    is_quest = false;
+    //console.log(this.game_state.gdata.quest);
+    const quests = this.game_state.gdata.quest.quests;
+    const player = this.game_state.prefabs.player;
+    let is_quest = false;
 //    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
 //        this.show_bubble(3); // ! exclamation mark - quest
 //    }
 
-    for (var i = 0; i < quests.length; i++) {
-        owner_id = parseInt(quests[i].properties.owner);
+    for (let i in quests) {
+        const owner_id = parseInt(quests[i].properties.owner);
         console.log(quests[i]);
         console.log("Follower ID: " + this.unique_id);
         if (quests[i].properties.owner_type === "NPC" && owner_id === this.unique_id) {
             console.log(quests[i]);
             
-            test_q = player.test_quest("idfin", quests[i].qid);
+            let test_q = player.test_quest("idfin", quests[i].qid);
             
             if (!test_q) {                
                 test_q = player.test_quest("idass", quests[i].name);

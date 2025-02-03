@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.Signpost = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -14,7 +11,7 @@ Mst.Signpost = function (game_state, name, position, properties) {
     
     this.is_takeable = properties.is_takeable;
     if (typeof(this.is_takeable) === 'string') {
-        this.is_takeable = (properties.is_takeable === 'true')
+        this.is_takeable = (properties.is_takeable === 'true');
     } else {
         if (typeof(properties.is_takeable) !== 'undefined') {
             this.is_takeable = false;

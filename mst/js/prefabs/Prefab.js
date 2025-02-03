@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.Prefab = function (game_state, name, position, properties) {
     "use strict";
     

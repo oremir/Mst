@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Ren = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -91,10 +89,10 @@ Mst.Ren.prototype.next_question = function (answer_text, context) {
         answer_text = "Čím mohu pomoci?";
     }
     
-    var question_text = "";
+    let question_text = "";
     
-    var map = this.game_state.root_data.map_int;    
-    var player = this.game_state.prefabs.player;
+    const map = this.game_state.gdata.root.map_int;    
+    const player = this.game_state.prefabs.player;
     uids = String(this.p_id);
     
     var act_pcid = this.game_state.hud.book.act_case;
@@ -282,16 +280,16 @@ Mst.Ren.prototype.next_question = function (answer_text, context) {
                                 if (map === cmap && map == wmap) {                  
                                     this.answer_context = evi_str + "|P1";
                                     if (this.gender === 'female') {
-                                        this.new_answer_text = "Viděla jsem pachatele."
+                                        this.new_answer_text = "Viděla jsem pachatele.";
                                     } else {
-                                        this.new_answer_text = "Viděl jsem pachatele."
+                                        this.new_answer_text = "Viděl jsem pachatele.";
                                     }
                                 } else {
                                     this.answer_context = evi_str + "|P0";
                                     if (this.gender === 'female') {
-                                        this.new_answer_text = "Nejsem si jistá."
+                                        this.new_answer_text = "Nejsem si jistá.";
                                     } else {
-                                        this.new_answer_text = "Nejsem si jistý."
+                                        this.new_answer_text = "Nejsem si jistý.";
                                     }
                                 }
                             } else { // has witness str, not K, is map, not culprit, not witness
@@ -319,7 +317,7 @@ Mst.Ren.prototype.next_question = function (answer_text, context) {
                                         this.answer_context = evi_str + "|R" + ub15.R + "|GF";
                                     }
                                     ind = parseInt(ub15.R);
-                                    txt = this.game_state.core_data.rasa[ind];
+                                    txt = this.game_state.gdata.core.rasa[ind];
                                     this.new_answer_text = "Byl to " + txt + ", " + mztxt + ".";
 
                                     if (typeof (ub14) !== 'undefined') {
@@ -331,17 +329,17 @@ Mst.Ren.prototype.next_question = function (answer_text, context) {
                                     this.new_answer_text += " Věk asi " + ub15.A + " let.";
 
                                     ind = parseInt(ub15.F);
-                                    txt = this.game_state.core_data.postava[ind];
+                                    txt = this.game_state.gdata.core.postava[ind];
                                     this.answer_context += "|F" + ub15.F;
                                     this.new_answer_text += " Postava " + txt + ".";
                                 }
                             } else {                            
                                 if (this.gender === 'female') {
                                     question_text = "Neviděla jste tohoto podezřelého?";
-                                    this.new_answer_text = "Viděla."
+                                    this.new_answer_text = "Viděla.";
                                 } else {
                                     question_text = "Neviděl jste tohoto podezřelého?";
-                                    this.new_answer_text = "Viděl."
+                                    this.new_answer_text = "Viděl.";
                                 }
                                 this.answer_context = evi_str.substr(0, evi_str.length - 3) + "|P1";
                             }
@@ -715,16 +713,16 @@ Mst.Ren.prototype.option_speak_close = function () {
 
 Mst.Ren.prototype.option_lodging = function () {
     "use strict";
-    var index_gold, cost, constitution, player, stress, health;
+    var index_gold, cost, constitution, stress, health;
     
     cost = 10;
-    player = this.game_state.prefabs.player;
+    const player = this.game_state.prefabs.player;
     constitution = Math.ceil(parseInt(player.stats.abilities.constitution)/2 + 50);
     health = Math.ceil(parseInt(player.stats.health_max)*0.8);
     stress = Math.ceil(parseInt(player.stats.stress)*0.8);
-    if (constitution < 100) {constitution = 100;}
-    if (constitution > health) {health = constitution;}
-    if (constitution > stress) {stress = constitution;}
+    if (constitution < 100) constitution = 100;
+    if (constitution > health) health = constitution;
+    if (constitution > stress) stress = constitution;
     
     // ------------------------------------- test player gold --------------------------------------
 

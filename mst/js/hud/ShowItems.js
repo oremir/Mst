@@ -1,7 +1,3 @@
-var Phaser = Phaser || {};
-var Engine = Engine || {};
-var Mst = Mst || {};
-
 Mst.ShowItems = function (game_state, name, position, properties) {
     "use strict";
     Mst.ShowStat.call(this, game_state, name, position, properties);
@@ -168,12 +164,14 @@ Mst.ShowItems.prototype.create_new_stat_sprite = function (stat_index, frame, qu
                     gframe_str = "frame_item_fial";
                 break;
             }
+        break;
         case 65: // vyhen hori
             switch (frame_int) {
                 case 92: // ohen
                     gframe_str = "frame_item_fial";
                 break;
             }
+        break;
         case 69: // dzban plny
             switch (frame_int) {
                 case 81: // voda
@@ -347,7 +345,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
     item_index = one_item.stat_index;
     item_frame = this.stats[item_index].frame;
     item_quantity = this.stats[item_index].quantity;
-    console.log("II: " + item_index + " IF: " + item_frame + " IQ: " + item_quantity)
+    console.log("II: " + item_index + " IF: " + item_frame + " IQ: " + item_quantity);
     
     switch (this.put_type) {
         case "put":
@@ -487,9 +485,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         console.log("Sem to nejde polozit");
                                         this.game_state.hud.alert.show_alert("Sem to nejde položit");
                                     break;
-                                    case 112: //kopřiva
+                                    case 112: { //kopřiva 
                                         console.log(player.opened_ren);
-                                        var index = player.test_item(192,1); //dóza
+                                        const index = player.test_item(192,1); //dóza
                                         if (player.opened_ren === 'cmelotrysk_ren' && index > -1) {
                                             player.subtract_item(index, 1);
                                             player.add_item(197, 1); // Med čmelotryska l.
@@ -500,7 +498,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         } else {
                                             this.game_state.prefabs.chestitems.add_item(item_frame, quant_put);
                                         }
-                                    break;                                    
+                                    break;
+                                    }
                                     case 195: //Trnkový kompot l.
                                         console.log(player.opened_ren);
                                         if (player.opened_ren === 'kerik_ren') {
@@ -730,7 +729,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     break;
                                     case 112: //kopřiva
                                         console.log(player.opened_ren);
-                                        var index = player.test_item(192,1); //dóza
+                                        const index = player.test_item(192,1); //dóza
                                         if (player.opened_ren === 'cmelotrysk_ren' && index > -1) {
                                             player.subtract_item(index, 1);
                                             player.add_item(197, 1); // Med čmelotryska l.
@@ -765,16 +764,16 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                         }
                     }
                 } else { // beru z bedny
-                    const is_fluid = (this.game_state.core_data.items[item_frame].properties.fluid === 'true');
+                    const is_fluid = (this.game_state.gdata.core.items[item_frame].properties.fluid === 'true');
                     let takeit = true;
                     let tquant = 1;
                     const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
-                    const sub_water = this.game_state.core_data.items[chest_frame].properties.sub_water;
+                    const sub_water = this.game_state.gdata.core.items[chest_frame].properties.sub_water;
                     
                     if (is_fluid) {
                         switch (item_frame) {
-                            case 81: //voda
-                                var index = player.test_item(6, 1); //Dzban
+                            case 81: { //voda
+                                const index = player.test_item(6, 1); //Dzban
                                 if (index > -1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 69; //Dzban s vodou
@@ -784,7 +783,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                         this.game_state.prefabs[opened_chest].animations.play("ficauldron");
                                     }
                                 } else {
-                                    var index = player.test_item(53, 1); //Zel. kotlik
+                                    const index = player.test_item(53, 1); //Zel. kotlik
                                     if (index > -1) {
                                         player.subtract_item(index, 1);
                                         item_frame = 71; //Zel. kotlik s vodou
@@ -798,15 +797,16 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     }                            
                                 }
                             break;
-                            case 93: //Hrib. polevka
-                                var index = player.test_item(94, 1); //Miska
+                            }
+                            case 93: { //Hrib. polevka
+                                const index = player.test_item(94, 1); //Miska
                                 if (index > -1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 95; //Miska s polevkou
                                     
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
                                 } else {                       
-                                    var index = player.test_item(220, 1); //drev. miska
+                                    const index = player.test_item(220, 1); //drev. miska
                                     if (index > -1) {
                                         player.subtract_item(index, 1);
                                         item_frame = 221; //drev. miska s polevkou
@@ -817,8 +817,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     }   
                                     }
                             break;
-                            case 103: //tav. zelezo
-                                var index = player.test_item(60, 1); //kam. nadoba
+                            }
+                            case 103: { //tav. zelezo
+                                const index = player.test_item(60, 1); //kam. nadoba
                                 console.log(index + " " + item_quantity);
                                 if (index > -1 && item_quantity > 3) {
                                     player.subtract_item(index, 1);
@@ -828,25 +829,28 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
-                            case 105: //zhav. zelezo
-                                var equip = parseInt(player.stats.equip);
+                            }
+                            case 105: { //zhav. zelezo
+                                const equip = parseInt(player.stats.equip);
                                 if (equip === 106) { //kleste
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
                                 } else {
                                     takeit = false;  
                                 }
                             break;
-                            case 109: //zhav.zel.tyc
-                                var equip = parseInt(player.stats.equip);
+                            }
+                            case 109: { //zhav.zel.tyc
+                                const equip = parseInt(player.stats.equip);
                                 if (equip === 106) { //kleste
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
                                 } else {
                                     takeit = false;  
                                 }
                             break;
-                            case 147: //Destil. voda
-                                var index = player.test_item(154, 1); //Lahvicka
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            }
+                            case 147: { //Destil. voda
+                                const index = player.test_item(154, 1); //Lahvicka
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 146; //Destil. voda l.
@@ -856,9 +860,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
-                            case 149: //Tinktura
-                                var index = player.test_item(154, 1); //Lahvicka
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            }
+                            case 149: { //Tinktura
+                                const index = player.test_item(154, 1); //Lahvicka
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 148; //Tinktura l.
@@ -868,9 +873,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
-                            case 152: //Inkoust
-                                var index = player.test_item(154, 1); //Lahvicka
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            }
+                            case 152: { //Inkoust
+                                const index = player.test_item(154, 1); //Lahvicka
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 151; //Inkoust l.
@@ -880,9 +886,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
-                            case 173: //Cistici lek.
-                                var index = player.test_item(154, 1); //Lahvicka
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            }
+                            case 173: { //Cistici lek.
+                                const index = player.test_item(154, 1); //Lahvicka
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 174; //Cistici lek. l.
@@ -892,17 +899,18 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
+                            }
                             case 183: //zhav. med
-                                var equip = parseInt(player.stats.equip);
+                                const equip = parseInt(player.stats.equip);
                                 if (equip === 106) { //kleste
                                     this.game_state.prefabs[opened_chest].change_frame(sub_water);
                                 } else {
                                     takeit = false;  
                                 }
                             break;
-                            case 188: //Antilevitacni lek.
-                                var index = player.test_item(154, 1); //Lahvicka
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            case 188: { //Antilevitacni lek.
+                                const index = player.test_item(154, 1); //Lahvicka
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 189; //Antilevitacni lek. l.
@@ -912,9 +920,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
-                            case 194: //Trnkový kompot
-                                var index = player.test_item(192, 1); //Doza
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            }
+                            case 194: { //Trnkový kompot
+                                const index = player.test_item(192, 1); //Doza
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 195; //Trnkový kompot l.
@@ -924,9 +933,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
-                            case 196: //Med čmelotryska
-                                var index = player.test_item(192, 1); //Doza
-                                var in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
+                            }
+                            case 196: { //Med čmelotryska
+                                const index = player.test_item(192, 1); //Doza
+                                const in_chest = this.game_state.prefabs[opened_chest].in_chest_ord();
                                 if (index > -1 && in_chest.length == 1) {
                                     player.subtract_item(index, 1);
                                     item_frame = 197; //Med čmelotryska l.
@@ -936,6 +946,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                                     takeit = false;       
                                 }
                             break;
+                            }
                             default:
                                takeit = false;
                             break;
@@ -1260,9 +1271,9 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
             player.equip(item_index, item_frame);
             break;
         case "use":
-            const use_sub = (this.game_state.core_data.items[item_frame].properties.use_sub === 'true');
+            const use_sub = (this.game_state.gdata.core.items[item_frame].properties.use_sub === 'true');
     
-            console.log(this.game_state.core_data.items[item_frame]);
+            console.log(this.game_state.gdata.core.items[item_frame]);
 
             if (use_sub) {
                 this.subtract_item(item_index, 1);
@@ -1290,10 +1301,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 21: //Kamen
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;
                         
-                        item = chest.index_item(96); //Pazourek
+                        const item = chest.index_item(96); //Pazourek
                         if (item.index > -1) {
                             chest.subtract_item(item.index, item.quantity);
                             chest.add_item(186, item.quantity); //Pazourkove ostri
@@ -1340,8 +1351,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 45: //Křesadlo
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;
                         
                         switch (chest_frame) {
                             case 7: //Drevo
@@ -1393,10 +1404,10 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 46: //Hmoždíř
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;
                         
-                        item = chest.index_item(136); //Dubenky
+                        const item = chest.index_item(136); //Dubenky
                         if (item.index > -1) {
                             chest.subtract_item(item.index, item.quantity);
                             chest.add_item(144, item.quantity); //Dubenky drc.
@@ -1405,7 +1416,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 53: //Žel. kotlík
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
                         if (chest_frame == 80) {
                             this.add_item(71, 1);
@@ -1419,7 +1430,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 62: //Konev
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
                         if (chest_frame == 80) {
                             this.add_item(63, 1); //konev pln.
@@ -1438,8 +1449,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 117: //Nůž
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;
                         
                         let recipe = [{f: 39, q: 1}, {f: 185, q: 1}]; //Kůže, reminek
                         let in_chest = chest.in_chest_ord();
@@ -1478,7 +1489,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(165, 1); //Medunka list
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.ceil(Math.random() * 4);
+                            const rnd_test = Math.ceil(Math.random() * 4);
                             
                             chest.add_item(162, rnd_test); //Medunka seminko
                             
@@ -1491,8 +1502,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.ceil(Math.random() * 5);
-                            var test_q = player.test_quest("idass", "quest_36");
+                            let rnd_test = Math.ceil(Math.random() * 5);
+                            const test_q = player.test_quest("idass", "quest_36");
                             console.log("Test quest 36 knife: " + test_q + "RT " + rnd_test);
                             
                             if (test_q && rnd_test < 2) {
@@ -1526,7 +1537,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 146: //Destil. voda l.
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
                         if (chest_frame == 53 || chest_frame == 71) { //Žel. kotlík
                             this.game_state.prefabs[opened_chest].change_frame(71); //Zel. kotlik s vodou
@@ -1547,7 +1558,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 148: //Tintura l.
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
                         if (chest_frame == 53 || chest_frame == 71) { //Žel. kotlík
                             this.game_state.prefabs[opened_chest].change_frame(71); //Zel. kotlik s vodou
@@ -1562,7 +1573,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 154: //Lahvička
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
 
                         this.add_item(item_frame, 1);
                     } else {
@@ -1600,8 +1611,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 185: //reminek
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;
                         
                         item = chest.index_item(43); //Vetev
                         if (item.index > -1) {
@@ -1635,8 +1646,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 186: //Paz. hrot
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;   
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;   
                         
                         item = chest.index_item(39); //Kůže
                         if (item.index > -1) {
@@ -1650,8 +1661,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 187: //Paz. nůž
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;   
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;   
                         
                         let recipe = [{f: 39, q: 1}, {f: 185, q: 1}]; //Kůže, reminek
                         let in_chest = chest.in_chest_ord();
@@ -1676,7 +1687,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(155, 1); //Šafrán. čnělka
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.ceil(Math.random() * 4);
+                            const rnd_test = Math.ceil(Math.random() * 4);
                             
                             chest.add_item(161, rnd_test); //Šafrán. seminko
                             
@@ -1690,7 +1701,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.add_item(165, 1); //Medunka list
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.ceil(Math.random() * 4);
+                            const rnd_test = Math.ceil(Math.random() * 4);
                             
                             chest.add_item(162, rnd_test); //Medunka seminko
                             
@@ -1703,8 +1714,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             chest.subtract_item(item.index, 1);
                             chest.add_item(157, 1); //Bioodpad
                             
-                            var rnd_test = Math.ceil(Math.random() * 5);
-                            var test_q = player.test_quest("idass", "quest_36");
+                            let rnd_test = Math.ceil(Math.random() * 5);
+                            const test_q = player.test_quest("idass", "quest_36");
                             console.log("Test quest 36 knife: " + test_q + "RT " + rnd_test);
                             
                             if (test_q && rnd_test < 2) {
@@ -1726,6 +1737,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             player.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                         
+                        
                         recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
                         in_chest = chest.in_chest_ord();
                         if (chest.chest_compare(in_chest, recipe)) {
@@ -1742,7 +1754,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 192: //Doza
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
 
                         this.add_item(item_frame, 1);
                     } else {
@@ -1760,7 +1772,7 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 197: //Med čmelotryska l.
                     if (opened_chest !== "") {
-                        var chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
+                        const chest_frame = this.game_state.prefabs[opened_chest].closed_frame;
                         
                         if (chest_frame == 53 || chest_frame == 71) { //Žel. kotlík
                             this.game_state.prefabs[opened_chest].change_frame(71); //Zel. kotlik s vodou
@@ -1785,8 +1797,8 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                     break;
                 case 217: //Ohn. souprava
                     if (opened_chest !== "") {
-                        var chest = this.game_state.prefabs[opened_chest];
-                        var chest_frame = chest.closed_frame;
+                        const chest = this.game_state.prefabs[opened_chest];
+                        const chest_frame = chest.closed_frame;
                         
                         switch (chest_frame) {
                             case 7: //Drevo
@@ -1877,7 +1889,7 @@ Mst.ShowItems.prototype.subtract_item = function (item_index, quantity) {
         i: item_index,
         f: item_frame,
         q: item_quantity
-    }
+    };
     
     return item;
 };
@@ -2059,7 +2071,7 @@ Mst.ShowItems.prototype.in_chest_ord = function () {
     
     output = this.in_chest();
         
-    output.sort(function(a, b){return a.f - b.f});
+    output.sort((a, b) => a.f - b.f);
     console.log(output);
     
     return output;

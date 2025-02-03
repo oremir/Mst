@@ -1,6 +1,3 @@
-var Engine = Engine || {};
-var Mst = Mst || {};
-
 Mst.ShowStatWithText = function (game_state, name, position, properties) {
     "use strict";
     Mst.ShowStat.call(this, game_state, name, position, properties);

@@ -1,7 +1,3 @@
-var Phaser = Phaser || {};
-var Engine = Engine || {};
-var Mst = Mst || {};
-
 Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
     "use strict";
     var text, text_style;
@@ -213,9 +209,8 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
             switch (stat_type) {
                 case "skills":
                     for (key in this.game_state.prefabs.player.stats.skills) {
-                        text_value = key
-                            + "\t exp:" + this.game_state.prefabs.player.stats.skills[key].exp 
-                            + "\t lvl:" + this.game_state.prefabs.player.stats.skills[key].level;
+                        const skill = this.game_state.prefabs.player.stats.skills[key];
+                        const text_value = key + "\t exp:" + skill.exp + "\t lvl:" + skill.level;
                         text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
                         text.fixedToCamera = true;
                         this.texts.push(text);
@@ -224,8 +219,7 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
                     break;
                 case "abilities":
                     for (key in this.game_state.prefabs.player.stats.abilities) {
-                        text_value = key
-                            + ":\t" + this.game_state.prefabs.player.stats.abilities[key];
+                        text_value = key + ":\t" + this.game_state.prefabs.player.stats.abilities[key];
                         text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
                         text.fixedToCamera = true;
                         this.texts.push(text);
@@ -240,8 +234,7 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
                     break;
                 case "quests":
                     for (key in this.game_state.prefabs.player.stats.quests) {
-                        text_value = key
-                            + "\t" + this.game_state.prefabs.player.stats.quests[key].quest_text;
+                        text_value = key + "\t" + this.game_state.prefabs.player.stats.quests[key].quest_text;
                         text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style); 
                         text.fixedToCamera = true;
                         this.texts.push(text);
@@ -355,11 +348,11 @@ Mst.ShowStatWithSprite.prototype.update_timer_moon = function () {
 
 Mst.ShowStatWithSprite.prototype.logout = function () {
     "use strict";
-    this.map_int = this.game_state.root_data.map_int;
+    this.map_int = this.game_state.gdata.root.map_int;
     this.position = {
         x: this.game_state.prefabs.player.x - 8,
         y: this.game_state.prefabs.player.y + 8
-    }
+    };
 
     this.game_state.prefabs.player.set_logoff();
     this.game_state.save_data(this.position, this.map_int, "logout");

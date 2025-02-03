@@ -1,6 +1,3 @@
-var Engine = Engine || {};
-var Mst = Mst || {};
-
 Mst.ShowEquip = function (game_state, name, position, properties) {
     "use strict";
     var new_position, equip;
@@ -81,17 +78,17 @@ Mst.ShowEquip.prototype.equip = function (item_index, item_frame) {
     
     item_frame = parseInt(item_frame);
     
-    console.log(this.game_state.core_data.items[item_frame].istool === 'true');
+    console.log(this.game_state.gdata.core.items[item_frame].istool === 'true');
     
-    if(this.game_state.core_data.items[item_frame].istool === 'true') {
+    if(this.game_state.gdata.core.items[item_frame].istool === 'true') {
         this.game_state.prefabs.player.subtract_item(item_index, 1);
         
-        if(typeof (this.game_state.core_data.items[item_frame].properties.eq) === 'undefined') {
+        if(typeof (this.game_state.gdata.core.items[item_frame].properties.eq) === 'undefined') {
             this.unequip();
             this.game_state.prefabs.player.stats.equip = item_frame;
             this.game_state.prefabs.sword.reequip(item_frame);
         } else {
-            var index = parseInt(this.game_state.core_data.items[item_frame].properties.eq);
+            const index = parseInt(this.game_state.gdata.core.items[item_frame].properties.eq);
             this.unequipexpi(index);
             
             this.game_state.prefabs.player.stats.expequip[index] = item_frame;

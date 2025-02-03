@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Chest = function (game_state, name, position, properties) {
     "use strict";
     
@@ -54,7 +52,7 @@ Mst.Chest = function (game_state, name, position, properties) {
         x: position.x - (this.game_state.map.tileHeight / 2),
         y: position.y + (this.game_state.map.tileHeight / 2),
         properties: properties,
-        map_int: this.game_state.root_data.map_int
+        map_int: this.game_state.gdata.root.map_int
     };
     
     //console.log("y: "+this.save.y)
@@ -91,7 +89,7 @@ Mst.Chest = function (game_state, name, position, properties) {
         
         var cases = [];
         if (typeof (this.cases) === 'object') {
-            for (var key in this.cases) {
+            for (let key in this.cases) {
                 cases[key] = this.cases[key];
             }
         } else {
@@ -114,8 +112,8 @@ Mst.Chest = function (game_state, name, position, properties) {
         this.mw_context = "";
     } 
     
-    var d = new Date();
-    var n = d.getTime();
+    const d = new Date();
+    const n = d.getTime();
     
     if (typeof(properties.time) !== 'undefined') {
         this.time = parseInt(properties.time);
@@ -154,13 +152,10 @@ Mst.Chest = function (game_state, name, position, properties) {
     //if ((n - this.ctime)/100000 > 1) {
     if ((n - this.ctime)/100000 > 846) {
         switch (this.closed_frame) {
-            case 126: // sazenice
-                var rnd_test = Math.floor(Math.random() * 100);
-                if (rnd_test > 50) {
-                    var r_frame = 132; // Keř
-                } else {
-                    var r_frame = 131; // Strom malý
-                }
+            case 126: { // sazenice
+                const rnd_test = Math.floor(Math.random() * 100);
+                let r_frame = 131; // Strom malý
+                if (rnd_test > 50) r_frame = 132; // Keř
                 this.s1type = "tree";
                 this.save.properties.s1type = "tree";
                 this.change_frame(r_frame);
@@ -168,17 +163,16 @@ Mst.Chest = function (game_state, name, position, properties) {
                 //this.time = n;
                 this.ctime = n;
             break;
-            case 130: // Keř malý
-                var rnd_test = Math.floor(Math.random() * 100);
-                if (rnd_test > 50) {
-                    var r_frame = 132; // Keř
-                } else {
-                    var r_frame = 133; // Keř s bobulí
-                }
+            }
+            case 130: { // Keř malý
+                const rnd_test = Math.floor(Math.random() * 100);
+                let r_frame = 133; // Keř s bobulí
+                if (rnd_test > 50) r_frame = 132; // Keř
                 this.change_frame(r_frame);
                 //this.time = n;
                 this.ctime = n;
             break;
+            }
             case 132: // Keř malý
                 this.change_frame(133); // Keř s bobulí
                 //this.time = n;
@@ -202,11 +196,11 @@ Mst.Chest = function (game_state, name, position, properties) {
                 //this.time = n;
                 this.ctime = n;
             break;
-            case 160: // Kvetinac rost. zal.
+            case 160: { // Kvetinac rost. zal.
                 this.change_frame(139); // Kvetinac zem.
-                var plant_a1 = this.stats.items.split("_");
+                const plant_a1 = this.stats.items.split("_");
                 console.log(plant_a1);
-                var plant_frame = plant_a1[1].split("-")[0];
+                const plant_frame = plant_a1[1].split("-")[0];
                 console.log("Plant frame: " + plant_frame);
                 switch (plant_frame) {
                     case "143": // šafrán
@@ -232,6 +226,7 @@ Mst.Chest = function (game_state, name, position, properties) {
                 //this.time = n;
                 this.ctime = n; 
             break;
+            }
             case 229: // pole zem. zal.
                 this.change_frame(227); // pole zem.
                 //this.time = n;
@@ -249,9 +244,9 @@ Mst.Chest = function (game_state, name, position, properties) {
             break;
             case 234: // pole rost. zal.
                 this.change_frame(227); // pole zem.
-                var plant_a1 = this.stats.items.split("_");
+                const plant_a1 = this.stats.items.split("_");
                 console.log(plant_a1);
-                var plant_frame = plant_a1[0].split("-")[0];
+                const plant_frame = plant_a1[0].split("-")[0];
                 console.log("Plant frame: " + plant_frame);
                 switch (plant_frame) {
                     case "236": // salat saz.
@@ -270,29 +265,25 @@ Mst.Chest = function (game_state, name, position, properties) {
     
     if ((n - this.ctime)/100000 > 423) {
         switch (this.closed_frame) {
-            case 126: // sazenice
-                var rnd_test = Math.floor(Math.random() * 100);
-                if (rnd_test > 50) {
-                    var r_frame = 130; // Keř malý
-                } else {
-                    var r_frame = 131; // Strom malý
-                }
+            case 126: { // sazenice
+                const rnd_test = Math.floor(Math.random() * 100);
+                let r_frame = 131; // Strom malý
+                if (rnd_test > 50) r_frame = 130; // Keř malý
                 this.change_frame(r_frame);
                 this.save_chest();
                 //this.time = n;
                 this.ctime = n;
             break;
-            case 130: // Keř malý
-                var rnd_test = Math.floor(Math.random() * 100);
-                if (rnd_test > 50) {
-                    var r_frame = 132; // Keř
-                } else {
-                    var r_frame = 133; // Keř s bobulí
-                }
+            }
+            case 130: { // Keř malý
+                const rnd_test = Math.floor(Math.random() * 100);
+                let r_frame = 133; // Keř s bobulí
+                if (rnd_test > 50) r_frame = 132; // Keř
                 this.change_frame(r_frame);
                 //this.time = n;
                 this.ctime = n;
             break;
+            }
             case 132: // Keř malý
                 this.change_frame(133); // Keř s bobulí
                 //this.time = n;
@@ -379,7 +370,7 @@ Mst.Chest = function (game_state, name, position, properties) {
         case 227: // pole zem.
             if (typeof(properties.s2type) !== 'undefined') {
                 if (this.s2type !== '') {
-                    var ind = parseInt(this.s2type);
+                    const ind = parseInt(this.s2type);
                     console.log(ind);
                     this.plant = this.game_state.groups.bubbles.create(this.x - 8, this.y - 12, 'items_spritesheet', 0);
                     this.plant.loadTexture('items_spritesheet', ind);
@@ -655,13 +646,13 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
     
     player = this.game_state.prefabs.player;
     
-    var d = new Date();
-    var n = d.getTime();
+    const d = new Date();
+    const n = d.getTime();
     
     console.log("Loops done / l:" + nloop + " f:" + type + " time: " + (n - this.ctime)/100000);
     
     if (nloop > 0) {
-        for (i = 0; i < nloop; i++) {
+        for (let i = 0; i < nloop; i++) {
             switch (type) {
                 case 56: //kotlik hori
                     item = this.index_item(92); //ohen
@@ -772,9 +763,9 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
                     this.add_item(89, quantity); //popel
                     in_chest = this.in_chest_ord();
                     if (in_chest.length > 0) {
-                        for (var i = 0; i < in_chest.length; i++) {
+                        for (let i = 0; i < in_chest.length; i++) {
                             f = in_chest[i].f;
-                            cook = this.game_state.core_data.items[f].properties.cook;
+                            cook = this.game_state.gdata.core.items[f].properties.cook;
                             if (typeof(cook) !== 'undefined') {
                                 index = this.test_item(f, 1);
                                 this.subtract_item(index, 1);
@@ -874,6 +865,7 @@ Mst.Chest.prototype.loops_done = function (nloop, type) {
 Mst.Chest.prototype.open_chest = function (player, chest) {
     "use strict";
     
+    let stat = "error";
     if (chest.obj_id === 0) {
         console.log("Chest open obj_id 0");
         chest.game_state.prefabs.chestitems.show_initial_stats();
@@ -890,12 +882,12 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
         console.log("Chest is open!");
         chest.game_state.hud.alert.show_alert("Otevřena!");
     } else {
-        var game_state, name, usr_id, map, d, n, stat;
+        var game_state, name, map;
 
         //game_state = this.game_state;
         //name = this.name;
-        usr_id = player.usr_id;
-        //map = this.game_state.root_data.map_int;
+        const usr_id = player.usr_id;
+        //map = this.game_state.gdata.root.map_int;
 
         chest.save.properties.items = chest.stats.items;
         chest.save.properties.opened_frame = chest.opened_frame;
@@ -904,8 +896,8 @@ Mst.Chest.prototype.open_chest = function (player, chest) {
         chest.taken = {};
         chest.save.action = "OPEN";
 
-        var d = new Date();
-        var n = d.getTime();
+        const d = new Date();
+        const n = d.getTime();
 
         console.log(chest.save);
 
@@ -1044,8 +1036,8 @@ Mst.Chest.prototype.close_chest = function () {
             console.log("Chest is not empty item");
         
             if (this.stat !== "open" && chest.is_opened) {
-                d = new Date();
-                n = d.getTime();
+                const d = new Date();
+                const n = d.getTime();
                 this.save.properties.time = n;
 
                 console.log("CLOSE CHEST");
@@ -1179,7 +1171,7 @@ Mst.Chest.prototype.steal = function () {
     console.log("Chest steal");
     
     var player = this.game_state.prefabs.player;
-    var map = this.game_state.root_data.map_int;
+    var map = this.game_state.gdata.root.map_int;
     this.case_id = this.cases.length;
     
     var new_case = {
@@ -1230,7 +1222,7 @@ Mst.Chest.prototype.steal = function () {
         "gweek": player.stats.gtimeweek,
         "wt": wt,
         "count": 0
-    }
+    };
     
     this.culprit_id = player.add_culprit(new_culprit);
     this.cases[this.case_id].CpID = this.culprit_id;
@@ -1259,7 +1251,7 @@ Mst.Chest.prototype.steal_rollback = function () {
 Mst.Chest.prototype.steal_add_witness = function (cid) {
     "use strict";
 
-    var map = this.game_state.root_data.map_int;
+    var map = this.game_state.gdata.root.map_int;
     
     if (typeof (this.cases[cid].witness[map]) === 'undefined') {
         var players = this.game_state.get_players();
@@ -1283,12 +1275,12 @@ Mst.Chest.prototype.steal_add_witness = function (cid) {
 Mst.Chest.prototype.steal_add_ftprints = function (cid) {
     "use strict";
 
-    var ftprint = {
-        m: this.game_state.root_data.map_int,
+    const ftprint = {
+        m: this.game_state.gdata.root.map_int,
         x: Math.round((this.game_state.prefabs.player.x - 8 )/16)*16 + 8,
         y: Math.round((this.game_state.prefabs.player.y + 8 )/16)*16 - 8
     };
-    var ftprints = [];
+    let ftprints = [];
     
     //console.log(typeof (this.cases[cid].ftprints));
     if (typeof  (this.cases[cid].ftprints) === 'object') {
@@ -1351,7 +1343,7 @@ Mst.Chest.prototype.save_taken = function () {
     
     console.log(this.steal_check_taken());
     
-    return "TAKEN-UID:" + this.game_state.root_data.usr_id + "|" + taken_a.join("|");
+    return "TAKEN-UID:" + this.game_state.gdata.root.usr_id + "|" + taken_a.join("|");
 };
 
 Mst.Chest.prototype.save_chest = function () {
@@ -1369,8 +1361,8 @@ Mst.Chest.prototype.save_chest = function () {
     this.save.action = "CLOSE";
 
     if (this.stat !== "open") {
-        d = new Date();
-        n = d.getTime();
+        const d = new Date();
+        const n = d.getTime();
         this.save.properties.time = n;
 
         console.log("SAVE CHEST");
@@ -1577,7 +1569,7 @@ Mst.Chest.prototype.get_chest = function (chest) {
                                 player.add_item(135, 1); // Stínka
                                 
                                 console.log("RND take chest: 135 - stinka");
-                                this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[135].name + "!");
+                                this.game_state.hud.alert.show_alert("Nález! " + this.game_state.gdata.core.items[135].name + "!");
                                 player.work_rout("forager", "exploration", 1, 1, 2, 3); // stress, stand_exp, skill_exp, abil_p
                             } 
                         break;
@@ -1645,7 +1637,7 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
     console.log("RND take CHEST!!! Level: " + this.level);
     
     player = this.game_state.prefabs.player;
-    rtake = this.game_state.core_data.items[frame].properties.rtake;
+    rtake = this.game_state.gdata.core.items[frame].properties.rtake;
     
     if (typeof (rtake) === 'undefined') {
         rtake = [];
@@ -1678,7 +1670,7 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
         if (rnd_test < 3 && player.level(skill) > level) {
             player.add_item(iframe, 1);
             console.log("RND take chest: " + iframe);
-            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.gdata.core.items[iframe].name + "!");
             exp = (level + 1)*2;
             player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
             test_ok = true;
@@ -1701,7 +1693,7 @@ Mst.Chest.prototype.rnd_take = function (frame, skill) {
         if (player.level(skill) > level) {
             player.add_item(iframe, 1);
             console.log("RND take sword next: " + iframe);
-            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.gdata.core.items[iframe].name + "!");
             exp = (level + 1)*2;
             player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
         }

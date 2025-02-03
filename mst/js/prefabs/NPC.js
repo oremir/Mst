@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.NPC = function (game_state, name, position, properties) {
     "use strict";
     
@@ -65,11 +63,8 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.owner = parseInt(properties.owner);
     }
     
-    if (typeof (properties.offset) === 'undefined') {
-        var offset = 2;
-    } else {
-        var offset = parseInt(properties.offset);
-    }
+    let offset = 2;
+    if (typeof (properties.offset) !== 'undefined') offset = parseInt(properties.offset);
     
     if (typeof (properties.tosave) === 'undefined') {
         this.tosave = false;
@@ -84,7 +79,7 @@ Mst.NPC = function (game_state, name, position, properties) {
         x: (position.x - (this.game_state.map.tileHeight / 2)),
         y: (position.y + (this.game_state.map.tileHeight / 2)),
         properties: properties
-    }
+    };
     
     if (this.sprtype === 2) {
         this.animations.add("go", [0, 1], 5, true);
@@ -322,7 +317,7 @@ Mst.NPC.prototype.save_NPC = function () {
     //    this.save.x = go_position.x;
     //    this.save.y = go_position.y;
 
-        this.save.map_int = this.game_state.root_data.map_int;
+        this.save.map_int = this.game_state.gdata.root.map_int;
 
         d = new Date();
         n = d.getTime();
@@ -581,23 +576,22 @@ Mst.NPC.prototype.drop_item = function () {
 Mst.NPC.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
     
-    var quests, owner_id, player, test_q, is_quest;
-    //console.log(this.game_state.quest_data);
-    quests = this.game_state.quest_data.quests;
-    player = this.game_state.prefabs.player;
-    is_quest = false;
+    //console.log(this.game_state.gdata.quest);
+    const quests = this.game_state.gdata.quest.quests;
+    const player = this.game_state.prefabs.player;
+    let is_quest = false;
 //    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
 //        this.show_bubble(3); // ! exclamation mark - quest
 //    }
 
-    for (var i = 0; i < quests.length; i++) {
-        owner_id = parseInt(quests[i].properties.owner);
+    for (let i in quests) {
+        const owner_id = parseInt(quests[i].properties.owner);
         console.log(quests[i]);
         console.log("NPC ID: " + this.unique_id);
         if (quests[i].properties.owner_type === "NPC" && owner_id === this.unique_id) {
             console.log(quests[i]);
             
-            test_q = player.test_quest("idfin", quests[i].qid);
+            let test_q = player.test_quest("idfin", quests[i].qid);
             
             if (!test_q) {                
                 test_q = player.test_quest("idass", quests[i].name);

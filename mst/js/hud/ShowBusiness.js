@@ -1,7 +1,3 @@
-var Phaser = Phaser || {};
-var Engine = Engine || {};
-var Mst = Mst || {};
-
 Mst.ShowBusiness = function (game_state, name, position, properties) {
     "use strict";
     Mst.ShowStat.call(this, game_state, name, position, properties);
@@ -285,9 +281,9 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
         arrows.arr = arr;
         arrows.em = em;
     } else {
-        text1 = this.game_state.core_data.items[frame_int].name;
+        text1 = this.game_state.gdata.core.items[frame_int].name;
         text = "G: " + cost;
-        xa = 0
+        xa = 0;
         
         arrows = { type: "nic" };
     }
@@ -374,7 +370,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
             if (this.put_type === "mer_admin") {
                 console.log("admin");
                 
-                var quant_put = 1;
+                const quant_put = 1;
                 
                 var is_in = this.subtract_item(item_index, 1);
                 if (is_in) {
@@ -383,7 +379,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
             } else {            
                 if (item.is_in) {
 
-                    var quant_put = 1;
+                    let quant_put = 1;
                     if (player.keys.shift.isDown) {
                         console.log("SHIFT");
                         quant_put = Math.ceil(parseInt(item.quantity)/2);
@@ -769,7 +765,7 @@ Mst.ShowBusiness.prototype.update_item = function (item_index, item_frame, item_
     
     if (item_quantity > 0) {
         if (item_index > -1) {
-            this.stat_splited[item_index] = item_updated
+            this.stat_splited[item_index] = item_updated;
         } else {
             is_in_items = false;
             this.stat_splited.push(item_updated);

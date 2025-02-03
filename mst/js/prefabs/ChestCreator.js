@@ -1,13 +1,10 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.ChestCreator = function (game_state, name, position, properties) {
     "use strict";
     
     this.game_state = game_state;
     this.name = "chest_creator";
     
-    this.pool = this.game_state.groups["chests"];     
+    this.pool = this.game_state.groups.chests;     
     
     this.game_state.prefabs[name] = this;
     
@@ -18,7 +15,7 @@ Mst.ChestCreator = function (game_state, name, position, properties) {
         closed_frame: 4,
         opened_frame: 5,        
         texture: "items_spritesheet"
-    }
+    };
 };
 
 Mst.ChestCreator.prototype = Object.create(Mst.Prefab.prototype);
@@ -83,7 +80,7 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     console.log(position_new);
     console.log(position_new_player);
     
-    this.game_state.prefabs.player.x = position_new_player.x
+    this.game_state.prefabs.player.x = position_new_player.x;
     this.game_state.prefabs.player.y = position_new_player.y;
     
     switch (item_frame) {

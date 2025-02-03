@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.ItemSpawner = function (game_state, name, position, properties) {
     "use strict";
     var item;
@@ -33,14 +30,14 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     this.items = [];
     this.stype = properties.stype;
     
-    for (var i = 0; i < this.game_state.core_data.items.length; i++) {
-        //console.log(this.game_state.core_data.items[i].properties.spawn);
-        var spawn = this.game_state.core_data.items[i].properties.spawn;
+    for (let i in this.game_state.gdata.core.items.length) {
+        //console.log(this.game_state.gdata.core.items[i].properties.spawn);
+        var spawn = this.game_state.gdata.core.items[i].properties.spawn;
         if (spawn !== undefined) {
             if (this.stype === spawn || spawn === "uni") {
                 item = {
                     frame: i,
-                    obj: this.game_state.core_data.items[i]
+                    obj: this.game_state.gdata.core.items[i]
                 };
                 this.items.push(item);
             }
@@ -142,7 +139,7 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
     let b = false;
     
     if (cond === 0) {
-        this.game_state.map_data.objects.forEach(function (map_object) {
+        this.game_state.gdata.map.objects.forEach(function (map_object) {
             //console.log(map_object.x+"|"+map_object.y);
             const x = parseInt(map_object.x);
             const y = parseInt(map_object.y);
@@ -209,7 +206,7 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
         
         console.log(b);
 
-//            this.game_state.map_data.objects.forEach(function (map_object) {
+//            this.game_state.gdata.map.objects.forEach(function (map_object) {
 //                x = map_object.x;
 //                y = map_object.y;
 //                dist = this.game_state.game.physics.arcade.distanceToXY(object, x, y, this);
@@ -276,27 +273,24 @@ Mst.ItemSpawner.prototype.create_object = function (name, position, properties) 
 Mst.ItemSpawner.prototype.create_name = function () {
     "use strict";
     var name, a;
-    var names = [];
+    const names = [];
     //var j = this.pool.countLiving();
-    var object_name = "item_" + this.spawnernum + "_" + this.j;
+    let object_name = "item_" + this.spawnernum + "_" + this.j;
     
-    //console.log(this.game_state.map_data.objects);
-    //console.log(this.game_state.map_data.objects.length);
+    //console.log(this.game_state.gdata.map.objects);
+    //console.log(this.game_state.gdata.map.objects.length);
     
-    for (var i = 0; i < this.game_state.map_data.objects.length; i++) {
-        //console.log(i);
-        //console.log(this.game_state.map_data.objects[i].name);
-        name = this.game_state.map_data.objects[i].name;
+    for (const object of this.game_state.gdata.map.objects) {
+        name = object.name;
         a = name.split("_");
         if (a[1] === this.spawnernum) {
             names.push(parseInt(a[2]));
         } else {
             names.push(parseInt(a[1]));
-        }
-        
+        }        
     }
       
-    names.sort(function(a, b){return a - b});
+    names.sort((a, b) => a - b);
       
     //console.log(names);
     
@@ -304,7 +298,7 @@ Mst.ItemSpawner.prototype.create_name = function () {
         this.j++;
     }
     
-    var object_name = "item_"  + this.spawnernum + "_" + this.j;
+    object_name = "item_"  + this.spawnernum + "_" + this.j;
     
 //    for (var i = 0; i < names.length; i++) {
 //        //console.log(object_name + " " + names[i]);

@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Sword = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -20,9 +18,9 @@ Mst.Sword = function (game_state, name, position, properties) {
     this.equip_frame = parseInt(this.game_state.prefabs.player.stats.equip);
     
     if (this.equip_frame !== -1) {
-        this.fr_left = parseInt(this.game_state.core_data.items[this.equip_frame].properties.tool_fr_left);
-        this.fr_right = parseInt(this.game_state.core_data.items[this.equip_frame].properties.tool_fr_right);
-        this.cut_type = this.game_state.core_data.items[this.equip_frame].properties.cut_type;
+        this.fr_left = parseInt(this.game_state.gdata.core.items[this.equip_frame].properties.tool_fr_left);
+        this.fr_right = parseInt(this.game_state.gdata.core.items[this.equip_frame].properties.tool_fr_right);
+        this.cut_type = this.game_state.gdata.core.items[this.equip_frame].properties.cut_type;
     } else {
         this.fr_left = 0;
         this.fr_right = 0;
@@ -30,7 +28,7 @@ Mst.Sword = function (game_state, name, position, properties) {
     }
     
     if (this.cut_type === "throw") {
-        this.bullet_frame = this.game_state.core_data.items[this.equip_frame].properties.tfr;
+        this.bullet_frame = this.game_state.gdata.core.items[this.equip_frame].properties.tfr;
     }
         
         
@@ -209,7 +207,7 @@ Mst.Sword.prototype.swing = function () {
             }
             
             if (this.cut_type === "sling") {
-                var index = player.test_item(21, 1); //stone
+                const index = player.test_item(21, 1); //stone
                 console.log(index);
                 
                 if (index > -1) {
@@ -224,7 +222,7 @@ Mst.Sword.prototype.swing = function () {
                 console.log(this.bullet_frame);
                 this.create_bullet(this.bullet_frame, this.equip_frame);
                 
-                var index = player.test_item(this.equip_frame, 1);
+                let index = player.test_item(this.equip_frame, 1);
 
                 if (index < 0) {
                     index = player.unequip();
@@ -284,11 +282,11 @@ Mst.Sword.prototype.reequip = function (ef) {
     this.equip_frame = parseInt(ef);
     
     if (this.equip_frame !== -1) {
-        this.fr_left = parseInt(this.game_state.core_data.items[this.equip_frame].properties.tool_fr_left);
-        this.fr_right = parseInt(this.game_state.core_data.items[this.equip_frame].properties.tool_fr_right);
-        this.cut_type = this.game_state.core_data.items[this.equip_frame].properties.cut_type;
+        this.fr_left = parseInt(this.game_state.gdata.core.items[this.equip_frame].properties.tool_fr_left);
+        this.fr_right = parseInt(this.game_state.gdata.core.items[this.equip_frame].properties.tool_fr_right);
+        this.cut_type = this.game_state.gdata.core.items[this.equip_frame].properties.cut_type;
         if (this.cut_type === "throw") {
-            this.bullet_frame = this.game_state.core_data.items[this.equip_frame].properties.tfr;
+            this.bullet_frame = this.game_state.gdata.core.items[this.equip_frame].properties.tfr;
         }       
     } else {
         this.fr_left = 0;
@@ -440,7 +438,7 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
     var player, rtake, rtake_sp, iframe, level, rnd_core, rnd_test, test_ok, exp;
     
     player = this.game_state.prefabs.player;
-    rtake = this.game_state.core_data.items[frame].properties.rtake;
+    rtake = this.game_state.gdata.core.items[frame].properties.rtake;
     
     if (typeof (rtake) === 'undefined') {
         rtake = [];
@@ -462,7 +460,7 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
         if (rnd_test < 2 && player.level(skill) > level) {
             player.add_item(iframe, 1);
             console.log("RND take sword: " + iframe);
-            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.gdata.core.items[iframe].name + "!");
             exp = (level + 1)*2;
             player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
             test_ok = true;
@@ -485,7 +483,7 @@ Mst.Sword.prototype.rnd_take = function (frame, skill) {
         if (player.level(skill) > level) {
             player.add_item(iframe, 1);
             console.log("RND take sword next: " + iframe);
-            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.core_data.items[iframe].name + "!");
+            this.game_state.hud.alert.show_alert("Nález! " + this.game_state.gdata.core.items[iframe].name + "!");
             exp = (level + 1)*2;
             player.work_rout("forager", "exploration", 1, exp, exp*2, 3); // stress, stand_exp, skill_exp, abil_p
             test_ok = true;
@@ -1006,50 +1004,56 @@ Mst.Sword.prototype.cut_chest = function (chest) {
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 20, 15, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
-                            case 140: //kvetinac saz.
+                            case 140: { //kvetinac saz.
                                 chest.change_frame(159); //kvetinac saz. zal.
-                                var d = new Date();
-                                var n = d.getTime();
+                                const d = new Date();
+                                const n = d.getTime();
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                                 player.work_rout("herbology", "intelligence", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
-                            case 141: //kvetinac rost.
+                            }
+                            case 141: { //kvetinac rost.
                                 chest.change_frame(160); //kvetinac rost. zal.
-                                var d = new Date();
-                                var n = d.getTime();
+                                const d = new Date();
+                                const n = d.getTime();
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                                 player.work_rout("herbology", "intelligence", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
-                            case 227: //pole
+                            }
+                            case 227: { //pole
                                 chest.change_frame(229); //pole zal.
-                                var d = new Date();
-                                var n = d.getTime();
+                                const d = new Date();
+                                const n = d.getTime();
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 20, 15, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
-                            case 228: //pole sem.
+                            }
+                            case 228: { //pole sem.
                                 chest.change_frame(230); //pole sem. zal.
-                                var d = new Date();
-                                var n = d.getTime();
+                                const d = new Date();
+                                const n = d.getTime();
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
-                            case 231: //pole saz.
+                            }
+                            case 231: { //pole saz.
                                 chest.change_frame(233); //pole saz. zal.
-                                var d = new Date();
-                                var n = d.getTime();
+                                const d = new Date();
+                                const n = d.getTime();
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
-                            case 232: //pole rost.
+                            }
+                            case 232: { //pole rost.
                                 chest.change_frame(234); //pole rost. zal.
-                                var d = new Date();
-                                var n = d.getTime();
+                                const d = new Date();
+                                const n = d.getTime();
                                 chest.save.properties.ctime = n;
                                 player.work_rout("farmer", "dexterity", 1, 50, 45, 3); // stress, stand_exp, skill_exp, abil_p
                             break;
+                            }
                         }
                     break;
                     case 22: //motyka                    
@@ -1089,7 +1093,7 @@ Mst.Sword.prototype.blade_work = function (chest, player, tool_frame, chest_fram
     var work, tw, in_chest, empty, change_f, index, key, item, cond, success;
     
     success = false;
-    work = this.game_state.core_data.items[chest.closed_frame].properties.work;
+    work = this.game_state.gdata.core.items[chest.closed_frame].properties.work;
     
     if (typeof(work) !== 'undefined') {
         console.log(work);

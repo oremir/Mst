@@ -1,7 +1,3 @@
-//const Mst = Mst || {};
-//const Phaser = Phaser || {};
-//const console = console || {};
-
 Mst.Player = function (game_state, name, position, properties) {
     "use strict";    
     
@@ -19,7 +15,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.region = properties.region;
     this.p_name = properties.p_name;
     this.name = name;
-    this.usr_id = this.game_state.root_data.usr_id;
+    this.usr_id = this.game_state.gdata.root.usr_id;
     
     this.walking_speed = +properties.walking_speed;
     this.jumping_speed = +properties.jumping_speed;
@@ -31,7 +27,7 @@ Mst.Player = function (game_state, name, position, properties) {
     this.killed = properties.killed;
     //console.log(typeof(this.killed));
     if (typeof(this.killed) === 'string') {
-        this.killed = (properties.killed === 'true')
+        this.killed = (properties.killed === 'true');
     }
     
     this.no_pass_OP = true;
@@ -526,7 +522,7 @@ Mst.Player.prototype.final_tests = function () {
         }
         
         if (!nurse) {
-            const region = parseInt(this.game_state.map_data.map.region);
+            const region = parseInt(this.game_state.gdata.map.map.region);
             
             switch (region) {
                 case 2:
@@ -787,14 +783,14 @@ Mst.Player.prototype.add_health = function (quantity) {
     
     this.health += quantity;
     
-    if (this.health > this.stats.health_max) {this.health = this.stats.health_max}
+    if (this.health > this.stats.health_max) this.health = this.stats.health_max;
     this.game_state.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 };
 
 Mst.Player.prototype.subtract_health = function (quantity) {
     "use strict";
     
-    const region = parseInt(this.game_state.map_data.map.region);
+    const region = parseInt(this.game_state.gdata.map.map.region);
     
     this.health -= quantity;
     
@@ -806,7 +802,7 @@ Mst.Player.prototype.subtract_health = function (quantity) {
     
     if (this.health < 1) {
         this.save.properties.killed = true;
-        this.stats.stress = 0
+        this.stats.stress = 0;
         this.save.properties.stats.stress = 0;
         this.health = this.stats.health_max;
         this.stats.health = this.stats.health_hearts;
@@ -1172,7 +1168,7 @@ Mst.Player.prototype.alert_exp = function (skill, quantity) {
         if (this.o_exp_alert.alerts[skill] !== undefined) {
             this.o_exp_alert.alerts[skill].q += quantity;
         } else {
-            eval("this.o_exp_alert.alerts." + skill + " = {}");
+            this.o_exp_alert.alerts[skill] = {};
             this.o_exp_alert.alerts[skill].s = skill;
             this.o_exp_alert.alerts[skill].q = quantity;
         }
@@ -1271,7 +1267,7 @@ Mst.Player.prototype.update_place = function () {
     var place_selected;
     console.log("Update place");
     
-    const map = this.game_state.map_data.map;
+    const map = this.game_state.gdata.map.map;
     //place_selected = {};
     
     for (let key in this.stats.places) {
@@ -1330,9 +1326,7 @@ Mst.Player.prototype.update_relation = function (person, type, exp) {
             if (person.name === 'merchant_0') {
                 rname = "merchant";
             }
-            if (this.stats.relations[key].name === rname
-                    && this.stats.relations[key].region === person.region
-                    && this.stats.relations[key].type === type) {
+            if (this.stats.relations[key].name === rname && this.stats.relations[key].region === person.region && this.stats.relations[key].type === type) {
                 relation_selected = {
                     name: person.p_name,
                     uid: uid,
@@ -1557,7 +1551,7 @@ Mst.Player.prototype.test_quest = function (type, condition) {
             if (typeof (this.stats.quests.fin) !== 'undefined') {
                 key = this.stats.quests.fin.indexOf(condition);
                 test = (key > -1);
-                if (test) { ret = "fin" }
+                if (test) ret = "fin";
             }
             
             if (typeof (this.stats.quests.ass) !== 'undefined') {
@@ -2023,7 +2017,7 @@ Mst.Player.prototype.finish_quest = function (quest) {
 //                completed = true;
 //                
 //                this.subtract_item(item.index, quantity);
-//                this.game_state.hud.alert.show_alert("-" + quantity + "x " + this.game_state.core_data.items[item_frame].name);
+//                this.game_state.hud.alert.show_alert("-" + quantity + "x " + this.game_state.gdata.core.items[item_frame].name);
 //                this.game_state.hud.alert.show_alert("Úkol byl dokončen!");
 //            } else {
 //                this.stats.quests[condition].accomplished.have = item.quantity;
@@ -2103,7 +2097,7 @@ Mst.Player.prototype.next_broadcast = function () {
             b_nxt = this.broadcast.player.shift();
             b_nxtt = this.save.properties.broadcast[0];
 
-            if (b_nxt !== b_nxtt) { console.log("!!!!!!!!!!!!") };
+            if (b_nxt !== b_nxtt) console.log("!!!!!!!!!!!!");
 
             console.log("Broadcast Player: " + b_nxt + " Save: " + b_nxtt);
 
@@ -2129,17 +2123,13 @@ Mst.Player.prototype.next_broadcast = function () {
 Mst.Player.prototype.get_week = function (time, param) {
     "use strict";
     
-    var date = new Date(time);
-    var date0 = new Date(0);
+    const date = new Date(time);
+    const date0 = new Date(0);
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-    if (param > 0) {
-        var week1 = new Date(date.getFullYear(), 0, 4);
-    } else {
-        var week1 = new Date(date0.getFullYear(), 0, 4);
-    }
-    var result = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
-                    - 3 + (week1.getDay() + 6) % 7) / 7);
+    let week1 = new Date(date0.getFullYear(), 0, 4);
+    if (param > 0) week1 = new Date(date.getFullYear(), 0, 4);
+    const result = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     return result;
 };
 
@@ -2222,14 +2212,14 @@ Mst.Player.prototype.index_buff = function (btype) {
 Mst.Player.prototype.add_buff = function (btype, time) {
     "use strict";
     
-    var btnm, endtime, dt, tt, index, newendtime;
+    let btnm, newendtime;
     
-    index = this.index_buff(btype);
+    const index = this.index_buff(btype);
     
-    dt = new Date();
-    tt = dt.getTime();
+    const dt = new Date();
+    const tt = dt.getTime();
     
-    endtime = tt + time * 1000;
+    const endtime = tt + time * 1000;
     
     switch (btype) {
             case 1:
@@ -2237,12 +2227,14 @@ Mst.Player.prototype.add_buff = function (btype, time) {
             break;
     }
     
+    let new_buff = {};
+    
     if (index < 0) {
-        var new_buff = {
+        new_buff = {
             "btp" : btype,
             "btnm" : btnm,
             "endtm" : endtime
-        }
+        };
 
         this.stats.buffs.push(new_buff);
     } else {
@@ -2370,7 +2362,7 @@ Mst.Player.prototype.load_witness = function (pcasel) {
             ntype = 'player';
             a_wit = witness.p;
 
-            for (var id in a_wit) {
+            for (let id in a_wit) {
                 console.log(ntype + " i: " + id + " uid " + a_wit[id]);
                 uidw = a_wit[id];
                 
@@ -2399,7 +2391,7 @@ Mst.Player.prototype.load_witness = function (pcasel) {
             ntype = 'NPC';
             a_wit = witness.n;
 
-            for (var id in a_wit) {
+            for (let id in a_wit) {
                 console.log(ntype + " i: " + id + " uid " + a_wit[id]);
                 uidw = a_wit[id];
                 
@@ -2426,13 +2418,13 @@ Mst.Player.prototype.load_witness = function (pcasel) {
 Mst.Player.prototype.test_witness = function (n, uid, type) {
     "use strict";
     var pcase, witness, a_wit, uids, key, new_wcase, f_witness, ntype;
-    var map = this.game_state.root_data.map_int;
+    const map = this.game_state.gdata.root.map_int;
     uids = String(uid);
     console.log(uids);
     console.log(type);
         
     if (n < 0) {
-        for (var pcid in this.cases) {
+        for (let pcid in this.cases) {
             pcase = this.get_full_case(pcid, "test witness");
             console.log(pcase);
             if (typeof (pcase.pcl) !== 'undefined') {
@@ -2507,7 +2499,7 @@ Mst.Player.prototype.unpack_witness = function (wit) {
 Mst.Player.prototype.prepare_ftprints_onmap = function () {
     "use strict";
     
-    var map = this.game_state.root_data.map_int;
+    const map = this.game_state.gdata.root.map_int;
     var a_pcid = [];
     
     for (var pcid in this.cases) {
@@ -2651,7 +2643,7 @@ Mst.Player.prototype.test_ftprint = function (nid, ftp) {
     if (a_ftp[0] === 'ftp') {        
         if (typeof (a_ftp[4]) !== 'undefined') {
             let n_ftp = 0;
-            let n_oev14 = 0
+            let n_oev14 = 0;
             let l_oev14 = -1;
             let last_a2 = "";
             for (let id in ftp) {
@@ -2690,7 +2682,7 @@ Mst.Player.prototype.test_ftprint = function (nid, ftp) {
 
 Mst.Player.prototype.investigate_ftprint = function (nid, ftp) {
     "use strict";
-    var a_ftp, fid, len, oev14_type, oev14_id, t_ftp, pcid, uid, full_case, n_evidence, uid, cont2, badge, ubadge, ub_val, bb;
+    var a_ftp, fid, len, oev14_type, oev14_id, t_ftp, pcid, uid, full_case, n_evidence, cont2, badge, ubadge, ub_val, bb;
     
     console.log("Investigate ftp: " + ftp[nid]);
     
@@ -2821,7 +2813,7 @@ Mst.Player.prototype.get_full_person = function (uid, type, context) {
                 person = this.game_state.prefabs[uname];
                 this.cases_loaded.person[uid] = person;
 
-                return person
+                return person;
             } else {
                 cont2 = "investigate|" + context;
                 this.game_state.make_otherplayer({ "x": 0, "y": 0 }, uid, cont2);
@@ -2843,7 +2835,7 @@ Mst.Player.prototype.get_full_person = function (uid, type, context) {
                 person = this.game_state.prefabs[uname];
                 this.cases_loaded.NPC[uid] = person;
 
-                return person
+                return person;
             } else {
                 cont2 = "investigate|" + context;
                 //this.game_state.make_otherplayer({ "x": 0, "y": 0 }, uid, cont2); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2870,13 +2862,14 @@ Mst.Player.prototype.get_badge_val = function (b_id, b_key, uid, type, context) 
 Mst.Player.prototype.unpack_badge = function (b_id, uid, type, context) {
     "use strict";
     
-    var full_person = this.get_full_person(uid, type, context);
+    const full_person = this.get_full_person(uid, type, context);
+    let ubadge = {};
     
     console.log(uid);
     console.log(full_person);
 
     if (typeof (full_person) !== 'undefined') {
-        var ubadge = full_person.unpack_badge(b_id);
+        ubadge = full_person.unpack_badge(b_id);
     }
     
     return ubadge;
@@ -2890,7 +2883,7 @@ Mst.Player.prototype.add_ftprints_tocase = function (ftp) {
     aid = -1;
     owner = parseInt(ftp.owner);
     fpcid = parseInt(ftp.pcid);
-    if (owner = this.usr_id) {
+    if (owner === this.usr_id) {
         for (var id in this.cases) {
             cpcid = parseInt(this.cases[id].PCID);
             if (fpcid === cpcid) {
@@ -2988,7 +2981,7 @@ Mst.Player.prototype.rollback_culprit = function (id) {
 Mst.Player.prototype.test_culprit = function () {
     "use strict";
     
-    var map = this.game_state.root_data.map_int;
+    const map = this.game_state.gdata.root.map_int;
     var new_culprit = [];
     var count, wt, mapc;
     
@@ -3020,7 +3013,7 @@ Mst.Player.prototype.add_ftprints = function (cc) {
     
     console.log("Add ftprints");
     
-    var map = this.game_state.root_data.map_int;
+    const map = this.game_state.gdata.root.map_int;
     
     var ftprint = {
         m: map,
@@ -3045,7 +3038,7 @@ Mst.Player.prototype.add_ftprints = function (cc) {
     }
     
     console.log(this.culprit);
-    for (var key in this.culprit) {
+    for (let key in this.culprit) {
         if (this.culprit[key].M === map) {
             console.log("Ft same map");
             
@@ -3084,14 +3077,14 @@ Mst.Player.prototype.add_ftprints = function (cc) {
             console.log(ftprint_save);
             
             $.post("object.php?time=" + n + "&uid=" + usr_id, ftprint_save)
-                .done(function (data) {
+                .done((data) => {
                     console.log("Ftprint save success");
                     console.log(data);
-                    var resp = JSON.parse(data);
+                    const resp = JSON.parse(data);
 
                     console.log("Ftprint is saved");
                 })
-                .fail(function (data) {
+                .fail((data) => {
                     console.log("Ftprint save error");
                     console.log(data);
                 });
@@ -3130,7 +3123,7 @@ Mst.Player.prototype.save_player = function (go_position, go_map_int) {
     
     this.save.properties.gtimems = this.gtime.ms;
     
-    this.save.map.old_int = this.game_state.root_data.map_int;
+    this.save.map.old_int = this.game_state.gdata.root.map_int;
     this.save.map.new_int = go_map_int;
     
     this.game_state.save.player = this.save;
@@ -3289,20 +3282,20 @@ Mst.Player.prototype.stream_put = function () {
 Mst.Player.prototype.stream_load = function (stream) {
     "use strict";
     
-    var gtime = stream.obj.gtime * 1000;
+    const gtime = stream.obj.gtime * 1000;
     console.log(gtime);
     console.log(this.gtime.ms);
     console.log(this.gtime.obj);
     
-    var result = this.get_week(gtime, 0);
+    //let result = this.get_week(gtime, 0);
     
-    var datex = new Date(gtime);
-    var day = datex.getDay();
-    if (day < 1) { day = 7 };
-    var date1 = new Date(gtime - ((day - 1) * 86400000));
+    const datex = new Date(gtime);
+    let day = datex.getDay();
+    if (day < 1) day = 7;
+    const date1 = new Date(gtime - ((day - 1) * 86400000));
     date1.setHours(7,0);
     
-    console.log(result);
+    console.log(this.get_week(gtime, 0));
     console.log(datex);
     console.log(date1);
     console.log(datex.getDay());
@@ -3310,9 +3303,9 @@ Mst.Player.prototype.stream_load = function (stream) {
     if (date1 > this.gtime.obj) {
         console.log("New week from other player");
         
-        var date1t = date1.getTime();
-        var result = this.get_week(date1t, 0);
-        var result2 = this.get_week(date1t, 1);
+        const date1t = date1.getTime();
+        const result = this.get_week(date1t, 0);
+        const result2 = this.get_week(date1t, 1);
         
         this.stats.gtimeweek = result;
         this.stats.gtimeday = result2 + " " + date1.toString().substr(0,11);
@@ -3320,6 +3313,4 @@ Mst.Player.prototype.stream_load = function (stream) {
         
         this.set_time(date1t);
     }
-    
-    
 };

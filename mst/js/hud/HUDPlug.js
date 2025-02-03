@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.HUD = function (game, parent) {
     "use strict";
     Phaser.Plugin.call(this, game, parent);

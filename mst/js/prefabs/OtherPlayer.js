@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.OtherPlayer = function (game_state, name, position, properties) {
     "use strict";
     
@@ -9,7 +7,7 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
     
     this.game_state.game.physics.arcade.enable(this);
     
-    this.game_state.groups["otherplayers"].add(this);
+    this.game_state.groups.otherplayers.add(this);
     
 //    this.stats = {
 //        items: properties.items
@@ -71,7 +69,7 @@ Mst.OtherPlayer = function (game_state, name, position, properties) {
         x: position.x,
         y: position.y,
         properties: properties
-    }
+    };
     
     this.usr_id = parseInt(this.game_state.save.objects[key].usr_id);
     
@@ -118,27 +116,28 @@ Mst.OtherPlayer.prototype.update = function () {
     
     this.game_state.groups.NPCs.forEachAlive(function(NPC) {
         //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
-        var newx, newy;        
+        let newx = 0;
+        let newy = 0;
         
         this.game_state.game.physics.arcade.collide(this, NPC, this.collide_NPC, null, this);
         
         if (this.game_state.game.physics.arcade.distanceBetween(this, NPC) < 10) {
             switch (this.move_out_NPC) {
                 case "left":
-                    var newx = this.x - 16;
-                    var newy = this.y;
+                    newx = this.x - 16;
+                    newy = this.y;
                 break;            
                 case "right":
-                    var newx = this.x + 16;
-                    var newy = this.y;
+                    newx = this.x + 16;
+                    newy = this.y;
                 break;
                 case "up":
-                    var newx = this.x;
-                    var newy = this.y - 16;
+                    newx = this.x;
+                    newy = this.y - 16;
                 break;
                 case "down":
-                    var newx = this.x;
-                    var newy = this.y + 16;
+                    newx = this.x;
+                    newy = this.y + 16;
                 break;
 
             }
@@ -363,12 +362,12 @@ Mst.OtherPlayer.prototype.collide_with_player = function (player, other_player) 
                         } else {            
                             if (quest.properties.ending_conditions.type === 'have') {
                                 console.log("Test have");
-                                var qt = parseInt(quest.properties.ending_conditions.quantity);
-                                var fr = parseInt(quest.properties.ending_conditions.what);
-                                var index = player.test_item(fr,qt);
+                                const qt = parseInt(quest.properties.ending_conditions.quantity);
+                                const fr = parseInt(quest.properties.ending_conditions.what);
+                                const index = player.test_item(fr,qt);
                                 console.log(index);
                                 if (index > -1) {
-                                    var item = { f: fr, q: qt };
+                                    const item = { f: fr, q: qt };
                                     player.update_quest("have", item);
                                 }
                             }
@@ -431,7 +430,7 @@ Mst.OtherPlayer.prototype.prepare_rumour = function () {
     for (var i = 0; i < this.rumours.length; i++) {
         ri = this.rumours[i];
         rii = parseInt(ri);
-        act_rumour = this.game_state.quest_data.texts[rii];
+        act_rumour = this.game_state.gdata.quest.texts[rii];
         
         test_q = this.cond_rumour(act_rumour, 0);
         
@@ -442,8 +441,8 @@ Mst.OtherPlayer.prototype.prepare_rumour = function () {
     }
     
     if (pom_rumours.length < 1) {
-        for (var i = 0; i < this.game_state.quest_data.act_rumours.length; i++) {
-            act_rumour = this.game_state.quest_data.act_rumours[i];
+        for (let i = 0; i < this.game_state.gdata.quest.act_rumours.length; i++) {
+            act_rumour = this.game_state.gdata.quest.act_rumours[i];
             ri = act_rumour.tid;
 
             test_q = this.cond_rumour(act_rumour, 1);
@@ -466,7 +465,7 @@ Mst.OtherPlayer.prototype.prepare_rumour = function () {
 
 Mst.OtherPlayer.prototype.cond_rumour = function (rumour, run) {
     "use strict";
-    var key, rumour, index, rc, rci, rci1, ri, test_q;
+    var key, index, rc, rci, rci1, ri, test_q;
     
     ri = rumour.tid;
     rc = rumour.rconditions;
@@ -520,19 +519,18 @@ Mst.OtherPlayer.prototype.test_badge = function (badge) {
 
 Mst.OtherPlayer.prototype.unpack_badge = function (badge) {
     "use strict";
-    var val, val2, ab, bnew, key, ret;
+    let ret = {};
     
     console.log(this.badges[badge]);
     if (typeof(this.badges[badge]) !== 'undefined') {
-        val = this.badges[badge];
-        ab = val.split("|");
+        const val = this.badges[badge];
+        const ab = val.split("|");
         console.log(val);
         
         if (typeof (ab[1]) !== 'undefined') {
-            ret = {};
-            for (var id in ab) {
-                key = ab[id].substr(0,1);
-                val2 = ab[id].substr(1,ab[id].length);
+            for (let id in ab) {
+                const key = ab[id].substr(0,1);
+                const val2 = ab[id].substr(1,ab[id].length);
                 ret[key] = val2;
             }
         } else {
@@ -572,7 +570,7 @@ Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!
     "use strict";
     
     var quests, owner_id, target_id, player, test_q, is_quest, condi, condi1;
-    //console.log(this.game_state.quest_data);
+    //console.log(this.game_state.gdata.quest);
     
     player = this.game_state.prefabs.player;
     quests = player.quests;
@@ -583,7 +581,7 @@ Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!
 //    }
     
     
-    for (key in quests) {
+    for (let key in quests) {
         console.log(quests[key]);
         
         owner_id = parseInt(quests[key].properties.owner);
@@ -632,8 +630,8 @@ Mst.OtherPlayer.prototype.test_quest_in = function () { /// !!!!!!!!!!!!!!!!!!!!
             test_q = true;
             
             if (typeof(quests[key].properties.qconditions) !== 'undefined') {
-                var cond = quests[key].properties.qconditions;
-                for (var j = 0; j < cond.length; j++) {
+                const cond = quests[key].properties.qconditions;
+                for (let j in cond) {
                     condi = cond[j].split("_");
                     console.log(condi);
                     switch (condi[0]) {
@@ -687,8 +685,8 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
     
     var quests, owner_id, target_id, player, test_q, is_quest, condi, condi1, players_end;
-    //console.log(this.game_state.quest_data);
-    quests = this.game_state.quest_data.quests;
+    //console.log(this.game_state.gdata.quest);
+    quests = this.game_state.gdata.quest.quests;
     player = this.game_state.prefabs.player;
     players_end = {};
     players_end[this.usr_id] = true;
@@ -760,8 +758,8 @@ Mst.OtherPlayer.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!
                 test_q = true;
 
                 if (typeof(quests[i].properties.qconditions) !== 'undefined') {
-                    var cond = quests[i].properties.qconditions;
-                    for (var j = 0; j < cond.length; j++) {
+                    const cond = quests[i].properties.qconditions;
+                    for (let j in cond) {
                         condi = cond[j].split("_");
                         console.log(condi);
                         switch (condi[0]) {

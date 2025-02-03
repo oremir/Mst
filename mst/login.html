@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<link rel="stylesheet" href="https://code.getmdl.io/1.1.0/material.blue-light_blue.min.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<title>Login</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css">
+		form { max-width: 300px; margin: 0 auto; }
+		.mdl-grid { margin-top: 15%; }
+	</style>
+</head>
+<body class="mdl-color--grey-200">
+	<div class="mdl-layout mdl-js-layout">
+		<main class="mdl-layout__content">
+			<div class="mdl-grid mdl-grid--no-spacing">
+				<div class="mdl-cell mdl-cell--4-col mdl-cell--4-offset-desktop mdl-cell--2-offset-tablet">
+					<form action="#"
+						  onsubmit="login(document.getElementById('username').value, document.getElementById('password').value)">
+						<div class="mdl-textfield mdl-js-textfield">
+							<input class="mdl-textfield__input" type="text" id="username" autocomplete="off" autofocus>
+							<label class="mdl-textfield__label" for="username">Username</label>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield">
+							<input class="mdl-textfield__input" type="password" id="password" autocomplete="off">
+							<label class="mdl-textfield__label" for="password">Password</label>
+						</div>
+						<input type="submit" hidden />
+					</form>
+				</div>
+			</div>
+		</main>
+	</div>
+	<script src="https://storage.googleapis.com/code.getmdl.io/1.1.0/material.min.js"></script>
+	<script src="js/login.js"></script>
+</body>
+</html>

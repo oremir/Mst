@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Enemy = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -41,7 +39,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.monster_type = "slime";
-            this.monster_loot = this.game_state.core_data.creatures["slime"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.slime.loot;
         break;
         case "rabite_spritesheet":
             this.health_max = 100;
@@ -55,7 +53,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.7);
             
             this.monster_type = "rabite";
-            this.monster_loot = this.game_state.core_data.creatures["rabite"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.rabite.loot;
         break;
         case "boar_spritesheet":
             this.health_max = 180;
@@ -69,7 +67,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.monster_type = "boar";
-            this.monster_loot = this.game_state.core_data.creatures["boar"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.boar.loot;
         break;
         case "wasp_spritesheet":
             this.health_max = 150;
@@ -87,7 +85,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.timer_sting.start();
             
             this.monster_type = "wasp";
-            this.monster_loot = this.game_state.core_data.creatures["wasp"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.wasp.loot;
         break;
         case "spider_spritesheet":
             this.health_max = 200;
@@ -107,7 +105,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.timer_web.start();
             
             this.monster_type = "spider";
-            this.monster_loot = this.game_state.core_data.creatures["spider"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.spider.loot;
         break;
         case "angostura_spritesheet":
             this.health_max = 100000;
@@ -128,7 +126,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.ang_run = true;
             this.stand_still = true;
             this.monster_type = "angostura";
-            this.monster_loot = this.game_state.core_data.creatures["angostura"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.angostura.loot;
         break;
         case "angostura-v_spritesheet":
             this.health_max = 15;
@@ -145,7 +143,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.ang_run = true;
             this.stand_still = true;
             this.monster_type = "angostura-v";
-            this.monster_loot = this.game_state.core_data.creatures["angostura-v"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures["angostura-v"].loot;
         break;
         case "rotulice_spritesheet":
             this.health_max = 150;
@@ -159,7 +157,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);            
             
             this.monster_type = "rotulice";
-            this.monster_loot = this.game_state.core_data.creatures["rotulice"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.rotulice.loot;
         break;        
         case "cmelotrysk_spritesheet":
             this.health_max = 150;
@@ -173,7 +171,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.monster_type = "cmelotrysk";
-            this.monster_loot = this.game_state.core_data.creatures["cmelotrysk"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.cmelotrysk.loot;
         break;
     }
     
@@ -496,7 +494,7 @@ Mst.Enemy.prototype.close_fight = function () {
         console.log("Close fight");
         this.game_state.prefabs.player.infight = false;
     }
-}
+};
 
 Mst.Enemy.prototype.create_bullet = function () {
     "use strict";
@@ -615,7 +613,7 @@ Mst.Enemy.prototype.cmelo_stop = function (player) {
     "use strict";
     
     this.body.immovable = true;
-    var player = this.game_state.prefabs.player;
+    //const player = this.game_state.prefabs.player;
     
     this.cmelotrysk_sprite =  new Mst.NPC(this.game_state, "cmelotrysk", {x: this.x, y: this.y}, {
                 group: "NPCs",

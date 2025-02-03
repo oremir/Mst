@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.ShowStat = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);

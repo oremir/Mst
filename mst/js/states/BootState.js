@@ -1,5 +1,4 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
+const Mst = {};
 
 Mst.BootState = function () {
 	"use strict";
@@ -12,8 +11,8 @@ Mst.prototype.constructor = Mst.BootState;
 Mst.BootState.prototype.init = function (map_int, usr_id) {
 	"use strict";
     
-	var d = new Date();
-	var n = d.getTime(); 
+	const d = new Date();
+	const n = d.getTime(); 
     
 	this.core_file = "assets/maps/core.json";
     this.quest_file = "assets/maps/quest.json";
@@ -32,37 +31,37 @@ Mst.BootState.prototype.preload = function () {
         this.load.text("quest", this.quest_file);
 		this.load.text("map", this.map_file);
 	} else {
-		var a = this.load.image("login", "assets/images/loader2.png");
+		const a = this.load.image("login", "assets/images/loader2.png");
         //console.log(a);
 	}
 };
 
 Mst.BootState.prototype.create = function () {
 	"use strict";
-	var map_text, map_data, core_text, core_data, root_data, quest_text, quest_data;
+	const gdata = {};
 
 	if (this.usr_id > 0) {
-		map_text = this.game.cache.getText("map");
-        var n = map_text.lastIndexOf(">");
+		let map_text = this.game.cache.getText("map");
+        const n = map_text.lastIndexOf(">");
         if (n > -1) {
             map_text = map_text.substring(n + 1);
         }
         
         //console.log(map_text);
-		map_data = JSON.parse(map_text);
-		console.log(map_data);
+		gdata.map = JSON.parse(map_text);
+		console.log(gdata.map);
 
-		core_text = this.game.cache.getText("core");
-		core_data = JSON.parse(core_text);
-        quest_text = this.game.cache.getText("quest");
-		quest_data = JSON.parse(quest_text);
-        console.log(quest_data);
+		const core_text = this.game.cache.getText("core");
+		gdata.core = JSON.parse(core_text);
+        const quest_text = this.game.cache.getText("quest");
+		gdata.quest = JSON.parse(quest_text);
+        console.log(gdata.quest);
 	}
     
-	root_data = { map_int: this.map_int, usr_id: this.usr_id };
+	gdata.root = { map_int: this.map_int, usr_id: this.usr_id };
     
 	console.log("Boot State");
-	console.log(root_data);
+	console.log(gdata.root);
 
-	this.game.state.start("LoadingState", true, false, core_data, map_data, root_data, quest_data);
+	this.game.state.start("LoadingState", true, false, gdata);
 };

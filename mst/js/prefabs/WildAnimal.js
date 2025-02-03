@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.WildAnimal = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -41,7 +39,7 @@ Mst.WildAnimal = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.animal_type = "partridge";
-            this.animal_loot = this.game_state.core_data.creatures["partridge"].loot;
+            this.animal_loot = this.game_state.gdata.core.creatures.partridge.loot;
         break;
         case "doe_spritesheet":
             this.animations.add("go", [0, 1], 5, true);
@@ -50,7 +48,7 @@ Mst.WildAnimal = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.animal_type = "doe";
-            this.animal_loot = this.game_state.core_data.creatures["doe"].loot;
+            this.animal_loot = this.game_state.gdata.core.creatures.doe.loot;
         break;
     }
     
