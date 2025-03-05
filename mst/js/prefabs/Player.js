@@ -342,5 +342,3 @@ Mst.Player.prototype.overlap_layer_tile = function (player, tile) {
         }
     }
 };
-
-

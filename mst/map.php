@@ -66,7 +66,6 @@ if (isset($aget["mapi"])):
         // output data of each row
         while($row = $result->fetch_assoc()) {
             $radek_l2 = date(DATE_ATOM) . "|" . time() . "|MAP:" .  $row["ID"] . "\n"; //|SAVE|";
-
             $map = json_decode($row["JSON"]);
             $objects = $map->objects;
         }

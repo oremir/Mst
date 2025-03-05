@@ -1737,7 +1737,6 @@ Mst.ShowItems.prototype.put_down_item = function (one_item) {
                             player.cPlayer.work_rout("alchemy", "intelligence", 1, 20, 45, 3); // stress, stand_exp, skill_exp, abil_p
                         }
                         
-
                         recipe = [{f: 21, q: 1}, {f: 43, q: 3}, {f: 185, q: 1}]; //kamen, 3 klacky, reminek
                         in_chest = chest.cChest.items.in_chest_ord();
                         if (chest.cChest.items.chest_compare(in_chest, recipe)) {
