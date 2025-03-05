@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.LoadingState = function () {
     "use strict";
     Phaser.State.call(this);
@@ -9,31 +6,27 @@ Mst.LoadingState = function () {
 Mst.prototype = Object.create(Phaser.State.prototype);
 Mst.prototype.constructor = Mst.LoadingState;
 
-Mst.LoadingState.prototype.init = function (core_data, map_data, root_data, quest_data) {
+Mst.LoadingState.prototype.init = function (gdata) {
     "use strict";
-    this.core_data = core_data;
-    this.quest_data = quest_data;
-    this.map_data = map_data;
-    this.root_data = root_data;
+    this.gdata = gdata;
 };
 
 Mst.LoadingState.prototype.preload = function () {
     "use strict";
-    var assets, asset_loader, root_asset_key, asset_key, asset;
         
-    if (this.root_data.usr_id > 0) {
-        var root_assets = new Object();
-        root_assets.map_assets = this.map_data.assets;
-        root_assets.core_assets = this.core_data.assets;
+    if (this.gdata.root.usr_id > 0) {
+        const root_assets = {};
+        root_assets.map_assets = this.gdata.map.assets;
+        root_assets.core_assets = this.gdata.core.assets;
         
-        var d = new Date();
-        var n = d.getTime(); 
+        const d = new Date();
+        const n = d.getTime();
     
-        for (root_asset_key in root_assets) {
-            assets = root_assets[root_asset_key];
-            for (asset_key in assets) { // load assets according to asset key
+        for (let root_asset_key in root_assets) {
+            const assets = root_assets[root_asset_key];
+            for (let asset_key in assets) { // load assets according to asset key
                 if (assets.hasOwnProperty(asset_key)) {
-                    asset = assets[asset_key];
+                    const asset = assets[asset_key];
                     switch (asset.type) {
                     case "image":
                         this.load.image(asset_key, asset.source);
@@ -51,10 +44,6 @@ Mst.LoadingState.prototype.preload = function () {
                 }
             }
         }
-    } else {        
-
-        
-        
     }
 };
 
@@ -66,5 +55,5 @@ Mst.LoadingState.prototype.create = function () {
 //    console.log(this.login);
 //    alert(1);
     
-    this.game.state.start("GameState", true, false, this.core_data, this.map_data, this.root_data, this.quest_data);
+    this.game.state.start("GameState", true, false, this.gdata);
 };

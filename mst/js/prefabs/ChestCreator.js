@@ -1,13 +1,10 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.ChestCreator = function (game_state, name, position, properties) {
     "use strict";
     
     this.game_state = game_state;
     this.name = "chest_creator";
     
-    this.pool = this.game_state.groups["chests"];     
+    this.pool = this.game_state.mGame.groups.chests;
     
     this.game_state.prefabs[name] = this;
     
@@ -18,7 +15,7 @@ Mst.ChestCreator = function (game_state, name, position, properties) {
         closed_frame: 4,
         opened_frame: 5,        
         texture: "items_spritesheet"
-    }
+    };
 };
 
 Mst.ChestCreator.prototype = Object.create(Mst.Prefab.prototype);
@@ -59,10 +56,11 @@ Mst.ChestCreator.prototype.create_new_chest_name = function () {
 
 Mst.ChestCreator.prototype.create_new_chest = function (item_frame) { 
     "use strict";
+    const player = this.game_state.prefabs.player;
     
     const position_new = {
-        x: Math.round((this.game_state.prefabs.player.x - 8 + (this.game_state.prefabs.player.direction_chest.x * 16))/16)*16 + 8,
-        y: Math.round((this.game_state.prefabs.player.y + 8 + (this.game_state.prefabs.player.direction_chest.y * 16))/16)*16 - 8
+        x: Math.round((player.x - 8 + (player.cPlayer.chest.direction.x * 16))/16)*16 + 8,
+        y: Math.round((player.y + 8 + (player.cPlayer.chest.direction.y * 16))/16)*16 - 8
     };
 
     const tilex = this.game_state.layers.background.getTileX(position_new.x);
@@ -75,16 +73,16 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     }
     
     const position_new_player = {
-        x: Math.round((this.game_state.prefabs.player.x - 8 )/16)*16 + 8,
-        y: Math.round((this.game_state.prefabs.player.y + 8 )/16)*16 - 8
+        x: Math.round((player.x - 8 )/16)*16 + 8,
+        y: Math.round((player.y + 8 )/16)*16 - 8
     };
     
     console.log("create chest " + item_frame);
     console.log(position_new);
     console.log(position_new_player);
     
-    this.game_state.prefabs.player.x = position_new_player.x
-    this.game_state.prefabs.player.y = position_new_player.y;
+    player.x = position_new_player.x;
+    player.y = position_new_player.y;
     
     switch (item_frame) {
         case 4:
@@ -228,7 +226,7 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     
     console.log("Items: " + chest_new.stats.items);
     
-    if (typeof(this.game_state.layers.grass) !== 'undefined') {
+    if (this.game_state.layers.grass) {
         const tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
         console.log("Grass: " + chest_new.x + ">" + tilex*16 + "|" + chest_new.y + ">" + tiley*16);
         console.log(tile);
@@ -243,10 +241,10 @@ Mst.ChestCreator.prototype.create_new_chest = function (item_frame) {
     }
     
     chest_new.frame = this.properties.opened_frame;
-    chest_new.is_opened = true;
-    chest_new.updated = true;
+    chest_new.mChest.is_opened = true;
+    chest_new.updated(chest_new.frame);
     
-    this.game_state.prefabs.player.opened_chest = name_new;
+    player.cPlayer.chest.open(chest_new);
     this.game_state.prefabs.chestitems.show_initial_stats();
     
     console.log(chest_new);

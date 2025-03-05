@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.Bed = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -13,15 +10,12 @@ Mst.Bed = function (game_state, name, position, properties) {
     
     this.is_takeable = properties.is_takeable;
     if (typeof(this.is_takeable) === 'string') {
-        this.is_takeable = (properties.is_takeable === 'true')
+        this.is_takeable = (properties.is_takeable === 'true');
     } else {
-        if (typeof(properties.is_takeable) !== 'undefined') {
-            this.is_takeable = false;
-        }
+        if (typeof(properties.is_takeable) !== 'undefined') this.is_takeable = false;
     }
     
     this.mw_context = "bed";
-    
     this.hited = false;
 };
 
@@ -40,10 +34,8 @@ Mst.Bed.prototype.open_collision = function (player) {
     console.log("Open collision: Bed");
     
     if (!this.hited) {
-        var succ = this.game_state.hud.middle_window.show_mw("Chcete se vyspat?", this, ["yes", "no"]);
-        if (succ) {
-            this.hited = true;
-        }
+        const succ = this.game_state.cGame.hud.middle_window.open("Chcete se vyspat?", this, ["yes", "no"]);
+        if (succ) this.hited = true;
     } 
     
 };
@@ -51,24 +43,8 @@ Mst.Bed.prototype.open_collision = function (player) {
 Mst.Bed.prototype.option_yes = function () {
     "use strict";
     
-    console.log("Option YES");
-    
-    var index_gold, cost, constitution, player, stress, health;
-    
-    player = this.game_state.prefabs.player;
-    constitution = Math.ceil(parseInt(player.stats.abilities.constitution)/2 + 50);
-    health = Math.ceil(parseInt(player.stats.health_max)*0.8);
-    stress = Math.ceil(parseInt(player.stats.stress)*0.8);
-    if (constitution < 100) {constitution = 100;}
-    if (constitution > health) {health = constitution;}
-    if (constitution > stress) {stress = constitution;}
-    
-    player.add_health(health);
-    player.subtract_stress(stress);
-    player.new_day();
-    this.game_state.prefabs.moon.subtract_moon();
-    this.game_state.save_data({ "x": player.x-8, "y": player.y+8 }, this.game_state.map_data.map.map_int, "lodging");
-
+    console.log("Option YES");    
+    this.game_state.prefabs.player.mPlayer.sleep();
 };
 
 Mst.Bed.prototype.option_no = function () {

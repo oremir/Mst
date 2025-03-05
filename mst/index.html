@@ -1,17 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 		<title>Mst - Game</title>
 		<script type="text/javascript" src="js/phaser.js"></script>
-        <script type="text/javascript" src="js/jquery-3.1.0.min.js"></script>
+        <script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
         <script type="text/javascript" src="js/phaser-input.min.js"></script>
         <script type="text/javascript" src="js/easystar.js"></script>
         <!--<script type="text/javascript" src="https://js.pusher.com/7.0/pusher.min.js"></script> -->
 
-        
+        <script src="js/controllers/CPlayer.js"></script>
+        <script src="js/controllers/CChest.js"></script>
+        <script src="js/controllers/CGame.js"></script>
+        <script src="js/controllers/CSword.js"></script>
+		<script src="js/models/MPlayer.js"></script>
+		<script src="js/models/MChest.js"></script>
+        <script src="js/models/MGame.js"></script>
+        <script src="js/models/MSword.js"></script>
+
         <script src="js/states/BootState.js"></script>
         <script src="js/states/LoadingState.js"></script>
         <script src="js/states/TiledState.js"></script>
@@ -32,7 +40,8 @@
         <script src="js/prefabs/Bed.js"></script>
         <script src="js/prefabs/Sword.js"></script>
         <script src="js/prefabs/Goout.js"></script> 
-        <script src="js/hud/HUD.js"></script>
+        <script src="js/hud/HUDPlug.js"></script>
+		<script src="js/hud/Hud.js"></script>
         <script src="js/hud/ShowStat.js"></script>
         <script src="js/hud/ShowStatWithBar.js"></script>
         <script src="js/hud/ShowStatWithSprite.js"></script>

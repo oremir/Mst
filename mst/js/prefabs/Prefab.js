@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.Prefab = function (game_state, name, position, properties) {
     "use strict";
     
@@ -23,7 +20,7 @@ Mst.Prefab = function (game_state, name, position, properties) {
     
     //console.log(name+" "+this.pool+" "+properties.group+" "+properties.texture);
     
-    this.game_state.groups[this.group].add(this);
+    this.game_state.mGame.groups[this.group].add(this);
     
     this.game_state.prefabs[name] = this;
     this.name = name;

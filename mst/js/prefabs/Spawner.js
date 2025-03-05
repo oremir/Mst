@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.Spawner = function (game_state, name, position, properties) {
     "use strict";
     
@@ -14,10 +11,10 @@ Mst.Spawner = function (game_state, name, position, properties) {
     
     this.etype = "enemy";
     this.group = properties.group;
-    this.pool = this.game_state.groups[properties.pool];
-    this.game_state.groups[this.group].add(this);
+    this.pool = this.game_state.mGame.groups[properties.pool];
+    this.game_state.mGame.groups[this.group].add(this);
     
-    this.pool_animal = this.game_state.groups["wildanimals"];
+    this.pool_animal = this.game_state.mGame.groups.wildanimals;
     
     this.game_state.prefabs[name] = this;
     this.name = name;
@@ -27,23 +24,16 @@ Mst.Spawner = function (game_state, name, position, properties) {
         max: +properties.spawn_time_max
     };
     
-    var max_level = 4;
+    const max_level = 4;
     
-    if (typeof(properties.level) !== 'undefined') {
-        if (properties.level > max_level) {
-            this.level = max_level;
-        } else {
-            this.level = properties.level;
-        }
-    } else {
-        this.level = max_level;
+    this.level = max_level;
+    if (properties.level) {
+        this.level = properties.level;
+        if (properties.level > max_level) this.level = max_level;
     }
     
-    if (typeof(properties.spec) !== 'undefined') {
-        this.spec = properties.spec;
-    } else {
-        this.spec = "";
-    }
+    this.spec = "";
+    if (properties.spec) this.spec = properties.spec;
     
     console.log("Spec: " + this.spec);
     
@@ -94,14 +84,13 @@ Mst.Spawner.prototype.schedule_spawn_animal = function (time) {
 
 Mst.Spawner.prototype.spawn = function () {
     "use strict";
-    var object_name, object_position, object, time;
     
-    time = 0;
+    let time = 0;
     
     // get new random position and velocity
-    object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
+    const object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
     // get first dead object from the pool
-    object = this.pool.getFirstDead();
+    let object = this.pool.getFirstDead();
     
     console.log("Enemy count living:" + this.pool.countLiving() + " Wave max: " + this.wave_max + " N: " + this.wave_num);
     
@@ -109,7 +98,7 @@ Mst.Spawner.prototype.spawn = function () {
         if (!object) {
             // if there is no dead object, create a new one            
             
-            object_name = "enemy_" + this.pool.countLiving();
+            const object_name = "enemy_" + this.pool.countLiving();
             object = this.create_object(object_name, object_position, this.properties);
             
             console.log("New enemy: " + object_name);
@@ -141,18 +130,17 @@ Mst.Spawner.prototype.spawn = function () {
 
 Mst.Spawner.prototype.spawn_animal = function () {
     "use strict";
-    var object_name, object_position, object, time, properties;
     
-    properties = this.properties;
+    const properties = this.properties;
     properties.group = "wildanimals";
     properties.pool = "wildanimals";
     
-    time = 0;
+    const time = 0;
     
     // get new random position and velocity
-    object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
+    const object_position = new Phaser.Point(this.game_state.rnd.between(-this.xdif, this.xdif) + this.position.x, this.game_state.rnd.between(-this.ydif, this.ydif) + this.position.y);
     // get first dead object from the pool
-    object = this.pool_animal.getFirstDead();
+    let object = this.pool_animal.getFirstDead();
     
     console.log("Wild Animal count living:" + this.pool_animal.countLiving());
     
@@ -160,7 +148,7 @@ Mst.Spawner.prototype.spawn_animal = function () {
         if (!object) {
             // if there is no dead object, create a new one            
             
-            object_name = "animal_" + this.pool_animal.countLiving();
+            const object_name = "animal_" + this.pool_animal.countLiving();
             object = this.create_animal(object_name, object_position, properties);
             
             console.log("New animal: " + object_name);

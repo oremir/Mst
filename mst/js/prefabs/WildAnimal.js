@@ -1,10 +1,8 @@
-var Mst = Mst || {};
-
 Mst.WildAnimal = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
-    this.pool = this.game_state.groups[properties.pool];
+    this.pool = this.game_state.mGame.groups[properties.pool];
     
     this.walking_speed = +properties.walking_speed;
     this.walking_distance = +properties.walking_distance;
@@ -41,7 +39,7 @@ Mst.WildAnimal = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.animal_type = "partridge";
-            this.animal_loot = this.game_state.core_data.creatures["partridge"].loot;
+            this.animal_loot = this.game_state.gdata.core.creatures.partridge.loot;
         break;
         case "doe_spritesheet":
             this.animations.add("go", [0, 1], 5, true);
@@ -50,12 +48,12 @@ Mst.WildAnimal = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.animal_type = "doe";
-            this.animal_loot = this.game_state.core_data.creatures["doe"].loot;
+            this.animal_loot = this.game_state.gdata.core.creatures.doe.loot;
         break;
     }
     
-    this.b_pool = this.game_state.groups.WildAnimalbullets;
-    this.w_pool = this.game_state.groups.overlaps;
+    this.b_pool = this.game_state.mGame.groups.WildAnimalbullets;
+    this.w_pool = this.game_state.mGame.groups.overlaps;
     
     this.emitter = this.game_state.game.add.emitter(0, 0, 100);
     this.emitter.makeParticles('blood', [0,1,2,3,4,5,6]);
@@ -79,9 +77,9 @@ Mst.WildAnimal.prototype.update = function () {
     var direction;
     
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
-    //this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies.forEachAlive(null, this));
-    this.game_state.groups.wildanimals.forEachAlive(function(one_animal) {
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.chests);
+    //this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.enemies.forEachAlive(null, this));
+    this.game_state.mGame.groups.wildanimals.forEachAlive(function(one_animal) {
         this.game_state.game.physics.arcade.collide(this, one_animal, this.knockback_by_other_animal, null, this);
     }, this);
     
@@ -184,7 +182,7 @@ Mst.WildAnimal.prototype.hit_animal_sword = function (player, animal) {
     
     if (sword_cut) {
         var damage = 2 + (player.stats.abilities.strength/5);
-        damage += player.level("standard") + (player.level("fighter")*1.5);
+        damage += player.mPlayer.level("standard") + (player.mPlayer.level("fighter")*1.5);
         damage = Math.floor(damage);
         console.log("DM: " + damage);
 
@@ -197,7 +195,7 @@ Mst.WildAnimal.prototype.hit_animal_sword = function (player, animal) {
 
 Mst.WildAnimal.prototype.hit_animal_magic = function (player, animal) {
     var damage = 2 + (player.stats.abilities.intelligence/5);
-    damage += player.level("standard") + (player.level("magic")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("magic")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -206,7 +204,7 @@ Mst.WildAnimal.prototype.hit_animal_magic = function (player, animal) {
 
 Mst.WildAnimal.prototype.hit_animal_arrow = function (player, animal) {
     var damage = 2 + (player.stats.abilities.dexterity/5);
-    damage += player.level("standard") + (player.level("archer")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("archer")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -215,7 +213,7 @@ Mst.WildAnimal.prototype.hit_animal_arrow = function (player, animal) {
 
 Mst.WildAnimal.prototype.hit_animal_throw = function (player, animal) {
     var damage = 2 + (player.stats.abilities.dexterity/5);
-    damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("thrower")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -224,14 +222,14 @@ Mst.WildAnimal.prototype.hit_animal_throw = function (player, animal) {
 
 Mst.WildAnimal.prototype.hit_animal_meat = function (player, animal) {
     var damage = 2 + (player.stats.abilities.dexterity/5);
-    damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("thrower")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     var axp = Math.floor(damage/2);
     var animal_health_max = parseInt(animal.health_max);
     if (axp > animal_health_max/2) {axp = Math.floor(animal_health_max/2);}
     
-    player.work_rout("thrower", "dexterity", 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
+    player.cPlayer.work_rout("thrower", "dexterity", 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
     
     this.game_state.game.time.events.add(Phaser.Timer.SECOND * 5, this.intomove, this);
     this.body.immovable = true;
@@ -242,7 +240,7 @@ Mst.WildAnimal.prototype.hit_animal_meat = function (player, animal) {
 
 Mst.WildAnimal.prototype.hit_animal_pet = function (player, animal) {
     var damage = 2 + (player.stats.abilities.strength/5);
-    damage += player.level("standard") + (player.level("fighter")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("fighter")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -258,9 +256,9 @@ Mst.WildAnimal.prototype.hit_animal = function (player, animal, type, ability, d
         animal.health -= damage;
         
         var axp = Math.floor(damage/2);
-        if (axp > animal_health_max/2) {axp = Math.floor(animal_health_max/2);}
+        if (axp > animal_health_max/2) axp = Math.floor(animal_health_max/2);
 
-        player.work_rout(type, ability, 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
+        player.cPlayer.work_rout(type, ability, 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
         
         animal.knockback_by_hit(animal, player, type);
         
@@ -271,31 +269,23 @@ Mst.WildAnimal.prototype.hit_animal = function (player, animal, type, ability, d
         console.log("Hit animal");
         
         if (animal.health < 1) {
-            player.add_exp("standard", animal_health_max);
-            player.add_exp(type, animal_health_max / 2);
-            player.add_exp("hunter", animal_health_max / 2);
-            player.add_sin(1);
+            player.mPlayer.add_exp("standard", animal_health_max);
+            player.mPlayer.add_exp(type, animal_health_max / 2);
+            player.mPlayer.add_exp("hunter", animal_health_max / 2);
+            player.mPlayer.add_sin(1);
             console.log("Player sin: " + player.stats.sin);
             
-            var i_frame;
-            var m_length = this.animal_loot.length;
-            for (var i = 0; i < m_length; i++) {
-                i_frame = this.animal_loot[i];
-                player.key_close();
-                player.add_item(i_frame, 1); // loot
+            for (const loot of this.animal_loot) {
+                player.cPlayer.items.add(loot, 1); // loot
             }
                         
             animal.kill();
-            if (animal.key == "wasp_spritesheet") {
-                animal.timer_sting.stop();
-            }
+            if (animal.key == "wasp_spritesheet") animal.timer_sting.stop();
             
             console.log("animal count:" + this.pool.countLiving());
             console.log(this.pool);
             
-            if (this.pool.countLiving() < 1) {
-                this.game_state.prefabs.player.infight = false;
-            }
+            if (this.pool.countLiving() < 1) this.game_state.prefabs.player.infight = false;
             
         }
     }

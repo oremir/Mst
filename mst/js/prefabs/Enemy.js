@@ -1,10 +1,8 @@
-var Mst = Mst || {};
-
 Mst.Enemy = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
     
-    this.pool = this.game_state.groups[properties.pool];
+    this.pool = this.game_state.mGame.groups[properties.pool];
     
     this.walking_speed = +properties.walking_speed;
     this.walking_distance = +properties.walking_distance;
@@ -41,7 +39,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.monster_type = "slime";
-            this.monster_loot = this.game_state.core_data.creatures["slime"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.slime.loot;
         break;
         case "rabite_spritesheet":
             this.health_max = 100;
@@ -55,7 +53,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.7);
             
             this.monster_type = "rabite";
-            this.monster_loot = this.game_state.core_data.creatures["rabite"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.rabite.loot;
         break;
         case "boar_spritesheet":
             this.health_max = 180;
@@ -69,7 +67,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.monster_type = "boar";
-            this.monster_loot = this.game_state.core_data.creatures["boar"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.boar.loot;
         break;
         case "wasp_spritesheet":
             this.health_max = 150;
@@ -87,7 +85,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.timer_sting.start();
             
             this.monster_type = "wasp";
-            this.monster_loot = this.game_state.core_data.creatures["wasp"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.wasp.loot;
         break;
         case "spider_spritesheet":
             this.health_max = 200;
@@ -107,7 +105,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.timer_web.start();
             
             this.monster_type = "spider";
-            this.monster_loot = this.game_state.core_data.creatures["spider"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.spider.loot;
         break;
         case "angostura_spritesheet":
             this.health_max = 100000;
@@ -128,7 +126,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.ang_run = true;
             this.stand_still = true;
             this.monster_type = "angostura";
-            this.monster_loot = this.game_state.core_data.creatures["angostura"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.angostura.loot;
         break;
         case "angostura-v_spritesheet":
             this.health_max = 15;
@@ -145,7 +143,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.ang_run = true;
             this.stand_still = true;
             this.monster_type = "angostura-v";
-            this.monster_loot = this.game_state.core_data.creatures["angostura-v"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures["angostura-v"].loot;
         break;
         case "rotulice_spritesheet":
             this.health_max = 150;
@@ -159,7 +157,7 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);            
             
             this.monster_type = "rotulice";
-            this.monster_loot = this.game_state.core_data.creatures["rotulice"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.rotulice.loot;
         break;        
         case "cmelotrysk_spritesheet":
             this.health_max = 150;
@@ -173,12 +171,12 @@ Mst.Enemy = function (game_state, name, position, properties) {
             this.anchor.setTo(0.5);
             
             this.monster_type = "cmelotrysk";
-            this.monster_loot = this.game_state.core_data.creatures["cmelotrysk"].loot;
+            this.monster_loot = this.game_state.gdata.core.creatures.cmelotrysk.loot;
         break;
     }
     
-    this.b_pool = this.game_state.groups.enemybullets;
-    this.w_pool = this.game_state.groups.overlaps;
+    this.b_pool = this.game_state.mGame.groups.enemybullets;
+    this.w_pool = this.game_state.mGame.groups.overlaps;
     
     this.emitter = this.game_state.game.add.emitter(0, 0, 100);
     this.emitter.makeParticles('blood', [0,1,2,3,4,5,6]);
@@ -202,9 +200,9 @@ Mst.Enemy.prototype.update = function () {
     var direction;
     
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
-    //this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies.forEachAlive(null, this));
-    this.game_state.groups.enemies.forEachAlive(function(one_enemy) {
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.chests);
+    //this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.enemies.forEachAlive(null, this));
+    this.game_state.mGame.groups.enemies.forEachAlive(function(one_enemy) {
         this.game_state.game.physics.arcade.collide(this, one_enemy, this.knockback_by_other_enemy, null, this);
     }, this);
     
@@ -311,7 +309,7 @@ Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
     
     if (sword_cut) {
         var damage = 2 + (player.stats.abilities.strength/5);
-        damage += player.level("standard") + (player.level("fighter")*1.5);
+        damage += player.mPlayer.level("standard") + (player.mPlayer.level("fighter")*1.5);
         damage = Math.floor(damage);
         console.log("DM: " + damage);
 
@@ -324,7 +322,7 @@ Mst.Enemy.prototype.hit_enemy_sword = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.intelligence/3);
-    damage += player.level("standard") + (player.level("magic")*1.7);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("magic")*1.7);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -333,7 +331,7 @@ Mst.Enemy.prototype.hit_enemy_magic = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
     var damage = 4 + (player.stats.abilities.dexterity/3);
-    damage += player.level("standard") + (player.level("archer")*1.7);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("archer")*1.7);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -342,7 +340,7 @@ Mst.Enemy.prototype.hit_enemy_arrow = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_throw = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.dexterity/5);
-    damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("thrower")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -351,7 +349,7 @@ Mst.Enemy.prototype.hit_enemy_throw = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_sling = function (player, enemy) {
     var damage = 3 + (player.stats.abilities.dexterity/4);
-    damage += player.level("standard") + (player.level("thrower")*1.6);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("thrower")*1.6);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -360,14 +358,14 @@ Mst.Enemy.prototype.hit_enemy_sling = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_meat = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.dexterity/5);
-    damage += player.level("standard") + (player.level("thrower")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("thrower")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     var axp = Math.floor(damage/2);
     var enemy_health_max = parseInt(enemy.health_max);
     if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
     
-    player.work_rout("thrower", "dexterity", 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
+    player.cPlayer.work_rout("thrower", "dexterity", 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
     
     this.game_state.game.time.events.add(Phaser.Timer.SECOND * 5, this.intomove, this);
     this.body.immovable = true;
@@ -378,7 +376,7 @@ Mst.Enemy.prototype.hit_enemy_meat = function (player, enemy) {
 
 Mst.Enemy.prototype.hit_enemy_pet = function (player, enemy) {
     var damage = 2 + (player.stats.abilities.strength/5);
-    damage += player.level("standard") + (player.level("fighter")*1.5);
+    damage += player.mPlayer.level("standard") + (player.mPlayer.level("fighter")*1.5);
     damage = Math.floor(damage);
     console.log("DM: " + damage);
     
@@ -396,7 +394,7 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
         var axp = Math.floor(damage/2);
         if (axp > enemy_health_max/2) {axp = Math.floor(enemy_health_max/2);}
 
-        player.work_rout(type, ability, 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
+        player.cPlayer.work_rout(type, ability, 1, axp, axp, 3); // stress, stand_exp, skill_exp, abil_p
         
         enemy.knockback_by_hit(enemy, player, type);
         
@@ -407,15 +405,11 @@ Mst.Enemy.prototype.hit_enemy = function (player, enemy, type, ability, damage) 
         console.log("Hit Enemy");
         
         if (enemy.health < 1) {
-            player.add_exp("standard", enemy_health_max);
-            player.add_exp(type, enemy_health_max / 2);
+            player.mPlayer.add_exp("standard", enemy_health_max);
+            player.mPlayer.add_exp(type, enemy_health_max / 2);
             
-            var i_frame;
-            var m_length = this.monster_loot.length;
-            for (var i = 0; i < m_length; i++) {
-                i_frame = this.monster_loot[i];
-                player.key_close();
-                player.add_item(i_frame, 1); // loot
+            for (const loot of this.monster_loot) {
+                player.cPlayer.items.add(loot, 1); // loot
             }
                         
             enemy.kill();
@@ -496,7 +490,7 @@ Mst.Enemy.prototype.close_fight = function () {
         console.log("Close fight");
         this.game_state.prefabs.player.infight = false;
     }
-}
+};
 
 Mst.Enemy.prototype.create_bullet = function () {
     "use strict";
@@ -547,7 +541,7 @@ Mst.Enemy.prototype.create_web = function () {
         object_name = "web_" + this.w_pool.countLiving();
         object = new Mst.Prefab(this.game_state, object_name, object_position, object_properties);
         
-        //this.game_state.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
+        //this.game_state.mGame.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
         
     } else {
         object.reset(object_position, object_properties);
@@ -563,16 +557,16 @@ Mst.Enemy.prototype.create_web = function () {
 
 Mst.Enemy.prototype.create_vyh = function () {
     "use strict";
-    var object_name, object_position, object_properties, object;
+    const player = this.game_state.prefabs.player;
     
-    if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) < 45) {
-        object_position = {
-            x: this.game_state.prefabs.player.x + this.game_state.prefabs.player.direction_chest.x * 14,
-            y: this.game_state.prefabs.player.y + this.game_state.prefabs.player.direction_chest.y * 14
+    if (this.game_state.game.physics.arcade.distanceBetween(this, player) < 45) {
+        const object_position = {
+            x: player.x + player.cPlayer.chest.direction.x * 14,
+            y: player.y + player.cPlayer.chest.direction.y * 14
         };
         
-        object_properties = {
-            direction: {"x": Math.sign(this.body.velocity.x), "y": this.game_state.prefabs.player.y},
+        const object_properties = {
+            direction: {"x": Math.sign(this.body.velocity.x), "y": player.y},
             texture: "angostura-v_spritesheet",
             firstframe: 0,
             group: "enemies",
@@ -580,13 +574,13 @@ Mst.Enemy.prototype.create_vyh = function () {
         };
 
 
-        object = this.pool.getFirstDead();
+        let object = this.pool.getFirstDead();
 
         if (!object) {
-            object_name = "web_" + this.w_pool.countLiving();
+            const object_name = "web_" + this.w_pool.countLiving();
             object = new Mst.Enemy(this.game_state, object_name, object_position, object_properties);
 
-            //this.game_state.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
+            //this.game_state.mGame.groups[this.stats_group].create(stat_position.x - 4, stat_position.y + 20, 'frame_bot');
 
         } else {
             object.reset(object_position, object_properties);
@@ -615,7 +609,7 @@ Mst.Enemy.prototype.cmelo_stop = function (player) {
     "use strict";
     
     this.body.immovable = true;
-    var player = this.game_state.prefabs.player;
+    //const player = this.game_state.prefabs.player;
     
     this.cmelotrysk_sprite =  new Mst.NPC(this.game_state, "cmelotrysk", {x: this.x, y: this.y}, {
                 group: "NPCs",
@@ -642,8 +636,8 @@ Mst.Enemy.prototype.cmelo_stop = function (player) {
     };
 
     player.shadow = new Mst.Chest(this.game_state, "cpgive", position, properties);
-    player.opened_chest = "cpgive";
-    player.shadow.open_chest(player, player.shadow);
+    player.cPlayer.chest.open(player.shadow);
+    player.shadow.mChest.open_chest(player, player.shadow);
     
     player.infight = false;                        
     this.cmelotrysk_sprite.touch_player(this.cmelotrysk_sprite, player);        
@@ -655,13 +649,13 @@ Mst.Enemy.prototype.spec_attack = function (player) {
     
     switch (this.monster_type) {
         case "rotulice":
-            if (player.index_buff(1) < 0) {
+            if (player.cPlayer.buffs.index(1) < 0) {
                 attack = player.stats.health_max + 1;
             }
         break;
         case "cmelotrysk":
             console.log("čmelotrysk");
-            var index = player.test_item(112, 1); //kopřiva
+            var index = player.cPlayer.items.test(112, 1); //kopřiva
             if (index > -1) {
                 attack = 0;
                 this.game_state.game.time.events.add(Phaser.Timer.SECOND * 0.3, this.cmelo_stop, this);

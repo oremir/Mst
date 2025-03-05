@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.ItemSpawner = function (game_state, name, position, properties) {
     "use strict";
     var item;
@@ -16,8 +13,8 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     this.position = position;
     
     this.group = properties.pool || properties.group;
-    this.pool = this.game_state.groups[properties.pool];
-    this.game_state.groups[properties.group].add(this);
+    this.pool = this.game_state.mGame.groups[properties.pool];
+    this.game_state.mGame.groups[properties.group].add(this);
     
     this.game_state.prefabs[name] = this;
     this.name = name;
@@ -33,26 +30,23 @@ Mst.ItemSpawner = function (game_state, name, position, properties) {
     this.items = [];
     this.stype = properties.stype;
     
-    for (var i = 0; i < this.game_state.core_data.items.length; i++) {
-        //console.log(this.game_state.core_data.items[i].properties.spawn);
-        var spawn = this.game_state.core_data.items[i].properties.spawn;
-        if (spawn !== undefined) {
+    for (let i in this.game_state.gdata.core.items) {
+        const spawn = this.game_state.gdata.core.items[i].properties.spawn;
+        console.log(i, spawn);
+        if (spawn) {
             if (this.stype === spawn || spawn === "uni") {
                 item = {
-                    frame: i,
-                    obj: this.game_state.core_data.items[i]
+                    frame: parseInt(i),
+                    obj: this.game_state.gdata.core.items[i]
                 };
                 this.items.push(item);
             }
         }
     }
-    //console.log(this.items);
+    console.log(this.items);
     
-    if (typeof(properties.max_number) !== 'undefined') {
-        this.max_number = parseInt(properties.max_number);
-    } else {
-        this.max_number = 20;
-    }
+    this.max_number = 20;
+    if (properties.max_number) this.max_number = parseInt(properties.max_number);
     
     this.b_test = false;
     
@@ -85,7 +79,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
         let tilex = 0;
         let tliey = 0;
                 
-        if (typeof(this.game_state.layers.grass) !== 'undefined') {
+        if (this.game_state.layers.grass) {
             tilex = this.game_state.layers.grass.getTileX(object_position.x);
             tiley = this.game_state.layers.grass.getTileY(object_position.y);
             const tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
@@ -118,9 +112,7 @@ Mst.ItemSpawner.prototype.spawn = function () {
         
         //this.properties.spawn_field_ind = this.calc_spawn_field_ind(tilex, tiley);
 
-        if (!b) {
-            this.new_item(frame, object_position, 0);
-        }
+        if (!b) this.new_item(frame, object_position, 0);
         
         this.k++;
                 
@@ -142,7 +134,8 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
     let b = false;
     
     if (cond === 0) {
-        this.game_state.map_data.objects.forEach(function (map_object) {
+        console.log(this.game_state.gdata.map.objects);
+        this.game_state.gdata.map.objects.forEach(function (map_object) {
             //console.log(map_object.x+"|"+map_object.y);
             const x = parseInt(map_object.x);
             const y = parseInt(map_object.y);
@@ -171,7 +164,10 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
             // if there is no dead object, create a new one            
 
             const object_name = this.create_name();
-            object = this.create_object(object_name, object_position, this.properties);
+            const properties = this.properties;
+            properties.opened_frame = frame;
+            properties.closed_frame = frame;
+            object = this.create_object(object_name, object_position, properties);
 
             console.log("New item: " + object_name);
         } else {
@@ -197,7 +193,7 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
 
             this.b_test = false;
 
-            this.game_state.groups.chests.forEachAlive(function(one_chest) {
+            this.game_state.mGame.groups.chests.forEachAlive(function(one_chest) {
                 this.game_state.game.physics.arcade.overlap(object, one_chest, this.test, null, this);
             }, this);
 
@@ -209,7 +205,7 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
         
         console.log(b);
 
-//            this.game_state.map_data.objects.forEach(function (map_object) {
+//            this.game_state.gdata.map.objects.forEach(function (map_object) {
 //                x = map_object.x;
 //                y = map_object.y;
 //                dist = this.game_state.game.physics.arcade.distanceToXY(object, x, y, this);
@@ -235,32 +231,23 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
 
         if (!b) {
             object.stats.items = "";
-            object.closed_frame = frame;
-            object.opened_frame = frame;
+            object.mChest.closed_frame = frame;
+            object.mChest.opened_frame = frame;
             object.frame = frame;
-            //object.updated = true;
 
-            if (object.closed_frame == 22) {
-                object.is_takeable = false;
-                object.save.properties.is_takeable = false;
+            if (object.mChest.closed_frame == 22) {
+                object.mChest.is_takeable = false;
+                object.mChest.save.properties.is_takeable = false;
             } else {
-                object.is_takeable = true;
-                object.save.properties.is_takeable = true;              
+                object.mChest.is_takeable = true;
+                object.mChest.save.properties.is_takeable = true;              
             }
-            
-            object.exist = true;
         } else {
             console.log("Item killed / collision");
             object.kill();
-            object.exist = false;
         }
     } else {
         console.log("Item not created / collision dist");  
-        
-        if (!object) {
-            object = {};
-        }
-        object.exist = false;
     }
         
    return object;
@@ -268,35 +255,30 @@ Mst.ItemSpawner.prototype.new_item = function (frame, object_position, cond) {
 
 
 Mst.ItemSpawner.prototype.create_object = function (name, position, properties) {
-    "use strict";
-        
+    "use strict";        
     return new Mst.Chest(this.game_state, name, position, properties);
 };
 
 Mst.ItemSpawner.prototype.create_name = function () {
     "use strict";
-    var name, a;
-    var names = [];
+    const names = [];
     //var j = this.pool.countLiving();
-    var object_name = "item_" + this.spawnernum + "_" + this.j;
+    let object_name = "item_" + this.spawnernum + "_" + this.j;
     
-    //console.log(this.game_state.map_data.objects);
-    //console.log(this.game_state.map_data.objects.length);
+    //console.log(this.game_state.gdata.map.objects);
+    //console.log(this.game_state.gdata.map.objects.length);
     
-    for (var i = 0; i < this.game_state.map_data.objects.length; i++) {
-        //console.log(i);
-        //console.log(this.game_state.map_data.objects[i].name);
-        name = this.game_state.map_data.objects[i].name;
-        a = name.split("_");
+    for (const object of this.game_state.gdata.map.objects) {
+        const name = object.name;
+        const a = name.split("_");
         if (a[1] === this.spawnernum) {
             names.push(parseInt(a[2]));
         } else {
             names.push(parseInt(a[1]));
         }
-        
     }
       
-    names.sort(function(a, b){return a - b});
+    names.sort((a, b) => a - b);
       
     //console.log(names);
     
@@ -304,7 +286,7 @@ Mst.ItemSpawner.prototype.create_name = function () {
         this.j++;
     }
     
-    var object_name = "item_"  + this.spawnernum + "_" + this.j;
+    object_name = "item_"  + this.spawnernum + "_" + this.j;
     
 //    for (var i = 0; i < names.length; i++) {
 //        //console.log(object_name + " " + names[i]);

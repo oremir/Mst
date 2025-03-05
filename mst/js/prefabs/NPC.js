@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.NPC = function (game_state, name, position, properties) {
     "use strict";
     
@@ -65,11 +63,8 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.owner = parseInt(properties.owner);
     }
     
-    if (typeof (properties.offset) === 'undefined') {
-        var offset = 2;
-    } else {
-        var offset = parseInt(properties.offset);
-    }
+    let offset = 2;
+    if (typeof (properties.offset) !== 'undefined') offset = parseInt(properties.offset);
     
     if (typeof (properties.tosave) === 'undefined') {
         this.tosave = false;
@@ -84,7 +79,7 @@ Mst.NPC = function (game_state, name, position, properties) {
         x: (position.x - (this.game_state.map.tileHeight / 2)),
         y: (position.y + (this.game_state.map.tileHeight / 2)),
         properties: properties
-    }
+    };
     
     if (this.sprtype === 2) {
         this.animations.add("go", [0, 1], 5, true);
@@ -102,10 +97,7 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.body.setSize(16, 16, 2.5, offset);
     }
     
-    this.anchor.setTo(0.5);
-    
-    this.updated = false;
-    
+    this.anchor.setTo(0.5);    
     
     // Call Ren
     
@@ -116,15 +108,16 @@ Mst.NPC = function (game_state, name, position, properties) {
     }
     if (this.stype === "kurolez") {
         this.ren_name = "kurolez_ren";
+        this.d_type = "item";
     }
     if (this.stype === "cmelotrysk") {
         this.ren_name = "cmelotrysk_ren";
+        this.d_type = "item";
     }
     if (this.stype === "kerik") {
         this.ren_name = "kerik_ren";
         this.kerik_run = false;
-        //var index = player.test_item(195,1);
-        //console.log("Kompot " + index);
+        this.d_type = "item";
     }
     if (this.stype === "tlustocerv") {
         this.ren_name = "blank_image";
@@ -136,8 +129,9 @@ Mst.NPC = function (game_state, name, position, properties) {
         this.body.velocity.x = this.game_state.game.rnd.between(-20, 20);
         this.body.velocity.y = this.game_state.game.rnd.between(-5, 5);
     }
+    if (this.stype === "merchant" || this.stype === "hospod" || this.stype === "kamelot") this.d_type = "item";
     
-    this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
+    this.bubble = this.game_state.mGame.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
     this.bubble.inputEnabled = true;
     this.bubble.events.onInputDown.add(this.hide_bubble, this);
@@ -146,8 +140,6 @@ Mst.NPC = function (game_state, name, position, properties) {
     
     this.num_of_hits = 0;
     this.player_hit_not_delay = true;
-    
-    //this.test_quest();
 };
 
 Mst.NPC.prototype = Object.create(Mst.Prefab.prototype);
@@ -157,17 +149,17 @@ Mst.NPC.prototype.update = function () {
     "use strict";
     
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.collide_chest, null, this);
-    //this.game_state.game.physics.arcade.collide(this, this.game_state.groups.players);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.enemies);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.chests, this.collide_chest, null, this);
+    //this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.players);
     
     //console.log(!this.body.immovable);
     if (!this.body.immovable) {
-        this.game_state.groups.NPCs.forEachAlive(function(one_player) {
+        this.game_state.mGame.groups.NPCs.forEachAlive(function(one_player) {
             //console.log(this.name + " " + one_player.name);
             this.game_state.game.physics.arcade.collide(this, one_player, this.collide_NPC, null, this);
         }, this);
-//        this.game_state.groups.otherplayers.forEachAlive(function(o_player) {
+//        this.game_state.mGame.groups.otherplayers.forEachAlive(function(o_player) {
 //            //console.log(this.game_state.game.physics.arcade.distanceBetween(this, o_player));
 //            if (this.game_state.game.physics.arcade.distanceBetween(this, o_player) < 10) {
 //                this.game_state.game.physics.arcade.moveToObject(this, o_player, -30);
@@ -199,7 +191,7 @@ Mst.NPC.prototype.update = function () {
     }
     
     if (this.stype === "tlustocerv") {
-        if(this.tlustocerv_run && typeof(this.tlustocerv_target.closed_frame) !== 'undefined') {
+        if(this.tlustocerv_run && typeof(this.tlustocerv_target.mChest.closed_frame) !== 'undefined') {
             if (this.tlustocerv_knockbacki > 0) {
                 this.tlustocerv_knockbacki--;
                 //console.log("KI: " + this.tlustocerv_knockbacki);
@@ -216,12 +208,16 @@ Mst.NPC.prototype.update = function () {
         this.bubble.x = this.x;
         this.bubble.y = this.y - 16;
     }
-    
-    if (this.updated) {
-        this.save.properties.items = this.stats.items;
-        
-        this.updated = false;
-    }
+};
+
+Mst.NPC.prototype.get_uid = function () {
+    "use strict";
+    return this.unique_id;
+};
+
+Mst.NPC.prototype.get_otype = function () {
+    "use strict";
+    return "NPC";
 };
 
 Mst.NPC.prototype.add_ren = function () {
@@ -235,6 +231,7 @@ Mst.NPC.prototype.add_ren = function () {
         p_name: this.p_name,
         o_name: this.name,
         o_type: this.o_type,
+        d_type: this.d_type,
         gender: this.gender,
         p_id: this.unique_id,
         dialogue_name: this.name
@@ -270,14 +267,10 @@ Mst.NPC.prototype.collide_chest = function (NPC, chest) {
         //NPC.tlustocerv_run = false;
         this.game_state.game.physics.arcade.moveToObject(NPC, chest, -30);
         this.tlustocerv_knockbacki = 6;
-        chest.salat_lives--;
+        chest.mChest.salat_lives--;
         this.eaten++;
-        console.log("Salat lives: " + chest.salat_lives);
-        if (chest.salat_lives < 0) {
-            chest.get_chest_core(chest);
-            
-            
-        }
+        console.log("Salat lives: " + chest.mChest.salat_lives);
+        if (chest.mChest.salat_lives < 0) chest.mChest.get_chest_core(chest);
     }
 };
 
@@ -303,29 +296,25 @@ Mst.NPC.prototype.hide_bubble = function () {
 
 Mst.NPC.prototype.save_NPC = function () {
     "use strict";
-    var key;
     
     this.save.x = this.x - (this.game_state.map.tileHeight / 2);
     this.save.y = this.y + (this.game_state.map.tileHeight / 2);
-    
-    
-    
+
     if (this.tosave) {
-        var game_state, NPC, name, usr_id, d, n;
-        game_state = this.game_state;
-        NPC = this;
-        name = this.name;
-        usr_id = game_state.prefabs.player.usr_id;
+        const game_state = this.game_state;
+        const NPC = this;
+        const name = this.name;
+        const usr_id = game_state.prefabs.player.mPlayer.usr_id;
         this.save.action = "SAVE";
         this.save.type = "NPC";
 
     //    this.save.x = go_position.x;
     //    this.save.y = go_position.y;
 
-        this.save.map_int = this.game_state.root_data.map_int;
+        this.save.map_int = this.game_state.gdata.root.map_int;
 
-        d = new Date();
-        n = d.getTime();
+        const d = new Date();
+        const n = d.getTime();
         this.save.properties.time = n;
 
         console.log("SAVE NPC");
@@ -344,18 +333,16 @@ Mst.NPC.prototype.save_NPC = function () {
         console.log("save npc save");
     }
     
-    key = this.game_state.keyOfName(this.name);
-    
-    //console.log(key);
+    const key = this.game_state.mGame.keyOfName(this.name);
 
-    if (key != "") {
-        this.game_state.save.objects[key] = this.save;
+    if (key) {
+        this.game_state.mGame.save.objects[key] = this.save;
     } else {
-        this.game_state.save.objects.push(this.save);
+        this.game_state.mGame.save.objects.push(this.save);
     }
 
     console.log("Save NPC:");
-    console.log(this.game_state.save.objects);
+    console.log(this.game_state.mGame.save.objects);
 
 };
 
@@ -366,42 +353,29 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
     
     console.log("Touch NPC");
     
-    if (!this.ren_sprite.visible && player.opened_ren === "") {
-        var wit = player.test_witness(-1, NPC.unique_id, "NPC");
+    if (!this.ren_sprite.visible && !player.cPlayer.ren.opened) {
+        const wit = player.cPlayer.cases.init_witness(-1, NPC.unique_id, "NPC");
         console.log(wit);
         
-        var quest = this.ren_sprite.quest;
+        const  quest = this.ren_sprite.quest;
         console.log(quest);
         
-        var is_investg = (player.cases.length > 0);
+        const is_investg = !player.cPlayer.cases.is_empty;
 
-        var is_quest = false;
-        if (typeof (quest.properties) !== 'undefined') {
-            if (quest.properties.ending_conditions.type === 'have') {
-                console.log("Test have");
-                var qt = parseInt(quest.properties.ending_conditions.quantity);
-                var fr = parseInt(quest.properties.ending_conditions.what);
-                var index = player.test_item(fr,qt);
-                console.log(index);
-                if (index > -1) {
-                    var item = { f: fr, q: qt };
-                    player.update_quest("have", item);
-                }
-            }
-            
+        let is_quest = false;
+        if (quest) {
+            quest.update("have");
             is_quest = true;
         }
         
-        if (player.opened_business === "" && NPC.stype === "merchant") {
-            if (this.relations_allowed) {
-                player.update_relation(NPC, "NPC", 1);
-            }
+        if (!player.cPlayer.business.opened && NPC.stype === "merchant") {
+            if (this.relations_allowed) player.cPlayer.relations.update(NPC, 1);
             
             console.log("merchant");
             
-            player.open_business(player, NPC);
+            this.open_business(player);
             var arr_buss = ["buy_sell"];
-            if (player.usr_id === this.owner) {
+            if (player.mPlayer.usr_id === this.owner) {
                 arr_buss = ["buy_sell", "mer_admin"];
             }
             
@@ -415,13 +389,13 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             
             console.log(arr_buss);
             
-            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", arr_buss, "item");
+            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", arr_buss);
             open = true;
         } 
         
         if (NPC.stype === "hospod") {
             if (this.relations_allowed) {
-                player.update_relation(NPC, "NPC", 1);
+                player.cPlayer.relations.update(NPC,1);
             }
             
             var arr = ["lodging"];
@@ -430,38 +404,38 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
             }
             
             console.log("hospod");
-            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", arr, "item");
+            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", arr);
             open = true;
         }
         
         if (NPC.stype === "kamelot") {
             if (this.relations_allowed) {
-                player.update_relation(NPC, "NPC", 1);
+                player.cPlayer.relations.update(NPC, 1);
             }
             
             console.log("kamelot");
-            this.ren_sprite.show_dialogue("Kuuupte novinyyy za 5G...", ["newsppr"], "item");
+            this.ren_sprite.show_dialogue("Kuuupte novinyyy za 5G...", ["newsppr"]);
             open = true;
         }
         
         if (NPC.stype === "kurolez") {
             
             console.log("kurolez");
-            this.ren_sprite.show_dialogue("Hhhhrrarrhhh?", [], "item");
+            this.ren_sprite.show_dialogue("Hhhhrrarrhhh?");
             open = true;
         }
         
         if (NPC.stype === "cmelotrysk") {
             
             console.log("cmelotrysk");
-            this.ren_sprite.show_dialogue("Bzzzzzzzzzzz?", [], "item");
+            this.ren_sprite.show_dialogue("Bzzzzzzzzzzz?");
             open = true;
         }
         
         if (NPC.stype === "kerik") {
             
             console.log("kerik");
-            this.ren_sprite.show_dialogue("Pššš. Plesk. Ššššš. Plác.", [], "item");
+            this.ren_sprite.show_dialogue("Pššš. Plesk. Ššššš. Plác.");
             this.kerik_stop();
             open = true;
         }
@@ -489,13 +463,13 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
                             break;
 
                         case 2:
-                            player.update_relation(NPC, "NPC", 1);
+                            player.cPlayer.relations.update(NPC, 1);
                             console.log("Op.ren: " + this.name);
                             this.ren_sprite.show_dialogue("Vrrr?");
                             break;
 
                         case 0:
-                            player.no_pass_OP = false;
+                            player.cPlayer.no_pass_OP = false;
                             break;
                     }
                     
@@ -507,18 +481,18 @@ Mst.NPC.prototype.touch_player = function (NPC, player) {
         }
     }
     
-    console.log(player.opened_ren);
+    console.log(player.cPlayer.ren.opened);
 };
     
 Mst.NPC.prototype.collide_with_player_delay = function () {
     "use strict";    
     this.player_hit_not_delay = true;
-    this.game_state.prefabs.player.no_pass_OP = true;
+    this.game_state.prefabs.player.cPlayer.no_pass_OP = true;
 };
 
 Mst.NPC.prototype.open_business = function (player) {
     "use strict";
-    player.opened_business = this.name;
+    player.cPlayer.business.open(this);
     console.log("Open business");
     this.game_state.prefabs.businessitems.up_length = 0;
     this.game_state.prefabs.businessitems.show_initial_stats();
@@ -528,21 +502,19 @@ Mst.NPC.prototype.close_business = function () {
     "use strict";
     this.game_state.prefabs.businessitems.kill_stats();
     this.save_NPC();
-    this.game_state.prefabs.player.opened_business = "";
+    this.game_state.prefabs.player.cPlayer.business.close();
 };
 
 Mst.NPC.prototype.test_nurse = function () {
     "use strict";
     
-    if (this.game_state.prefabs.player.killed && this.nurse) {
+    if (this.game_state.prefabs.player.mPlayer.killed && this.nurse) {
         console.log(this);
         
         this.ren_sprite.show_dialogue("Měl jste štěstí, že vás našli včas. Jinak by už bylo po vás.");
         if (this.relations_allowed) {
-            this.game_state.prefabs.player.update_relation(this, "NPC", 5);
+            this.game_state.prefabs.player.cPlayer.relations.update(this, 5);
         }
-        
-
     }
     
     return this.nurse;
@@ -578,69 +550,54 @@ Mst.NPC.prototype.drop_item = function () {
     }
 };
 
-Mst.NPC.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Mst.NPC.prototype.init_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     "use strict";
+    const player = this.game_state.prefabs.player;    
+    const cpQuests = player.cPlayer.quests;
+    const quests = cpQuests.new_quest;
     
-    var quests, owner_id, player, test_q, is_quest;
-    //console.log(this.game_state.quest_data);
-    quests = this.game_state.quest_data.quests;
-    player = this.game_state.prefabs.player;
-    is_quest = false;
-//    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
-//        this.show_bubble(3); // ! exclamation mark - quest
-//    }
-
-    for (var i = 0; i < quests.length; i++) {
-        owner_id = parseInt(quests[i].properties.owner);
-        console.log(quests[i]);
+    for (let key in quests) {
+        const quest = quests[key];
+        const owner_id = parseInt(quest.properties.owner);
+        console.log(quest);
         console.log("NPC ID: " + this.unique_id);
-        if (quests[i].properties.owner_type === "NPC" && owner_id === this.unique_id) {
-            console.log(quests[i]);
-            
-            test_q = player.test_quest("idfin", quests[i].qid);
-            
-            if (!test_q) {                
-                test_q = player.test_quest("idass", quests[i].name);
-                
-                if (test_q) {
-                    this.ren_sprite.new_quest(quests[i]);
-                    this.ren_sprite.quest.state = "ass";
-                    this.show_bubble(4); // ! exclamation mark - quest assigned
-                    is_quest = true;
-                    break;
-                } else {
-                    test_q = player.test_quest("idacc", quests[i].name);
-                    if (test_q) {
-                        this.ren_sprite.new_quest(quests[i]);
-                        this.ren_sprite.quest.state = "acc";
-                        this.show_bubble(5); // ! question mark - quest accomplished
-                        is_quest = true;
-                        break;            
-                    } else {
-                        this.ren_sprite.new_quest(quests[i]);
-                        this.ren_sprite.quest.state = "pre";
-                        this.ren_sprite.quest.showed = false;
-                        this.show_bubble(3); // ! exclamation mark - quest ready
-                        is_quest = true;
-                        break;            
-                    }
+        
+        const quest_state = quest.state;
+        
+        if (quest.properties.target_type === "NPC" && owner_id === this.unique_id) {
+            if (quest.is_prev_fin()) {
+                this.ren_sprite.set_quest(quest);
+                this.ren_sprite.quest.state = quest_state;
+
+                if (quest_state === "ass" || quest_state === "acc") {
+                    const bub = quest_state === "ass" ? 4 : 5;
+                    this.show_bubble(bub);
                 }
+                if (quest_state === "pre") {
+                    this.ren_sprite.quest.showed = false;
+                    this.show_bubble(3); // ! exclamation mark - quest ready
+                }
+                break;
             }
         }
     }
-    
-    return is_quest;
 };
 
 Mst.NPC.prototype.hide_ren = function () {
     "use strict";
     this.ren_sprite.hide();
     
-    if (this.game_state.prefabs.player.opened_business != "") {
+    if (this.game_state.prefabs.player.cPlayer.business.opened) {
         this.close_business();
     }
     
-    if (typeof (this.ren_sprite.quest.state) === 'undefined') {
+    if (!this.game_state.mGame.hud.right_window.visible) {
+        this.game_state.prefabs.items.kill_stats();
+        this.game_state.prefabs.items.show_initial_stats();
+        this.game_state.prefabs.equip.show();
+    }
+    
+    if (!this.ren_sprite.quest) {
         this.hide_bubble();
     }
 };
@@ -648,10 +605,10 @@ Mst.NPC.prototype.hide_ren = function () {
 Mst.NPC.prototype.kerik_stop = function () {
     "use strict";
     
-    var player = this.game_state.prefabs.player;
+    const player = this.game_state.prefabs.player;
     
-    var position = { x: player.x, y: player.y };
-    var properties = {
+    const position = { x: player.x, y: player.y };
+    const properties = {
         group: "shadows",
         pool: "shadows",
         stype: "shadow",
@@ -662,8 +619,8 @@ Mst.NPC.prototype.kerik_stop = function () {
     };
 
     player.shadow = new Mst.Chest(this.game_state, "cpgive", position, properties);
-    player.opened_chest = "cpgive";
-    player.shadow.open_chest(player, player.shadow);
+    player.cPlayer.chest.open(player.shadow);
+    player.shadow.mChest.open_chest(player, player.shadow);
     
     player.infight = false;      
 };

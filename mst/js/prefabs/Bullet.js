@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Bullet = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -44,13 +42,13 @@ Mst.Bullet.prototype.constructor = Mst.Bullet;
 Mst.Bullet.prototype.update = function () {
     "use strict";
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision, this.kill, null, this);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests, this.hit_chest, null, this);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.otherplayers, this.hit_other_player, null, this);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.chests, this.hit_chest, null, this);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.otherplayers, this.hit_other_player, null, this);
     if (this.group == "enemybullets") {
         this.game_state.game.physics.arcade.collide(this, this.game_state.prefabs.player, this.hit_player, null, this);
     } else {
-        this.game_state.game.physics.arcade.collide(this, this.game_state.groups.enemies, this.hit_enemy, null, this);
-        this.game_state.game.physics.arcade.collide(this, this.game_state.groups.wildanimals, this.hit_animal, null, this);
+        this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.enemies, this.hit_enemy, null, this);
+        this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.wildanimals, this.hit_animal, null, this);
     }
     
     
@@ -80,7 +78,7 @@ Mst.Bullet.prototype.hit_chest = function (bullet, chest) {
     "use strict";
     
     if (this.oldframe > -1) {
-        chest.add_item_u(this.oldframe, 1);        
+        chest.cChest.items.add_item_u(this.oldframe, 1);
     }
     bullet.kill();
 };

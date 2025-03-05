@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Follower = function (game_state, name, position, properties) {
     "use strict";
     
@@ -28,11 +26,8 @@ Mst.Follower = function (game_state, name, position, properties) {
         items: properties.items || ""
     };
     
-    if (typeof (properties.offset) === 'undefined') {
-        var offset = 2;
-    } else {
-        var offset = parseInt(properties.offset);
-    }
+    let offset = 2;
+    if (typeof (properties.offset) !== 'undefined') offset = parseInt(properties.offset);
     
     this.save = {
         type: properties.ftype,
@@ -41,7 +36,7 @@ Mst.Follower = function (game_state, name, position, properties) {
         x: (position.x - (this.game_state.map.tileHeight / 2)),
         y: (position.y + (this.game_state.map.tileHeight / 2)),
         properties: properties
-    }
+    };
     
     if (typeof (properties.sprtype) === 'undefined') {
         this.sprtype = 10;
@@ -62,17 +57,12 @@ Mst.Follower = function (game_state, name, position, properties) {
     this.body.setSize(12, 14, 2, offset);
     this.anchor.setTo(0.5);
     
-    this.updated = false;
-    
-    
     // Call Ren
     
     this.ren_name = this.stype + "_ren";
-    if (this.stype === "pet") {
-        this.ren_name = properties.ren_texture;
-    }
+    if (this.stype === "pet") this.ren_name = properties.ren_texture;
     
-    this.bubble = this.game_state.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
+    this.bubble = this.game_state.mGame.groups.bubbles.create(this.x, this.y - 16, 'bubble_spritesheet', 0);
     this.bubble.anchor.setTo(0.5);
     this.bubble.inputEnabled = true;
     this.bubble.events.onInputDown.add(this.hide_bubble, this);
@@ -81,8 +71,6 @@ Mst.Follower = function (game_state, name, position, properties) {
     
     this.following = false;
     this.action = "follow";
-    
-    //this.test_quest();
 };
 
 Mst.Follower.prototype = Object.create(Mst.Prefab.prototype);
@@ -92,9 +80,9 @@ Mst.Follower.prototype.update = function () {
     "use strict";
     
     this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.chests);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.chests);
     
-    this.game_state.groups.enemies.forEachAlive(function(one_enemy) {
+    this.game_state.mGame.groups.enemies.forEachAlive(function(one_enemy) {
         var player_dist = this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player);
         var enemy_dist = this.game_state.game.physics.arcade.distanceBetween(this, one_enemy);
         if (enemy_dist < 30) {
@@ -108,7 +96,7 @@ Mst.Follower.prototype.update = function () {
         this.action = "follow";
     }
     
-    this.game_state.game.physics.arcade.collide(this, this.game_state.groups.players);
+    this.game_state.game.physics.arcade.collide(this, this.game_state.mGame.groups.players);
     if (this.game_state.game.physics.arcade.distanceBetween(this, this.game_state.prefabs.player) > 30 && this.action === 'follow') {
         this.game_state.game.physics.arcade.moveToObject(this, this.game_state.prefabs.player, 130);
         this.following = true;
@@ -142,14 +130,16 @@ Mst.Follower.prototype.update = function () {
             }
         }
     }
-        
-    //console.log(this.game_state.prefabs.player.killed);
-    
-    if (this.updated) {
-        this.save.properties.items = this.stats.items;
-        
-        this.updated = false;
-    }
+};
+
+Mst.Follower.prototype.get_uid = function () {
+    "use strict";
+    return this.unique_id;
+};
+
+Mst.Follower.prototype.get_otype = function () {
+    "use strict";
+    return "NPC";
 };
 
 Mst.Follower.prototype.add_ren = function () {
@@ -163,7 +153,7 @@ Mst.Follower.prototype.add_ren = function () {
         p_name: this.p_name, 
         p_id: this.unique_id,
         dialogue_name: this.name
-    });
+    }, this);
     
     this.ren_sprite.visible = false;
 };
@@ -232,21 +222,21 @@ Mst.Follower.prototype.touch_player = function (Follower, player) {
     "use strict";
     var open = false;
     
-    if (!this.ren_sprite.visible && player.opened_ren === "" && !player.infight) {
+    if (!this.ren_sprite.visible && !player.cPlayer.ren.opened && !player.infight) {
         if (this.relations_allowed) {
-            player.update_relation(Follower, "NPC", 1);
+            player.cPlayer.relations.update(Follower, 1);
         }
 
-        if (player.opened_business === "" && Follower.stype === "merchant") {
+        if (!player.cPlayer.business.opened && Follower.stype === "merchant") {
             console.log("merchant");
-            player.open_business(player, Follower);
-            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"], "item");
+            this.open_business(player);
+            this.ren_sprite.show_dialogue("Chcete si něco koupit nebo prodat?", ["buy_sell", "quest"]);
             open = true;
         } 
         
         if (Follower.stype === "hospod") {
             console.log("hospod");
-            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"], "item");
+            this.ren_sprite.show_dialogue("Chcete tu přespat za 10G?", ["lodging"]);
             open = true;
         } 
 
@@ -258,7 +248,7 @@ Mst.Follower.prototype.touch_player = function (Follower, player) {
 
 Mst.Follower.prototype.open_business = function (player) {
     "use strict";
-    player.opened_business = this.name;
+    player.cPlayer.business.open(this);
     console.log("Open business");
     this.game_state.prefabs.businessitems.show_initial_stats();
 };
@@ -266,7 +256,7 @@ Mst.Follower.prototype.open_business = function (player) {
 Mst.Follower.prototype.close_business = function () {
     "use strict";
     this.game_state.prefabs.businessitems.kill_stats();
-    this.game_state.prefabs.player.opened_business = "";
+    this.game_state.prefabs.player.cPlayer.business.close();
 };
 
 Mst.Follower.prototype.test_nurse = function () {
@@ -275,64 +265,11 @@ Mst.Follower.prototype.test_nurse = function () {
     return false;
 };
 
-Mst.Follower.prototype.test_quest = function () { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    "use strict";
-    
-    var quests, owner_id, player, test_q, is_quest;
-    //console.log(this.game_state.quest_data);
-    quests = this.game_state.quest_data.quests;
-    player = this.game_state.prefabs.player;
-    is_quest = false;
-//    if (this.game_state.prefabs.player.test_quest("owner", this.unique_id)) {
-//        this.show_bubble(3); // ! exclamation mark - quest
-//    }
-
-    for (var i = 0; i < quests.length; i++) {
-        owner_id = parseInt(quests[i].properties.owner);
-        console.log(quests[i]);
-        console.log("Follower ID: " + this.unique_id);
-        if (quests[i].properties.owner_type === "NPC" && owner_id === this.unique_id) {
-            console.log(quests[i]);
-            
-            test_q = player.test_quest("idfin", quests[i].qid);
-            
-            if (!test_q) {                
-                test_q = player.test_quest("idass", quests[i].name);
-                
-                if (test_q) {
-                    this.ren_sprite.new_quest(quests[i]);
-                    this.ren_sprite.quest.state = "ass";
-                    this.show_bubble(4); // ! exclamation mark - quest assigned
-                    is_quest = true;
-                    break;
-                } else {
-                    test_q = player.test_quest("idacc", quests[i].name);
-                    if (test_q) {
-                        this.ren_sprite.new_quest(quests[i]);
-                        this.ren_sprite.quest.state = "acc";
-                        this.show_bubble(5); // ! question mark - quest accomplished
-                        is_quest = true;
-                        break;            
-                    } else {
-                        this.ren_sprite.new_quest(quests[i]);
-                        this.ren_sprite.quest.state = "pre";
-                        this.show_bubble(3); // ! exclamation mark - quest ready
-                        is_quest = true;
-                        break;            
-                    }
-                }
-            }
-        }
-    }
-    
-    return is_quest;
-};
-
 Mst.Follower.prototype.hide_ren = function () {
     "use strict";
     this.ren_sprite.hide();
     
-    if (this.game_state.prefabs.player.opened_business != "") {
+    if (this.game_state.prefabs.player.cPlayer.business.opened) {
         this.close_business();
     }
     
@@ -344,19 +281,18 @@ Mst.Follower.prototype.hide_ren = function () {
 Mst.Follower.prototype.save_follower = function (go_position, go_map_int) {
     "use strict";
         
-    var game_state, follower, name, usr_id, d, n;
-    game_state = this.game_state;
-    follower = this;
-    name = this.name;
-    usr_id = game_state.prefabs.player.usr_id;
+    const game_state = this.game_state;
+    const follower = this;
+    const name = this.name;
+    const usr_id = game_state.prefabs.player.mPlayer.usr_id;
     this.save.action = "SAVE";
     this.save.type = "follower";
     this.save.x = go_position.x;
     this.save.y = go_position.y;
     this.save.map_int = go_map_int;
     
-    d = new Date();
-    n = d.getTime();
+    const d = new Date();
+    const n = d.getTime();
     this.save.properties.time = n;
 
     console.log("SAVE Follower");

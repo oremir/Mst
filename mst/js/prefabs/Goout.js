@@ -1,5 +1,3 @@
-var Mst = Mst || {};
-
 Mst.Goout = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -53,24 +51,24 @@ Mst.Goout.prototype.go_out = function () {
     if (this.notupdated) {
         this.notupdated = false;
         if (!this.locked) {
-            this.game_state.save_data(this.go_position, new_int, "goout");
+            this.game_state.mGame.save_data(this.go_position, new_int, "goout");
         } else {
-            index = this.game_state.prefabs.player.test_item(82, 1); //klic
+            index = this.game_state.prefabs.player.cPlayer.items.test(82, 1); //klic
             if (index > -1) {
                 if (this.permit_type === "player") {
                     key_permit = parseInt(this.key_permit);
-                    if (key_permit === this.game_state.prefabs.player.usr_id) {
-                        this.game_state.save_data(this.go_position, new_int, "goout");
+                    if (key_permit === this.game_state.prefabs.player.mPlayer.usr_id) {
+                        this.game_state.mGame.save_data(this.go_position, new_int, "goout");
                     } else {
-                        this.game_state.hud.alert.show_alert("Zamčeno!");
+                        this.game_state.cGame.hud.alerts.show("Zamčeno!");
                         this.game_state.game.time.events.add(Phaser.Timer.SECOND * 2, this.set_notupdated, this);
                     }
                 } else {
-                    this.game_state.hud.alert.show_alert("Zamčeno!");
+                    this.game_state.cGame.hud.alerts.show("Zamčeno!");
                     this.game_state.game.time.events.add(Phaser.Timer.SECOND * 2, this.set_notupdated, this);
                 }
             } else {
-                this.game_state.hud.alert.show_alert("Zamčeno!");
+                this.game_state.cGame.hud.alerts.show("Zamčeno!");
                 this.game_state.game.time.events.add(Phaser.Timer.SECOND * 2, this.set_notupdated, this);
             }
         }        

@@ -1,6 +1,3 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
 Mst.Quest = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
@@ -19,7 +16,7 @@ Mst.Quest = function (game_state, name, position, properties) {
         x: 0,
         y: 0,
         properties: properties
-    }    
+    };
 };
 
 Mst.Quest.prototype = Object.create(Mst.Prefab.prototype);

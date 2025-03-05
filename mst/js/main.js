@@ -1,7 +1,4 @@
-var Phaser = Phaser || {};
-var Mst = Mst || {};
-
-var game = new Phaser.Game(550, 400, Phaser.CANVAS);
+const game = new Phaser.Game(550, 400, Phaser.CANVAS);
 
 game.state.add("BootState", new Mst.BootState());
 game.state.add("LoadingState", new Mst.LoadingState());
