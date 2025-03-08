@@ -186,10 +186,10 @@ Mst.TiledState.prototype.create_object = function (object) {
     }
     
     console.log("Prefab exist? " + object.name);
-    let prefab = this.prefabs[object.name];
+    const prefab = this.prefabs[object.name];
     
     console.log(prefab);
-    if (!prefab) prefab = this.create_prefab(type, object.name, position, object.properties);
+    if (!prefab) return this.create_prefab(type, object.name, position, object.properties);
     return prefab;
 };
 

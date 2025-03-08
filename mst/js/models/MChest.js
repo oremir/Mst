@@ -199,7 +199,6 @@ class MChest {
     }
 
     set_stat(stat) {
-        "use strict";    
         this.stat = stat;
     }
 
@@ -251,7 +250,6 @@ class MChest {
     }
 
     save_chest() {
-        "use strict";
         const game_state = this.vGame;
         const chest = this;
         const usr_id = game_state.prefabs.player.mPlayer.usr_id;
@@ -289,8 +287,6 @@ class MChest {
     }
 
     close_chest() {
-        "use strict";
-        
         const game_state = this.vGame;
         const player = game_state.prefabs.player;
         const chest = this;
@@ -374,8 +370,6 @@ class MChest {
     }
 
     get_chest_core(chest) {
-        "use strict";
-        
         const cPlayer = this.vGame.prefabs.player.cPlayer;
         const usr_id = this.vGame.prefabs.player.mPlayer.usr_id;
         const chest_name = chest.name;
@@ -494,8 +488,6 @@ class MChest {
     }
 
     open_chest(player, chest) {
-        "use strict";
-        
         let stat = "error";
         if (chest.obj_id === 0) {
             console.log("Chest open obj_id 0");
@@ -549,7 +541,6 @@ class MChest {
     }
 
     load_chest(properties, stat) {
-        "use strict";
         this.stats.items = properties.items ? properties.items : "";
         this.save.properties.items = this.stats.items;
         this.items.unpacked = this.items.unpack(this.stats.items);
@@ -558,19 +549,15 @@ class MChest {
     }
     
     set_owner(owner) {
-        "use strict";
         this.owner = owner;
         this.save.properties.owner = owner;
     }
     
     set_obj_id(obj_id) {
-        "use strict";
         this.obj_id = parseInt(obj_id);
         this.vChest.obj_id = this.obj_id;
         this.save.obj_id = this.obj_id;
     }
-
-
 }
 
 class MCInterface {
@@ -658,7 +645,6 @@ class MCItems {
     }
 
     unpack(items) {
-        "use strict";
         const ret = {};
         if (items !== '') {
             const aitem = items.split("_");
@@ -673,7 +659,6 @@ class MCItems {
     }
     
     pack(uitem) {
-        "use strict";
         const an = [];
         for (let key in uitem) {
             an.push(key + "-" + uitem[key]);
@@ -683,8 +668,6 @@ class MCItems {
     }
     
     add_item_u(item_frame, quantity) {
-        "use strict";
-    
         console.log("Chest add item unpacked: " + item_frame + "x" + quantity + " Opened: " + this.is_opened);
         
         if (this.unpacked[item_frame]) {
@@ -715,21 +698,18 @@ class MCItems {
     }
     
     subtract(item_index, quantity) {
-        "use strict";
         this.mGame.vGame.prefabs.chestitems.subtract_item(item_index, quantity);
     }
     
     subtract_all(item_index) {
-        "use strict";
         this.mGame.vGame.prefabs.chestitems.subtract_all(item_index);
     }
     
     take_all() {
-        "use strict";
         const content = this.mGame.vGame.prefabs.chestitems.in_chest();
         
         if (content.length > 0) {
-            for (var i = content.length - 1; i > -1; i--) {
+            for (let i = content.length - 1; i > -1; i--) {
                 this.subtract_all(i);
             }
         }
@@ -738,12 +718,10 @@ class MCItems {
     }
 
     in_chest_ord() {
-        "use strict";
         return this.mGame.vGame.prefabs.chestitems.in_chest_ord();
     }
     
     test(item_frame, quantity) {
-        "use strict";
         console.log("Test chest item frame: " + item_frame);
         
         const index = this.mGame.vGame.prefabs.chestitems.test_item(item_frame, quantity);
@@ -752,7 +730,6 @@ class MCItems {
     }
     
     index(item_frame) {
-        "use strict";
         return this.mGame.prefabs.chestitems.index_by_frame(item_frame);
     }
 }
@@ -794,13 +771,11 @@ class MCCases {
     }
 
     set_pcid(id, pcid) {
-        "use strict";
         this.core[id].PCID = pcid;
         this.save.cases = this.core;
     }
     
     set_investigate() {
-        "use strict";
         for (const ncase of this.core) {
             if (ncase.PCID === -1) {
                 ncase.PCID = -2;
@@ -812,8 +787,6 @@ class MCCases {
     }
     
     steal() {
-        "use strict";
-        
         console.log("Chest steal");
         
         const player = this.player;
@@ -879,7 +852,6 @@ class MCCases {
     }
     
     rollback() {
-        "use strict";
         const id = this.case_id;
         const culprit_id = this.core[id].CpID;
         
@@ -891,8 +863,6 @@ class MCCases {
     }
     
     add_witness(cid) {
-        "use strict";
-    
         const map = this.map;
         
         if (!this.core[cid].witness[map]) {
@@ -915,8 +885,6 @@ class MCCases {
     }
     
     add_ftprints(cid) {
-        "use strict";
-    
         const ftprint = {
             m: this.map,
             x: Math.round((this.player.x - 8 )/16)*16 + 8,
@@ -938,7 +906,6 @@ class MCCases {
     }
     
     add_taken(taken) {
-        "use strict";
         if (this.case_id > -1) {
             if (this.check_taken()) {
                 this.core[this.case_id].taken = taken;
@@ -951,7 +918,6 @@ class MCCases {
     }
     
     check_taken() {
-        "use strict";
         console.log("TAKEN check");
         console.log(this.taken);
         
@@ -962,8 +928,6 @@ class MCCases {
     }
 
     change_taken(frame, quantity) {
-        "use strict";
-        
         if (!this.taken[frame]) {
             this.taken[frame] = quantity;
         } else {
@@ -975,8 +939,6 @@ class MCCases {
     }
     
     save_taken() {
-        "use strict";
-        
         const taken_a = [];
         let taken = "";
         

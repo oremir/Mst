@@ -2,7 +2,7 @@ Mst.Sword = function (game_state, name, position, properties) {
     "use strict";
     Mst.Prefab.call(this, game_state, name, position, properties);
 
-    this.cSword = new CSword(this, name, position, properties);
+    this.cSword = new CSword(this);
     this.mSword = this.cSword.mSword;
 
     this.game_state.game.physics.arcade.enable(this);

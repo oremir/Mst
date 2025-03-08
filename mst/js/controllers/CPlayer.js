@@ -32,7 +32,6 @@ class CPlayer {
     }
 
     key_right() {
-        "use strict";
         this.weapon.direction.x = 1;
         this.weapon.hit.scale.setTo(this.weapon.direction.x, 1);
         this.weapon.check_rod();
@@ -40,7 +39,6 @@ class CPlayer {
     }
 
     key_left() {
-        "use strict";
         this.weapon.direction.x = -1;
         this.weapon.hit.scale.setTo(this.weapon.direction.x, 1);
         this.weapon.check_rod();
@@ -48,21 +46,18 @@ class CPlayer {
     }
 
     key_up() {
-        "use strict";
         this.weapon.direction.y = -1;
         this.weapon.check_rod();
         this.chest.direction = {"x": 0, "y": -1};
     }
 
     key_down() {
-        "use strict";
         this.weapon.direction.y = 1;
         this.weapon.check_rod();
         this.chest.direction = {"x": 0, "y": 1};
     }
 
     key_action() {
-        "use strict";
         const opened_chest = this.cPlayer.chest.opened;
         console.log(opened_chest);
 
@@ -76,7 +71,6 @@ class CPlayer {
     }
 
     key_change_type() {
-        "use strict";
         if (this.mGame.prefabs.items.text_bot.text !== "") this.mGame.prefabs.items.change_put_type();
     }
 
@@ -89,8 +83,6 @@ class CPlayer {
     }
     
     set_logoff() {
-        "use strict";
-
         const cwait = { type: "logout" };
         this.quests.update("wait", cwait);
 
@@ -98,9 +90,6 @@ class CPlayer {
     }
     
     add_newsppr(num) {
-        "use strict";
-        let ret = false;
-
         if (this.mPlayer.newsppr.indexOf(num) < 0) {
             ret = true;
             this.mPlayer.newsppr.push(num);
@@ -109,14 +98,12 @@ class CPlayer {
             this.items.add(225, 1);
 
             this.hud.alerts.show("+noviny");
+            return true;
         }
-
-        return ret;
+        return false;
     }
 
     work_rout(skill, ability, stress, stand_exp, skill_exp, abil_p) {
-        "use strict";
-
         this.mPlayer.gtime.add_minutes(4, this.vGame);
         this.mPlayer.add_stress(stress);
         this.mPlayer.add_exp("standard", stand_exp);
@@ -125,7 +112,6 @@ class CPlayer {
     }
 
     add_ability(abil, num1, num2) {
-        "use strict";
         let ability = this.mPlayer.stats.abilities[abil];
 
         if (!ability) ability = 8;
@@ -176,8 +162,6 @@ class CPlayer {
     }
 
     add_rumour(rumour) {
-        "use strict";
-
         const key = this.mPlayer.stats.rumours.indexOf(rumour);
         if (key < 0) {
             this.mPlayer.stats.rumours.push(rumour);
@@ -263,7 +247,6 @@ class CPOpenedChest extends CPOpened {
     }
     
     open_fin(player, chest) {
-        "use strict";
         console.log("Player open chest fin");
         const owner = parseInt(chest.mChest.owner);
 
@@ -308,8 +291,6 @@ class CPOpenedOverlap extends CPOpened {
     }
     
     take(overlap) {
-        "use strict";
-
         console.log("Hide overlap");
         console.log(overlap);
 
@@ -332,7 +313,6 @@ class CPExpAlert {
     }
     
     exp(skill, quantity) {
-        "use strict";
         const text = skill + " exp: +" + quantity;
         console.log(text);
 
@@ -355,8 +335,6 @@ class CPExpAlert {
     }
 
     done() {
-        "use strict";
-
         console.log("Alert timer end");
         let iz = 0;
 
@@ -381,23 +359,18 @@ class CPItems {
     }
     
     add(item_frame, quantity) {
-        "use strict";
         return this.vGame.prefabs.items.add_item(item_frame, quantity);
     }
 
     subtract(item_index, quantity) {
-        "use strict";
         this.vGame.prefabs.items.subtract_item(item_index, quantity);
     }
 
     subtract_all(item_index) {
-        "use strict";
         return this.vGame.prefabs.items.subtract_all(item_index);
     }
 
     put_all(content) {
-        "use strict";
-
         if (content.length > 0) {
             for (const c of content) {
                 const frame = c.f;
@@ -408,15 +381,12 @@ class CPItems {
     }
 
     test(item_frame, quantity) {
-        "use strict";
-
         const index = this.vGame.prefabs.items.test_item(item_frame, quantity);
         console.log(index);
         return index;
     }
     
-    index_by_frame(item_frame) {        
-        "use strict";
+    index_by_frame(item_frame) {
         return this.vGame.prefabs.items.index_by_frame(item_frame);
     }
 }
@@ -428,7 +398,6 @@ class CPRelations {
     }
     
     update(person, exp) {
-        "use strict";
         console.log("Update relation");
         console.log(person);
         
@@ -492,31 +461,23 @@ class CPRelations {
     }
 
     get(uid, type) {
-        "use strict";
-        let relation_selected = null;
-
         for (const rel of this.a) {
             const ruid = String(rel.uid);
             if (rel.type === type && rel.uid === String(uid)) {
-                relation_selected = rel;
-                console.log(relation_selected);
-                break;
+                console.log(rel);
+                return rel;
             }
         }
-
-        return relation_selected;
+        return null;
     }
 
     get_name(uid, type) {
-        "use strict";
         const relation = this.get(uid, type);
         if (relation) return relation.name;
         return "";
     }
 
     return(person) {
-        "use strict";
-
         const uid = person.get_uid();
         const type = person.get_otype();
 
@@ -545,25 +506,15 @@ class CPBuffs {
     }
     
     index(btype) {
-        "use strict";
-
-        let index = -1;
         console.log(this.a);
         for (let i in this.a) {
             console.log(btype + " " + this.a[i].btp);
-            if (btype === parseInt(this.a[i].btp)) {
-                index = i;
-                break;
-            }
+            if (btype === parseInt(this.a[i].btp)) return i;
         }
-
-        console.log("Buff index: " + index);
-
-        return index;
+        return -1;
     }
 
     add(btype, time) {
-        "use strict";
         const index = this.index(btype);
 
         const dt = new Date();
@@ -597,8 +548,6 @@ class CPBuffs {
     }
 
     close(buff) {
-        "use strict";
-
         console.log(buff);
 
         const index = this.index(buff.btp);
@@ -617,7 +566,6 @@ class CPFollowers {
     }
     
     init() {
-        "use strict";
         for (let key in this.st) {
             const follower = this.create(key);
             if (follower) this.a[key] = follower;
@@ -625,8 +573,6 @@ class CPFollowers {
     }
 
     create(fwr) {
-        "use strict";
-        let follower = null;
         const pfollower = this.vGame.prefabs[fwr];
 
         if (pfollower) {        
@@ -642,7 +588,7 @@ class CPFollowers {
             console.log(position);
             console.log(properties);
 
-            follower = new Mst.Follower(this.vGame, name, position, properties);
+            const follower = new Mst.Follower(this.vGame, name, position, properties);
 
             console.log(follower);
             return follower;
@@ -655,7 +601,6 @@ class CPFollowers {
     }
 
     save(go_position, go_map_int) {
-        "use strict";
         console.log(this.m);
 
         for (let key in this.m) {
@@ -681,7 +626,6 @@ class CPQuests {
     }
 
     test(type, condition) {
-        "use strict";
         return this.mQuests.test(type, condition);
     }
     
@@ -691,21 +635,18 @@ class CPQuests {
     }
 
     update(type, condition) {
-        "use strict";
-
         console.log('\x1b[106mAccomplish - Update: ' + type);
         
-        let ret = false;
         console.log(this.ass_quest);
         for (let name in this.ass_quest) {
-            const quest = this.quest_by_name[name];
+            const quest = this.quest_by_name(name);
             console.log(quest);
 
             if (quest.is_ass()) {
-                ret = quest.update(type);
+                const succ = quest.update(type, condition);
                 console.log(quest);
                 
-                if (ret) {
+                if (succ) {
                     const person = this.mGame.get_person(quest.owner, quest.owner_type);
                     if (person) {
                         person.ren_sprite.quest.state = "acc";
@@ -717,12 +658,9 @@ class CPQuests {
 
         this.mPlayer.save.properties.quests = this.stat_quests;
         console.log(this.stat_quests);
-        return ret;
     }
 
     finish(quest) {
-        "use strict";
-
         this.mQuests.finish(quest);
         
         const reward = quest.properties.reward;
@@ -863,7 +801,6 @@ class CPCases {
     }
 
     get_act_full_case(context) {
-        "use strict";
         const pcid = this.get_act_pcid();
         const cc = this.case[pcid].get_full(context);
         return {
@@ -899,7 +836,6 @@ class CPCases {
     }
     
     get_full_person(uid, type, context) {
-        "use strict";
         return this.loaded.get_full_person(uid, type, context);
     }
 
@@ -921,7 +857,6 @@ class CPCases {
     }
 
     add_ftprints_tocase(cftp) {
-        "use strict";
         const owner = parseInt(cftp.owner);
         const fpcid = parseInt(cftp.pcid);
         
@@ -936,7 +871,6 @@ class CPCases {
     }
 
     add_chest(c) {
-        "use strict";
         const ccases = c.cChest.cases.core;
 
         for (const ccase of ccases) {
@@ -962,24 +896,15 @@ class CPCases {
     }
 
     add_culprit(culprit) {
-        "use strict";
-
         this.culprit.push(culprit);
-        this.mPlayer.save.properties.culprit = this.culprit;
-
         return this.culprit.length - 1;
     }
 
     rollback_culprit(id) {
-        "use strict";
-
         this.culprit.splice(id, 1);
-        this.mPlayer.save.properties.culprit = this.culprit;
     }
 
     test_culprit() {
-        "use strict";
-
         const map = this.map;
         const new_culprit = [];
 
@@ -1003,7 +928,5 @@ class CPCases {
         }
 
         this.culprit = new_culprit;
-        this.mPlayer.save.properties.culprit = new_culprit;
     }
 }
-

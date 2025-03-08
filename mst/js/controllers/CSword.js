@@ -6,7 +6,7 @@ class CSword {
         this.vGame = vSword.game_state;
         this.hud = this.cGame.hud;
         this.cPlayer = vSword.game_state.prefabs.player.cPlayer;
-        this.mSword = new MSword(this, name, position, properties);
+        this.mSword = new MSword(this);
 
         this.cut_type = this.mSword.cut_type;
         this.fr_left = this.mSword.fr_left;

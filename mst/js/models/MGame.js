@@ -56,8 +56,6 @@ class MGame {
     }
     
     playerOfUsrID(usr_id) {
-        "use strict";
-
         console.log("playerOfUsrID:" + usr_id);
         for (let object_key in this.prefabs) {
             if (this.prefabs[object_key].usr_id) {
@@ -74,8 +72,6 @@ class MGame {
     }
 
     NPCofID(usr_id) {
-        "use strict";
-
         console.log("NPCofID:" + usr_id);
         for (let object_key in this.prefabs) {
             if (this.prefabs[object_key].unique_id) {
@@ -91,21 +87,17 @@ class MGame {
     }
     
     get_name(uid, type) {
-        "use strict";
         if (type === 'player') return this.playerOfUsrID(uid);
         return this.NPCofID(uid);
     }
     
     get_person(uid, type) {
-        "use strict";
         const name = this.get_name(uid, type);
         if (name) return this.prefabs[name];
         return null;
     }
 
     objectofID(obj_id) {
-        "use strict";
-
         console.log("objectofID:" + obj_id);
         for (let object_key in this.prefabs) {
             if (this.prefabs[object_key].obj_id) {
@@ -121,15 +113,12 @@ class MGame {
     }
 
     get_object(oid) {
-        "use strict";
         const key = this.objectofID(oid);
         if (key) return this.prefabs[key];
         return null;
     }
 
     keyOfUsrID(usr_id) {
-        "use strict";
-
         console.log("keyOfUsrID:" + usr_id);
         console.log(this.save.objects);
         for (let object_key in this.save.objects) {
@@ -142,13 +131,10 @@ class MGame {
                 }
             }
         }
-
         return null;
     }
 
     keyOfName(name) {
-        "use strict";
-
         console.log("keyOfName:" + name);
         if (this.save) {
             for (let object_key in this.save.objects) {
@@ -157,7 +143,6 @@ class MGame {
                 }
             }
         }
-
         return null;
     }
 
@@ -174,8 +159,6 @@ class MGame {
     }
 
     get_players() {
-        "use strict";
-
         const players = [];
         for (let object_key in this.prefabs) {
             if (this.prefabs[object_key].usr_id) {
@@ -187,8 +170,6 @@ class MGame {
     }
 
     get_NPCs() {
-        "use strict";
-
         const NPCs = [];
         for (let object_key in this.prefabs) {
             if (this.prefabs[object_key].unique_id) {
@@ -202,7 +183,6 @@ class MGame {
     }
     
     save_data(go_position, next_map_int, save_state) {
-        "use strict";
         this.save_state = save_state;
         this.save_tween = false;
         this.save_post = false;
@@ -264,7 +244,6 @@ class MGame {
     }
     
     save_data_fin() {
-        "use strict";
         console.log("save_data_fin");
         let usr_id = this.gdata.root.usr_id;
         let login = true;
@@ -292,7 +271,6 @@ class MGame {
     }
     
     make_object(position, oid, type) {
-        "use strict";
         const mGame = this;
         const vGame = this.vGame;
         const cases = this.mPlayer.cases;
@@ -362,12 +340,11 @@ class MGame {
     }
 
     make_otherplayer(position, uid, type) {
-        "use strict";
         const mGame = this;
         const vGame = this.vGame;
         const mPlayer = this.mPlayer;
-        const a_type = type.split("|");
-        if (a_type[1]) type = a_type[0];
+        const acont = type.split("|");
+        if (acont[1]) type = acont.shift();
 
         const save = {};
         save.type = "player";
@@ -402,14 +379,12 @@ class MGame {
                 //console.log(otherplayer);
 
                 if (type === "dead") {
-                    const nurse = otherplayer.test_nurse();
-
-                    mPlayer.killed = false;
-                    mPlayer.save.properties.killed = false;
+                    otherplayer.test_nurse();
+                    mPlayer.set_killed(false);
                 }
 
                 if (type === "investigate") {
-                    const mbi = mPlayer.cases.make_book_investigate(uid, a_type);
+                    const mbi = mPlayer.cases.make_book_investigate(uid, type, acont);
 
                     vGame.hud.book.book_investigate(mbi);
                 }
@@ -422,6 +397,129 @@ class MGame {
             });
 
         return otherplayer;    
+    }
+}
+
+class MProperty {
+    constructor(value, max) {
+        this.value = parseInt(value);
+        this.max = parseInt(max);
+    }
+
+    get() {
+        return this.value;
+    }
+
+    set(value) {
+        this.value = parseInt(value);
+    }
+
+    reset() {
+        if (this.max) this.value = this.max;
+    }
+
+    add(value) {
+        this.value += parseInt(value);
+        if (this.max && this.value > this.max) this.value = this.max;
+    }
+
+    sub(value) {
+        this.value -= parseInt(value);
+        if (this.value < 0) this.value = 0;
+    }
+
+    save() {
+        return this.value;
+    }
+}
+
+class MArrayItem {
+    constructor(arr, id, value) {
+        this.arr = arr;
+        this.id = id;
+        this.value = value;
+    }
+
+    get() {
+        return this.value;
+    }
+
+    set(value) {
+        this.value = value;
+        this.arr.core[this.id] = value;
+        return this;
+    }
+
+    remove() {
+        return this.arr.remove(this.id);
+    }
+}
+
+class MArray extends Array {
+    constructor(core) {
+        super();
+        this.core = core;
+        this._make(core);
+    }
+
+    get [id]() {
+        if (this[id]) return this[id].get();
+        return null;
+    }
+
+    set [id](value) {
+        if (this[id]) this[id].set(value);
+    }
+
+    _make(core) {
+        if (!core) core = [];
+        for (const item of core) {
+            this._add(item);
+        }
+    }
+
+    _reset_ids(start) {
+        if (!start) start = 0;
+        for (let i = start; i < this.length; i++) {
+            this[i].id = i;
+        }
+    }
+
+    _model(index, value) {
+        return new MArrayItem(this, index, value);
+    }
+
+    _add(value) {
+        const index = this.length;
+        const item = this._model(index, value);
+        this.push(item);
+        return item;
+    }
+
+    add(value) {
+        this.core.push(value);
+        return this._add(value);
+    }
+
+    update(id, value) {
+        if (!this[id]) return this.add(value);
+        this[id].set(value);
+        return this[id];
+    }
+
+    remove(id) {
+        if (id > -1) {
+            const ret = this[id];
+            this.splice(id, 1);
+            this.core.splice(id, 1);
+            this._reset_ids(id);
+            return ret;
+        }
+        return null;
+    }
+
+    save() {
+        return this.core;
     }
 }
 
@@ -495,8 +593,6 @@ class MGCFtprints {
     }
 
     make(cc) {
-        "use strict";
-
         console.log("Add ftprints");
 
         const map = this.mGame.gdata.root.map_int;
@@ -549,7 +645,6 @@ class MGCFtprints {
     }
 
     prepare_onmap() {
-        "use strict";
         console.log(this);
         const loaded = this.mCases.loaded;
         const map = this.map;
@@ -611,13 +706,11 @@ class MGCLoaded {
     }
 
     get_ptype(type) {
-        "use strict";
         if (type === "player") return "person";
         return "NPC";
     }
 
     load_person(uid, type, context) {
-        "use strict";
         const ptype = this.get_ptype(type);
         const person = this.mGame.get_person(uid, type);
         if (person) {
@@ -634,7 +727,6 @@ class MGCLoaded {
     }
 
     get_full_person(uid, type, context) {
-        "use strict";
         const ptype = this.get_ptype(type);
 
         if (this[ptype][uid]) return this[ptype][uid];
@@ -643,13 +735,11 @@ class MGCLoaded {
     }
 
     add_case(acase, pcid) {
-        "use strict";
         this.cases[pcid] = JSON.parse(JSON.stringify(acase));
         return this.cases[pcid];
     }
 
     load_case(pcid, context) {
-        "use strict";
         const pc = this.case[pcid];
         const oid = pc.chest.id;
         const cid = pc.chest.cid;
@@ -666,7 +756,6 @@ class MGCLoaded {
     }
 
     get_full_case(pcid, context) {
-        "use strict";
         if (!this.cases[pcid]) return this.load_case(pcid, context);
         return JSON.parse(JSON.stringify(this.cases[pcid]));
     }
@@ -718,15 +807,13 @@ class MGCWitness {
         const witstr = "test witness|" + pcid + "|" + uids + "|" + type;
         const pcase = ncase.get_full(witstr);
         if (pcase) {
-            if (!this.have_case(pcid)) this.load(pcase, uids, type);
+            if (!this.have_case(pcid)) this.load(pcase);
             return this.getw(type, uids, pcid);
         }
         return null;
     }
 
-    load(pcase, uids, type) {
-        "use strict";
-        
+    load(pcase) {
         const witness = this.o;
         console.log(pcase);
 

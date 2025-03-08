@@ -36,12 +36,11 @@ class CGame {
     }
 
     init_hud(groups) {
-        this.hud.init_groups(this.groups);
+        this.hud.init_groups(groups);
         this.hud.init();
     }
     
     final_tests() {
-        "use strict";
         let nurse = false;
 
         if (this.mPlayer.killed) {
@@ -68,8 +67,7 @@ class CGame {
                     break;
                 }
             } else {
-                this.mPlayer.killed = false;
-                this.mPlayer.save.properties.killed = false; 
+                this.mPlayer.set_killed(false);
             }               
         }
 
@@ -177,26 +175,22 @@ class CGCFtprints {
     }
     
     prepare_ftp() {
-        "use strict";
         this.mFtprints.prepare_ftp();
     }
     
     prepare_onmap() {
-        "use strict";
         this.mFtprints.prepare_onmap();
     }
     
-    distance(cftp) {
-        "use strict";        
+    distance(cftp) {     
         const x = parseInt(cftp.x);
         const y = parseInt(cftp.y);
-        const dist = this.vGame.game.physics.arcade.distanceToXY(this.vPlayer, x, y);
+        const dist = this.cGame.vGame.game.physics.arcade.distanceToXY(this.cPlayer.vPlayer, x, y);
         console.log(dist);
         return dist;
     }
 
     return_near() {
-        "use strict";
         const ftprints = this.a;
 
         for (let id in ftprints) {
@@ -225,10 +219,6 @@ class CGCFtprints {
     }
 
     near(ftp) {
-        "use strict";
-
-        let bf = false;
-
         const eo_ftp = this.unpack(ftp);
         const ftprints = this.a;
         console.log(eo_ftp);
@@ -241,7 +231,7 @@ class CGCFtprints {
                     const n_ftp = ftprints[fid].x + "|" + ftprints[fid].y;
 
                     if (this.distance(ftprints[fid]) < 40 && n_ftp === eo_ftp.xy) {
-                        bf = true;
+                        return true;
                     }
                 }
             } else {
@@ -249,18 +239,16 @@ class CGCFtprints {
                     const n_ftp = ftprints[id].x + "|" + ftprints[id].y;
 
                     if (this.distance(ftprints[id]) < 40 && n_ftp === eo_ftp.xy) {
-                        bf = true;
+                        return true;
                     }
                 }
             }
         }
 
-        return bf;
+        return false;
     }
 
     test(nid, ftp) {
-        "use strict";
-
         const ret = {
             b: false,
             id: -1,
@@ -314,7 +302,6 @@ class CGCFtprints {
     }
 
     investigate(ncase, nid) {
-        "use strict";
         const ftp = ncase.evidences;
 
         console.log("Investigate ftp: " + ftp[nid]);
@@ -390,7 +377,6 @@ class CGCFtprints {
                 }
             }
         }
-
         return n_evidence;
     }
 }

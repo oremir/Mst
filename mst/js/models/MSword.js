@@ -1,5 +1,5 @@
 class MSword {
-    constructor(cSword, name, position, properties) {
+    constructor(cSword) {
         this.cSword = cSword;
         this.cGame = cSword.cGame;
         this.mGame = cSword.mGame;

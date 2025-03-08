@@ -13,8 +13,6 @@ class CChest {
     }
 
     updated(frame) {
-        "use strict";
-        
         const ret = this.loop.updated(frame);
     
         console.log("Update1:");
@@ -25,8 +23,6 @@ class CChest {
     }
 
     open_chest_fin(player, chest) {
-        "use strict";
-        
         chest.game_state.prefabs.chestitems.show_initial_stats();
         chest.game_state.prefabs.items.set_put_type("put");
         
@@ -64,8 +60,6 @@ class CChest {
     }
 
     get_chest(chest) {
-        "use strict";
-        
         let success = true;
         
         const player = this.vGame.prefabs.player;
@@ -171,8 +165,6 @@ class CChest {
     }
     
     rnd_take(frame, skill) {
-        "use strict";
-        
         console.log("RND take CHEST!!! Level: " + this.level);
         
         const player = this.vGame.prefabs.player;
@@ -266,7 +258,6 @@ class CCItems {
 
     
     chest_compare(a, b) {
-        "use strict";
         if (a || b) {
               if (a.length == b.length) {
                 let output = true;
@@ -377,31 +368,24 @@ class CCLoop {
 
     updated(frame) {
         let is_timed = true;
-        let ret = "null";
-    
         switch (frame) {
             case 56:
                 console.log("Play anim kotlik");
-                ret = "ficauldron";
-            break;
+                return "ficauldron";
             case 65:
                 console.log("Play anim vyhen");
-                ret = "fifurnace";
-            break;
+                return "fifurnace";
             case 74:
                 console.log("Play anim kotlik s vodou");
-                ret = "fiwcauldron";
-            break;
+                return "fiwcauldron";
             case 83:
                 console.log("Play anim ohen");
-                ret = "fire";
-            break;
+                return "fire";
             case 104:
                 is_timed = true;
             break;
             case 139: //kvetinac zem.
-                if (this.mChest.s1type === 'plant') {
-                }
+                if (this.mChest.s1type === 'plant') { }
                 is_timed = false;
             break;
             case 140:
@@ -411,8 +395,7 @@ class CCLoop {
                 is_timed = false;
             break;
             case 227: //pole zem.
-                if (this.mChest.s1type === 'plant') {
-                }
+                if (this.mChest.s1type === 'plant') {}
                 is_timed = false;
             break;
             case 231: //pole saz.
@@ -420,8 +403,7 @@ class CCLoop {
             break;
             default:                
                 is_timed = false;
-                ret = "stop";
-            break;
+                return "stop";
         }
     
         if (!this.timer.running && is_timed) {
@@ -430,12 +412,10 @@ class CCLoop {
             console.log("Chest timer start!");
         }
 
-        return ret;
+        return null;
     }
 
     time_up() {
-        "use strict";
-        
         console.log("Chest " + this.mChest.name + " time up!");
         switch (this.mChest.closed_frame) {
             case 56: //Kotlik hori
@@ -461,8 +441,6 @@ class CCLoop {
     }
 
     done(nloop, type) {
-        "use strict";
-        
         const cPlayer = this.mGame.prefabs.player.cPlayer;
         
         const d = new Date();
@@ -687,10 +665,8 @@ class CCLoop {
                 }
             }
             this.count = 0;
-        }
-    
-    }
-    
+        }    
+    }    
 }
 
 class CCCases {
@@ -726,5 +702,4 @@ class CCCases {
     steal() {
         this.mCCases.steal();
     }
-
 }

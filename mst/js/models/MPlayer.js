@@ -70,14 +70,17 @@ class MPlayer {
         //      console.log("Pusher: " + JSON.stringify(data));
         //    });
     }
+
+    set_killed(killed) {
+        this.killed = killed;
+        this.save.properties.killed = killed;
+    }
     
     init_hud(hud) {
         this.hud = hud;
     }
 
     add_health(quantity) {
-        "use strict";
-
         this.health += quantity;
         this.stats.health = this.health;
 
@@ -86,8 +89,6 @@ class MPlayer {
     }
 
     subtract_health(quantity) {
-        "use strict";
-
         this.health -= quantity;
         this.stats.health = this.health;
 
@@ -101,14 +102,12 @@ class MPlayer {
     }
     
     reset_health() {
-        "use strict";
         this.health = this.stats.health_max;
         this.stats.health = this.stats.health_max;
     }
     
     dead() {
-        "use strict";
-        this.save.properties.killed = true;
+        this.set_killed(true);
         this.stats.stress = 0;
         this.reset_health();
 
@@ -131,7 +130,6 @@ class MPlayer {
     }
     
     sleep() {
-        "use strict";
         let constitution = Math.ceil(parseInt(this.stats.abilities.constitution) / 2 + 50);
         let health = Math.ceil(parseInt(this.stats.health_max) * 0.8);
         let stress = Math.ceil(parseInt(this.stats.stress) * 0.8);
@@ -147,8 +145,6 @@ class MPlayer {
     }
 
     add_stress(quantity) {
-        "use strict";
-
         this.cPlayer.add_ability("constitution", 2, 0);
         this.stats.stress += quantity;
 
@@ -158,8 +154,6 @@ class MPlayer {
     }
 
     subtract_stress(quantity) {
-        "use strict";
-
         this.stats.stress -= quantity;
 
         if (this.stats.stress < 0) this.stats.stress = 0;
@@ -168,13 +162,10 @@ class MPlayer {
     }
 
     add_sin(quantity) {
-        "use strict";
         this.stats.sin += quantity;
     }
 
     add_exp(skill, quantity) {
-        "use strict";
-
         function level_add(skill, exp, level) {
             let pom_exp;
 
@@ -211,7 +202,7 @@ class MPlayer {
             }
         }
 
-        if (typeof this.stats.skills[skill] === "undefined") {
+        if (!this.stats.skills[skill]) {
             this.stats.skills[skill] = { exp: 1, level: 1 };
         }
 
@@ -237,15 +228,12 @@ class MPlayer {
     }
 
     level(skill) {
-        "use strict";
         let level = 0;
         if (this.stats.skills[skill]) level = parseInt(this.stats.skills[skill].level);
         return level;
     }
 
     save_player(go_position, go_map_int) {
-        "use strict";
-
         this.vPlayer.body.immovable = true;
 
         if (this.cPlayer.chest.opened) this.cPlayer.chest.opened.mChest.close_chest();
@@ -262,6 +250,8 @@ class MPlayer {
         this.save.properties.items = this.stats.items;
         this.save.properties.equip = this.stats.equip;
         this.save.properties.expequip = this.stats.expequip;
+        this.save.properties.culprit = this.cPlayer.cases.culprit;
+        this.save.properties.cases = this.mPlayer.cases.core;
 
         const dt = new Date();
         this.save.properties.time = dt.getTime();
@@ -281,7 +271,6 @@ class MPlayer {
     }
 
     update_place() {
-        "use strict";
         console.log("Update place");
 
         let place_selected = null;
@@ -493,8 +482,6 @@ class MPGTime {
     }
 
     set_time(time) {
-        "use strict";
-
         this.ms = time;
         this.obj = new Date(this.ms);
 
@@ -503,8 +490,6 @@ class MPGTime {
     }
 
     new_day(cPlayer) {
-        "use strict";
-
         const cwait = { type: "sleep" };
         cPlayer.quests.update("wait", cwait);
 
@@ -521,8 +506,6 @@ class MPGTime {
     }
 
     add_minutes(mins, vGame) {
-        "use strict";
-
         console.log("Hodina: " + this.obj.getHours());
         if (this.obj.getHours() < 7 || this.obj.getHours() > 20) {
             mins = 1;
@@ -585,7 +568,6 @@ class MPMoon {
     }
     
     update() {
-        "use strict";
         this.stats.moon_moon = Math.ceil(this.moon / Math.ceil(this.max / 5));
         if (this.moon < this.max) {        
             let time_str = this.timer.duration.toFixed(0);
@@ -605,7 +587,6 @@ class MPMoon {
     }
     
     update_timer() {
-        "use strict";
         if (this.moon < this.max) {
             this.moon++;
             if (this.moon < this.max) {
@@ -627,7 +608,6 @@ class MPMoon {
     }
     
     subtract_moon() {
-        "use strict";
         this.moon--;
 
         if (this.moon < 1) this.moon = 0;
@@ -658,8 +638,6 @@ class MPBroadcast {
     }
 
     load() {
-        "use strict";
-
         const p = this;
         const d = new Date();
         const n = d.getTime();
@@ -675,14 +653,11 @@ class MPBroadcast {
     }
 
     set(snt) {
-        "use strict";
         this.snt = snt;
         this.next();
     }
 
     next() {
-        "use strict";
-
         if (this.snt) {
             let b_nxt = this.snt.shift();
 
@@ -755,8 +730,6 @@ class MPQuests {
     }
 
     to_core(quest) {
-        "use strict";
-
         const new_quest = {
             name: quest.name,
             qid: quest.qid,
@@ -781,7 +754,6 @@ class MPQuests {
     }
 
     assign(quest) {
-        "use strict";
         if (!this.ass_quest[quest.name]) {
             quest.state = "ass";
 
@@ -796,8 +768,6 @@ class MPQuests {
     }
 
     finish(quest) {
-        "use strict";
-
         console.log("\x1b[106mFinish quest: " + quest.name);
 
         const quest_name = quest.name;
@@ -853,27 +823,23 @@ class MPQQuest {
     }
     
     is_not_ass() {
-        "use strict";
         if (this.mQuests.core.ass[this.name]) return false;
         return true;
     }
 
     is_ass() {
-        "use strict";
         if (this.state) return this.state === "ass";
         if (this.mQuests.core.ass[this.name]) return this.mQuests.core.ass[this.name].acc.is !== "true";
         return false;
     }
 
     is_acc() {
-        "use strict";
         if (this.state) return this.state === "acc";
         if (this.mQuests.core.ass[this.name]) return this.mQuests.core.ass[this.name].acc.is === "true";
         return false;
     }
 
     is_fin() {
-        "use strict";
         if (this.state) return this.state === "fin";
         const qid = String(this.qid);
         
@@ -882,7 +848,6 @@ class MPQQuest {
     }
     
     is_prev_fin() {
-        "use strict";
         if (this.qconditions) {
             for (const co of this.qconditions) {
                 const condi = co.split("_");
@@ -929,7 +894,6 @@ class MPQQuest {
     }
 
     get_quest_ptext(n) {
-        "use strict";
         if (!n) {
             this.i_point = 0;
             this.i_point_m = this.ptexts.length;
@@ -1152,52 +1116,42 @@ class MPCases {
     }
     
     get_badge_val(b_id, b_key, uid, type, context) {
-        "use strict";
         const ubadge = this.unpack_badge(b_id, uid, type, context);
         return ubadge ? ubadge[b_key] : null;
     }
 
     unpack_badge(b_id, uid, type, context) {
-        "use strict";
         const full_person = this.loaded.get_full_person(uid, type, context);
-        if (full_person) return full_person.unpack_badge(b_id);
-        return null;
+        return full_person ? full_person.unpack_badge(b_id) : null;
     }
 
     init_witness(pcid, uid, type) {
-        "use strict";
-        if (pcid < 0) {
-            for (const ncase of this.case) {
-                ncase.init_witnes(uid, type);
-            }
-        } else {
-            return this.case[pcid].init_witnes(uid, type);
+        if (pcid > -1) return this.case[pcid].init_witnes(uid, type);
+        for (const ncase of this.case) {
+            ncase.init_witnes(uid, type);
         }
         return null;
     }
     
-    make_book_investigate(uid, a_type) {
+    make_book_investigate(uid, type, acont) {
         this.loaded.load_person(uid,  "player");
 
-        console.log(a_type);
+        console.log(acont);
+        const pcid = parseInt(acont.pop());
+        const nid = parseInt(acont.pop());
         
-        const nid_id = a_type.length - 2;
-        const id_id = a_type.length - 1;
-        
-        const bt = a_type[1];
-        const bt2 = a_type[2];
-        const id = parseInt(a_type[id_id]);
-        const nid = parseInt(a_type[nid_id]);
+        const bt = acont[0];
+        const bt2 = acont[1];
 
         if (bt !== 'P1' && bt !== 'Book') {
-            this.case[id].evidence_add(a_type, uid, id);
+            this.case[pcid].evidence_add(uid, type, nid, acont);
             
             return { pcid: id, c_type: "evidence" };
         } else {
             if (bt === 'Book') {
                 const firstid = parseInt(bt2);
                 return {
-                    pcid: id,
+                    pcid: pcid,
                     nid: nid,
                     firstid: firstid,
                     c_type: "evidence",
@@ -1221,21 +1175,39 @@ class MPCCase {
         this.type = ncase.type;
         this.questions = ncase.questions;
         this.witness = ncase.witness;
-        this.evidences = ncase.evidences;
         this.loaded = mCases.loaded;
+        this.evidence = this.make_evidences(ncase.evidences);
+    }
+
+    make_evidences(evidences) {        
+        const core = this.core;
+        const pcid = this.pcid;
+        if (!core[pcid].evidences) core[pcid].evidences = [];
+        if (!evidences) {
+            this.evidences = [];
+            evidences = [];
+        }
+
+        const cc = [];
+        for (const evi of evidences) {
+            const nc = new MPCCEvidence(this, core, pcid, cc.length, evi);
+            cc.push(nc);
+        }
+        return cc;
     }
 
     add_evidence(evi) {
         const core = this.core;
         const pcid = this.pcid;
-        if (!core[pcid].evidences) core[pcid].evidences = [];
-        if (!this.evidences) this.evidences = [];
 
         const id = core[pcid].evidences.indexOf(evi);
-        if (id === -1) {
+        if (id < 0) {
+            const nid = core[pcid].evidences.length;
             core[pcid].evidences.push(evi);
+            const nc = new MPCCEvidence(core, pcid, nid, evi);
             this.evidences.push(evi);
-            return core[pcid].evidences - 1;
+            this.evidence.push(nc);
+            return nid;
         }
         return id;
     }
@@ -1251,33 +1223,21 @@ class MPCCase {
         return this.add_evidence(evi);
     }
 
-    evidence_add(a_type, uid, nid) {
-        const nlen = a_type.length - 2;
-        const bt3_id = a_type.length - 3;
-        const type = a_type[0];
-        const bt = a_type[1];
-        const bt2 = a_type[2];
-        const bt3 = a_type[bt3_id];
+    evidence_add(uid, type, nid, acont) {
+        const bt = acont[0];
+        const bt2 = acont[1];
 
-        if (a_type.length < 6) {
-            const ub_val2 = this.mCases.get_badge_val("14", bt2, uid, type, "");
-            if (ub_val2) {
-                const new_evidence = bt + "|" + bt2 + "|" + ub_val2;
+        if (acont.length < 4) {
+            const ub_val = this.mCases.get_badge_val("14", bt2, uid, type, "");
+            if (ub_val) {
+                const new_evidence = bt + "|" + bt2 + "|" + ub_val;
                 this.add_evidence(new_evidence);
             }
         } else {
-            const ub_val3 = this.mCases.get_badge_val("14", bt3, uid, type, "");
-            if (ub_val3) {
-                let new_evidence = "";
-                for (let i = 1; i < nlen; i++) {
-                    new_evidence += a_type[i];
-                    if (i < bt3_id) {
-                        new_evidence += "|";
-                    } else {
-                        new_evidence += ub_val3;
-                    }
-                }
-
+            bt3 = acont.pop();
+            const ub_val = this.mCases.get_badge_val("14", bt3, uid, type, "");
+            if (ub_val) {
+                const new_evidence = acont.join("|") + "|" + ub_val;
                 this.update_evidence(nid, new_evidence);
             }
         }
@@ -1287,10 +1247,34 @@ class MPCCase {
         const a = evi.split("|");
         return a[id];
     }
+
+    evidence_compare(evi, p1, p2) {
+        if (this.evidence_unpacked(0, evi) === p1) {
+            if (this.evidence_unpacked(1, evi) === p2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get_evidenceUID(uid, type) {
+        const evidences = this.evidences;
+        const uids = String(uid);
+        const revi = {};
+        revi.str = "";
+        revi.id = -1;
+        for (let id in evidences) {            
+            const evi = evidences[id];
+            if (this.evidence_compare(evi, type, uids)) {
+                revi.str = evi;
+                revi.id = id;
+                return revi;
+            }
+        }
+        return revi;
+    }
     
     unpack_witness(evi) {
-        "use strict";
-
         const a_wit = evi.str.split("|");
 
         evi.type = a_wit[0];
@@ -1306,29 +1290,26 @@ class MPCCase {
                 key = a_wit[i].substr(0, 3);
                 val = a_wit[i].substr(3, a_wit[i].length);
             }
-
             evi[key] = val;
         }
-
         return evi;
     }
 
-    update_witness(uid, type, uevi, context) {
+    update_witness(uid, type, uevi, evidence) {
         const uids = String(uid);
-        if (this.evidence_unpacked(0, context) === type) {
-            if (this.evidence_unpacked(1, context) === uids) {
-                if (uevi.id < 0) {
-                    uevi.str = context;
-                    uevi.id = this.add_evidence(context);
-                } else {
-                    uevi.str = context;
-                    this.update_evidence(uevi.id, context);
-                }
+        if (this.evidence_compare(evidence, type, uids)) {
+            if (uevi.id < 0) {
+                uevi.str = evidence;
+                uevi.id = this.add_evidence(evidence);
+            } else {
+                uevi.str = evidence;
+                this.update_evidence(uevi.id, evidence);
             }
         }
-        if (this.evidence_unpacked(0, context) === '14') {
-            this.add_evidence(context);
-            if (this.evidence_unpacked(1, context) === "W") uevi.week = parseInt(this.evidence_unpacked(2, context));
+        this.uevi.week = -1;
+        if (this.evidence_compare(evidence, "14", "W")) {
+            this.add_evidence(evidence);
+            uevi.week = parseInt(this.evidence_unpacked(2, evidence));
         }
         return uevi;
     }
@@ -1402,26 +1383,10 @@ class MPCCase {
         return evi2;
     }
 
-    get_witnessUID(uid, type, context) {
-        const evidences = this.evidences;
-        const uids = String(uid);
-        const revi = {};
-        revi.str = "";
-        revi.id = -1;
-        revi.week = -1;
-        for (let id in evidences) {
-            const evi = evidences[id];
-            const a_evi = evi.split("|");
-
-            if (a_evi[0] === type) {
-                if (a_evi[1] === uids) {
-                    revi.str = evi;
-                    revi.id = id;
-                }
-            }
-        }
-        if (context && context !== "") {
-            const uevi = this.update_witness(uid, type, revi, context);
+    get_witnessUID(uid, type, evidence) {
+        const revi = this.get_evidenceUID(uid, type);
+        if (evidence && evidence !== "") {
+            const uevi = this.update_witness(uid, type, revi, evidence);
             revi.id = uevi.id;
             revi.str = uevi.str;
         }
@@ -1474,6 +1439,16 @@ class MPCCase {
     }
 }
 
+class MPCCEvidence {
+    constructor(mCase, core, pcid, id, str) {
+        this.mCase = mCase;
+        this.core = core;
+        this.pcid = pcid;
+        this.id = id;
+        this.str = str;
+    }
+}
+
 class MPStream {
     constructor(vGame, vPlayer, usr_id, gtime, stats) {
         console.log("Stream start");
@@ -1509,8 +1484,6 @@ class MPStream {
     }
 
     put() {
-        "use strict";
-
         if (!this.sent) {
             const d = new Date();
             const n = d.getTime();
@@ -1543,8 +1516,6 @@ class MPStream {
     }
 
     load(stream) {
-        "use strict";
-
         const gtime = stream.obj.gtime * 1000;
         console.log(gtime);
         console.log(this.gtime.ms);
