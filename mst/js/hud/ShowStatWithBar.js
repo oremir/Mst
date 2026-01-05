@@ -1,6 +1,6 @@
-Mst.ShowStatWithBar = function (game_state, name, position, properties) {
+Mst.ShowStatWithBar = function (name, position, properties) {
     "use strict";
-    Mst.ShowStat.call(this, game_state, name, position, properties);
+    Mst.ShowStat.call(this, name, position, properties);
 };
 
 Mst.ShowStatWithBar.prototype = Object.create(Mst.ShowStat.prototype);

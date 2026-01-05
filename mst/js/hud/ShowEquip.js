@@ -1,56 +1,50 @@
-Mst.ShowEquip = function (game_state, name, position, properties) {
-    "use strict";
-    var new_position, equip;
-    
-    new_position = {x: position.x, y: position.y - 5};
-    
-    Mst.ShowStat.call(this, game_state, name, new_position, properties);
-    
-    this.alpha = 0.7;
-    this.stats_group = properties.stats_group;
+Mst.ShowEquip = class extends Mst.ShowStat {
+    constructor(name, position, properties) {
+        const new_position = {x: position.x, y: position.y - 5};
+        super(name, new_position, properties);
 
-    this.equiped_item = this.game_state.mGame.groups[this.stats_group].create(position.x + 4, position.y, 'items_spritesheet');
-    this.equiped_item.fixedToCamera = true;
-    this.equiped_item.inputEnabled = true;
-    this.equiped_item.input.useHandCursor = true;
-    this.equiped_item.events.onInputDown.add(this.unequip, this);
-    this.equiped_item.visible = false;
-    
-    equip = parseInt(this.game_state.prefabs.player.stats.equip);
-    if (equip != -1) {        
-        this.equiped_item.frame = equip;
-        this.equiped_item.visible = true;
+        this.alpha = 0.7;
+
+        this.equiped_item = this.group.create(position.x + 4, position.y, 'items_spritesheet');
+        this.equiped_item.fixedToCamera = true;
+        this.equiped_item.inputEnabled = true;
+        this.equiped_item.input.useHandCursor = true;
+        this.equiped_item.events.onInputDown.add(this.unequip, this);
+        this.equiped_item.visible = false;
+
+        const equip = parseInt(Mst.player.stats.equip);
+        if (equip != -1) {
+            this.equiped_item.frame = equip;
+            this.equiped_item.visible = true;
+        }
+
+        this.ability_sprite = this.group.create(this.x + 37, this.y + 2, 'abilities_spritesheet', 0);
+        this.ability_sprite.fixedToCamera = true;
+        this.ability_sprite.inputEnabled = true;
+        this.ability_sprite.input.useHandCursor = true;
+        this.ability_sprite.events.onInputDown.add(this.search, this);
+
+        this.menu_sprite = this.group.create(this.x + 37, this.y + 24, 'abilities_spritesheet', 1);
+        this.menu_sprite.fixedToCamera = true;
+        this.menu_sprite.inputEnabled = true;
+        this.menu_sprite.input.useHandCursor = true;
+        this.menu_sprite.events.onInputDown.add(this.menu, this);
+
+        this.eqs_sprite = this.group.create(this.x, this.y + 29, 'fpoint');
+        this.eqs_sprite.fixedToCamera = true;
+        this.eqs_sprite.inputEnabled = true;
+        this.eqs_sprite.input.useHandCursor = true;
+        this.eqs_sprite.events.onInputDown.add(this.showexpequip, this);
+
+        this.expequip = Mst.player.stats.expequip;
+        this.expequip_visible = false;
+
+        this.gframes = [];
+        this.expequips = [];
+
+        this.initial_position = new Mst.Position(this);
     }
-    
-    this.ability_sprite = this.game_state.mGame.groups.hud.create(this.x + 37, this.y + 2, 'abilities_spritesheet', 0);
-    this.ability_sprite.fixedToCamera = true;
-    this.ability_sprite.inputEnabled = true;
-    this.ability_sprite.input.useHandCursor = true;
-    this.ability_sprite.events.onInputDown.add(this.search, this);
-    
-    this.menu_sprite = this.game_state.mGame.groups.hud.create(this.x + 37, this.y + 24, 'abilities_spritesheet', 1);
-    this.menu_sprite.fixedToCamera = true;
-    this.menu_sprite.inputEnabled = true;
-    this.menu_sprite.input.useHandCursor = true;
-    this.menu_sprite.events.onInputDown.add(this.menu, this);
-    
-    this.eqs_sprite = this.game_state.mGame.groups.hud.create(this.x, this.y + 29, 'fpoint');
-    this.eqs_sprite.fixedToCamera = true;
-    this.eqs_sprite.inputEnabled = true;
-    this.eqs_sprite.input.useHandCursor = true;
-    this.eqs_sprite.events.onInputDown.add(this.showexpequip, this);
-    
-    this.expequip = this.game_state.prefabs.player.stats.expequip;
-    this.expequip_visible = false;
-    
-    this.gframes = [];
-    this.expequips = [];
-    
-    this.initial_position = new Phaser.Point(this.x, this.y);
 };
-
-Mst.ShowEquip.prototype = Object.create(Mst.ShowStat.prototype);
-Mst.ShowEquip.prototype.constructor = Mst.ShowEquip;
 
 Mst.ShowEquip.prototype.reset = function (position_x, position_y) {
     "use strict";
@@ -58,69 +52,62 @@ Mst.ShowEquip.prototype.reset = function (position_x, position_y) {
 
 Mst.ShowEquip.prototype.update_stat = function (new_stat) {
     "use strict";
-    // update the text to show the new stat value
-    
-    if (new_stat != -1) {        
+    if (new_stat !== -1) {
         this.equiped_item.frame = new_stat;
         this.equiped_item.visible = true;
     } else {
         this.equiped_item.visible = false;
     }
-    
-    
+
     Mst.ShowStat.prototype.update_stat.call(this, new_stat);
 };
 
-Mst.ShowEquip.prototype.equip = function (item_index, item_frame) {
+Mst.ShowEquip.prototype.equip = function (item) {
     "use strict";
     
-    console.log("Equip: " + item_frame + " " + item_index);
+    console.log("Equip: " + item.frame + " " + item.index);
+
+    console.log(Mst.items[item.frame].istool === 'true');
     
-    item_frame = parseInt(item_frame);
-    
-    console.log(this.game_state.gdata.core.items[item_frame].istool === 'true');
-    
-    if(this.game_state.gdata.core.items[item_frame].istool === 'true') {
-        this.game_state.prefabs.player.cPlayer.items.subtract(item_index, 1);
+    if(Mst.items[item.frame].istool === 'true') {
+        item.sub();
         
-        if(typeof (this.game_state.gdata.core.items[item_frame].properties.eq) === 'undefined') {
+        if(!Mst.items[item.frame].properties.eq) {
             this.unequip();
-            this.game_state.prefabs.player.stats.equip = item_frame;
-            this.game_state.prefabs.sword.reequip(item_frame);
+            Mst.player.stats.equip = item.frame;
+            Mst.cPlayer.weapon.reequip(item.frame);
         } else {
-            const index = parseInt(this.game_state.gdata.core.items[item_frame].properties.eq);
+            const index = parseInt(Mst.items[item.frame].properties.eq);
             this.unequipexpi(index);
             
-            this.game_state.prefabs.player.stats.expequip[index] = item_frame;
-            this.expequip[index] = item_frame;
+            Mst.player.stats.expequip[index] = item.frame;
+            this.expequip[index] = item.frame;
             
             if (this.expequip_visible) {
                 this.expequips[index].loadTexture("items_spritesheet");
-                this.expequips[index].frame = item_frame;
+                this.expequips[index].frame = item.frame;
             } else {
                 this.showexpequip_init();
             }
         }
     } else {
-        this.game_state.cGame.hud.alerts.show("To nejde uchopit!");
+        Mst.hud.alerts.show("To nejde uchopit!");
     }
 };
 
 Mst.ShowEquip.prototype.unequip = function () {
     "use strict";
-    var item_frame, item_index;
-    console.log("Unequip: " + this.game_state.prefabs.player.stats.equip);
-    
-    item_index = -1;
-    item_frame = parseInt(this.game_state.prefabs.player.stats.equip);
+    console.log("Unequip: " + Mst.player.stats.equip);
+    const item_frame = parseInt(Mst.player.stats.equip);
     
     if (item_frame != -1) {
-        item_index = this.game_state.prefabs.player.cPlayer.items.add(item_frame, 1);
+        const item = Mst.cPlayer.items.add(item_frame, 1);
         
-        this.game_state.prefabs.player.stats.equip = -1;
-        this.game_state.prefabs.sword.reequip(-1);
+        Mst.player.stats.equip = -1;
+        Mst.cPlayer.weapon.reequip(-1);
+        return item;
     }
-    return item_index;
+    return null;
 };
 
 Mst.ShowEquip.prototype.hide = function () {
@@ -139,7 +126,7 @@ Mst.ShowEquip.prototype.show = function () {
     "use strict";
     
     this.visible = true;
-    if (this.game_state.prefabs.player.stats.equip !== -1) {
+    if (Mst.player.stats.equip !== -1) {
         this.equiped_item.visible = true;
     }
     this.ability_sprite.visible = true;    
@@ -150,9 +137,8 @@ Mst.ShowEquip.prototype.show = function () {
 Mst.ShowEquip.prototype.search = function () {
     "use strict";
     
-    const player = this.game_state.prefabs.player;
-    const cGame = this.game_state.cGame;
-    let b = true;
+    const player = Mst.prefabs.player;
+    const cGame = Mst.cGame;
     let b_null = true;
     
     if (player.cPlayer.signpost.opened) {
@@ -163,9 +149,9 @@ Mst.ShowEquip.prototype.search = function () {
             sign.loadTexture('signs_spritesheet', 0);
             sign.exposed = true;
 
-            player.mPlayer.add_minutes(16);
+            player.mPlayer.gtime.add_minutes(16);
             player.cPlayer.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
-            this.game_state.cGame.hud.alerts.show("Nález: znamení!");
+            Mst.hud.alerts.show("Nález: znamení!");
             b_null = false;
         }
     }
@@ -174,10 +160,10 @@ Mst.ShowEquip.prototype.search = function () {
         const cftp = cGame.cases.ftprints.return_near();
         
         if (cftp) {
-            player.mPlayer.add_minutes(12);
-            this.game_state.cGame.hud.alerts.show("Nález: stopy!");            
+            player.mPlayer.gtime.add_minutes(12);
+            Mst.hud.alerts.show("Nález: stopy!");
             player.cPlayer.work_rout("tracer", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
-                        
+
             const pcid = player.cPlayer.cases.add_ftprints_tocase(cftp);
             console.log(cftp);
             if (pcid > -1) {
@@ -185,48 +171,25 @@ Mst.ShowEquip.prototype.search = function () {
                     pcid: pcid,
                     c_type: "evidence"
                 };
-                this.game_state.cGame.hud.book.show_book();
-                this.game_state.cGame.hud.book.book_investigate(t1);
+                Mst.hud.book.show_book();
+                Mst.hud.book.book_investigate(t1);
             }
             b_null = false;
         }
     }
     
-    if (b_null) {    
-        if (this.game_state.layers.grass) {
-            const tilex = this.game_state.layers.grass.getTileX(player.x);
-            const tiley = this.game_state.layers.grass.getTileX(player.y);
-            const tile = this.game_state.map.getTile(tilex, tiley, this.game_state.layers.grass);
-            console.log("Grass: " + player.x + ">" + tilex*16 + "|" + player.y + ">" + tiley*16);
-            console.log(tile);
-
-            if (tile === null) {
-                b = true;
-                console.log("Not grass tile");
-            } else {
-                b = false;
-                console.log("Grass tile");
-            }
+    if (b_null) {
+        let b = true;
+        if (Mst.layers.grass) {
+            const tile = Mst.map.getTileLayer(player, "grass");
+            if (!tile) b = false;
+            console.log("Grass tile", b, tile);
         }
 
-        let stype = "wild";
-
-        this.game_state.mGame.groups.spawners.forEachAlive(function (spawner) {
-            const dist = Math.sqrt(Math.pow((player.x - spawner.x),2) + Math.pow((player.y - spawner.y),2));
-            console.log("Test search spawner: " + spawner.name + " " + dist);
-            console.log(spawner.name.substr(0, 11));
-
-            if (dist < 180 && spawner.name.substr(0, 11) === 'itemspawner') {
-                b = false;
-                console.log("Itemspawner close");
-                stype = spawner.stype;
-            }
-
-        }, this);
-
         let test_ok = false;
-        if (!b) {
-            if (stype === 'wild') {
+        const spawner = Mst.groups.getItemSpawnerDistance(player, 180);
+        if (spawner && b) {
+            if (spawner.stype === 'wild') {
                 test_ok = player.cPlayer.weapon.cSword.rnd_take(20, "seeker");
             } else {
                 test_ok = player.cPlayer.weapon.cSword.rnd_take(21, "seeker");
@@ -234,19 +197,17 @@ Mst.ShowEquip.prototype.search = function () {
         }
 
         if (test_ok) {
-            player.mPlayer.add_minutes(12);
+            player.mPlayer.gtime.add_minutes(12);
             player.cPlayer.work_rout("seeker", "exploration", 5, 10, 10, 3); // stress, stand_exp, skill_exp, abil_p
             b_null = false;
         }
     }
     
     if (b_null) {
-        player.mPlayer.add_minutes(16);
+        player.mPlayer.gtime.add_minutes(16);
         player.cPlayer.work_rout("seeker", "exploration", 5, 1, 1, 3); // stress, stand_exp, skill_exp, abil_p
-        this.game_state.cGame.hud.alerts.show("Nic jsi nenašel!");
+        Mst.hud.alerts.show("Nic jsi nenašel!");
     }
-    
-    
 };
 
 Mst.ShowEquip.prototype.menu = function () {
@@ -266,12 +227,11 @@ Mst.ShowEquip.prototype.showexpequip = function () {
 
 Mst.ShowEquip.prototype.showexpequip_init = function () {
     "use strict";
-    var stat, item_frame;
     
-    for (var i = 0; i < this.expequip.length; i++) {
+    for (let i = 0; i < this.expequip.length; i++) {
         // create new sprite to show stat
-        item_frame = this.expequip[i];
-        stat = this.create_new_eq_sprite(i, item_frame);
+        const item_frame = this.expequip[i];
+        const stat = this.create_new_eq_sprite(i, item_frame);
         this.gframes.push(stat.gframe);
         this.expequips.push(stat.stat);
     }
@@ -295,22 +255,21 @@ Mst.ShowEquip.prototype.showexpequip_kill = function () {
 
 Mst.ShowEquip.prototype.create_new_eq_sprite = function (index, frame) {
     "use strict";
-    var stat_position, gframe, stat, frame_int, dupl_stat;
+    const frame_int = parseInt(frame);
     
-    frame_int = parseInt(frame);
+    const stat_position = new Mst.Position(this.initial_position.x,
+                                           this.initial_position.y - 280 + (index * 30));
     
-    stat_position = new Phaser.Point(this.initial_position.x, 
-                                     this.initial_position.y - 280 + (index * 30));
-    
-    gframe = this.game_state.mGame.groups[this.stats_group].create(stat_position.x, stat_position.y, "frame_item");
+    const gframe = Mst.groups[this.stats_group].create(stat_position.x, stat_position.y, "frame_item");
     gframe.fixedToCamera = true;
     gframe.alpha = 0.8;
-    
+
+    let stat = null;
     if (frame_int === 0) {
-        stat = this.game_state.mGame.groups[this.stats_group].create(stat_position.x + 4, stat_position.y + 5, 'equip_spritesheet', index);
+        stat = Mst.groups[this.stats_group].create(stat_position.x + 4, stat_position.y + 5, 'equip_spritesheet', index);
         stat.frame = index;
     } else {
-        stat = this.game_state.mGame.groups[this.stats_group].create(stat_position.x + 4, stat_position.y + 5, 'items_spritesheet', frame_int);
+        stat = Mst.groups[this.stats_group].create(stat_position.x + 4, stat_position.y + 5, 'items_spritesheet', frame_int);
         stat.frame = frame_int;
     }
     stat.index = index;
@@ -320,29 +279,27 @@ Mst.ShowEquip.prototype.create_new_eq_sprite = function (index, frame) {
     stat.input.useHandCursor = true;
     stat.events.onInputDown.add(this.unequipexp, this);
     
-    dupl_stat = {};
+    const dupl_stat = {};
     dupl_stat.gframe = gframe;
     dupl_stat.stat = stat;
     return dupl_stat;
 };
 
 Mst.ShowEquip.prototype.unequipexp = function (item) {
-    "use strict";    
-    var item_frame, item_index;
-    //console.log(item);
+    "use strict";
     console.log("Unequip exp: " + item.frame);
     
-    item_index = 0;
+    let item_index = 0;
     item_frame = parseInt(item.frame);
-    var index = item.index;
+    const index = item.index;
     
     if (this.expequip[index] !== 0) {
-        item_index = this.game_state.prefabs.player.cPlayer.items.add(item_frame, 1);
+        item_index = Mst.cPlayer.items.add(item_frame, 1);
         
         item.loadTexture("equip_spritesheet");
         item.frame = index;
         
-        this.game_state.prefabs.player.stats.expequip[index] = 0;
+        Mst.player.stats.expequip[index] = 0;
         this.expequip[index] = 0;
     }
     return item_index;
@@ -351,24 +308,21 @@ Mst.ShowEquip.prototype.unequipexp = function (item) {
 Mst.ShowEquip.prototype.unequipexpi = function (index) {
     "use strict";
     
-    var item_frame, item_index, item;
-    //console.log(item);
-    
-    item_index = 0;
+    let item_index = 0;
     if (this.expequip[index] !== 0) {
-        item = this.expequips[index];
+        const item = this.expequips[index];
         
         console.log("Unequip expi: " + this.expequip[index]);
         
-        item_frame = parseInt(this.expequip[index]);
-        item_index = this.game_state.prefabs.player.cPlayer.items.add(item_frame, 1);
+        const item_frame = parseInt(this.expequip[index]);
+        item_index = Mst.cPlayer.items.add(item_frame, 1);
         
         if (typeof (item.frame) !== 'undefined') {
             item.loadTexture("equip_spritesheet");
             item.frame = index;
         }
         
-        this.game_state.prefabs.player.stats.expequip[index] = 0;
+        Mst.player.stats.expequip[index] = 0;
         this.expequip[index] = 0;
     }
     return item_index;

@@ -6,13 +6,13 @@ Mst.HUD = function (game, parent) {
 Mst.HUD.prototype = Object.create(Phaser.Plugin.prototype);
 Mst.HUD.prototype.constructor = Mst.HUD;
 
-Mst.HUD.prototype.init = function (game_state, hud_data) {
+Mst.HUD.prototype.init = function (mHud, hud_data) {
     "use strict";
-    this.game_state = game_state;
+    this.mHud = mHud;
     this.margins = hud_data.margins;
-    const camera_width = this.game_state.game.camera.width;
-    const camera_height = this.game_state.game.camera.height;
-    const camera_center = new Phaser.Point(camera_width / 2, camera_height / 2);
+    const camera_width = Mst.game.camera.width;
+    const camera_height = Mst.game.camera.height;
+    const camera_center = new Mst.Position(camera_width / 2, camera_height / 2);
     // define the HUD regions (begin and end points)
     this.regions = {
         top_left: {
@@ -26,7 +26,7 @@ Mst.HUD.prototype.init = function (game_state, hud_data) {
             elements: []
         },
         center_top_left: {
-            begin: {x: this.margins.left, y: this.margins.top + 37},
+            begin: {x: (camera_width / 3) - this.margins.right, y: this.margins.top + 37},
             end: {x: (2 * camera_width / 3) - this.margins.right, y: this.margins.top + 37},
             elements: []
         },
@@ -79,50 +79,65 @@ Mst.HUD.prototype.init = function (game_state, hud_data) {
 Mst.HUD.prototype.create_elements = function (elements) {
     "use strict";
     // create the HUD elements from the JSON file
-    for (let prefab_name in elements) {
-        if (elements.hasOwnProperty(prefab_name)) {
-            const prefab_parameters = elements[prefab_name];
+    console.log("Hud elements", elements, this);
+    for (let name in elements) {
+        if (elements.hasOwnProperty(name)) {
+            const parameters = elements[name];
             // find the region beginning positions
-            const region = this.regions[prefab_parameters.region];
-            const prefab_position = new Phaser.Point(region.begin.x, region.begin.y);
-
-            //console.log(prefab_parameters.properties);
+            const region = this.regions[parameters.region];
+            const position = new Mst.Position(region.begin);
 
             // create the element prefab in the beginning of the region
-            const prefab = this.game_state.create_prefab(prefab_parameters.type, prefab_name, prefab_position, prefab_parameters.properties);
-            this.game_state.mGame.hud.stats[prefab.name] = prefab;
+            console.log("Hud Create element", name, region, position, parameters);
+            const phud = this.mHud.create_hud(parameters.type, name, position, parameters.properties);
             // add the element to its correspondent region
-            region.elements.push(prefab);
+            if (phud) region.elements.push(phud);
         }
     }
 
     // update the elements position according to the number of elements in each region
     for (let region_name in this.regions) {
         if (this.regions.hasOwnProperty(region_name)) {
-            this.update_elements_positions(this.regions[region_name]);
+            this.update_elements_positions(region_name);
         }
     }
+
+    console.log("HUDPlug", this);
 };
 
-Mst.HUD.prototype.update_elements_positions = function (region) {
+Mst.HUD.prototype.update_elements_positions = function (region_name) {
     "use strict";
-    const region_dimensions = new Phaser.Point(region.end.x - region.begin.x, region.end.y - region.begin.y);
+    const region = this.regions[region_name];
+    const region_dimensions = new Mst.Position(region.end);
+    console.log("Hud Update region dim", region_dimensions);
+    region_dimensions.sub(region.begin);
+    console.log(region_dimensions);
     const number_of_elements = region.elements.length;
     if (number_of_elements === 1) {
         // if there is only one element, it should be in the center of the region
-        region.elements[0].reset(region.begin.x + (region_dimensions.x / 2), region.begin.y + (region_dimensions.y / 2));
+        const position = new Mst.Position(region.begin.x, region.begin.y + (region_dimensions.y / 2));
+        console.log("Hud Update element", region_name, region.elements[0].name, region, position);
+        region.elements[0].reset(position.x, position.y);
     } else if (number_of_elements === 2) {
         // if there are two elements, they will be in opposite sides of the region
-        region.elements[0].reset(region.begin.x, region.begin.y);
-        region.elements[1].reset(region.end.x, region.end.y);
+        const position1 = new Mst.Position(region.begin);
+        console.log("Hud Update element", region_name, region.elements[0].name, region, position1);
+        region.elements[0].reset(position1.x, position1.y);
+        const position2 = new Mst.Position(region.end.x, region.end.y);
+        console.log("Hud Update element", region_name, region.elements[0].name, region, position2);
+        region.elements[1].reset(position2.x, position2.y);
     } else if (number_of_elements > 2) {
         // if there are more than two elements, they will be equally spaced in the region
-        const step = new Phaser.Point(region_dimensions.x / number_of_elements, region_dimensions.y / number_of_elements);
-        const position = new Phaser.Point(region.begin.x, region.begin.y);
+        const step = {
+            x: region_dimensions.x / number_of_elements,
+            y: region_dimensions.y / number_of_elements
+        };
+        console.log(region_dimensions, number_of_elements, step);
+        const position = new Mst.Position(region.begin);
         region.elements.forEach(function (element) {
+            console.log("Hud Update element", region_name, element.name, region, position, step, element);
             element.reset(position.x, position.y);
-            position.x += step.x;
-            position.y += step.y;
+            position.add(step);
         }, this);
     }
 

@@ -10,7 +10,6 @@ Mst.TiledState = function () {
         "bullet": Mst.Bullet.prototype.constructor,
         "enemy_spawner": Mst.EnemySpawner.prototype.constructor,
         "item_spawner": Mst.ItemSpawner.prototype.constructor,
-        "chest_creator": Mst.ChestCreator.prototype.constructor,
         "chest": Mst.Chest.prototype.constructor,
         "enemy": Mst.Enemy.prototype.constructor,
         "wildanimal": Mst.WildAnimal.prototype.constructor,
@@ -18,12 +17,6 @@ Mst.TiledState = function () {
         "signpost": Mst.Signpost.prototype.constructor,
         "bed": Mst.Bed.prototype.constructor,
         "goout": Mst.Goout.prototype.constructor,
-        "show_stat_with_sprite": Mst.ShowStatWithSprite.prototype.constructor,
-        "show_stat_with_text": Mst.ShowStatWithText.prototype.constructor,
-        "show_stat_with_bar": Mst.ShowStatWithBar.prototype.constructor,
-        "show_items": Mst.ShowItems.prototype.constructor,
-        "show_business": Mst.ShowBusiness.prototype.constructor,
-        "show_equip": Mst.ShowEquip.prototype.constructor,
         "ren": Mst.Ren.prototype.constructor,
         "quest": Mst.Quest.prototype.constructor
     };
@@ -38,37 +31,139 @@ Mst.TiledState.prototype.init = function (gdata) {
     console.log(gdata);
     this.cGame = new CGame(this, gdata);
     this.mGame = this.cGame.mGame;
-    
+
     this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     this.scale.pageAlignHorizontally = true;
     this.scale.pageAlignVertically = true;
     
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     
-    if (this.gdata.root.usr_id > 0) {
+    if (Mst.logged) {
         // start physics system
         
         this.game.physics.arcade.gravity.y = 0;
-    
-        // create map and set tileset
-        this.map = this.game.add.tilemap(gdata.map.map.key);
-        this.map.addTilesetImage(this.map.tilesets[0].name, gdata.map.map.tileset);
+
+        this.map = new Mst.Map(gdata.map);
+        Mst.init(this);
     }
 };
 
 Mst.TiledState.prototype.create = function () {
     "use strict";
     
-    if (this.gdata.root.usr_id > 0) {
+    if (Mst.logged) {
+        this.map.create();
+        Mst.init_layers(this.map.layers);
+
+        this.cGame.init.groups = this.gdata.core.groups;
+        
+        // ......................... Map Objects ............................
+
+        
+        this.map.create_objects(this);
+        
+        
+
+        //if (!this.prefabs.player) {
+        //    const load_player = JSON.parse(localStorage.getItem("player"));
+        //    console.log("localStorage");
+        //    console.log(load_player.properties);
+        //    this.create_object(load_player);
+        //}
+        
+        console.log(this.mGame.prefabs);
+        this.prefabs = this.mGame.prefabs;
+        Mst.init_prefabs(this.prefabs);
+        this.cGame.init.prefabs = this.mGame.prefabs;
+        
+        this.map.create_foreg();
+        
+        this.cGame.init.groupshud = this.gdata.core.groupshud;
+        
+        // ......................... Night Init ..............................
+        
+        this.night = new Mst.Night(Mst.mPlayer.save.properties.gtimealpha);
+        
+        // ......................... HUD Init 2 ..............................
+        
+        this.mGame.hud.init_hud_plug(this.gdata.core.hud);
+        console.log(this.mGame.hud, Mst);
+        
+        // ......................... Test quest ............................
+        
+        this.cGame.quests.init();
+        this.cGame.final_init();
+        
+        console.log("Prefabs:");
+        console.log(this.prefabs);
+        console.log(Mst.groups);
+        
+        console.log(this.gdata.map);
+        this.cGame.hud.alerts.show("M:" + Mst.map_int);
+        
+        Mst.init(this);
+        console.log(Mst);
+    }
+};
+
+Mst.TiledState.prototype.create_object = function (object) {
+    "use strict";
+    // tiled coordinates starts in the bottom left corner
+    console.log(object, this.map.tileHeight);
+    const position = {
+        "x": (parseInt(object.x) + (this.map.tileHeight / 2)),
+        "y": (parseInt(object.y) - (this.map.tileHeight / 2))
+    };
+    // create object according to its type
+    let type = object.type;
+    
+    if (type == "player") {
+        if (object.usr_id != Mst.usr_id) type = "other_player";
+    }
+    
+    console.log("Prefab exist? " + object.name);
+    const prefab = this.mGame.prefabs[object.name];
+    
+    console.log(prefab);
+    if (!prefab) return this.create_prefab(type, object.name, position, object.properties);
+    return prefab;
+};
+
+Mst.TiledState.prototype.create_prefab = function (type, name, position, properties) {
+    "use strict";
+    // create prefab according to its type
+    if (this.prefab_classes.hasOwnProperty(type)) return new this.prefab_classes[type](name, position, properties);
+    return null;
+};
+
+Mst.TiledState.prototype.restart_map = function () {
+    "use strict";
+    this.game.state.restart(true, false, this.gdata);
+};
+
+Mst.Map = class {
+    constructor(map) {
+        // create map and set tileset
+        this._map = Mst.game.add.tilemap(map.map.key);
+        this._map.addTilesetImage(this._map.tilesets[0].name, map.map.tileset);
+        this._core = map;
+        this._layers = null;
+        this._grid = null;
+        this._foreg = false;
+
+        Mst.init_map(this);
+    }
+
+    create() {
         // create map layers
-        console.log(this.map);
-        this.layers = {};
-        let foreg = false;
-        this.map.layers.forEach(function (layer) {
+        console.log(this._map);
+        this._layers = {};
+        this._foreg = false;
+        this._map.layers.forEach(function (layer) {
             if (layer.name !== "foreground") {
-                this.layers[layer.name] = this.map.createLayer(layer.name);
+                this._layers[layer.name] = this._map.createLayer(layer.name);
                 console.log("Layer: " + layer.name);
-                console.log(this.layers[layer.name]);
+                console.log(this._layers[layer.name]);
                 if (layer.properties.collision) { // collision layer
                     const collision_tiles = [];
                     const grid = [];
@@ -82,188 +177,188 @@ Mst.TiledState.prototype.create = function () {
                             } else {
                                 col.push(0);
                             }
-                        }, this);   
+                        }, this);
                         grid.push(col);
                     }, this);
-                    this.map.setCollision(collision_tiles, true, layer.name);
-                    this.grid = grid;
+                    this._map.setCollision(collision_tiles, true, layer.name);
+                    this._grid = grid;
                     console.log(this.grid);
                 }
             } else {
-                foreg = true;
+                this._foreg = true;
             }
         }, this);
         // resize the world to be the size of the current layer
-        this.layers[this.map.layer.name].resizeWorld();
+        this._layers[this._map.layer.name].resizeWorld();
+    }
 
-        const groups = this.cGame.create_groups(this.gdata.core.groups, this.gdata.core.groupshud);
-        this.cGame.init_hud(groups);
-
-        this.prefabs = {};
-        
-        this.create_prefab("chest_creator", "chest_creator", {x: 0, y: 0}, {});        
-        
-        // ......................... Map Objects ............................
-        
-        console.log("Map objects:");
-        console.log(this.map.objects);
-        
-        for (let object_layer in this.map.objects) {
-            if (this.map.objects.hasOwnProperty(object_layer)) {
+    create_objects(vGame) {
+        console.log("Map objects:", this._map.objects);        
+        for (let object_layer in this._map.objects) {
+            if (this._map.objects.hasOwnProperty(object_layer)) {
                 // create layer objects
-                this.map.objects[object_layer].forEach(this.create_object, this);
+                this._map.objects[object_layer].forEach(vGame.create_object, vGame);
             }
         }
-        
-        console.log("Map data objects:");
-        console.log(this.gdata.map.objects);
-        
-        this.gdata.map.objects.forEach(this.create_object, this);
 
-        if (!this.prefabs.player) {
-            const load_player = JSON.parse(localStorage.getItem("player"));
-            console.log("localStorage");
-            console.log(load_player.properties);
-            this.create_object(load_player);
-        }
-        
-        this.prefabs.player.cPlayer.followers.init();
-        
-        this.cGame.set_prefabs(this.prefabs);
-        
-        if (foreg) this.layers.foreground = this.map.createLayer("foreground");
-        
-        //this.gdata.core.groupshud.forEach((group_name) => this.cGame.groups[group_name] = this.game.add.group(), this);
-        
-        // ......................... HUD Init 1 ............................
-        
-        //this.hud = {};
-        //this.hud.close = new Mst.hud(this, "close");
-        //this.hud.right_window = new Mst.hud(this, "right_window");
-        //this.hud.middle_window = new Mst.hud(this, "middle_window");
-        //this.hud.cards = new Mst.hud(this, "cards");
-        //this.hud.book = new Mst.hud(this, "book");
-        //this.hud.newsppr = new Mst.hud(this, "newsppr");
-        //this.hud.alt = new Mst.hud(this, "alt");
-        //this.hud.question = new Mst.hud(this, "question");
-        //this.hud.dialogue = new Mst.hud(this, "dialogue");
-        //this.hud.alert = new Mst.hud(this, "alert");
-        
-        // ......................... Night Init ..............................
-        
-        this.night = new Mst.night(this, this.prefabs.player.mPlayer.save.properties.gtimealpha);
-        
-        // ......................... HUD Init 2 ..............................
-        
-        this.mGame.hud.stats = {};
-        this.mGame.hud.plug = this.game.plugins.add(Mst.HUD, this, this.gdata.core.hud);
-        console.log(this.hud);
-        
-        // ......................... Test quest ............................
-        
-        this.cGame.create_persons();
-        this.cGame.quests.init();        
-        this.cGame.final_tests();
-        
-        console.log("Prefabs:");
-        console.log(this.prefabs);
-        console.log(this.mGame.groups);
-        
-        console.log(this.gdata.map);
-        this.cGame.hud.alerts.show("M:" + this.gdata.map.map.map_int);
-    }      
-};
+        console.log("Map data objects:", this.objects);
+        this.objects.forEach(vGame.create_object, vGame);
+    }
 
-Mst.TiledState.prototype.create_object = function (object) {
-    "use strict";
-    // tiled coordinates starts in the bottom left corner
-    const position = {"x": (parseInt(object.x) + (this.map.tileHeight / 2)), "y": (parseInt(object.y) - (this.map.tileHeight / 2))};
-    // create object according to its type
-    let type = object.type;
-    
-    if (type == "player") {
-        if (object.usr_id != this.gdata.root.usr_id) type = "other_player";
+    create_foreg() {
+        if (this._foreg) this._layers.foreground = this._map.createLayer("foreground");
+    }
+
+    get layers() {
+        return this._layers;
+    }
+
+    get objects() {
+        return this._core.objects;
     }
     
-    console.log("Prefab exist? " + object.name);
-    const prefab = this.prefabs[object.name];
+    get map_objects() {
+        return this._map.objects;
+    }
     
-    console.log(prefab);
-    if (!prefab) return this.create_prefab(type, object.name, position, object.properties);
-    return prefab;
-};
+	get tileHeight () {
+		return this._map.tileHeight;
+	}
 
-Mst.TiledState.prototype.create_prefab = function (type, name, position, properties) {
-    "use strict";
-    let prefab = null;
-    // create prefab according to its type
-    if (this.prefab_classes.hasOwnProperty(type)) prefab = new this.prefab_classes[type](this, name, position, properties);
-    return prefab;
-};
+    get region() {
+        return parseInt(this._core.map.region);
+    }
 
-Mst.TiledState.prototype.restart_map = function () {
-    "use strict";
-    this.game.state.restart(true, false, this.gdata);
-};
+    getGridXY(tile) {
+        return this._grid[tile.y][tile.x];
+    }
 
-Mst.TiledState.prototype.getGridXY = function (x, y) {
-    "use strict";
-    return this.grid[y][x];
-};
+    checkGrid(position) {
+        const tile = this.getTile(position);
+        return this.getGridXY(tile) === 1;
+    }
 
-Mst.TiledState.prototype.setGridXY = function (x, y, val) {
-    "use strict";
-    this.grid[y][x] = val;
-};
+    checkCollision(position) {
+        if (this.getTileLayer(position, "collision")) return true;
+        if (this.checkGrid(position)) return true;
+        return false;
+    }
 
-Mst.night = function (vGame, alpha) {
-    "use strict";
-       
-    Phaser.Image.call(this, vGame.game, 0, 0, "night");      
-    vGame.cGame.groups.night.add(this);
+    checkGrass(position) {
+        if (Mst.layers.grass) {
+            if (this.getTileLayer(position, "grass")) return true;
+            return false;
+        }
+        return true;
+    }
+
+    checkTiles(position, layer) {
+        const tiles = this.layers[layer].getTiles(position.x, position.y, 3, 3);
+        if (layer === "collision") tiles.some((tile) => tile.canCollide !== null);
+        return !tiles.some((tile) => tile.index > -1);
+    }
+
+    checkTileDistance(position, mdist) {
+        return this.objects.some((map_object) => Mst.pointDistance(position, map_object) < mdist, this);
+    }
+
+    setGridXY(tile, val) {
+        this._grid[tile.y][tile.x] = val;
+    }
     
-    this.name = "night";
+    get gridOn() {
+        return null;
+    }
     
-    this.scale.setTo(35);
+    get gridOff() {
+        return null;
+    }
+
+    set gridOn(tile) {
+        this.setGridXY(tile, 1);
+    }
+
+    set gridOff(tile) {
+        this.setGridXY(tile, 1);
+    }
+
+    setTile(position) {
+        const tile = this.getTile(position);
+        console.log(tile.x, tile.y);
+        this.gridOn = tile;
+        return tile;
+    }
+
+    removeTile(tile) {
+        this.gridOff = tile;
+    }
+
+    getNormRnd(position, dif) {
+        const pos = new Mst.RndPosition(position, dif);
+        const tile = this.getTile(pos);
+        return new Mst.Position(tile.x*16 + 8, tile.y*16 + 8);
+    }
+
+    getTile(position) {
+        console.log(position);
+        return {
+            x: this._layers.background.getTileX(position.x),
+            y: this._layers.background.getTileY(position.y)
+        };
+    }
+
+    getTileLayer(position, layer) {
+        const tile = this.getTile(position);
+        console.log(layer + ": " + position.x + ">" + tile.x*16 + "|" + position.y + ">" + tile.y*16);
+        return this._map.getTile(tile.x, tile.y, layer);
+    }
+
+    getTileDir(tile, layer) {
+        const x = Mst.cPlayer.chest.direction.x + tile.x;
+        const y = Mst.cPlayer.chest.direction.y + tile.y;
+        return this._map.getTile(x, y, layer);
+    }
+};
+
+Mst.Night = class extends Phaser.Image {
+    constructor(alpha) {
+        super(Mst.game, 0, 0, "night");
+        Mst.cGame.groups.night.add(this);
+
+        this.name = "night";
+
+        this.scale.setTo(35);
+
+        if (alpha > 0) {
+            this.visible = true;
+            this.alpha = alpha;
+        } else {
+            this.visible = false;
+            this.alpha = 0;
+        }
+        this.fixedToCamera = true;
+    }
+
+    add_night() {
+        if (!this.visible) {
+            this.visible = true;
+            this.alpha = 0;
+        } else {
+            if (this.alpha < 0.85) {
+                this.alpha += 0.05;
+                console.log("Alpha:" + this.alpha);
+            }
+        }
+        return this.alpha;
+    }
     
-    if (alpha > 0) {
+    show() {
         this.visible = true;
-        this.alpha = alpha;
-    } else {
+        this.alpha = 0.7;
+    }
+    
+    hide() {
         this.visible = false;
         this.alpha = 0;
-    }    
-    
-    this.fixedToCamera = true;
-};
-
-Mst.night.prototype = Object.create(Phaser.Image.prototype);
-Mst.night.prototype.constructor = Mst.night;
-
-Mst.night.prototype.add_night = function () {
-    "use strict";
-    
-    if (!this.visible) {
-        this.visible = true;
-        this.alpha = 0;
-    } else {
-        if (this.alpha < 0.85) {
-            this.alpha += 0.05;
-            console.log("Alpha:" + this.alpha);
-        }
     }
-    
-    return this.alpha;
-};
-
-Mst.night.prototype.show = function () {
-    "use strict";
-    this.visible = true;
-    this.alpha = 0.7;
-};
-
-Mst.night.prototype.hide = function () {
-    "use strict";
-    this.visible = false;
-    this.alpha = 0;
 };

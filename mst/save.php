@@ -6,22 +6,22 @@ function zapis_souboru($x) {
   FPutS($fp,$x);
 }
 
-function indexOfUsrID($usr_id,$objects) {
-    $index = -1;
-    Reset($objects);
-    while(Current($objects)):
-        $object = Current($objects);
-        if ($object->type == "player"):
-            if ($object->usr_id == $usr_id):
-                $index = Key($objects);
-            endif;
-        endif;
-    
-        Next($objects);
-    endwhile;
-    
-    return $index;
-}
+//function indexOfUsrID($usr_id,$objects) {
+//    $index = -1;
+//    Reset($objects);
+//    while(Current($objects)):
+//        $object = Current($objects);
+//        if ($object->type == "player"):
+//            if ($object->usr_id == $usr_id):
+//                $index = Key($objects);
+//            endif;
+//        endif;
+//    
+//        Next($objects);
+//    endwhile;
+//    
+//    return $index;
+//}
 
 $aget = $_GET;
 $apost = $_POST;
@@ -38,13 +38,13 @@ else:
     $user_en1 = json_encode($user);
 endif;
 
-if ($user_en1 == "")
+//if ($user_en1 == "")
 
-if (isset($apost["objects"])):
-    $objects = $apost["objects"];
-else:
-    $objects = array();
-endif;
+//if (isset($apost["objects"])):
+//    $objects = $apost["objects"];
+//else:
+//    $objects = array();
+//endif;
 
 // -------------------------- open sql -----------------------------
 

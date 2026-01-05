@@ -1,47 +1,90 @@
-class CGame {
-    constructor(vGame, properties) {
-        this.vGame = vGame;
-        this.mGame = new MGame(this, vGame, properties);
-        this.gdata = properties;
-        this.quests = new CGQuest(this.mGame);
-        this.hud = new CHud(this.mGame.hud);
-        this.mGame.hud.init(this.hud);
-        this.groups = null;
-        this.prefabs = null;
-        this.cPlayer = null;
-        this.mPlayer = null;
-        this.cases = null;
-    }
-    
-    create_groups(groups, groupshud) {
-        this.groups = this.mGame.create_groups(groups, groupshud);
-    }
-    
-    set_prefabs(prefabs) {
-        this.prefabs = this.mGame.set_prefabs(prefabs);
-    }
-    
-    create_persons() {
-        this.mGame.create_persons();
-    }
-    
-    init_cPlayer(cPlayer) {
-        console.log("CPlayer Init");
-        this.cPlayer = cPlayer;        
-        this.cPlayer.init_hud(this.hud);
-        this.mPlayer = cPlayer.mPlayer;
-        this.cases = new CGCases(this);
-        console.log(cPlayer);
-        return cPlayer;
+class MController extends WithInit {
+    constructor(view, properties, sup) {
+        super(view, properties, sup);
+        this.view = view;
     }
 
-    init_hud(groups) {
-        this.hud.init_groups(groups);
-        this.hud.init();
+    _model() {
+        return new MModel(this, this.properties);
     }
-    
-    final_tests() {
-        let nurse = false;
+}
+
+class MControllerObject {
+    constructor(controller, modelObject) {
+        this.controller = controller;
+        this.modelObject = modelObject;
+    }
+}
+
+class CGame extends MController {
+    constructor(vGame, properties) {
+        super(vGame, properties);
+        this.vGame = vGame;
+        this.mGame = this.model;
+        this.gdata = properties;
+        this.quests = new CGQuests(this.mGame);
+        this.hud = new CHud(this, this.mGame.hud);
+        this._groups = null;
+        this._prefabs = null;
+        this._cPlayer = null;
+        this._mPlayer = null;
+        this._cases = null;
+        this.init = new CGInit(this);
+    }
+
+    _model() {
+        return new MGame(this, this.properties);
+    }
+
+    get groups() {
+        if (this._groups) return this._groups;
+        this._uGetter("groups", this);
+    }
+
+    set groups(x) {
+        this._uSetter("groups", this);
+    }
+
+    get prefabs() {
+        if (this._prefabs) return this._prefabs;
+        this._uGetter("prefabs", this);
+    }
+
+    set prefabs(x) {
+        this._uSetter("prefabs", this);
+    }
+
+    get cPlayer() {
+        if (this._cPlayer) return this._cPlayer;
+        this._uGetter("cPlayer", this);
+    }
+
+    set cPlayer(x) {
+        this._uSetter("cPlayer", this);
+    }
+
+    get mPlayer() {
+        if (this._mPlayer) return this._mPlayer;
+        this._uGetter("mPlayer", this);
+    }
+
+    set mPlayer(x) {
+        this._uSetter("mPlayer", this);
+    }
+
+    get cases() {
+        if (this._cases) return this._cases;
+        this._uGetter("cases", this);
+    }
+
+    set cases(x) {
+        this._uSetter("cases", this);
+    }
+
+    final_init() {
+        this.cPlayer.followers.init();
+
+        let nurse = null;
 
         if (this.mPlayer.killed) {
             console.log("KILLED!");
@@ -68,11 +111,11 @@ class CGame {
                 }
             } else {
                 this.mPlayer.set_killed(false);
-            }               
+            }
         }
 
-        const index = this.cPlayer.items.test(195, 1);
-        console.log("Kompot " + index);
+        const item = this.cPlayer.items.test(195, 1);
+        console.log("Kompot ", item);
 
         this.groups.NPCs.forEachAlive(function (NPC) {
             if (NPC.stype === "kerik") {
@@ -84,26 +127,27 @@ class CGame {
 
         let sp_dist = 100000;
         let en_sp = null;
-        this.mGame.groups.spawners.forEachAlive(function (spawner) {
+        Mst.groups.spawners.forEachAlive(function (spawner) {
             console.log("Test spawner: " + spawner.name + " " + spawner.etype);
             if (spawner.etype === "enemy") {
                 //console.log(spawner);
-                const dist = this.vGame.game.physics.arcade.distanceBetween(spawner, this.cPlayer.vPlayer);
+                const dist = Mst.game.physics.arcade.distanceBetween(spawner, this.cPlayer.vPlayer);
                 console.log("Spawner dist: " + dist);
                 if (dist < sp_dist) {
                     sp_dist = dist;
                     en_sp = spawner;
                 }
             }
-            if (spawner.etype === "item") this.cPlayer.item_spawner = spawner;
+            if (spawner.etype === "item") {
+                console.log("Activate Item Spawner", spawner);
+                spawner.activate();
+            }
         }, this);
 
-        console.log(en_sp);
+        console.log("Activate Enemy Spawner", en_sp);
         if (en_sp) en_sp.activate();
 
-        const d = new Date();
-        const n = d.getTime();
-        const cwait = { type: "wait", tm: n };
+        const cwait = { type: "wait", tm: Mst.time };
         this.cPlayer.quests.update("wait", cwait);
 
         this.cPlayer.cases.test_culprit();
@@ -113,21 +157,92 @@ class CGame {
     }
 }
 
-class CGQuest {
+class CGInit extends MInit {
+    constructor(cGame) {
+        super();
+        this.cGame = cGame;
+    }
+
+    get groups() {
+        return this._uGetter("groups", this);
+    }
+
+    set groups(groups) {
+        const ngroups = this.cGame.mGame.groups.init(groups);
+        console.log("Init Groups", ngroups);
+        this.cGame._groups = ngroups;
+        Mst.init_groups(ngroups);
+    }
+
+    get groupshud() {
+        return this._uGetter("groupshud", this);
+    }
+
+    set groupshud(groupshud) {
+        const ngroups = this.cGame.mGame.groups.init(groupshud);
+        console.log("Init Groups HUD", ngroups);
+        this.cGame._groups = ngroups;
+        this.cGame.hud.init_groups(ngroups);
+        Mst.init_groups(ngroups);
+        this.cGame.hud.init();
+    }
+
+    get prefabs() {
+        return this._uGetter("prefabs", this);
+    }
+
+    set prefabs(prefabs) {
+        this.cGame._prefabs = prefabs;
+    }
+
+    get cPlayer() {
+        return this._uGetter("cPlayer", this);
+    }
+
+    set cPlayer(cPlayer) {
+        console.log("CPlayer Init");
+        this.cGame._cPlayer = cPlayer;
+        this.mPlayer = cPlayer.mPlayer;
+        this.cases = this.cGame.mGame.cases;
+        console.log(cPlayer);
+    }
+
+    get mPlayer() {
+        return this._uGetter("mPlayer", this);
+    }
+
+    set mPlayer(mPlayer) {
+        this.cGame._mPlayer = mPlayer;
+    }
+
+    get cases() {
+        return this._uGetter("cases", this);
+    }
+
+    set cases(cases) {
+        this.cGame._cases = new CGCases(this.cGame, cases);
+    }
+
+    final() {
+        this.cGame.final_init();
+    }
+}
+
+class CGQuests {
     constructor(mGame) {
         this.mGame = mGame;
         this.gdata_quests = mGame.quests.gdata_quests;
         this.gdata = mGame.gdata;
     }
-    
+
     init() {
-        this.mGame.groups.NPCs.forEachAlive(function (NPC) {
+        Mst.groups.NPCs.forEachAlive(function (NPC) {
             console.log("Test Quest bubble: " + NPC.name);
             NPC.add_ren();
             NPC.init_quest();
         }, this);
 
-        this.mGame.groups.otherplayers.forEachAlive(function (otherplayer) {
+        Mst.groups.otherplayers.forEachAlive(function (otherplayer) {
             console.log("Test Quest bubble: " + otherplayer.name);
             otherplayer.add_ren();
             otherplayer.init_quest();
@@ -140,7 +255,7 @@ class CGQuest {
                 const tid = rumour.tid;
                 this.gdata.quest.rumours[tid] = rumour;
 
-                const key = this.mGame.prefabs.player.stats.rumours.indexOf(tid);
+                const key = Mst.player.stats.rumours.indexOf(tid);
                 if (key < 0) this.gdata.quest.act_rumours.push(rumour);
             }
         }
@@ -150,17 +265,18 @@ class CGQuest {
 }
 
 class CGCases {
-    constructor(cGame) {
+    constructor(cGame, mCases) {
         this.cGame = cGame;
-        this.mCases = cGame.mGame.cases;
+        console.log(this);
+        this.mCases = mCases;
         this.ftprints = new CGCFtprints(cGame, this.mCases);
         this.loaded = this.mCases.loaded;
-        
+
         cGame.cPlayer.mPlayer.cases.init_loaded(this.loaded, this.ftprints);
         cGame.cPlayer.cases.init_loaded(this.loaded, this.ftprints);
     }
 }
-    
+
 class CGCFtprints {
     constructor(cGame, mCases) {
         this.cGame = cGame;
@@ -169,23 +285,23 @@ class CGCFtprints {
         this.mFtprints = mCases.ftprints;
         this.a = this.mFtprints.a;
     }
-    
+
     make(cc) {
         this.mFtprints.make(cc);
     }
-    
+
     prepare_ftp() {
         this.mFtprints.prepare_ftp();
     }
-    
+
     prepare_onmap() {
         this.mFtprints.prepare_onmap();
     }
-    
-    distance(cftp) {     
+
+    distance(cftp) {
         const x = parseInt(cftp.x);
         const y = parseInt(cftp.y);
-        const dist = this.cGame.vGame.game.physics.arcade.distanceToXY(this.cPlayer.vPlayer, x, y);
+        const dist = Mst.game.physics.arcade.distanceToXY(this.cPlayer.vPlayer, x, y);
         console.log(dist);
         return dist;
     }
@@ -204,7 +320,7 @@ class CGCFtprints {
         }
         return null;
     }
-    
+
     unpack(ftp) {
         const a_ftp = ftp.split("|");
         if (a_ftp[0] === 'ftp') return {
@@ -296,7 +412,7 @@ class CGCFtprints {
 
         return ret;
     }
-    
+
     get_badge_val(b_id, b_key, uid, type, context) {
         return this.cPlayer.cases.get_badge_val(b_id, b_key, uid, type, context);
     }

@@ -1,43 +1,42 @@
-Mst.ShowBusiness = function (game_state, name, position, properties) {
-    "use strict";
-    Mst.ShowStat.call(this, game_state, name, position, properties);
-    this.visible = false;
-    this.stats = [];
-    this.texts = [];
-    this.texts1 = [];
-    this.arrows = [];
-    this.stats_spacing = properties.stats_spacing;
-    this.stats_group = properties.stats_group;
-    this.stat_to_show = properties.stat_to_show;
-    this.prefab_name = this.stat_to_show.split(".")[0];
-    this.stat_name = this.stat_to_show.split(".")[1]; //items
-    this.stats_rlength = 0;
-    this.up_length = 0;
-    
-    this.money = 0;
-    this.money_i = 0;
-    
-    this.type_buy = true;
-    this.put_type = "buy";
-    
-    this.up_arrow = this.game_state.mGame.groups[this.stats_group].create(460, 82, 'arrow_up');
-    this.up_arrow.fixedToCamera = true;
-    this.up_arrow.inputEnabled = true;
-    this.up_arrow.input.useHandCursor = true;
-    this.up_arrow.events.onInputDown.add(this.up_stat, this);
-    this.up_arrow.visible = false;
-    
-    this.down_arrow = this.game_state.mGame.groups[this.stats_group].create(460, 297, 'arrow_down');
-    this.down_arrow.fixedToCamera = true;
-    this.down_arrow.inputEnabled = true;
-    this.down_arrow.input.useHandCursor = true;
-    this.down_arrow.events.onInputDown.add(this.down_stat, this);
-    this.down_arrow.visible = false;
-    
-    // it is necessary to save the initial position because we need it to create the stat sprites
-    this.initial_position = new Phaser.Point(this.x, this.y);
-    
-    //this.create_buy_sel();
+Mst.ShowBusiness = class extends Mst.ShowStat {
+    constructor(name, position, properties) {
+        super(name, position, properties);
+        this.visible = false;
+        this.stats = [];
+        this.texts = [];
+        this.texts1 = [];
+        this.arrows = [];
+        this.stats_spacing = properties.stats_spacing;
+        this.stats_group = properties.stats_group;
+        this.group = Mst.groups[this.stats_group];
+        this.stats_rlength = 0;
+        this.up_length = 0;
+
+        this.money = 0;
+        this.money_i = 0;
+
+        this.type_buy = true;
+        this.put_type = "buy";
+
+        this.up_arrow = this.group.create(460, 82, 'arrow_up');
+        this.up_arrow.fixedToCamera = true;
+        this.up_arrow.inputEnabled = true;
+        this.up_arrow.input.useHandCursor = true;
+        this.up_arrow.events.onInputDown.add(this.up_stat, this);
+        this.up_arrow.visible = false;
+
+        this.down_arrow = this.group.create(460, 297, 'arrow_down');
+        this.down_arrow.fixedToCamera = true;
+        this.down_arrow.inputEnabled = true;
+        this.down_arrow.input.useHandCursor = true;
+        this.down_arrow.events.onInputDown.add(this.down_stat, this);
+        this.down_arrow.visible = false;
+
+        // it is necessary to save the initial position because we need it to create the stat sprites
+        this.initial_position = new Mst.Position(this);
+
+        //this.create_buy_sel();
+    }
 };
 
 Mst.ShowBusiness.prototype = Object.create(Mst.ShowStat.prototype);
@@ -45,13 +44,12 @@ Mst.ShowBusiness.prototype.constructor = Mst.ShowBusiness;
 
 Mst.ShowBusiness.prototype.show_initial_stats = function (nlindex) {
     "use strict";
-    var stat_index, lindex, lindex_set, stat, item_frame, item_quantity, item_cost, item_stc;
 
     // show initial stats
     
     this.stat = "";
     this.prefab_name = "";
-    const business = this.game_state.prefabs.player.cPlayer.business.opened;
+    const business = Mst.player.cPlayer.business.opened;
     
     if (business) {
         this.prefab_name = business.name;
@@ -61,38 +59,31 @@ Mst.ShowBusiness.prototype.show_initial_stats = function (nlindex) {
     console.log("Init " + this.prefab_name + ": " + this.stat);
     
     if (this.stat != "") {
-        this.game_state.mGame.hud.right_window.show("");
+        Mst.hud.right_window.show("");
         //this.show_buy_sel();
-        this.game_state.prefabs.items.set_put_type(this.put_type);
+        Mst.hud.items.set_put_type(this.put_type);
         
         this.stat_splited = this.stat.split("_");
 
-        if (typeof(nlindex) === 'undefined') {
-            lindex = 0;
-        } else {
-            lindex = nlindex;
-        }
+        let lindex = nlindex ? nlindex : 0;
+        let lindex_set = false;
         
         this.stats_rlength = 0;
-        lindex_set = false;
         
         console.log("Put type: " + this.put_type + " Type buy:" + this.type_buy);
         
-        for (stat_index = 0; stat_index < this.stat_splited.length; stat_index += 1) {
+        for (let stat_index in this.stat_splited) {
             // create new sprite to show stat
-            item_frame = parseInt(this.stat_splited[stat_index].split("-")[0]);
-            item_quantity = parseInt(this.stat_splited[stat_index].split("-")[1]);
-            //console.log(item_frame);
-            item_cost = parseInt(this.stat_splited[stat_index].split("-")[2]);
-            item_stc = parseInt(this.stat_splited[stat_index].split("-")[3]);
-            if (isNaN(item_stc)) {
-                item_stc = 1;
-            }
+            const stat_splited = this.stat_splited[stat_index].split("-");
+            const item_frame = parseInt(stat_splited[0]);
+            const item_quantity = parseInt(stat_splited[1]);
+            const item_cost = parseInt(stat_splited[2]);
+            const item_stc = stat_splited[3] ? parseInt(stat_splited[3]) : 1;
+            let stat = {};
 
             if (item_frame === 1 && this.put_type !== "mer_admin") {
                 this.money = item_quantity;
                 this.money_i = stat_index;
-                stat = {};
                 stat.stat = {};
                 stat.stat.frame = 1;
                 stat.stat.quantity = item_quantity;
@@ -103,7 +94,6 @@ Mst.ShowBusiness.prototype.show_initial_stats = function (nlindex) {
                 stat.text1 = { type: "nic" };
                 stat.arrows = { type: "nic" };
             } else {
-                //console.log(stat_index + " " + this.up_length);
                 if (stat_index >= this.up_length && lindex < 12) {
                     if (this.type_buy) {
                         if (item_quantity > 1) {
@@ -133,7 +123,6 @@ Mst.ShowBusiness.prototype.show_initial_stats = function (nlindex) {
                                 this.stats_rlength++;
                                 lindex++;
                             } else {
-                                stat = {};
                                 stat.stat = {};
                                 stat.stat.frame = item_frame;
                                 stat.stat.quantity = item_quantity;
@@ -147,7 +136,6 @@ Mst.ShowBusiness.prototype.show_initial_stats = function (nlindex) {
                         }
                     }
                 } else {
-                    stat = {};
                     stat.stat = {};
                     stat.stat.frame = item_frame;
                     stat.stat.quantity = item_quantity;
@@ -185,7 +173,7 @@ Mst.ShowBusiness.prototype.reset = function (position_x, position_y) {
     Phaser.Sprite.prototype.reset.call(this, position_x, position_y);
     // it is necessary to save the initial position because we need it to create the stat sprites
     //console.log("reset");
-    this.initial_position = new Phaser.Point(this.x, this.y);
+    this.initial_position = new Mst.Position(this);
     this.up_length = 0;
     this.show_initial_stats();
     this.visible = false;
@@ -214,13 +202,13 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
     
     
     // calculate the next stat position
-    stat_position = new Phaser.Point(this.initial_position.x + (this.stats_rlength * this.stats_spacing.x),
+    stat_position = new Mst.Position(this.initial_position.x + (this.stats_rlength * this.stats_spacing.x),
                                      this.initial_position.y + (this.stats_rlength * this.stats_spacing.y));
     //console.log(this.stats.length);
     //console.log(this.initial_position);
     //console.log(stat_position);
     // get the first dead sprite in the stats group
-    stat = this.game_state.mGame.groups[this.stats_group].getFirstDead();
+    stat = this.group.getFirstDead();
     frame_int = frame;
     if (stat) {
         // if there is a dead stat, just reset it
@@ -230,7 +218,7 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
     } else {
         // if there are no dead stats, create a new one
         // stat sprite uses the same texture as the ShowBusiness prefab
-        stat = this.game_state.mGame.groups[this.stats_group].create(stat_position.x, stat_position.y, 'items_spritesheet', frame_int); //!!!!!!!!!!
+        stat = this.group.create(stat_position.x, stat_position.y, 'items_spritesheet', frame_int); //!!!!!!!!!!
         stat.frame = frame_int;
     }
     
@@ -243,14 +231,13 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
     stat.events.onInputDown.add(this.business_that_item, this);
     
     text_style = {"font": "13px Arial", "fill": "#FFFFFF"};
-    //this.text = new Phaser.Text(this.game_state.game, stat_position.x + 10, stat_position.y + 8, cost, text_style);
     
     if (this.put_type === 'mer_admin') {
         text1 = quantity + "x G:" + cost;
         text =  stcmin;
         xa = 30;
         
-        arl = this.game_state.mGame.groups[this.stats_group].create(stat_position.x + 88 , stat_position.y + 2, 'arrow_lefts', 0);
+        arl = this.group.create(stat_position.x + 88 , stat_position.y + 2, 'arrow_lefts', 0);
         arl.scale.setTo(this.scale.x, this.scale.y);
         arl.anchor.setTo(this.anchor.x, this.anchor.y);
         arl.fixedToCamera = true;
@@ -259,7 +246,7 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
         arl.stat_index = stat_index;
         arl.events.onInputDown.add(this.adm_left, this);
         
-        arr = this.game_state.mGame.groups[this.stats_group].create(stat_position.x + 95 , stat_position.y + 2, 'arrow_rights', 0);
+        arr = this.group.create(stat_position.x + 95 , stat_position.y + 2, 'arrow_rights', 0);
         arr.scale.setTo(this.scale.x, this.scale.y);
         arr.anchor.setTo(this.anchor.x, this.anchor.y);
         arr.fixedToCamera = true;
@@ -268,7 +255,7 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
         arr.stat_index = stat_index;
         arr.events.onInputDown.add(this.adm_right, this);
         
-        em = this.game_state.mGame.groups[this.stats_group].create(stat_position.x + 105 , stat_position.y + 2, 'em', 0);
+        em = this.group.create(stat_position.x + 105 , stat_position.y + 2, 'em', 0);
         em.scale.setTo(this.scale.x, this.scale.y);
         em.anchor.setTo(this.anchor.x, this.anchor.y);
         em.fixedToCamera = true;
@@ -283,24 +270,20 @@ Mst.ShowBusiness.prototype.create_new_stat_sprite = function (stat_index, frame,
         arrows.arr = arr;
         arrows.em = em;
     } else {
-        text1 = this.game_state.gdata.core.items[frame_int].name;
+        text1 = Mst.items[frame_int].name;
         text = "G: " + cost;
         xa = 0;
         
         arrows = { type: "nic" };
     }
     
-    this.text1 = stat.addChild(this.game_state.game.make.text(stat_position.x + 22, stat_position.y + 1, text1, text_style));
+    this.text1 = stat.addChild(Mst.game.make.text(stat_position.x + 22, stat_position.y + 1, text1, text_style));
     this.text1.fixedToCamera = true;
-    this.game_state.mGame.groups[this.stats_group].add(this.text1);
+    this.group.add(this.text1);
 
-    this.text = stat.addChild(this.game_state.game.make.text(stat_position.x + xa + 92, stat_position.y + 1, text, text_style));
+    this.text = stat.addChild(Mst.game.make.text(stat_position.x + xa + 92, stat_position.y + 1, text, text_style));
     this.text.fixedToCamera = true;
-    this.game_state.mGame.groups[this.stats_group].add(this.text);
-    
-    //console.log(this.text);
-    //stat.frame = parseInt(frame);
-    //this.game_state.game.physics.enable(stat, Phaser.Physics.ARCADE);
+    this.group.add(this.text);
     
     stat.frame = frame_int;
     stat.stcost = stcost;
@@ -322,13 +305,13 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
     "use strict";
     var item_index, item_frame, item_cost, f_cost, fcpom, item_quantity, index_gold;
     
-    const player = this.game_state.prefabs.player;
+    const player = Mst.player;
     
     console.log("Business");
     
     if (player.cPlayer.business.opened) {
         item_index = one_item.stat_index;
-        var item = this.stats[item_index];
+        const item = this.stats[item_index];
         
         item_frame = item.frame;
         item_quantity = item.quantity;
@@ -339,15 +322,15 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
 
             // ------------------------------------- test player gold --------------------------------------
 
-            index_gold = this.game_state.prefabs.items.test_player_gold(item_cost);
+            const gold = Mst.cPlayer.items.test_gold(item_cost);
 
-            console.log("Index gold:" + index_gold);
+            console.log("Gold", gold);
 
-            if (index_gold != -1) {
+            if (gold) {
 
                 // ------------------------------------- Player - gold ---------------------------------------
 
-                player.cPlayer.items.subtract(index_gold, item_cost);
+                gold.sub(item_cost);
 
                 // ------------------------------------ Player + item ------------------------------------------
 
@@ -364,10 +347,10 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
 
             } else {
                 // Na to nemas
-                this.game_state.cGame.hud.alerts.show("Na to nemáš!");
+                Mst.hud.alerts.show("Na to nemáš!");
             } 
         } else {
-            item = this.game_state.prefabs.items.index_by_frame(item_frame);
+            const item = player.cPlayer.items.get(item_frame);
             
             if (this.put_type === "mer_admin") {
                 console.log("admin");
@@ -375,11 +358,9 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
                 const quant_put = 1;
                 
                 const is_in = this.subtract_item(item_index, 1);
-                if (is_in) {
-                    player.cPlayer.items.add(item_frame, quant_put);
-                }
+                if (is_in) item.add(quant_put);
             } else {            
-                if (item.is_in) {
+                if (item) {
 
                     let quant_put = 1;
                     if (player.keys.shift.isDown) {
@@ -390,7 +371,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
 
                     // ------------------------------------ Player - item ------------------------------------------
 
-                    player.cPlayer.items.subtract(item.index, quant_put);
+                    item.sub(quant_put);
 
                     // ------------------------------------- Player + gold ---------------------------------------
 
@@ -422,7 +403,7 @@ Mst.ShowBusiness.prototype.business_that_item = function (one_item) {
                     console.log("Merchant money");
                     this.subtract_item(this.money_i, f_cost);
                 } else {
-                    this.game_state.cGame.hud.alerts.show("To nemáš!");
+                    Mst.hud.alerts.show("To nemáš!");
                 }
             }
         }
@@ -631,66 +612,6 @@ Mst.ShowBusiness.prototype.subtract_item = function (item_index, item_quantity) 
     return is_in;
 };
 
-/*Mst.ShowBusiness.prototype.create_buy_sel = function () {
-    "use strict";
-    var x, y, text_style;
-    
-    x = this.game_state.hud.dialogue.x + 8;
-    y = this.game_state.hud.dialogue.y + 80;
-    
-    text_style = {"font": "12px Arial", "fill": "#BF9F00", wordWrap: true, wordWrapWidth: this.width - 25};
-    //this.text = new Phaser.Text(this.game_state.game, 273 + 10, 52 + 8, "", text_style);
-    //this.text = this.addChild(this.game_state.game.make.text(273 + 10, 52 + 8, "", text_style));
-    this.text_buy = this.game_state.game.add.text(x, y, "[koupit]", text_style);
-    this.text_buy.fixedToCamera = true;
-    this.text_buy.inputEnabled = true;
-    this.text_buy.input.useHandCursor = false;
-    this.text_buy.events.onInputDown.add(this.business_buy, this);
-    this.text_buy.visible = false;
-    this.text_buy.fill = "#BCBAB3";
-    
-    this.text_sell = this.game_state.game.add.text(x + 55, y, "[prodat]", text_style);
-    this.text_sell.fixedToCamera = true;
-    this.text_sell.inputEnabled = true;
-    this.text_sell.input.useHandCursor = true;
-    this.text_sell.events.onInputDown.add(this.business_sell, this);
-    this.text_sell.visible = false;
-};
-
-Mst.ShowBusiness.prototype.show_buy_sel = function () {
-    "use strict";
-    this.text_buy.visible = true;
-    this.text_sell.visible = true;    
-};
-
-Mst.ShowBusiness.prototype.hide_buy_sel = function () {
-    "use strict";
-    this.text_buy.visible = false;
-    this.text_sell.visible = false;
-};
-
-Mst.ShowBusiness.prototype.business_buy = function () {
-    "use strict";
-    this.text_buy.input.useHandCursor = false;
-    this.text_buy.fill = "#BCBAB3";
-    this.text_sell.input.useHandCursor = true;
-    this.text_sell.fill = "#BF9F00"
-    
-    this.type_buy = true;
-    this.game_state.prefabs.items.set_put_type("buy");
-};
-
-Mst.ShowBusiness.prototype.business_sell = function () {
-    "use strict";
-    this.text_buy.input.useHandCursor = true;
-    this.text_buy.fill = "#BF9F00"
-    this.text_sell.input.useHandCursor = false;
-    this.text_sell.fill = "#BCBAB3";
-    
-    this.type_buy = false;
-    this.game_state.prefabs.items.set_put_type("sell");
-};*/
-
 Mst.ShowBusiness.prototype.put_down_item = function (one_item) {
     "use strict";
     var item_index, item_frame, item_quantity;
@@ -718,46 +639,6 @@ Mst.ShowBusiness.prototype.put_down_item = function (one_item) {
     this.add_item(item_frame, 1);
 };
 
-//Mst.ShowBusiness.prototype.add_item = function (item_frame) {
-//    "use strict";
-//    var item_index, item_quantity, other_item, other_item_prefab, is_not_new_chest, chest_new;
-//    
-//    is_not_new_chest = true;
-//    
-//    if (this.prefab_name == "player") {
-//        other_item_prefab = "chestitems";
-//        if (this.game_state.prefabs.player.opened_chest == "") {
-//            // - create new chest
-//            chest_new = this.game_state.prefabs.chest_creator.create_new_chest(item_frame);
-//            if (chest_new.closed_frame != 3) {
-//                is_not_new_chest = false;
-//            }
-//        }
-//    } else {
-//        other_item_prefab = "items";
-//    }
-//    
-//    console.log(this.prefab_name + ": " + this.stat);
-//    
-//    if (is_not_new_chest) {
-//        other_item = this.game_state.prefabs[other_item_prefab].index_by_frame(item_frame);
-//        item_index = other_item.index;
-//
-//        if (other_item.is_in) {
-//            item_quantity = other_item.quantity;
-//            item_quantity++;
-//            this.game_state.prefabs[other_item_prefab].texts[item_index].text = item_quantity;
-//            this.game_state.prefabs[other_item_prefab].stats[item_index].quantity = item_quantity;
-//        } else {
-//            item_index = -1;
-//            item_quantity = 1;
-//        }
-//
-//        this.game_state.prefabs[other_item_prefab].update_item(item_index, item_frame, item_quantity); 
-//    }
-//    
-//};
-
 Mst.ShowBusiness.prototype.update_item = function (item_index, item_frame, item_quantity) {
     "use strict";
     var item_updated, is_in_items;
@@ -776,10 +657,10 @@ Mst.ShowBusiness.prototype.update_item = function (item_index, item_frame, item_
         is_in_items = false;
         this.stat_splited.splice(item_index, 1);
     }
-    
+
     this.stat = this.stat_splited.join("_");
-    this.game_state.prefabs[this.prefab_name].stats.items = this.stat;
-    if (this.prefab_name !== "player") this.game_state.prefabs[this.prefab_name].save.properties.items = this.stat;
+    Mst.prefabs[this.prefab_name].stats.items = this.stat;
+    if (this.prefab_name !== "player") Mst.prefabs[this.prefab_name].save.properties.items = this.stat;
     
     if (is_in_items === false) {
         this.kill_stats();
@@ -808,8 +689,8 @@ Mst.ShowBusiness.prototype.kill_stats = function () {
     
     console.log(st_up);
     this.stat = st_up.join("_");
-    this.game_state.prefabs[this.prefab_name].stats.items = this.stat;
-    this.game_state.prefabs[this.prefab_name].save.properties.items = this.stat;
+    Mst.prefabs[this.prefab_name].stats.items = this.stat;
+    Mst.prefabs[this.prefab_name].save.properties.items = this.stat;
     
     this.stats = [];
     this.texts.forEach(function(text) {
@@ -845,8 +726,8 @@ Mst.ShowBusiness.prototype.kill_stats = function () {
     this.down_arrow.visible = false;
     
     //this.hide_buy_sel();
-    this.game_state.mGame.hud.right_window.hide();
-    this.game_state.prefabs.items.set_put_type("put");
+    Mst.hud.right_window.hide();
+    Mst.hud.items.set_put_type("put");
 };
     
 Mst.ShowBusiness.prototype.index_by_frame = function (item_frame) {

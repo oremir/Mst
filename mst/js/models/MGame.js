@@ -1,121 +1,138 @@
-class MGame {
-    constructor(cGame, vGame, properties) {
-        this.cGame = cGame;
-        this.vGame = vGame;
-        this.gdata = properties;
-        this.mPlayer = null;
-        this.quests = new MGQuest(this);
-        this.cases = null;
+class WithInit {
+    constructor(sCaller, properties, sup) {
+        this.sCaller = sCaller;
+        this.properties = properties;
+        if (!sup) this.model = this._model();
+    }
 
-        this.load_mst = JSON.parse(localStorage.getItem("mst"));
+    _model() {
+        return null;
+    }
+
+    _uSetter(type, object) {
+        console.log("Error", type, object);
+        throw new Error("Not possible set this controller property: " + type);
+    }
+
+    _uGetter(type, object, value) {
+        console.log("Error", type, object);
+        if (!value) throw new Error("Not initialized property: " + type);
+    }
+}
+
+class MInit {
+    constructor() {
+
+    }
+
+    _uGetter(type, obj) {
+        console.log("Error", type, obj);
+        throw new Error("Not possible get init property: " + type);
+    }
+}
+
+class MModel extends WithInit {
+    constructor(controller, properties) {
+        super(controller, properties, true);
+        this.controller = controller;
+        this.view = controller.sCaller;
+        console.log(controller);
+    }
+}
+
+class MGQuest {
+    constructor() {
+        this.gdata_quests = Mst.quest.quests;
+    }
+}
+
+class MGInit extends MInit {
+    constructor(mGame) {
+        super();
+        this.mGame = mGame;
+    }
+
+    get mPlayer() {
+        return this._uGetter("mPlayer", this);
+    }
+
+    set mPlayer(mPlayer) {
+        console.log("MPlayer Init");
+        this.mGame._mPlayer = mPlayer;
+        this.cases = this.mGame._mPlayer.cases;
+        console.log(mPlayer);
+    }
+
+    get cases() {
+        return this._uGetter("cases", this);
+    }
+
+    set cases(cases) {
+        this.mGame._cases = new MGCases(cases);
+    }
+}
+
+class MGame extends MModel {
+    constructor(cGame, properties) {
+        super(cGame, properties);
+        this.cGame = cGame;
+        this.vGame = cGame.sCaller;
+        this.gdata = properties;
+        this.quests = new MGQuest(this);
+        this._cases = null;
+        this._mPlayer = null;
+
+        this.load_mst = Mst.load_mst;
         console.log(this.load_mst);
-        
+
         this.save = {
             player: {},
             objects: this.gdata.map.objects
         };
-        
+
         this.finder = new EasyStar.js();
-        
+
         this.prefabs = {};
-        this.groups = {};
-        this.persons = {};
-        this.persons.NPCs = {};
-        this.persons.otherplayers = {};
-        
-        this.hud = new MHud(vGame.game, this);
-    }
-    
-    init_mPlayer(mPlayer) {
-        console.log("MPlayer Init");
-        this.mPlayer = mPlayer;
-        this.mPlayer.init_hud(this.hud);
-        this.cases = new MGCases(this, mPlayer);
-        return mPlayer;
-    }
-    
-    create_groups(groups, groupshud) {
-        groups.forEach((group_name) => this.groups[group_name] = this.vGame.game.add.group(), this);
-        groupshud.forEach((group_name) => this.groups[group_name] = this.vGame.game.add.group(), this);
-        console.log(this.groups);
-        return this.groups;
-    }
-    
-    create_persons() {
-        this.groups.NPCs.forEachAlive((NPC) => this.persons.NPCs[NPC.unique_id] = NPC.name, this);        
-        this.groups.otherplayers.forEachAlive((otherplayer) => this.persons.otherplayers[otherplayer.usr_id] = otherplayer.name, this);
-        
-        console.log("Persons:");
-        console.log(this.persons);
-        return this.persons;
-    }
-    
-    set_prefabs(prefabs) {
-        this.prefabs = prefabs;
-        return this.prefabs;
-    }
-    
-    playerOfUsrID(usr_id) {
-        console.log("playerOfUsrID:" + usr_id);
-        for (let object_key in this.prefabs) {
-            if (this.prefabs[object_key].usr_id) {
-                usr_id = parseInt(usr_id);
-                const uid = parseInt(this.prefabs[object_key].usr_id);
-                console.log(uid);
-                if (uid === usr_id) {
-                    console.log(object_key);
-                    return object_key;
-                }
-            }
-        }
-        return null;
+        this.groups = new MGroups();
+        this.identities = new MIdentities();
+
+        this.workItems = new Mst.Model.WorkItems();
+        Mst.init_workItems(this.workItems);
+
+        console.log(this);
+        this.hud = new MHud(this);
+
+        this.init = new MGInit(this);
+
+        Mst.init_mgame(this);
     }
 
-    NPCofID(usr_id) {
-        console.log("NPCofID:" + usr_id);
-        for (let object_key in this.prefabs) {
-            if (this.prefabs[object_key].unique_id) {
-                usr_id = parseInt(usr_id);
-                const uid = parseInt(this.prefabs[object_key].unique_id);
-                if (uid === usr_id) {
-                    console.log(object_key);
-                    return object_key;
-                }
-            }
-        }
-        return null;
+    get cases() {
+        if (this._cases) return this._cases;
+        this._uGetter("cases", this);
     }
-    
-    get_name(uid, type) {
-        if (type === 'player') return this.playerOfUsrID(uid);
-        return this.NPCofID(uid);
+
+    set cases(x) {
+        this._uSetter("cases", this);
     }
-    
+
+    get mPlayer() {
+        if (this._mPlayer) return this._mPlayer;
+        this._uGetter("mPlayer", this);
+    }
+
+    set mPlayer(x) {
+        this._uSetter("mPlayer", this);
+    }
+
     get_person(uid, type) {
-        const name = this.get_name(uid, type);
-        if (name) return this.prefabs[name];
-        return null;
-    }
-
-    objectofID(obj_id) {
-        console.log("objectofID:" + obj_id);
-        for (let object_key in this.prefabs) {
-            if (this.prefabs[object_key].obj_id) {
-                obj_id = parseInt(obj_id);
-                const oid = parseInt(this.prefabs[object_key].obj_id);
-                if (oid === obj_id) {
-                    console.log(object_key);
-                    return object_key;
-                }
-            }
-        }
-        return null;
+        const identity = new MIdentity(uid, type);
+        return this.identities.get_prefab(identity);
     }
 
     get_object(oid) {
-        const key = this.objectofID(oid);
-        if (key) return this.prefabs[key];
-        return null;
+        const identity = new MIdentity(oid, "chest");
+        return this.identities.get_prefab(identity);
     }
 
     keyOfUsrID(usr_id) {
@@ -181,13 +198,13 @@ class MGame {
         }
         return NPCs;
     }
-    
+
     save_data(go_position, next_map_int, save_state) {
         this.save_state = save_state;
         this.save_tween = false;
         this.save_post = false;
-        
-        this.groups.otherplayers.forEachAlive(function(one_player) {        
+
+        this.groups.otherplayers.forEachAlive(function(one_player) {
             one_player.save_player();
         }, this);
 
@@ -196,7 +213,7 @@ class MGame {
         this.save.player = this.mPlayer.save;
         this.save.enplayer = JSON.stringify(this.mPlayer.save);
 
-        const key = this.keyOfUsrID(this.gdata.root.usr_id);
+        const key = this.keyOfUsrID(Mst.usr_id);
 
         console.log(this.save.objects);
         console.log(key);
@@ -209,16 +226,13 @@ class MGame {
         stat1.scale.setTo(21);
         stat1.anchor.setTo(0.5);
 
-        const tween = this.vGame.game.add.tween(stat1.scale).to( { x: 0.72, y: 0.72 }, 500, Phaser.Easing.Linear.None);
+        const tween = Mst.game.add.tween(stat1.scale).to( { x: 0.72, y: 0.72 }, 500, Phaser.Easing.Linear.None);
         tween.onComplete.add(this.save_data_tween, this);
         tween.start();
         const save_data_post = this.save_data_post;
         const tt = this;
 
-        const d = new Date();
-        const n = d.getTime();
-
-        $.post("save.php?time="+n, this.save)
+        $.post("save.php?time="+Mst.time, this.save)
             .done(function(data) {
                 console.log( "save success" );
                 console.log(JSON.parse(data));
@@ -232,20 +246,20 @@ class MGame {
 
         console.log("save");
     }
-    
+
     save_data_tween() {
         this.save_tween = true;
         if (this.save_post) this.save_data_fin();
     }
-    
+
     save_data_post(tt) {
         tt.save_post = true;
         if (tt.save_tween) tt.save_data_fin();
     }
-    
+
     save_data_fin() {
         console.log("save_data_fin");
-        let usr_id = this.gdata.root.usr_id;
+        let usr_id = Mst.usr_id;
         let login = true;
         const next_map_int = this.mPlayer.save.map.new_int;
         if (this.save_state === "logout") {
@@ -253,13 +267,7 @@ class MGame {
             login = false;
         }
 
-        const mst_inst = {
-            "usr_id": usr_id,
-            "map": next_map_int,
-            "login": login
-        };
-
-        localStorage.setItem("mst", JSON.stringify(mst_inst));
+        Mst.save_mst(usr_id, next_map_int, login);
 
         if (this.save_state == "logout") {
             console.log("logout");
@@ -267,12 +275,11 @@ class MGame {
             //location.reload();
         }
 
-        this.vGame.game.state.start("BootState", true, false, next_map_int, usr_id);
+        Mst.game.state.start("BootState", true, false, next_map_int, usr_id);
     }
-    
+
     make_object(position, oid, type) {
         const mGame = this;
-        const vGame = this.vGame;
         const cases = this.mPlayer.cases;
         const ftprints = this.mPlayer.cases.ftprints;
         const uid = this.mPlayer.usr_id;
@@ -285,14 +292,11 @@ class MGame {
         save.obj_id = oid;
         save.name = "";
 
-        const d = new Date();
-        const n = d.getTime();
-
         console.log(save);
-        
+
         let chest = null;
 
-        $.post("object.php?time=" + n + "&uid=" + uid, save)
+        $.post("object.php?time=" + Mst.time + "&uid=" + uid, save)
             .done(function (data) {
                 console.log("Chest load success");
                 console.log(data);
@@ -306,12 +310,12 @@ class MGame {
                     properties.texture = "blank_spritesheet";
                 }
 
-                chest = new Mst.Chest(vGame, name, position, properties);
+                chest = new Mst.Chest(name, position, properties);
 
                 if (type === "Questions") {
                     const dname = a_type[2];
                     console.log("Make - witness name: " + dname);
-                    const ren = vGame.prefabs[dname].ren_sprite;
+                    const ren = Mst.prefabs[dname].ren_sprite;
                     console.log(ren);
 
                     ren.next_question("", "");
@@ -321,7 +325,7 @@ class MGame {
                     ftprints.prepare_ftp();
                     ftprints.prepare_onmap();
                 }
-            
+
                 if (type === 'test witness') {
                     const pcid = parseInt(a_type[1]);
                     const uid = a_type[2];
@@ -341,7 +345,6 @@ class MGame {
 
     make_otherplayer(position, uid, type) {
         const mGame = this;
-        const vGame = this.vGame;
         const mPlayer = this.mPlayer;
         const acont = type.split("|");
         if (acont[1]) type = acont.shift();
@@ -353,12 +356,9 @@ class MGame {
         save.name = "";
         console.log(save);
 
-        const d = new Date();
-        const n = d.getTime();
-
         let otherplayer = null;
 
-        $.post("object.php?time=" + n + "&uid=" + uid, save)
+        $.post("object.php?time=" + Mst.time + "&uid=" + uid, save)
             .done(function (data) {
                 console.log("OtherPlayer load success");
                 console.log(data);
@@ -372,7 +372,7 @@ class MGame {
 
                 if (type === "investigate") properties.texture = "blank_spritesheet";
 
-                otherplayer = new Mst.OtherPlayer(vGame, name, position, properties);
+                otherplayer = new Mst.OtherPlayer(name, position, properties);
                 otherplayer.add_ren();
                 otherplayer.init_quest();
 
@@ -386,7 +386,7 @@ class MGame {
                 if (type === "investigate") {
                     const mbi = mPlayer.cases.make_book_investigate(uid, type, acont);
 
-                    vGame.hud.book.book_investigate(mbi);
+                    Mst.hud.book.book_investigate(mbi);
                 }
             })
             .fail(function (data) {
@@ -396,14 +396,54 @@ class MGame {
                 success = false;
             });
 
-        return otherplayer;    
+        return otherplayer;
+    }
+}
+
+class MGroups {
+    constructor() {
+
+    }
+
+    init(groups) {
+        groups.forEach((group_name) => this.add(group_name), this);
+        return this;
+    }
+
+    add(name) {
+        switch(name) {
+            case 'chests':
+                this.chests = new Mst.GroupChest(name);
+            break;
+            case 'enemies':
+                this.enemies = new Mst.GroupEnemy(name);
+            break;
+            default:
+                this[name] = new Mst.Group(name);
+            break;
+        }
+    }
+
+    getItemSpawnerDistance(position, mdist) {
+        let sp = null;
+        Mst.groups.spawners.forEachAlive(function (spawner) {
+            const dist = Mst.pointDistance(position, spawner);
+            console.log("Test search spawner:", spawner.name, spawner.name.substr(0, 11), dist);
+
+            if (dist < mdist && spawner.name.substr(0, 11) === 'itemspawner') {
+                sp = spawner;
+                console.log("Itemspawner close");
+            }
+
+        }, this);
+        return sp;
     }
 }
 
 class MProperty {
     constructor(value, max) {
-        this.value = parseInt(value);
-        this.max = parseInt(max);
+        this.value = Mst.parseInt(value);
+        this._max = Mst.parseIntNull(max);
     }
 
     get() {
@@ -411,21 +451,38 @@ class MProperty {
     }
 
     set(value) {
-        this.value = parseInt(value);
+        this.value = Mst.parseInt(value);
     }
 
-    reset() {
+    set max(value) {
+        this._max = Mst.parseIntNull(value);
+        this.reset();
+    }
+
+    get max() {
+        return this._max;
+    }
+
+    reset(max) {
+        if (max) this.max = max;
         if (this.max) this.value = this.max;
     }
 
     add(value) {
-        this.value += parseInt(value);
-        if (this.max && this.value > this.max) this.value = this.max;
+        const add = this.value + Mst.parseInt(value);
+        if (this.max && add > this.max) {
+            this.value = this.max;
+            return add;
+        }
+        this.value = add;
+        return null;
     }
 
     sub(value) {
-        this.value -= parseInt(value);
-        if (this.value < 0) this.value = 0;
+        const sub = this.value - Mst.parseInt(value);
+        this.value = sub;
+        if (sub < 1) this.value = 0;
+        return sub;
     }
 
     save() {
@@ -433,11 +490,125 @@ class MProperty {
     }
 }
 
+class MIdentity {
+    constructor(id, type) {
+        this._id = null;
+        this.type = type;
+
+        this.id = id;
+    }
+
+    set id(id) {
+        this._id = Mst.parseIntNull(id);
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get ids() {
+        return String(this._id);
+    }
+    
+    eq(id, ntype) {
+        const nid = Mst.parseIntNull(id);
+        return this.type === ntype && this.id === nid;
+    }
+
+    reset(id, type) {
+        this.id = id;
+        this.type = type;
+    }
+}
+
+class MPrefabIdentity extends MIdentity {
+    constructor(mPrefab, identities) {
+        super();
+        this.mPrefab = mPrefab;
+        this.name = mPrefab.name;
+        this.orig = {
+            name: mPrefab.oname, // zatim nefunguje
+            type: mPrefab.otype
+        };
+        
+        this.identities = identities;
+        this.id = this._prefab_id;
+        this.type = this._prefab_type;
+        console.log(this);
+        identities.set(this, mPrefab.view);
+    }
+
+    get _prefab_id() {
+        console.log("Get Prefab Id", this._prefab_type, this.mPrefab);
+        if (this._prefab_type === "player" || this._prefab_type === "player") return this.mPrefab.uid;
+        return this.mPrefab.id;
+    }
+
+    get _prefab_type() {
+        if (this.mPrefab.otype) return this.mPrefab.otype;
+        return this.mPrefab.type;
+    }
+
+    init(id, type, prefab) {
+        this.id = id;
+        this.type = type;
+        this.identities.set(this, prefab);
+    }
+
+    reset(id, type, prefab) {
+        this.init(id, type, prefab);
+    }
+}
+
+class MIdentities {
+    constructor() {
+        this.prefabs = {};
+    }
+
+    set(identity, prefab) {
+        const id = identity.id;
+        const type = identity.type;
+
+        if (id && type) {
+            if (!this[type]) this[type] = {};
+            this[type][id] = identity;
+
+            if (prefab) {
+                if (!this.prefabs[type]) this.prefabs[type] = {};
+                this.prefabs[type][id] = prefab;
+            }
+        }
+    }
+
+    get(identity) {
+        const id = identity.id;
+        const type = identity.type;
+        if (this[type]) return this[type][id];
+        return null;
+    }
+
+    get_prefab(identity) {
+        const id = identity.id;
+        const type = identity.type;
+        console.log("Get Prefab", type, identity, this.prefabs[type]);
+        if (this.prefabs[type]) return this.prefabs[type][id];
+        return null;
+    }
+}
+
 class MArrayItem {
     constructor(arr, id, value) {
         this.arr = arr;
-        this.id = id;
+        this._id = id;
         this.value = value;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    set id(id) {
+        this._id = id;
     }
 
     get() {
@@ -453,22 +624,22 @@ class MArrayItem {
     remove() {
         return this.arr.remove(this.id);
     }
+
+    save() {
+        this.arr.core[this.id] = this.value;
+        return this.value;
+    }
 }
 
 class MArray extends Array {
-    constructor(core) {
+    constructor(core, sup) {
         super();
         this.core = core;
-        this._make(core);
+        if (!sup) this._make(core);
     }
 
-    get [id]() {
-        if (this[id]) return this[id].get();
-        return null;
-    }
-
-    set [id](value) {
-        if (this[id]) this[id].set(value);
+    _model(index, value) {
+        return new MArrayItem(this, index, value);
     }
 
     _make(core) {
@@ -483,10 +654,6 @@ class MArray extends Array {
         for (let i = start; i < this.length; i++) {
             this[i].id = i;
         }
-    }
-
-    _model(index, value) {
-        return new MArrayItem(this, index, value);
     }
 
     _add(value) {
@@ -519,33 +686,53 @@ class MArray extends Array {
     }
 
     save() {
+        console.log("Array save:", this.name, this.core)
         return this.core;
     }
-}
 
-class MGQuest {
-    constructor(mGame) {
-        this.gdata_quests = mGame.gdata.quest.quests;
+    reset(core) {
+        this.core = core;
+        this._make(core);
     }
 }
+
+class MArrayString extends MArray {
+    constructor(string, split) {
+        const core = string.length > 0 ? string.split(split) : [];
+        super(core);
+        this.split = split;
+    }
+
+    save() {
+        console.log(this.core);
+        return this.core.join(this.split);
+    }
+
+    reset(string, split) {
+        this.split = split;
+        const core = string.length > 0 ? string.split(this.split) : [];
+        super.reset(core);
+    }
+}
+
+
 
 class MGCases {
-    constructor(mGame, mPlayer) {
-        this.mGame = mGame;
-        this.mPlayer = mPlayer;
-        this.ftprints = new MGCFtprints(mGame, this, mPlayer.cases.culprit);
-        this.loaded = new MGCLoaded(mGame, mPlayer.cases.case);
+    constructor(mPCases) {
+        this.mPCases = mPCases;
+        this.ftprints = new MGCFtprints(this, mPCases);
+        this.loaded = new MGCLoaded(mPCases);
     }
 }
-    
+
 class MGCFtprints {
-    constructor(mGame, mCases, culprit) {
-        this.mGame = mGame;
+    constructor(mCases, mPCases) {
         this.mCases = mCases;
-        this.culprit = culprit;
+        this.mPCases = mPCases;
+        this.culprit = mPCases.culprit;
         this.a = [];
     }
-    
+
     add(ftprint) {
         this.a.push(ftprint);
     }
@@ -570,15 +757,13 @@ class MGCFtprints {
             map_int: map
         };
 
-        const d = new Date();
-        const n = d.getTime();
+        const n = Mst.time;
         ftprint_save.properties.time = n;
-        const usr_id = this.mGame.gdata.root.usr_id;
 
         console.log("Ftprint insert:");
         console.log(ftprint_save);
 
-        $.post("object.php?time=" + n + "&uid=" + usr_id, ftprint_save)
+        $.post("object.php?time=" + n + "&uid=" + Mst.usr_id, ftprint_save)
             .done((data) => {
                 console.log("Ftprint save success");
                 console.log(data);
@@ -595,19 +780,19 @@ class MGCFtprints {
     make(cc) {
         console.log("Add ftprints");
 
-        const map = this.mGame.gdata.root.map_int;
+        const map = Mst.map_int;
 
         const ftprint = {
             m: map,
-            x: Math.round((this.mGame.prefabs.player.x - 8) / 16) * 16 + 8,
-            y: Math.round((this.mGame.prefabs.player.y + 8) / 16) * 16 - 8
+            x: Math.round((Mst.player.x - 8) / 16) * 16 + 8,
+            y: Math.round((Mst.player.y + 8) / 16) * 16 - 8
         };
 
         let witness = null;
 
         if (cc === 0) {
-            const players = this.mGame.get_players();
-            const NPCs = this.mGame.get_NPCs();
+            const players = Mst.mGame.get_players();
+            const NPCs = Mst.mGame.get_NPCs();
 
             if (players.length > 0 || NPCs.length > 0) {
                 witness = {
@@ -624,7 +809,7 @@ class MGCFtprints {
             if (culprit.M === map) {
                 console.log("Ft same map");
 
-                const chest = this.mGame.get_object(culprit.ID);
+                const chest = Mst.mGame.get_object(culprit.ID);
                 chest.cChest.cases.add_ftprints(culprit.CID);
                 if (!this.cPlayer.chest.opened) {
                     chest.mChest.save_chest();
@@ -637,11 +822,10 @@ class MGCFtprints {
             }
         }
     }
-    
+
     prepare_ftp() {
         const mCases = this.mCases;
-        const mPCases = this.mCases.mPlayer.cases;
-        mPCases.for_each((ncase) => mCases.loaded.load_case(ncase.pcid, "Prepare ftp"));
+        this.mPCases.for_each((ncase) => mCases.loaded.load_case(ncase.pcid, "Prepare ftp"));
     }
 
     prepare_onmap() {
@@ -649,10 +833,12 @@ class MGCFtprints {
         const loaded = this.mCases.loaded;
         const map = this.map;
         const a_pcid = [];
-        const mPlayer = this.mPlayer;
         const mFtprints = this;
 
-        this.mGame.groups.chests.forEachAlive((chest) => {
+        Mst.groups.chests.forEachAlive((chest) => {
+            console.log(chest);
+            if (!chest.cChest) return null;
+            if (!chest.cChest.cases) return null;
             chest.cChest.cases.for_each((ccase) => {
                 let b_in = false;
                 let p_in = false;
@@ -671,9 +857,9 @@ class MGCFtprints {
                     const gweek = parseInt(ccase.gweek) + 3;
                     for (let id in ftprints) {
                         const m = parseInt(ftprints[id].m);
-                        //console.log(m + "|" + map + " " + gweek + "|" + this.stats.gtimeweek);
+                        //console.log(m + "|" + map + " " + gweek + "|" + Mst.gtimeweek);
 
-                        if (m === map && gweek > this.mPlayer.stats.gtimeweek) {
+                        if (m === map && gweek > Mst.gtimeweek) {
                             const new_ftprints = JSON.parse(JSON.stringify(ftprints[id]));
                             new_ftprints.cid = ccase.CID;
                             new_ftprints.id = ccase.ID;
@@ -686,7 +872,7 @@ class MGCFtprints {
                         }
                     }
                     const owner = parseInt(ccase.Owner);
-                    if (b_in && owner === mPlayer.usr_id) a_pcid.push(ccase.PCID);
+                    if (b_in && owner === Mst.usr_id) a_pcid.push(ccase.PCID);
                 }
             });
         }, this);
@@ -696,8 +882,7 @@ class MGCFtprints {
 }
 
 class MGCLoaded {
-    constructor(mGame, cases) {
-        this.mGame = mGame;
+    constructor(cases) {
         this.cases = {};
         this.person = {};
         this.NPC = {};
@@ -712,7 +897,7 @@ class MGCLoaded {
 
     load_person(uid, type, context) {
         const ptype = this.get_ptype(type);
-        const person = this.mGame.get_person(uid, type);
+        const person = Mst.mGame.get_person(uid, type);
         if (person) {
             this[ptype][uid] = person;
 
@@ -720,7 +905,7 @@ class MGCLoaded {
         } else {
             if (type === "player") {
                 const cont2 = "investigate|" + context;
-                this.mGame.make_otherplayer({ x: 0, y: 0 }, uid, cont2);
+                Mst.mGame.make_otherplayer({ x: 0, y: 0 }, uid, cont2);
             }
             return null;
         }
@@ -743,14 +928,14 @@ class MGCLoaded {
         const pc = this.case[pcid];
         const oid = pc.chest.id;
         const cid = pc.chest.cid;
-        const chest = this.mGame.get_object(oid);
+        const chest = Mst.mGame.get_object(oid);
         console.log(chest);
 
         if (chest) {
             const ncase = this.add_case(chest.cases[cid], pcid);
             return ncase;
         } else {
-            this.mGame.make_object({ x: 0, y: 0 }, oid, context);
+            Mst.mGame.make_object({ x: 0, y: 0 }, oid, context);
             return null;
         }
     }
@@ -768,11 +953,11 @@ class MGCWitness {
         this.case = cases;
         this.loaded = loaded;
     }
-    
+
     have_case(pcid) {
         return this.cases.indexOf(pcid) > -1;
     }
-    
+
     get_new_case(pcase) {
         return {
             uid: "",
@@ -784,14 +969,14 @@ class MGCWitness {
             culprit: false
         };
     }
-    
+
     set_new_case(new_case, uid, type, map) {
         new_case.map = map;
         new_case.type = type;
         new_case.uid = uid;
         return JSON.parse(JSON.stringify(new_case));
     }
-    
+
     getw(type, uids, pcid) {
         if (this.o[type]) {
             if (this.o[type][uids]) {
@@ -800,8 +985,8 @@ class MGCWitness {
         }
         return null;
     }
-    
-    winit(ncase, uid, type) {        
+
+    winit(ncase, uid, type) {
         const uids = String(uid);
         const pcid = ncase.pcid;
         const witstr = "test witness|" + pcid + "|" + uids + "|" + type;

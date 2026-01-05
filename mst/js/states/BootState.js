@@ -1,5 +1,3 @@
-const Mst = {};
-
 Mst.BootState = function () {
 	"use strict";
 	Phaser.State.call(this);
@@ -10,24 +8,21 @@ Mst.prototype.constructor = Mst.BootState;
 
 Mst.BootState.prototype.init = function (map_int, usr_id) {
 	"use strict";
+	Mst.init_game(this.game);
 
 	if (usr_id === 0) {
-		const load_mst = JSON.parse(localStorage.getItem("mst"));
+		const load_mst = Mst.load_mst;
+		console.log(load_mst);
 		if (load_mst) {
-			if (load_mst.login) {
-				map_int = parseInt(load_mst.map);
-				usr_id = parseInt(load_mst.usr_id);
-			}
+			map_int = load_mst.map_int;
+			usr_id = load_mst.usr_id;
 		}
 	}
-    
-	const d = new Date();
-	const n = d.getTime();
-    
+
 	this.core_file = "assets/maps/core.json";
     this.quest_file = "assets/maps/quest.json";
 	this.map_int = map_int;
-	this.map_file = "map.php?time="+n+"&uid="+usr_id+"&mapi="+map_int; 
+	this.map_file = "map.php?time=" + Mst.time + "&uid=" + usr_id + "&mapi=" + map_int;
     //this.map_file = "assets/maps/map"+map_int+".json?time="+n+"&uid="+usr_id+"&mapi="+map_int; 
 	console.log(this.map_file);
 	this.usr_id = usr_id;
@@ -42,7 +37,7 @@ Mst.BootState.prototype.preload = function () {
 		this.load.text("map", this.map_file);
 	} else {
 		window.location.href = "login.html";
-		const a = this.load.image("login", "assets/images/loader2.png");
+		//const a = this.load.image("login", "assets/images/loader2.png");
         //console.log(a);
 	}
 };
@@ -73,6 +68,10 @@ Mst.BootState.prototype.create = function () {
     
 	console.log("Boot State");
 	console.log(gdata.root);
+
+	Mst.init_gdata(gdata);
+
+	console.log(Mst);
 
 	this.game.state.start("LoadingState", true, false, gdata);
 };

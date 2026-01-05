@@ -237,7 +237,7 @@
         "wasp": { "spritesheet": "wasp_spritesheet", "loot": [ 90 ] },
         "spider": { "spritesheet": "spider_spritesheet", "loot": [ 90 ] },
         "angostura": { "spritesheet": "angostura_spritesheet", "loot": [ 90 ] },
-        "angostura-v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] },
+        "angostura_v": { "spritesheet": "angostura-v_spritesheet", "loot": [ 184 ] },
         "rotulice": { "spritesheet": "rotulice_spritesheet", "loot": [ 190 ] },
         "cmelotrysk": { "spritesheet": "cmelotrysk_spritesheet", "loot": [ 90 ] },
         "doe": { "spritesheet": "doe_spritesheet", "loot": [ 36, 39 ] },

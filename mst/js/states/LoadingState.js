@@ -13,14 +13,12 @@ Mst.LoadingState.prototype.init = function (gdata) {
 
 Mst.LoadingState.prototype.preload = function () {
     "use strict";
+    console.log(Mst);
         
-    if (this.gdata.root.usr_id > 0) {
+    if (Mst.logged) {
         const root_assets = {};
         root_assets.map_assets = this.gdata.map.assets;
         root_assets.core_assets = this.gdata.core.assets;
-        
-        const d = new Date();
-        const n = d.getTime();
     
         for (let root_asset_key in root_assets) {
             const assets = root_assets[root_asset_key];
@@ -35,7 +33,7 @@ Mst.LoadingState.prototype.preload = function () {
                         this.load.spritesheet(asset_key, asset.source, asset.frame_width, asset.frame_height, asset.frames, asset.margin, asset.spacing);
                         break;
                     case "tilemap":
-                        this.load.tilemap(asset_key, asset.source+"?time="+n, null, Phaser.Tilemap.TILED_JSON);
+                        this.load.tilemap(asset_key, asset.source+"?time="+Mst.time, null, Phaser.Tilemap.TILED_JSON);
                         break;
                     case "audio":
                         this.load.audio(asset_key, asset.source);

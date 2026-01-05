@@ -1,65 +1,22 @@
-class MPlayer {
-    constructor(cPlayer, vPlayer, name, position, properties) {
-        this.vPlayer = vPlayer;
+class MPlayer extends MPerson {
+    constructor(cPlayer, name, position, properties) {
+        super(cPlayer, name, position, properties);
+        this.vPlayer = this.view;
         this.cPlayer = cPlayer;
-        this.mGame = vPlayer.game_state.mGame;
-        this.vGame = vPlayer.game_state;
-        this.hud = this.cPlayer.hud;
-        this.interface = new MPInterface(name, position, properties);
 
-        this.name = name;
-
-        this.region = parseInt(this.vGame.gdata.map.map.region);
-        this.map = this.vGame.gdata.root.map_int;
         this.p_name = this.interface.p_name;
         this.usr_id = this.interface.usr_id;
 
-        this.walking_speed = this.interface.walking_speed;
-        this.jumping_speed = this.interface.jumping_speed;
-        this.bouncing = this.interface.bouncing;
         this.killed = this.interface.killed;
-        this.ren_texture = this.interface.ren_texture;
-        this.gender = this.interface.gender;
-        this.health = this.interface.health;
         this.newsppr = this.interface.newsppr;
 
         this.stats = this.interface.stats;
-        this.save = this.interface.save;
 
-        console.log(this.save);
+        console.log(this.items, this.save);
 
         this.followers = {};
 
-        this.cases = new MPCases(this, this.interface.cases);
-        this.quests = new MPQuests(this, this.stats.quests);
-
-        this.gtime = new MPGTime(this.interface.gtimems, this.stats, this.save);
-        this.stats.gtime = this.gtime.to_stats();
-        this.stats.gtimeweek = this.gtime.week();
-        this.stats.gtimeday = this.gtime.day();
-
-        this.moon = new MPMoon(this.mGame, this, this.interface.moon, this.stats, this.save);
-
-        //---------------------------------------------------------------------------------------------------------
-
-        this.update_place();
-        //this.quest_bubble();
-
-        this.infight = false;
-
-        this.broadcast = new MPBroadcast(this.vGame, this, this.interface.broadcast, this.save);
-
         this.shadow = {};
-
-        console.log("Badge: ");
-        console.log(this.stats.badges);
-
-        this.stream = new MPStream(this.vGame, this.vPlayer, this.usr_id, this.gtime, this.stats);
-        
-        console.log("Stream fin");
-        console.log(this.stream);
-        
-        this.mPlayer = this.mGame.init_mPlayer(this);
 
         //    const pusher = new Pusher('6e9750ce5661bfd14c35', {
         //      cluster: 'eu'
@@ -71,13 +28,49 @@ class MPlayer {
         //    });
     }
 
+    _interface() {
+        return new MPInterface(this, this.name, this.position, this.properties);
+    }
+
+    init(name, position) {
+        super.init(name, position);
+
+        this.region = Mst.map.region;
+        this.map = Mst.map_int;
+
+        this.save = this.interface.save;
+
+        this.cases = new MPCases(this, this.interface.cases);
+        this.quests = new MPQuests(this, this.stats.quests);
+
+
+        this.gtime = new MPGTime(this.interface.gtimems, this.stats, this.save);
+        this.stats.init_gtime(this.gtime);
+        this.moon = new MPMoon(this.interface.moon, this.stats, this.save);
+
+        this.identity.init(this.usr_id, "player", this.view);
+
+        //---------------------------------------------------------------------------------------------------------
+
+        this.update_place();
+        //this.quest_bubble();
+
+        this.broadcast = new MPBroadcast(this, this.interface.broadcast, this.save);
+
+        console.log("Badge: ");
+        console.log(this.stats.badges);
+
+        this.stream = new MPStream(this.vPlayer, this.gtime);
+
+        console.log("Stream fin");
+        console.log(this.stream);
+
+        Mst.mGame.init.mPlayer = this;
+    }
+
     set_killed(killed) {
         this.killed = killed;
         this.save.properties.killed = killed;
-    }
-    
-    init_hud(hud) {
-        this.hud = hud;
     }
 
     add_health(quantity) {
@@ -85,7 +78,7 @@ class MPlayer {
         this.stats.health = this.health;
 
         if (this.health > this.stats.health_max) this.health = this.stats.health_max;
-        this.vGame.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
+        Mst.hud.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
     }
 
     subtract_health(quantity) {
@@ -96,39 +89,39 @@ class MPlayer {
         this.cPlayer.add_ability("constitution", 3, 0);
         this.stats.stress += 1;
 
-        this.vGame.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
+        Mst.hud.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
 
         if (this.health < 1) this.dead();
     }
-    
+
     reset_health() {
         this.health = this.stats.health_max;
         this.stats.health = this.stats.health_max;
     }
-    
+
     dead() {
         this.set_killed(true);
         this.stats.stress = 0;
         this.reset_health();
 
         this.moon.subtract_moon();
-        this.gtime.new_day(this.cPlayer);
+        this.gtime.new_day();
 
         console.log("Region: " + this.region);
 
         switch (this.region) {
             case 2:
-                this.mGame.save_data({ x: 178, y: 495 }, 20, "dead");
+                Mst.mGame.save_data({ x: 178, y: 495 }, 20, "dead");
                 break;
             case 3:
-                this.mGame.save_data({ x: 242, y: 194 }, 41, "dead");
+                Mst.mGame.save_data({ x: 242, y: 194 }, 41, "dead");
                 break;
             default:
-                this.mGame.save_data({ x: 432, y: 272 }, 4, "dead"); // "assets/maps/map4.json"
+                Mst.mGame.save_data({ x: 432, y: 272 }, 4, "dead"); // "assets/maps/map4.json"
                 break;
         }
     }
-    
+
     sleep() {
         let constitution = Math.ceil(parseInt(this.stats.abilities.constitution) / 2 + 50);
         let health = Math.ceil(parseInt(this.stats.health_max) * 0.8);
@@ -139,9 +132,9 @@ class MPlayer {
 
         this.add_health(health);
         this.subtract_stress(stress);
-        this.gtime.new_day(this.cPlayer);
+        this.gtime.new_day();
         this.moon.subtract_moon();
-        this.mGame.save_data({ "x": this.vPlayer.x - 8, "y": this.vGame.y + 8 }, this.map, "lodging");
+        Mst.mGame.save_data({ "x": this.vPlayer.x - 8, "y": this.vPlayer.y + 8 }, this.map, "lodging");
     }
 
     add_stress(quantity) {
@@ -150,7 +143,7 @@ class MPlayer {
 
         if (this.stats.stress > 50 + this.stats.abilities.constitution) this.subtract_health(1);
 
-        this.vGame.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
+        Mst.hud.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
     }
 
     subtract_stress(quantity) {
@@ -158,7 +151,7 @@ class MPlayer {
 
         if (this.stats.stress < 0) this.stats.stress = 0;
 
-        this.vGame.prefabs.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
+        Mst.hud.health.text_health.text = this.health + "/" + this.stats.health_max + " S:" + this.stats.stress;
     }
 
     add_sin(quantity) {
@@ -233,6 +226,15 @@ class MPlayer {
         return level;
     }
 
+    damage(ability, acoef, skill, scoef) {
+        let damage = 2 + (this.stats.abilities[ability] / acoef);
+        damage += this.level("standard") + (this.level(skill) * scoef);
+        damage = Math.floor(damage);
+        console.log("DM: " + damage);
+
+        return damage;
+    }
+
     save_player(go_position, go_map_int) {
         this.vPlayer.body.immovable = true;
 
@@ -247,14 +249,14 @@ class MPlayer {
         this.save.properties.stats.health_max = this.stats.health_max;
         this.save.properties.stats.stress = this.stats.stress;
         this.save.properties.stats.sin = this.stats.sin;
-        this.save.properties.items = this.stats.items;
+        this.save.properties.items = this.items.save();
         this.save.properties.equip = this.stats.equip;
+        this.save.properties.relations = this.cPlayer.relations.save();
         this.save.properties.expequip = this.stats.expequip;
         this.save.properties.culprit = this.cPlayer.cases.culprit;
-        this.save.properties.cases = this.mPlayer.cases.core;
+        this.save.properties.cases = this.cases.core;
 
-        const dt = new Date();
-        this.save.properties.time = dt.getTime();
+        this.save.properties.time = Mst.time;
         this.save.properties.moon = this.stats.moon;
         console.log("moon: " + this.stats.moon);
 
@@ -263,7 +265,7 @@ class MPlayer {
         this.save.map.old_int = this.map;
         this.save.map.new_int = go_map_int;
 
-        this.mGame.save.player = this.save;
+        Mst.mGame.save.player = this.save;
 
         localStorage.setItem("player", JSON.stringify(this.save));
 
@@ -300,74 +302,61 @@ class MPlayer {
     }
 }
 
-class MPInterface {
-    constructor(name, position, properties) {
+class MPlayerStats extends MPersonStats {
+    constructor(properties) {
+        super(properties);
+        properties = this.properties;
+
+        this.health_hearts = 5;
+        this.stress = parseInt(properties.stats.stress);
+        this.sin = parseInt(properties.stats.sin);
+        this.time = +properties.time || 0;
+        this.gtime = "0";
+        this.exp = +properties.skills.standard.exp || +properties.exp || 1;
+        this.level = +properties.skills.standard.level || 1;
+        this.relations = properties.relations;
+        this.places = properties.places;
+        this.quests = properties.quests;
+        this.bag = properties.bag;
+        this.keys = properties.keys;
+    }
+
+    init_moon(moon) {
+        this.moon = moon.moon;
+        this.moon_loop = moon.loop;
+        this.moon_max = moon.max;
+        this.moon_moon = 5;
+    }
+
+    init_gtime(gtime) {
+        this.gtime = gtime.to_stats();
+        Mst.init_gtimeweek(gtime.week);
+    }
+}
+
+class MPInterface extends MPersonInterface {
+    constructor(mPlayer, name, position, properties) {
+        super(mPlayer, name, position, properties, true);
+        properties = this.properties;
+
+        this.mPlayer = mPlayer;
         console.log(properties);
         this.p_name = properties.p_name;
         this.usr_id = properties.usr_id;
 
-        this.walking_speed = parseInt(properties.walking_speed);
-        this.jumping_speed = parseInt(properties.jumping_speed);
-        this.bouncing = parseInt(properties.bouncing);
-
-        this.killed = properties.killed;
-        if (typeof this.killed === "string") this.killed = properties.killed === "true";
-
-        if (!properties.ren_texture) properties.ren_texture = "";
-        this.ren_texture = properties.ren_texture;
-
-        if (!properties.gender) properties.gender = "";
-        this.gender = properties.gender;
-
-        this.health = parseInt(properties.stats.health) || 100;
+        this.killed = Mst.parseBool(properties.killed);
 
         if (!properties.newsppr) properties.newsppr = [];
         this.newsppr = properties.newsppr;
-
-        this.cases = {};
-        if (properties.culprit) {
-            this.cases.culprit = properties.culprit;
-        } else {
-            this.cases.culprit = [];
-        }
-
-        if (properties.cases) {
-            this.cases.cases = properties.cases;
-        } else {
-            this.cases.cases = [];
-        }
 
         this.gtimems = parseInt(properties.gtimems);
 
         if (!properties.broadcast) properties.broadcast = [];
         this.broadcast = properties.broadcast;
 
-        if (!properties.skills) {
-            properties.skills = {
-                standard: { exp: 1, level: 1 },
-                fighter: { exp: 1, level: 1 },
-                woodcutter: { exp: 1, level: 1 },
-                stonebreaker: { exp: 1, level: 1 }
-            };
-        }
-
-        if (!properties.stats) {
-            properties.stats = {
-                health: 100,
-                health_max: 100,
-                stress: 0
-            };
-        }
 
         if (!properties.stats.sin) properties.stats.sin = 0;
 
-        if (!properties.abilities) {
-            properties.abilities = {
-                strength: 8,
-                constitution: 8,
-                intelligence: 8
-            };
-        }
 
         if (!properties.relations) properties.relations = [];
         if (!properties.places) properties.places = [];
@@ -381,44 +370,13 @@ class MPInterface {
 
         if (!properties.keys) properties.keys = [];
         if (!properties.bag) properties.bag = "";
-        if (!properties.badges) properties.badges = {};
-        if (!properties.rumours) properties.rumours = [];
-        if (!properties.buffs) properties.buffs = [];
         if (!properties.gtimems) properties.gtimems = 0;
         if (!properties.gtimealpha) properties.gtimealpha = 0;
-        if (!properties.followers) properties.followers = [];
-        if (!properties.expequip) properties.expequip = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
         console.log("Equip: " + properties.equip + " " + typeof properties.equip);
 
-        this.stats = {
-            health_hearts: 5,
-            health: +properties.stats.health,
-            health_max: +properties.stats.health_max || 100,
-            stress: parseInt(properties.stats.stress),
-            sin: parseInt(properties.stats.sin),
-            moon_moon: 5,
-            moon: parseInt(properties.moon) || 5,
-            moon_max: 5,
-            moon_loop: +properties.moon_loop || 0,
-            time: +properties.time || 0,
-            gtime: "0",
-            exp: +properties.skills.standard.exp || +properties.exp || 1,
-            level: +properties.skills.standard.level || 1,
-            skills: properties.skills,
-            abilities: properties.abilities,
-            relations: properties.relations,
-            places: properties.places,
-            badges: properties.badges,
-            rumours: properties.rumours,
-            quests: properties.quests,
-            buffs: properties.buffs,
-            equip: properties.equip,
-            expequip: properties.expequip,
-            items: properties.items,
-            bag: properties.bag,
-            keys: properties.keys
-        };
+        this.stats = new MPlayerStats(properties);
+        this.health = this.stats.health;
 
         this.moon = {
             loop: +properties.moon_loop || 0,
@@ -426,17 +384,17 @@ class MPInterface {
             max: 5,
             time: +properties.time || 0
         };
+	    this.stats.init_moon(this.moon);
+        console.log(this);
+    }
 
-        this.save = {
-            type: "player",
-            name: name,
-            usr_id: this.usr_id,
-            x: position.x,
-            y: position.y,
-            properties: properties,
-            map: {},
-            logged: true
-        };
+    init(name, position) {
+        super.init(name, position);
+
+        this.save.type = "player";
+        this.save.usr_id = this.usr_id;
+        this.save.map = {};
+        this.save.logged = true;
     }
 }
 
@@ -446,10 +404,6 @@ class MPGTime {
         this.obj = new Date(this.ms);
         this.stats = stats;
         this.save = save;
-
-        //const dt = new Date();
-        //const tt = dt.getTime();
-        //console.log("Time: " + properties.time + " " + tt + " " + (tt - properties.time) + " " + Math.floor(this.gtime.ms/86400000));
     }
 
     to_stats() {
@@ -462,22 +416,19 @@ class MPGTime {
     }
 
     get_week(time, param) {
-        "use strict";
-
         const date = new Date(time);
         const date0 = new Date(0);
         date.setHours(0, 0, 0, 0);
         date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
-        let week1 = new Date(date0.getFullYear(), 0, 4);
-        if (param > 0) week1 = new Date(date.getFullYear(), 0, 4);
+        const week1 = param > 0 ? new Date(date.getFullYear(), 0, 4) : new Date(date0.getFullYear(), 0, 4);
         return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
     }
 
-    week() {
+    get week() {
         return this.get_week(this.ms, 0);
     }
 
-    day() {
+    get day() {
         return this.get_week(this.ms, 1) + " " + String(this.obj).substr(0, 11);
     }
 
@@ -489,9 +440,9 @@ class MPGTime {
         this.save.properties.gtimems = this.ms;
     }
 
-    new_day(cPlayer) {
+    new_day() {
         const cwait = { type: "sleep" };
-        cPlayer.quests.update("wait", cwait);
+        Mst.cPlayer.quests.update("wait", cwait);
 
         if (this.obj.getHours() < 7) {
             this.obj.setHours(7, 0);
@@ -505,7 +456,7 @@ class MPGTime {
         this.save.properties.gtimealpha = 0;
     }
 
-    add_minutes(mins, vGame) {
+    add_minutes(mins) {
         console.log("Hodina: " + this.obj.getHours());
         if (this.obj.getHours() < 7 || this.obj.getHours() > 20) {
             mins = 1;
@@ -521,32 +472,57 @@ class MPGTime {
                 }
             }
 
-            this.save.properties.gtimealpha = vGame.night.add_night();
+            this.save.properties.gtimealpha = Mst.night.add_night();
         }
 
         this.ms += mins * 60000;
         this.set_time(this.ms);
     }
+
+    get stream_time() {
+        throw new Error("Not possible get stream time");
+    }
+
+    set stream_time(t) {
+        const stime = t * 1000;
+        console.log(stime);
+        console.log(this.ms);
+        console.log(this.obj);
+
+        const datex = new Date(stime);
+        const day = datex.getDay() < 1 ? 7 : datex.getDay();
+        const date1 = new Date(stime - (day - 1) * 86400000);
+        date1.setHours(7, 0);
+
+        console.log(this.get_week(stime, 0));
+        console.log(datex, day);
+        console.log(date1);
+
+        if (date1 > this.obj) {
+            console.log("New week from other player");
+
+            const date1t = date1.getTime();
+            this.set_time(date1t);
+
+            Mst.init_gtimeweek(this.week);
+            Mst.hud.time.text1.text = " " + this.day;
+        }
+    }
 }
 
 class MPMoon {
-    constructor(mGame, mPlayer, moon, stats, save) {
-        this.mGame = mGame;
-        this.mPlayer = mPlayer;
+    constructor(moon, stats, save) {
         this.stats = stats;
         this.save = save;
         this.loop = moon.loop;
         this.moon = moon.moon;
         this.max = moon.max;
         this.time = moon.time;
-            
+
         this.timer_first = {};
-        this.timer = this.mGame.vGame.game.time.create(false);  
+        this.timer = Mst.game.time.create(false);
 
-        const dt = new Date();
-        const tt = dt.getTime();
-
-        this.loop -= tt - this.time;
+        this.loop -= Mst.time - this.time;
         if (this.loop < 1) {
             const p_loop = -this.loop;
             let new_moon = Math.floor(p_loop / 180000);
@@ -562,30 +538,30 @@ class MPMoon {
 
         console.log("parse int moon");
         console.log(this.moon + " loop:" + this.loop);
-        
+
         this.stats.moon_loop = this.loop;
         this.stats.moon = this.moon;
     }
-    
+
     update() {
         this.stats.moon_moon = Math.ceil(this.moon / Math.ceil(this.max / 5));
-        if (this.moon < this.max) {        
+        if (this.moon < this.max) {
             let time_str = this.timer.duration.toFixed(0);
             if (this.loop > 0) {
                 if (!this.timer_first.time) {
                     console.log("moon und");
-                    this.timer_first = this.mGame.vGame.game.time.events.add(this.loop, this.update_timer, this);
+                    this.timer_first = Mst.game.time.events.add(this.loop, this.update_timer, this);
                 }
                 time_str = this.timer_first.timer.duration.toFixed(0);
             }
-            this.mGame.prefabs.moon.text_moon.text = this.moon + "/" + this.max + " > " + Math.floor(((time_str / 1000) / 60) % 60) + ":" + Math.floor((time_str / 1000) % 60);
+            Mst.hud.moon.text_moon.text = this.moon + "/" + this.max + " > " + Math.floor(((time_str / 1000) / 60) % 60) + ":" + Math.floor((time_str / 1000) % 60);
             this.save.properties.moon_loop = time_str;
         } else {
-            this.mGame.prefabs.moon.text_moon.text = this.moon + "/" + this.max;
+            Mst.hud.moon.text_moon.text = this.moon + "/" + this.max;
             this.save.properties.moon_loop = 0;
         }
     }
-    
+
     update_timer() {
         if (this.moon < this.max) {
             this.moon++;
@@ -602,11 +578,11 @@ class MPMoon {
             this.timer.stop();
         }
         this.loop = 0;
-        
+
         this.stats.moon = this.moon;
         this.stats.moon_loop = this.loop;
     }
-    
+
     subtract_moon() {
         this.moon--;
 
@@ -620,101 +596,110 @@ class MPMoon {
         } else {
             this.loop = this.timer.duration.toFixed(0);
         }
-        
+
         this.stats.moon = this.moon;
         this.stats.moon_loop = this.loop;
     }
 }
 
 class MPBroadcast {
-    constructor(vGame, mPlayer, broadcast, save) {
-        this.vGame = vGame;
+    constructor(mPlayer, broadcast, save) {
         this.mPlayer = mPlayer;
         this.core = broadcast;
         this.save = save;
-        this.snt = null;
+        this.snt = [];
+        this.i = 0;
 
         this.load();
     }
 
-    load() {
-        const p = this;
-        const d = new Date();
-        const n = d.getTime();
-        
-        console.log({ snt: this.mPlayer.usr_id, n: n });
-
-        let b_snt = $.get("broadcast.php", { snt: this.mPlayer.usr_id, n: n }).done(function (data) {
-            console.log("Data Loaded: " + data);
-            b_snt = JSON.parse(data);
-            console.log(b_snt);
-            p.set(b_snt);
+    send(id, value) {
+        const pins = this.new(id, value);
+        console.log("Send broadcast: ", pins);
+        $.get( "broadcast.php", { ins: pins} )
+                .done(function( data ) {
+                    console.log( "Data Loaded: " + data );
         });
     }
 
-    set(snt) {
-        this.snt = snt;
+    new(id, value) {
+        return id + "|" + Mst.usr_id + "|0|1|" + value;
+    }
+
+    unpack(b) {
+        if (!b) return null;
+        const ab = b.split("|");
+        return {
+            to: parseInt(ab[0]),
+            from: parseInt(ab[1]),
+            value: ab[4]
+        };
+    }
+
+    load() {
+        const p = this;
+        const n = Mst.time;
+
+        console.log({ snt: Mst.usr_id, n: n });
+
+        $.get("broadcast.php", { snt: Mst.usr_id, n: n }).done(function (data) {
+            console.log("Data broadcast Loaded:", data);
+            const b_snt = JSON.parse(data);
+            console.log(b_snt);
+            p.snt = b_snt;
+            p.next();
+        });
+    }
+
+    push(b) {
+        if (this.save.properties.broadcast.indexOf(b) < 0) {
+            this.save.properties.broadcast.push(nxt);
+            console.log("PUSH broadcast.snt ", JSON.stringify(this.snt));
+            console.log("PUSH broadcast.core ", JSON.stringify(this.core));
+            console.log("PUSH save.properties.broadcast ", JSON.stringify(this.save.properties.broadcast));
+        }
+    }
+
+    show(arr) {
+        const nxt = arr.shift();
+        const unxt = this.unpack(nxt);
+        console.log("Broadcast UNxt: ", unxt);
+
+        if (!unxt) return null;
+        const person = Mst.mGame.get_person(unxt.from, "player");
+        console.log(person);
+        if (!person) return nxt;
+        person.ren_sprite.show_dialogue(unxt.value);
+        return null;
+    }
+
+    showOrPush(arr) {
+        if (arr.length < 1) return true;
+
+        const nxt = this.show(arr);
+        if (!nxt) return false;
+        this.push(nxt);
         this.next();
+        return false;
     }
 
     next() {
-        if (this.snt) {
-            let b_nxt = this.snt.shift();
-
-            console.log("Broadcast SNT: " + b_nxt);
-
-            if (b_nxt) {
-                const b_nexta = b_nxt.split("|");
-
-                console.log(b_nexta);
-
-                const person = this.mGame.get_person(b_nexta[1], "player");
-                if (person) {
-                    person.ren_sprite.show_dialogue(b_nexta[4]);
-                } else {
-                    this.save.properties.broadcast.push(b_nxt);
-                    console.log("PUSH broadcast.core " + JSON.stringify(this.core));
-                    console.log("PUSH save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
-                    this.next();
-                }
-            } else {
-                console.log("broadcast.core " + JSON.stringify(this.core));
-                console.log("save.properties.broadcast " + JSON.stringify(this.save.properties.broadcast));
-                b_nxt = this.core.shift();
-                const b_nxtt = this.save.properties.broadcast[0];
-
-                if (b_nxt !== b_nxtt) console.log("!!!!!!!!!!!!");
-
-                console.log("Broadcast Player: " + b_nxt + " Save: " + b_nxtt);
-
-                if (b_nxt) {
-                    const b_nexta = b_nxt.split("|");
-
-                    console.log(b_nexta);
-
-                    const person = this.mGame.get_person(b_nexta[1], "player");
-                    if (person) {
-                        person.ren_sprite.show_dialogue(b_nexta[4]);
-                    } else {
-                        this.save.properties.broadcast.push(b_nxt);
-                        this.next();
-                    }
-                }
-            }
-        }
+        this.i++;
+        //if (this.i > 10) return null;
+        console.log("Broadcast Next", this.i, this.snt, this.core);
+        const sop = this.showOrPush(this.snt);
+        if (sop) this.showOrPush(this.core);
     }
 }
 
 class MPQuests {
     constructor(mPlayer, statQuests) {
-        this.mGame = mPlayer.mGame;
-        this.vGame = mPlayer.vGame;
         this.mPlayer = mPlayer;
         this.quest = [];
         this.ass_quest = {};
         this.core = statQuests;
         this.new_quest = {};
-        this.gdata_quests = mPlayer.mGame.gdata.quest.quests;
+        this.gdata_quests = Mst.quest.quests;
 
         if (!this.core.ass) this.core.ass = {};
         this.init();
@@ -724,6 +709,7 @@ class MPQuests {
         for (const q of this.gdata_quests) {
             const nq = new MPQQuest(this, q);
             this.quest.push(nq);
+            console.log(q,nq, this.core.ass[nq.name]);
             if (nq.state !== "fin") this.new_quest[nq.qid] = nq;
             if (this.core.ass[nq.name]) this.ass_quest[nq.name] = nq.set_ass(this.core.ass[nq.name]);
         }
@@ -796,7 +782,7 @@ class MPQuests {
 class MPQQuest {
     constructor(mQuests, quest) {
         this.mQuests = mQuests;
-        
+
         const q = JSON.parse(JSON.stringify(quest));
         this.name = q.name;
         this.qid = q.qid;
@@ -821,7 +807,7 @@ class MPQQuest {
         if (this.is_acc()) return "acc";
         return "pre";
     }
-    
+
     is_not_ass() {
         if (this.mQuests.core.ass[this.name]) return false;
         return true;
@@ -842,11 +828,11 @@ class MPQQuest {
     is_fin() {
         if (this.state) return this.state === "fin";
         const qid = String(this.qid);
-        
+
         if (this.mQuests.core.fin) return this.mQuests.core.fin.indexOf(qid) > -1;
         return false;
     }
-    
+
     is_prev_fin() {
         if (this.qconditions) {
             for (const co of this.qconditions) {
@@ -866,11 +852,12 @@ class MPQQuest {
 
     set_ass(ass) {
         const nass = JSON.parse(JSON.stringify(ass));
+        this.ass = {};
         this.ass.name = nass.name;
         this.ass.qid = parseInt(nass.qid);
         this.ass.owner = nass.owner;
         this.ass.otype = nass.ot;
-        this.ass.target = nass.properties.target;
+        this.ass.target = nass.target;
         this.ass.ttype = nass.tt;
         this.ass.endc = nass.endc;
         this.ass.acc = nass.acc;
@@ -933,7 +920,7 @@ class MPQQuest {
         if (new_quest.target) {
             new_ren_player.hide_bubble();
 
-            const nnew_ren_player = this.mGame.get_person(new_quest.target, "player");
+            const nnew_ren_player = this.mQuests.mGame.get_person(new_quest.target, "player");
             if (nnew_ren_player) {
                 nnew_ren_player.ren_sprite.set_quest(new_quest);
                 nnew_ren_player.show_bubble(4); // ! exclamation mark - quest assigned
@@ -943,15 +930,15 @@ class MPQQuest {
         }
         return [new_quest, ren, text];
     }
-    
+
     update(etype, condition) {
         const endc = this.ending_conditions;
-        
+
         if (endc.type === etype) {
             const item_frame = parseInt(endc.what);
             switch (etype) {
                 case "have":
-                    const item = this.mQuests.mGame.cPlayer.items.index_by_frame(item_frame);
+                    const item = Mst.cPlayer.items.get(item_frame);
                     const quant = parseInt(endc.have);
 
                     if (quant < item.quantity) {
@@ -1018,18 +1005,18 @@ class MPQQuest {
                 case "text":
                     this.accomplish();
                     return true;
-                case "findps":                
-                    if (this.target_type === condition.type && this.target === condition.uid) {
+                case "findps":
+                    if (this.target_type === condition.type && this.target === condition.uid) {  //!!!!!!!!! Identity
                         this.accomplish();
                         return true;
                     }
                     return false;
                 case "deliver":
-                    if (this.target_type === condition.type && this.target === condition.uid) {
-                        const item = parseInt(endc.what);
-                        const index = this.mQuests.mGame.cPlayer.items.test(item, 1);
-                        if (index > -1) {
-                            this.mQuests.mGame.cPlayer.items.subtract(index, 1);
+                    if (this.target_type === condition.type && this.target === condition.uid) {  //!!!!!!!!! Identity
+                        const frame = parseInt(endc.what);
+                        const item = Mst.cPlayer.items.test(frame, 1);
+                        if (item) {
+                            item.sub();
                             this.accomplish();
                             return true;
                         }
@@ -1046,7 +1033,7 @@ class MPQQuest {
         this.ass.state = "acc";
         this.ass.acc.is = true;
         this.core_ass.acc.is = true;
-        this.mQuests.mPlayer.hud.alerts.show("Úkol byl splněn!");
+        Mst.hud.alerts.show("Úkol byl splněn!");
     }
 
     set_acc_q(qt) {
@@ -1074,12 +1061,12 @@ class MPCases {
         this.ftprints = null;
         this.case = this.make_cases(this.core);
     }
-    
+
     init_loaded(loaded, ftprints) {
         this.loaded = loaded;
         this.ftprints = ftprints;
     }
-    
+
     for_each(f) {
         const c = this.case.map(f);
     }
@@ -1114,7 +1101,7 @@ class MPCases {
         console.log(this.loaded);
         return pcid;
     }
-    
+
     get_badge_val(b_id, b_key, uid, type, context) {
         const ubadge = this.unpack_badge(b_id, uid, type, context);
         return ubadge ? ubadge[b_key] : null;
@@ -1132,20 +1119,20 @@ class MPCases {
         }
         return null;
     }
-    
+
     make_book_investigate(uid, type, acont) {
         this.loaded.load_person(uid,  "player");
 
         console.log(acont);
         const pcid = parseInt(acont.pop());
         const nid = parseInt(acont.pop());
-        
+
         const bt = acont[0];
         const bt2 = acont[1];
 
         if (bt !== 'P1' && bt !== 'Book') {
             this.case[pcid].evidence_add(uid, type, nid, acont);
-            
+
             return { pcid: id, c_type: "evidence" };
         } else {
             if (bt === 'Book') {
@@ -1179,7 +1166,7 @@ class MPCCase {
         this.evidence = this.make_evidences(ncase.evidences);
     }
 
-    make_evidences(evidences) {        
+    make_evidences(evidences) {
         const core = this.core;
         const pcid = this.pcid;
         if (!core[pcid].evidences) core[pcid].evidences = [];
@@ -1263,7 +1250,7 @@ class MPCCase {
         const revi = {};
         revi.str = "";
         revi.id = -1;
-        for (let id in evidences) {            
+        for (let id in evidences) {
             const evi = evidences[id];
             if (this.evidence_compare(evi, type, uids)) {
                 revi.str = evi;
@@ -1273,13 +1260,13 @@ class MPCCase {
         }
         return revi;
     }
-    
+
     unpack_witness(evi) {
         const a_wit = evi.str.split("|");
 
         evi.type = a_wit[0];
         evi.uid = parseInt(a_wit[1]);
-        evi.name = this.mCases.mPlayer.cPlayer.relations.get_name(evi.uid, evi.type);
+        evi.name = Mst.cPlayer.relations.get_name(evi.uid, evi.type);
 
         for (let i = 2; i < a_wit.length; i++) {
             let key = a_wit[i].substr(0, 1);
@@ -1313,71 +1300,71 @@ class MPCCase {
         }
         return uevi;
     }
-    
+
     get_witnessNID(nid, context) {
-        const evi = { 
+        const evi = {
             str: this.evidences(nid),
             id: nid
         };
-        
+
         const evi2 = this.unpack_witness(evi);
-        
+
         if (context && (evi2.type === 'NPC' || evi2.type === 'player')) {
             const character = this.get_full_person(evi2.uid, evi2.type, context);
             console.log(character);
-            
+
             evi2.character = character;
             evi2.name = character.name;
             evi2.gender = character.gender;
-            
+
             evi2.f_texture = "female_f";
             if (character.gender === "male") evi2.f_texture = "male_f";
             if (character.ren_texture !== "") {
                 evi2.f_texture = character.ren_texture.substring(0, character.ren_texture.length - 3) + "f";
             }
-            
+
             evi2.stopy = character.badges['14'];
             evi2.vzhled = character.badges['15'];
             console.log(evi2.stopy);
             console.log(evi2.vzhled);
-            
+
             if (evi2.stopy) {
                 const stopy_a = evi2.stopy.split("|");
-                
+
                 evi2.vyskavaha = stopy_a[0].substr(1,stopy_a[0].length) + " cm, ";
                 evi2.vyskavaha += stopy_a[1].substr(1,stopy_a[1].length) + " kg ";
                 evi2.bota = "Bota: " + stopy_a[2].substr(1,stopy_a[2].length);
             }
-            
+
             if (evi2.vzhled) {
                 const vzhled_a = evi2.vzhled.split("|");
 
                 const ind = parseInt(vzhled_a[0].substr(1,vzhled_a[0].length));
-                evi2.rasa = this.mCases.mPlayer.mGame.gdata.core.rasa[ind];
-                
+                evi2.rasa = Mst.core.rasa[ind];
+
                 evi2.vek = "cca " + vzhled_a[1].substr(1,vzhled_a[1].length) + " let";
-                
+
                 const ind2 = parseInt(vzhled_a[3].substr(1,vzhled_a[3].length));
-                evi2.vlasy = this.mCases.mPlayer.mGame.gdata.core.barva[ind2];
-                
-                
+                evi2.vlasy = Mst.core.barva[ind2];
+
+
                 const ind3 = parseInt(vzhled_a[4].substr(1,vzhled_a[4].length));
-                evi2.vlasyl = this.mCases.mPlayer.mGame.gdata.core.delkavlasu[ind3];
-                
+                evi2.vlasyl = Mst.core.delkavlasu[ind3];
+
                 const ind4 = parseInt(vzhled_a[2].substr(1,vzhled_a[2].length));
-                evi2.postava = "Postava: " + this.mCases.mPlayer.mGame.gdata.core.postava[ind];
+                evi2.postava = "Postava: " + Mst.core.postava[ind];
             }
             evi2.culprit = null;
             if (evi2.P === '1' && evi2.R) {
                 evi2.culprit = {};
                 evi2.culprit.mz = evi2.G === 'M' ? "muž" : "žena";
-                
+
                 const ind = parseInt(evi2.R);
-                evi2.culprit.rasa = this.mCases.mPlayer.mGame.gdata.core.rasa[ind];
+                evi2.culprit.rasa = Mst.core.rasa[ind];
                 evi2.culprit.vyska = evi2["14H"];
                 evi2.culprit.vek = evi2.A;
                 const ind2 = parseInt(evi2.F);
-                evi2.culprit.postava = this.mCases.mPlayer.mGame.gdata.core.postava[ind2];
+                evi2.culprit.postava = Mst.core.postava[ind2];
             }
         }
         return evi2;
@@ -1396,19 +1383,19 @@ class MPCCase {
     get_full(context) {
         this.loaded.get_full_case(this.pcid, context);
     }
-    
+
     init_witnes(uid, type) {
         return this.loaded.witness.winit(this, uid, type);
     }
-    
+
     is_ftp_near(nid) {
         return this.ftprints.near(this.evidences[nid]);
     }
-    
+
     is_ftp_test(nid) {
         return this.ftprints.test(nid, this.evidences);
     }
-    
+
     ftp_book_investigate(nid) {
         const new_evidence = this.ftprints.investigate(this, nid);
         console.log(new_evidence);
@@ -1450,13 +1437,10 @@ class MPCCEvidence {
 }
 
 class MPStream {
-    constructor(vGame, vPlayer, usr_id, gtime, stats) {
+    constructor(player, gtime) {
         console.log("Stream start");
-        this.vGame = vGame;
-        this.vPlayer = vPlayer;
-        this.usr_id = usr_id;
+        this.player = player;
         this.gtime = gtime;
-        this.stats = stats;
         this.core = {
             type: "stream",
             name: "stream",
@@ -1474,22 +1458,45 @@ class MPStream {
             map_int: 0
         };
         this.sent = false;
-        
-        const dt = new Date();
-        const tt = dt.getTime();
-        
-        this.new = this.usr_id + "|F" + tt + "|" + this.gtime.ms + "|" + this.vPlayer.x + ";" + this.vPlayer.y;
-        console.log("Stream: " + this.new);
+        this._stream = [];
+        this.refresh = 60;
+        this.me = null;
+
         this.put();
+    }
+
+    get new() {
+        return Mst.usr_id + "|F" + Mst.time + "|" + this.gtime.ms + "|" + this.player.x + ";" + this.player.y + "|player";
+    }
+
+    get unpack() {
+        return this._stream;
+    }
+
+    set unpack(obj) {
+        const arr = [];
+        for (let key in obj) {
+            const sa = obj[key].split("|");
+            const xy = sa[3].split(";");
+            const ns = {
+                uid: parseInt(sa[0]),
+                time: sa[1],
+                gtimems: parseInt(sa[2]),
+                x: parseInt(xy[0]),
+                y: parseInt(xy[1]),
+                type: sa[4]
+            }
+            arr.push(ns);
+            if (ns.uid === Mst.usr_id) this.me = ns;
+        }
+        this._stream = arr;
     }
 
     put() {
         if (!this.sent) {
-            const d = new Date();
-            const n = d.getTime();
+            const n = Mst.time;
             this.core.properties.time = n;
 
-            const usr_id = this.usr_id;
             const stream = this;
 
             this.sent = true;
@@ -1499,7 +1506,7 @@ class MPStream {
             console.log(this.core);
             console.log(JSON.stringify(this.core));
 
-            $.post("object.php?time=" + n + "&uid=" + usr_id, this.core)
+            $.post("object.php?time=" + n + "&uid=" + Mst.usr_id, this.core)
                 .done(function (data) {
                     console.log("Stream save success");
                     console.log(data);
@@ -1516,32 +1523,11 @@ class MPStream {
     }
 
     load(stream) {
-        const gtime = stream.obj.gtime * 1000;
-        console.log(gtime);
-        console.log(this.gtime.ms);
-        console.log(this.gtime.obj);
-
-        const datex = new Date(gtime);
-        let day = datex.getDay();
-        if (day < 1) day = 7;
-        const date1 = new Date(gtime - (day - 1) * 86400000);
-        date1.setHours(7, 0);
-
-        console.log(this.gtime.get_week(gtime, 0));
-        console.log(datex);
-        console.log(date1);
-        console.log(datex.getDay());
-
-        if (date1 > this.gtime.obj) {
-            console.log("New week from other player");
-
-            const date1t = date1.getTime();
-            this.gtime.set_time(date1t);
-
-            this.stats.gtimeweek = gtime.week();
-            this.stats.gtimeday = gtime.day();
-            console.log(this.vGame.prefabs);
-            this.vGame.prefabs.time.text1.text = " " + this.stats.gtimeday;
+        this.gtime.stream_time = stream.obj.gtime;
+        this.unpack = stream.obj.s;
+        if (this.unpack.length > 1) {
+            this.refresh = 5;
         }
+        console.log("Load Stream", stream.obj.s, this.unpack, this);
     }
 }

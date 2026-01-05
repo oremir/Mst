@@ -1,30 +1,29 @@
-Mst.ShowStat = function (game_state, name, position, properties) {
-    "use strict";
-    Mst.Prefab.call(this, game_state, name, position, properties);
+Mst.ShowStat = class extends Phaser.Sprite {
+    constructor(name, position, properties) {
+        super(Mst.game, position.x, position.y, properties.texture);
+        this.name = name;
+        this.prefab_name = properties.stat_to_show.split(".")[0];
+        this.stat_name = properties.stat_to_show.split(".")[1];
+        this.stats_group = properties.stats_group;
+        this.group = Mst.groups[this.stats_group];
+        this.group.add(this);
+        this.init();
+    }
     
-    this.stat_to_show = properties.stat_to_show;
-};
-
-Mst.ShowStat.prototype = Object.create(Mst.Prefab.prototype);
-Mst.ShowStat.prototype.constructor = Mst.ShowStat;
-
-Mst.ShowStat.prototype.update = function () {
-    "use strict";
-    var prefab_name, stat_name, new_stat;
-    prefab_name = this.stat_to_show.split(".")[0];
-    stat_name = this.stat_to_show.split(".")[1];
+    init() {
+        this.prefab = this.prefab_name === 'player' ? Mst.player: null;
+        if (this.prefab) this.stat = this.prefab.stats[this.stat_name];
+    }
     
-    if (typeof (this.game_state.prefabs[prefab_name]) !== 'undefined') {
-        new_stat = this.game_state.prefabs[prefab_name].stats[stat_name];
-        // check if the stat has changed
-        if (this.stat !== new_stat) {
-            // update the stat with the new value
-            this.update_stat(new_stat);
+    update() {
+        if (this.prefab) {
+            const new_stat = this.prefab.stats[this.stat_name];
+            // check if the stat has changed
+            if (this.stat !== new_stat) this.update_stat(new_stat); // update the stat with the new value
         }
     }
-};
 
-Mst.ShowStat.prototype.update_stat = function (new_stat) {
-    "use strict";
-    this.stat = new_stat;
+    update_stat(new_stat) {
+        this.stat = new_stat;
+    }
 };

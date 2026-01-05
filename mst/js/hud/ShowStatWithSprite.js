@@ -1,56 +1,54 @@
-Mst.ShowStatWithSprite = function (game_state, name, position, properties) {
-    "use strict";
-    var text, text_style;
-    
-    Mst.ShowStat.call(this, game_state, name, position, properties);
-    this.visible = false;
-    this.stats = [];
-    this.stats_spacing = properties.stats_spacing;
-    this.stats_group = properties.stats_group;
-    // it is necessary to save the initial position because we need it to create the stat sprites
-    this.initial_position = new Phaser.Point(this.x, this.y);
-    
-    this.window_opened = false;
-    this.texts = [];
-    this.stat_type = "";
-    
-    text_style = {"font": "11px Arial", "fill": "#FFFFFF"};
-    switch (name) {
-        case "health": 
-            text = this.game_state.prefabs.player.stats.health + "/" + this.game_state.prefabs.player.stats.health_max;
-            text += " S:" + this.game_state.prefabs.player.stats.stress;
-            this.text_health = this.game_state.game.add.text(this.x + 3, this.y + 13, text, text_style);
-            this.text_health.fixedToCamera = true;
-            
-            this.right_arrow = this.game_state.mGame.groups[this.stats_group].create(460, 67, 'arrow_right');
-            this.right_arrow.fixedToCamera = true;
-            this.right_arrow.inputEnabled = true;
-            this.right_arrow.input.useHandCursor = true;
-            this.right_arrow.events.onInputDown.add(this.change_stat, this);
-            this.right_arrow.visible = false;
-            break;
-        case "moon": 
-            text = this.game_state.prefabs.player.stats.moon + "/" + this.game_state.prefabs.player.stats.moon_max;
-            
-            this.text_moon = this.game_state.game.add.text(this.x + 3, this.y + 19, text, text_style);
-            this.text_moon.fixedToCamera = true;           
-            break;
+Mst.ShowStatWithSprite = class extends Mst.ShowStat {
+    constructor(name, position, properties) {
+        super(name, position, properties);
+        this.visible = false;
+        this.stats = [];
+        this.stats_spacing = properties.stats_spacing;
+        this.stats_group = properties.stats_group;
+        // it is necessary to save the initial position because we need it to create the stat sprites
+        this.initial_position = new Mst.Position(this);
+
+        this.prefab = Mst.prefabs[this.prefab_name];
+
+        this.window_opened = false;
+        this.texts = [];
+        this.stat_type = "";
+
+        const text_style = {"font": "11px Arial", "fill": "#FFFFFF"};
+        switch (name) {
+            case "health":
+                let text = Mst.player.stats.health + "/" + Mst.player.stats.health_max;
+                text += " S:" + Mst.player.stats.stress;
+                this.text_health = Mst.game.add.text(this.x + 3, this.y + 13, text, text_style);
+                this.text_health.fixedToCamera = true;
+
+                this.right_arrow = this.group.create(460, 67, 'arrow_right');
+                this.right_arrow.fixedToCamera = true;
+                this.right_arrow.inputEnabled = true;
+                this.right_arrow.input.useHandCursor = true;
+                this.right_arrow.events.onInputDown.add(this.change_stat, this);
+                this.right_arrow.visible = false;
+                break;
+            case "moon": {
+                const text = Mst.player.stats.moon + "/" + Mst.player.stats.moon_max;
+
+                this.text_moon = Mst.game.add.text(this.x + 3, this.y + 19, text, text_style);
+                this.text_moon.fixedToCamera = true;
+                break;
+            }
+        }
     }
 };
 
-Mst.ShowStatWithSprite.prototype = Object.create(Mst.ShowStat.prototype);
-Mst.ShowStatWithSprite.prototype.constructor = Mst.ShowStatWithSprite;
-
 Mst.ShowStatWithSprite.prototype.show_initial_stats = function () {
     "use strict";
-    var prefab_name, stat_name, initial_stat, stat_index, stat;
     // show initial stats
-    prefab_name = this.stat_to_show.split(".")[0];
-    stat_name = this.stat_to_show.split(".")[1];
-    initial_stat = this.game_state.prefabs[prefab_name].stats[stat_name];
-    for (stat_index = 0; stat_index < initial_stat; stat_index += 1) {
+    //if (!this.prefab) this.prefab = Mst.prefabs[this.prefab_name];
+    console.log(this);
+    const initial_stat = this.prefab ? this.prefab.stats[this.stat_name] : [1];
+    for (let stat_index = 0; stat_index < initial_stat; stat_index += 1) {
         // create new sprite to show stat
-        stat = this.create_new_stat_sprite();
+        const stat = this.create_new_stat_sprite();
         this.stats.push(stat);
     }
     this.stat = initial_stat;
@@ -61,7 +59,7 @@ Mst.ShowStatWithSprite.prototype.reset = function (position_x, position_y) {
     console.log("Reset " + this.name);
     Phaser.Sprite.prototype.reset.call(this, position_x, position_y);
     // it is necessary to save the initial position because we need it to create the stat sprites
-    this.initial_position = new Phaser.Point(this.x, this.y);
+    this.initial_position = new Mst.Position(this);
     this.show_initial_stats();
     this.visible = false;
     
@@ -83,18 +81,17 @@ Mst.ShowStatWithSprite.prototype.reset = function (position_x, position_y) {
 
 Mst.ShowStatWithSprite.prototype.update_stat = function (new_stat) {
     "use strict";
-    var stat_difference, stat_index, stat;
-    stat_difference = Math.abs(new_stat - this.stat);
+    const stat_difference = Math.abs(new_stat - this.stat);
     if (new_stat > this.stat) {
         // if the new stat is greater, we must create new stat sprites
-        for (stat_index = 0; stat_index < stat_difference; stat_index += 1) {
-            stat = this.create_new_stat_sprite();
+        for (let stat_index = 0; stat_index < stat_difference; stat_index += 1) {
+            const stat = this.create_new_stat_sprite();
             this.stats.push(stat);
         }
     } else {
         // if the new stat is lower, we must kill extra stat sprites
-        for (stat_index = 0; stat_index < stat_difference; stat_index += 1) {
-            stat = this.stats.pop();
+        for (let stat_index = 0; stat_index < stat_difference; stat_index += 1) {
+            const stat = this.stats.pop();
             if (stat) stat.kill();
         }
     }
@@ -103,19 +100,18 @@ Mst.ShowStatWithSprite.prototype.update_stat = function (new_stat) {
 
 Mst.ShowStatWithSprite.prototype.create_new_stat_sprite = function () {
     "use strict";
-    var stat_position, stat, stat_property;
     // calculate the next stat position
-    stat_position = new Phaser.Point(this.initial_position.x + (this.stats.length * this.stats_spacing.x),
-                                          this.initial_position.y + (this.stats.length * this.stats_spacing.y));
+    const stat_position = new Mst.Position(this.initial_position.x + (this.stats.length * this.stats_spacing.x),
+                                           this.initial_position.y + (this.stats.length * this.stats_spacing.y));
     // get the first dead sprite in the stats group
-    stat = this.game_state.mGame.groups[this.stats_group].getFirstDead();
+    let stat = this.group.getFirstDead();
     if (stat) {
         // if there is a dead stat, just reset it
         stat.reset(stat_position.x, stat_position.y);
     } else {
         // if there are no dead stats, create a new one
         // stat sprite uses the same texture as the ShowStatWithSprite prefab
-        stat = this.game_state.mGame.groups[this.stats_group].create(stat_position.x, stat_position.y, this.texture);
+        stat = this.group.create(stat_position.x, stat_position.y, this.texture);
     }
     // stat scale and anchor are the same as the prefab
     stat.scale.setTo(this.scale.x, this.scale.y);
@@ -139,7 +135,7 @@ Mst.ShowStatWithSprite.prototype.action_onclick = function (stat) {
                 this.show_window("Abilities", "skills", "Dovednosti:");
             break;
             case "moon":
-                
+
             break;
             case "settings":
                 this.logout();
@@ -150,18 +146,17 @@ Mst.ShowStatWithSprite.prototype.action_onclick = function (stat) {
 
 Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_trans) {
     "use strict";
-    var key, skill, index, text, text_style, text_value;
     switch (type) {
         case "Abilities":
-            this.game_state.cGame.hud.close.state.push("Abilities");
-            this.game_state.cGame.hud.close.context.push(this.name);
+            Mst.hud.close.state.push("Abilities");
+            Mst.hud.close.context.push(this.name);
 
             this.window_opened = true;
-            this.game_state.mGame.hud.right_window.show("");
+            Mst.hud.right_window.show("");
 
-            text_style = {"font": "13px Arial", "fill": "#FFFFFF", tabs: 40 };
+            let text_style = {"font": "13px Arial", "fill": "#FFFFFF", tabs: 40 };
 
-            text = this.game_state.game.add.text(293, 65, stat_trans, text_style);
+            const text = Mst.game.add.text(293, 65, stat_trans, text_style);
             text.fixedToCamera = true;
             this.texts.push(text);
             this.stat_type = stat_type;
@@ -169,52 +164,52 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
             this.right_arrow.visible = true;
 
             text_style = {"font": "12px Arial", "fill": "#FFFFFF", tabs: 40 };
-            index = 0;
+            let index = 0;
 
             switch (stat_type) {
                 case "skills":
-                    for (key in this.game_state.prefabs.player.stats.skills) {
-                        const skill = this.game_state.prefabs.player.stats.skills[key];
+                    for (let key in Mst.player.stats.skills) {
+                        const skill = Mst.player.stats.skills[key];
                         const text_value = key + "\t exp:" + skill.exp + "\t lvl:" + skill.level;
-                        text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
-                        text.fixedToCamera = true;
-                        this.texts.push(text);
+                        const stext = Mst.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                        stext.fixedToCamera = true;
+                        this.texts.push(stext);
                         index ++;
                     }
                     break;
                 case "abilities":
-                    for (key in this.game_state.prefabs.player.stats.abilities) {
-                        text_value = key + ":\t" + this.game_state.prefabs.player.stats.abilities[key];
-                        text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
-                        text.fixedToCamera = true;
-                        this.texts.push(text);
+                    for (let key in Mst.player.stats.abilities) {
+                        const text_value = key + ":\t" + Mst.player.stats.abilities[key];
+                        const stext = Mst.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                        stext.fixedToCamera = true;
+                        this.texts.push(stext);
                         index ++;
                     }
                     
-                    text_value = "sin:\t" + this.game_state.prefabs.player.stats.sin;
-                    text = this.game_state.game.add.text(293, 95 + 14 * (index + 1), text_value, text_style);
-                    text.fixedToCamera = true;
-                    this.texts.push(text);
+                    const text_value = "sin:\t" + Mst.player.stats.sin;
+                    const stext = Mst.game.add.text(293, 95 + 14 * (index + 1), text_value, text_style);
+                    stext.fixedToCamera = true;
+                    this.texts.push(stext);
                     index ++;
                     break;
                 case "quests":
-                    for (key in this.game_state.prefabs.player.stats.quests) {
-                        text_value = key + "\t" + this.game_state.prefabs.player.stats.quests[key].quest_text;
-                        text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style); 
-                        text.fixedToCamera = true;
-                        this.texts.push(text);
+                    for (let key in Mst.player.stats.quests) {
+                        const text_value = key + "\t" + Mst.player.stats.quests[key].quest_text;
+                        const stext = Mst.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                        stext.fixedToCamera = true;
+                        this.texts.push(stext);
                         index ++;
                     }
                     break;
                 default:
-                    for (key in this.game_state.prefabs.player.stats) {
-                        text_value = key + "\t" + this.game_state.prefabs.player.stats[key];                        
-                        console.log(key + ":" + typeof(this.game_state.prefabs.player.stats[key]));
-                        console.log(this.game_state.prefabs.player.stats[key]);
-                        if (typeof(this.game_state.prefabs.player.stats[key]) !== 'object') {
-                            text = this.game_state.game.add.text(293, 95 + 14 * index, text_value, text_style);
-                            text.fixedToCamera = true;
-                            this.texts.push(text);
+                    for (let key in Mst.player.stats) {
+                        const text_value = key + "\t" + Mst.player.stats[key];
+                        console.log(key + ":" + typeof(Mst.player.stats[key]));
+                        console.log(Mst.player.stats[key]);
+                        if (typeof(Mst.player.stats[key]) !== 'object') {
+                            const stext = Mst.game.add.text(293, 95 + 14 * index, text_value, text_style);
+                            stext.fixedToCamera = true;
+                            this.texts.push(stext);
                             index ++;
                         }
                     }
@@ -246,7 +241,7 @@ Mst.ShowStatWithSprite.prototype.change_stat = function () {
 
 Mst.ShowStatWithSprite.prototype.hide_window_onclick = function () {
     "use strict";
-    this.game_state.prefabs.player.cPlayer.close.pop();
+    Mst.hud.close.pop();
     this.hide_window();
 };
 
@@ -258,17 +253,16 @@ Mst.ShowStatWithSprite.prototype.hide_window = function () {
     });
     this.texts = [];
     this.right_arrow.visible = false;
-    this.game_state.mGame.hud.right_window.hide();
+    Mst.hud.right_window.hide();
 };
 
 Mst.ShowStatWithSprite.prototype.logout = function () {
     "use strict";
-    this.map_int = this.game_state.gdata.root.map_int;
     this.position = {
-        x: this.game_state.prefabs.player.x - 8,
-        y: this.game_state.prefabs.player.y + 8
+        x: Mst.player.x - 8,
+        y: Mst.player.y + 8
     };
 
-    this.game_state.prefabs.player.cPlayer.set_logoff();
-    this.game_state.mGame.save_data(this.position, this.map_int, "logout");
+    Mst.cPlayer.set_logoff();
+    Mst.mGame.save_data(this.position, Mst.map_int, "logout");
 };

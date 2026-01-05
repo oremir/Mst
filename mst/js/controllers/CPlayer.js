@@ -1,34 +1,37 @@
-class CPlayer {
+class CPlayer extends CPerson {
     constructor(vPlayer, name, position, properties) {
+        super(vPlayer, name, position, properties);
         this.vPlayer = vPlayer;
-        this.cGame = vPlayer.game_state.cGame;
-        this.mGame = vPlayer.game_state.mGame;
-        this.vGame = vPlayer.game_state;
-        this.mPlayer = new MPlayer(this, vPlayer, name, position, properties);
-        this.hud = this.cGame.hud;
-        
-        this.chest = new CPOpenedChest(this.vGame, this.mPlayer, vPlayer);
-        this.overlap = new CPOpenedOverlap(this.vGame, this, vPlayer);
+        this.mPlayer = this.model;
+
+        this.chest = new CPOpenedChest();
+        this.overlap = new CPOpenedOverlap();
         this.business = new CPOpened();
         this.ren = new CPOpenedRen();
         this.signpost = new CPOpened();
-        
-        this.items = new CPItems(this.vGame);
-        this.quests = new CPQuests(this.cGame, this.mPlayer, vPlayer, this, this.mPlayer.quests);
-        this.cases = new CPCases(this.cGame, this.mPlayer, this.mPlayer.cases, this.mPlayer.culprit);
-        this.relations = new CPRelations(this.mPlayer, this.mPlayer.stats.relations);
-        this.buffs = new CPBuffs(this.vGame, this.mPlayer.stats.buffs);
-        this.followers = new CPFollowers(this.vGame, this.mPlayer.followers, this.mPlayer.save.properties.followers);
-        this.expAlert = new CPExpAlert(this.vGame, this.hud);
-        this.weapon = null;
+        this.fight = new CPOpenedFight();
+
+        this.items = this.mPlayer.items;
+        this.quests = new CPQuests(this.mPlayer, vPlayer, this, this.mPlayer.quests);
+        this.cases = new CPCases(this.mPlayer, this.mPlayer.cases, this.mPlayer.culprit);
+        this.relations = new CPRelations(this.mPlayer.stats.relations);
+        this.buffs = new CPBuffs(this.mPlayer.stats.buffs);
+        this.followers = new CPFollowers(this.mPlayer.followers, this.mPlayer.save.properties.followers);
+        this.expAlert = new CPExpAlert();
+
+        const weapon = Mst.core.objects.sword;
+        this.weapon = Mst.create_object(weapon);
+        this.weapon.cSword.init_cPlayer(this);
+        this.weapon.reequip(this.mPlayer.stats.equip);
+        console.log(this.weapon);
 
         this.no_pass_OP = true;
-        
-        this.cPlayer = this.cGame.init_cPlayer(this);
+
+        Mst.cGame.init.cPlayer = this;
     }
-    
-    init_hud(hud) {
-        this.hud = hud;
+
+    _model() {
+        return new MPlayer(this, this.name, this.position, this.properties);
     }
 
     key_right() {
@@ -58,7 +61,7 @@ class CPlayer {
     }
 
     key_action() {
-        const opened_chest = this.cPlayer.chest.opened;
+        const opened_chest = this.chest.opened;
         console.log(opened_chest);
 
         if (opened_chest) {
@@ -67,28 +70,36 @@ class CPlayer {
     }
 
     key_close() {
-        this.cPlayer.hud.close.key();
+        Mst.hud.close.key();
     }
 
     key_change_type() {
-        if (this.mGame.prefabs.items.text_bot.text !== "") this.mGame.prefabs.items.change_put_type();
+        if (Mst.hud.items.text_bot.text !== "") Mst.hud.items.change_put_type();
     }
 
     unequip () {
-        this.vPlayer.unequip();
+        return this.vPlayer.unequip();
     }
 
     level(skill) {
         this.mPlayer.level(skill);
     }
-    
+
+    distance(obj) {
+        return Mst.game.physics.arcade.distanceBetween(obj, Mst.player);
+    }
+
+    detect(obj) {
+        return this.distance(obj) <= 200;
+    }
+
     set_logoff() {
         const cwait = { type: "logout" };
         this.quests.update("wait", cwait);
 
         this.mPlayer.save.logged = false;
     }
-    
+
     add_newsppr(num) {
         if (this.mPlayer.newsppr.indexOf(num) < 0) {
             ret = true;
@@ -97,14 +108,14 @@ class CPlayer {
 
             this.items.add(225, 1);
 
-            this.hud.alerts.show("+noviny");
+            Mst.hud.alerts.show("+noviny");
             return true;
         }
         return false;
     }
 
     work_rout(skill, ability, stress, stand_exp, skill_exp, abil_p) {
-        this.mPlayer.gtime.add_minutes(4, this.vGame);
+        this.mPlayer.gtime.add_minutes(4);
         this.mPlayer.add_stress(stress);
         this.mPlayer.add_exp("standard", stand_exp);
         this.mPlayer.add_exp(skill, skill_exp);
@@ -188,108 +199,134 @@ class CPOpened {
 class CPOpenedRen extends CPOpened {
     constructor() {
         super();
-        this.speak = new CPOpened();        
+        this.speak = new CPOpened();
+    }
+}
+
+class CPOpenedFight extends CPOpened {
+    constructor() {
+        super();
+        this.timer = Mst.game.time.create(false);
+    }
+
+    open(dist) {
+        if (dist <= 70) {
+            super.open(true);
+        } else {
+            if (!this.timer.running) {
+                this.timer.add(Phaser.Timer.SECOND * 10, this.close, this);
+                this.timer.start();
+            }
+        }
+    }
+
+    close() {
+        console.log("Close fight");
+        super.close();
     }
 }
 
 class CPOpenedChest extends CPOpened {
-    constructor(vGame, cPlayer, vPlayer) {
+    constructor() {
         super();
-        this.cPlayer = cPlayer;
-        this.vPlayer = vPlayer;
-        this.vGame = vGame;
         this.direction = {"x": 0, "y": 1};
-        this.timer = vGame.time.create(false);
+        this.timer = Mst.game.time.create(false);
     }
-    
+
     open(chest) {
         console.log(this.timer.length);
-    
+
         if (this.timer.length < 1) {
             console.log(this);
-            console.log("Open! " + chest.name + " / Stat: " + chest.mChest.stat + " / Owner: " + chest.mChest.owner + " UsrID: " + this.cPlayer.mPlayer.usr_id + " / ObjID: " + chest.obj_id + " / Stats: ");
+            console.log("Open! " + chest.name + " / Stat: " + chest.mChest.stat + " / Owner: " + chest.mChest.owner + " UsrID: " + Mst.usr_id + " / ObjID: " + chest.obj_id + " / Stats: ");
             console.log(chest.stats);
             console.log(chest);
-            
+
             super.open(chest);
-            
+
             const cstat = chest.mChest.test_stat();
 
             if (cstat !== "open") {
-                chest.mChest.open_chest(this.vPlayer, chest);
+                chest.mChest.open_chest(Mst.player, chest);
             } else {
                 console.log("Chest is open by other player");
-                this.cPlayer.hud.alerts.show("Otevřel ji někdo jiný!");
+                Mst.hud.alerts.show("Otevřel ji někdo jiný!");
                 this.timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
                 this.timer.start();
                 this.close();
             }
         }
-        
+
         const dist = {
-            x: this.vPlayer.x - chest.x,
-            y: this.vPlayer.y - chest.y
+            x: Mst.player.x - chest.x,
+            y: Mst.player.y - chest.y
         };
 
         if (this.direction.x === 0) {
             if (dist.x > 0) {
-                this.vPlayer.x++;
+                Mst.player.x++;
             } else {
-                this.vPlayer.x--;
+                Mst.player.x--;
             }
         } else {
             if (dist.y > 0) {
-                this.vPlayer.y++;
+                Mst.player.y++;
             } else {
-                this.vPlayer.y--;
+                Mst.player.y--;
             }
         }
     }
-    
-    open_fin(player, chest) {
-        console.log("Player open chest fin");
+
+    open_fin() {
+        const chest = this.opened;
+        if (!chest) {
+            console.log("Chest not opened", this);
+            return null;
+        }
+        
         const owner = parseInt(chest.mChest.owner);
 
-        console.log(owner);
+        console.log("Player open chest fin", owner);
 
         if (chest.stat !== "open") {
             if (owner !== 0) {
-                if (owner === player.mPlayer.usr_id) {
+                if (owner === Mst.usr_id) {
                     if (chest.mChest.cases.stolen) {
                         chest.mChest.mw_context = "investigate";
-                        this.cPlayer.hud.middle_window.open("Vykradeno! Chcete to vyšetřit?", chest, ["no", "investigate"]);
-                    }                
+                        Mst.hud.middle_window.open("Vykradeno! Chcete to vyšetřit?", chest, ["no", "investigate"]);
+                    }
 
-                    chest.cChest.open_chest_fin(player, chest);
+                    chest.cChest.open_chest_fin();
                 } else {
                     console.log("Chest is owned by other player");
                     chest.mChest.mw_context = "steal";
-                    this.cPlayer.hud.middle_window.open("To patří jinému!", chest, ["ok", "steal"]);
+                    Mst.hud.middle_window.open("To patří jinému!", chest, ["ok", "steal"]);
                     this.timer.add(Phaser.Timer.SECOND * 0.7, function(){}, this);
                     this.timer.start();
                 }
             } else {
-                chest.cChest.open_chest_fin(player, chest);
+                chest.cChest.open_chest_fin();
             }
         }
     }
     
+    close() {
+        super.close();
+    }
 }
 
 class CPOpenedOverlap extends CPOpened {
-    constructor(vGame, cPlayer, vPlayer) {
+    constructor() {
         super();
-        this.cPlayer = cPlayer;
-        this.vPlayer = vPlayer;
-        this.timer = vGame.time.create(false);
+        this.timer = Mst.game.time.create(false);
     }
-    
+
     open(val) {
         super.open(val);
-        
+
         this.timer.add(Phaser.Timer.SECOND * 3, this.take, this);
     }
-    
+
     take(overlap) {
         console.log("Hide overlap");
         console.log(overlap);
@@ -297,28 +334,26 @@ class CPOpenedOverlap extends CPOpened {
         if (overlap.opened) {
             overlap.opened.kill();
             overlap.close();
-            
-            this.cPlayer.items.add(180,1);
-            this.vPlayer.body.immovable = false;
+
+            Mst.cPlayer.items.add(180,1);
+            Mst.vPlayer.body.immovable = false;
         }
     }
 }
 
 class CPExpAlert {
-    constructor(vGame, hud) {
-        this.vGame = vGame;
-        this.hud = hud;
-        this.timer = vGame.time.create(false);
+    constructor() {
+        this.timer = Mst.game.time.create(false);
         this.o = {};
     }
-    
+
     exp(skill, quantity) {
         const text = skill + " exp: +" + quantity;
         console.log(text);
 
         if (!this.timer.running) {
             console.log("Timer is not running");
-            this.hud.alerts.show(text);
+            Mst.hud.alerts.show(text);
 
             this.timer.loop(Phaser.Timer.SECOND * 1.8, this.done, this);
             this.timer.start();
@@ -343,7 +378,7 @@ class CPExpAlert {
             if (eal.q > 0) {
                 const skill = eal.s;
                 const text =  skill + " exp: +" + eal.q;
-                this.hud.alerts.show(text);
+                Mst.hud.alerts.show(text);
                 iz += eal.q;
                 this.o[skill].q = 0;
             }
@@ -353,122 +388,132 @@ class CPExpAlert {
     }
 }
 
-class CPItems {
-    constructor(vGame) {
-        this.vGame = vGame;
-    }
-    
-    add(item_frame, quantity) {
-        return this.vGame.prefabs.items.add_item(item_frame, quantity);
-    }
-
-    subtract(item_index, quantity) {
-        this.vGame.prefabs.items.subtract_item(item_index, quantity);
+class CPRelation extends MArrayItem {
+    constructor(arr, id, value){
+        super(arr, id, value);
+        this.exp = new MProperty(value.exp);
+        this.view = this;
+        this.identity = new MPrefabIdentity(this, arr.identities);
     }
 
-    subtract_all(item_index) {
-        return this.vGame.prefabs.items.subtract_all(item_index);
+    get name() {
+        if (this.identity) return this.identity.name;
+        return this.value.name;
     }
 
-    put_all(content) {
-        if (content.length > 0) {
-            for (const c of content) {
-                const frame = c.f;
-                const quantity = c.q;
-                this.add(frame, quantity);
-            }
-        }
+    get uid() {
+        if (this.identity) return this.identity.id;
+        return this.value.uid;
     }
 
-    test(item_frame, quantity) {
-        const index = this.vGame.prefabs.items.test_item(item_frame, quantity);
-        console.log(index);
-        return index;
+    get type() {
+        if (this.identity) return this.identity.type;
+        return this.value.type;
     }
-    
-    index_by_frame(item_frame) {
-        return this.vGame.prefabs.items.index_by_frame(item_frame);
+
+    eq(identity) {
+        return this.identity.eq(identity.id, identity.type);
+    }
+
+    add_exp(exp) {
+        console.log("Add exp", exp);
+        this.exp.add(exp);
+        this.save();
+        console.log(this);
+    }
+
+    save() {
+        this.value.exp = this.exp.save();
+        return super.save();
     }
 }
 
-class CPRelations {
-    constructor(mPlayer, relations) {
-        this.mPlayer = mPlayer;
-        this.a = relations;
+class CPRelations extends MArray {
+    constructor(relations) {
+        super(relations, true);
+        this.identities = new MIdentities();
+        this.name = "relations";
+        this._make(relations);
+        console.log(this);
     }
-    
-    update(person, exp) {
-        console.log("Update relation");
-        console.log(person);
-        
-        let relation_selected = null;
-        const uid = person.get_uid();
-        const otype = person.get_otype();
 
-        for (let rel of this.a) {
+    _model(index, value) {
+        return new CPRelation(this, index, value);
+    }
+
+    _get_model(name, uid, type, exp) {
+        return {
+            name: name,
+            uid: uid,
+            type: type,
+            exp: exp
+        };
+    }
+
+    _clean(relation, person) {
+        for (let rel of this) {        
             if (!rel.uid) { // jen docasne !!!!!!!!
                 let rname = "";
                 if (person.name === 'nun_1') rname = "nun";
                 if (person.name === 'merchant_0') rname = "merchant";
-                if (rel.name === rname && rel.region === person.region && rel.type === otype) {
-                    relation_selected = {
-                        name: person.p_name,
-                        uid: uid,
-                        type: otype,
-                        exp: rel.exp
-                    };
-                    rel = JSON.parse(JSON.stringify(relation_selected));
-                    relation_selected = rel;
+                if (rel.name === rname && rel.value.region === person.region && rel.type === person.otype) {
+                    const model = this._new(person, rel);
+                    rel = this._model(rel.id, model);
+                    relation = rel;
                 }
             } else {
-                const ruid = String(rel.uid);
-                console.log("Relation [] r type: " + rel.type + " p type: " + person.o_type + " r id: " + ruid + " p id " + uid);
-                if (rel.type === otype && ruid === String(uid)) {
-                    relation_selected = rel;
-                    console.log(relation_selected);
-
-                    for (let i in this.a) { // jen docasne ... odstran multi
-                        const ruid2 = String(this.a[i].uid);
-                        if (this.a[i].type === otype && ruid2 === String(uid)) {
-                            relation_selected.exp = parseInt(relation_selected.exp);
-                            relation_selected.exp += parseInt(this.a[i].exp);
-                            this.a.splice(i, 1);
-                            break;
+                if (this.compare(rel, person)) {
+                    for (const rel2 of this) { // jen docasne ... odstran multi
+                        if (this.compare(rel2, person) && rel.id !== rel2.id) {
+                            rel.add_exp(rel2.exp.get());
+                            rel2.remove();
                         }
                     }
-
-                    break;
                 }
             }
         }
-
-        if (!relation_selected) {
-            relation_selected = {
-                name: person.p_name,
-                uid: uid,
-                type: otype,
-                exp: 1
-            };
-            this.a.push(relation_selected);
-            console.log("Push");
-            console.log(relation_selected);
-        } else {
-            console.log("Update");
-            relation_selected.exp = exp + parseInt(relation_selected.exp);
-            console.log(relation_selected);
-        }
-        this.mPlayer.save.properties.relations = this.a;
+        return relation;
     }
 
-    get(uid, type) {
-        for (const rel of this.a) {
-            const ruid = String(rel.uid);
-            if (rel.type === type && rel.uid === String(uid)) {
-                console.log(rel);
-                return rel;
-            }
-        }
-        return null;
+    _new(person, rel) {
+        const uid = person.uid;
+        const otype = person.otype;
+        const name = person.p_name;
+        const exp = rel ? rel.exp : 1;
+        return this._get_model(name, uid, otype, exp);
+    }
+
+    _add_new(person) {
+        const model = this._new(person);
+        this.add(model);
+        console.log("Push", model);
+    }
+
+    getp(person) {
+        console.log("Heart get", person, this.identities);
+        const identity = new MIdentity(person.uid, person.otype);
+        return this.identities.get_prefab(identity);
+    }
+
+    get(uid, type) {        
+        const identity = new MIdentity(uid, type);
+        return this.identities.get_prefab(identity);
+    }
+
+    compare(rel, person) {
+        const identity = new MIdentity(person.uid, person.otype); 
+        console.log("Relation [] r type: " + rel.type + " p type: " + identity.type + " r id: " + rel.uid + " p id " + identity.id);
+        return rel.eq(identity);
+    }
+
+    update(person, exp) {
+        console.log("Update relation", person);
+        let relation_selected = this.getp(person);
+        console.log(relation_selected);
+        relation_selected = this._clean(relation_selected, person);
+        console.log(relation_selected);
+        if (!relation_selected) return this._add_new(person);
+        return relation_selected.add_exp(exp);
     }
 
     get_name(uid, type) {
@@ -477,34 +522,31 @@ class CPRelations {
         return "";
     }
 
-    return(person) {
-        const uid = person.get_uid();
-        const type = person.get_otype();
-
-        const relation = this.get(uid, type);
-        if (relation) return parseInt(relation.exp);
+    get_exp(person) {
+        const relation = this.getp(person);
+        console.log(relation, this);
+        if (relation) return relation.exp.get();
         return -1;
     }
 }
 
 class CPBuffs {
-    constructor(vGame, buffs) {
-        this.vGame = vGame;
+    constructor(buffs) {
         this.a = buffs;
-        
+
         console.log("Bufs");
         for (const buff of this.a) {
             const bufftime = parseInt(buff.endtm) - tt;
             console.log("End time: " + buff.endtm + " A time: " + tt + " Ev time: " + bufftime);
             if (bufftime > 0) {
-                this.vGame.game.time.events.add(bufftime, this.close, this, buff);
-                console.log(this.vGame.game.time.events);
+                Mst.game.time.events.add(bufftime, this.close, this, buff);
+                console.log(Mst.game.time.events);
             } else {
                 this.close(buff);
             }
         }
     }
-    
+
     index(btype) {
         console.log(this.a);
         for (let i in this.a) {
@@ -516,10 +558,7 @@ class CPBuffs {
 
     add(btype, time) {
         const index = this.index(btype);
-
-        const dt = new Date();
-        const tt = dt.getTime();
-        const endtime = tt + time * 1000;
+        const endtime = Mst.time + time * 1000;
 
         let btnm = "";
         switch (btype) {
@@ -543,7 +582,7 @@ class CPBuffs {
             this.a[index].endtm = newendtime;
         }
 
-        this.vGame.game.time.events.add(Phaser.Timer.SECOND * time, this.close, this, new_buff);
+        Mst.game.time.events.add(Phaser.Timer.SECOND * time, this.close, this, new_buff);
         console.log(this.a);
     }
 
@@ -558,13 +597,12 @@ class CPBuffs {
 }
 
 class CPFollowers {
-    constructor(vGame, followers, st_followers) {
-        this.vGame = vGame;
+    constructor(followers, st_followers) {
         this.st = st_followers;
         this.m = followers;
         this.a = [];
     }
-    
+
     init() {
         for (let key in this.st) {
             const follower = this.create(key);
@@ -573,9 +611,9 @@ class CPFollowers {
     }
 
     create(fwr) {
-        const pfollower = this.vGame.prefabs[fwr];
+        const pfollower = Mst.prefabs[fwr];
 
-        if (pfollower) {        
+        if (pfollower) {
             const name = pfollower.name;
             const position = pfollower.position;
             const properties = pfollower.save.properties;
@@ -588,7 +626,7 @@ class CPFollowers {
             console.log(position);
             console.log(properties);
 
-            const follower = new Mst.Follower(this.vGame, name, position, properties);
+            const follower = new Mst.Follower(name, position, properties);
 
             console.log(follower);
             return follower;
@@ -610,7 +648,7 @@ class CPFollowers {
 }
 
 class CPQuests {
-    constructor(cGame, mPlayer, vPlayer, cPlayer, quests) {
+    constructor(mPlayer, vPlayer, cPlayer, quests) {
         this.mQuests = quests;
         this.quest = quests.quest;
         this.ass_quest = quests.ass_quest;
@@ -618,9 +656,6 @@ class CPQuests {
         this.mPlayer = mPlayer;
         this.vPlayer = vPlayer;
         this.cPlayer = cPlayer;
-        this.cGame = cGame;
-        this.vGame = cGame.vGame;
-        this.mGame = cGame.mGame;
 
         console.log(mPlayer);
     }
@@ -628,15 +663,16 @@ class CPQuests {
     test(type, condition) {
         return this.mQuests.test(type, condition);
     }
-    
+
     quest_by_name(name) {
-        const qid = this.ass_quest(name);
+        console.log(name, this.ass_quest, this.quest);
+        const qid = this.ass_quest[name].qid;
         return this.quest[qid];
     }
 
     update(type, condition) {
         console.log('\x1b[106mAccomplish - Update: ' + type);
-        
+
         console.log(this.ass_quest);
         for (let name in this.ass_quest) {
             const quest = this.quest_by_name(name);
@@ -645,9 +681,9 @@ class CPQuests {
             if (quest.is_ass()) {
                 const succ = quest.update(type, condition);
                 console.log(quest);
-                
+
                 if (succ) {
-                    const person = this.mGame.get_person(quest.owner, quest.owner_type);
+                    const person = Mst.mGame.get_person(quest.owner, quest.owner_type);
                     if (person) {
                         person.ren_sprite.quest.state = "acc";
                         person.show_bubble(5); // ! question mark - quest accomplished
@@ -662,7 +698,7 @@ class CPQuests {
 
     finish(quest) {
         this.mQuests.finish(quest);
-        
+
         const reward = quest.properties.reward;
 
         for (const rews of reward) {
@@ -757,9 +793,7 @@ class CPQuests {
 }
 
 class CPCases {
-    constructor(cGame, mPlayer, cases) {
-        this.cGame = cGame;
-        this.vGame = cGame.vGame;
+    constructor(mPlayer, cases) {
         this.mPlayer = mPlayer;
         this.case = cases.case;
         this.mCases = cases;
@@ -768,20 +802,20 @@ class CPCases {
         this.culprit = cases.culprit;
         this.act_pcid = -1;
     }
-    
+
     init_loaded(loaded, ftprints) {
         this.loaded = loaded;
         this.ftprints = ftprints;
     }
-    
+
     is_empty() {
         return this.case.length < 1;
     }
-    
+
     length() {
         return this.case.length;
     }
-    
+
     for_each(f) {
         const c = this.case.map(f);
     }
@@ -810,18 +844,18 @@ class CPCases {
             get_culprit: this.get_act_culprit
         };
     }
-    
+
     get_act_culprit(context) {
         const cc = this.get_act_full_case();
         const fp = this.get_full_person(cc.cuid, cc.ctype, context);
-        
+
         const ub14 = this.unpack_badge("14", cc.cuid, cc.ctype, context);
         const ub15 = this.unpack_badge("15", cc.cuid, cc.ctype, context);
-        
+
         const ind = parseInt(ub15.R);
-        const rasa = this.vGame.gdata.core.rasa[ind];
+        const rasa = Mst.core.rasa[ind];
         const ind2 = parseInt(ub15.F);
-        const postava = this.game_state.gdata.core.postava[ind2];
+        const postava = Mst.core.postava[ind2];
         return {
             ub14: ub14,
             ub15: ub15,
@@ -834,7 +868,7 @@ class CPCases {
             H: ub14.H
         };
     }
-    
+
     get_full_person(uid, type, context) {
         return this.loaded.get_full_person(uid, type, context);
     }
@@ -859,12 +893,12 @@ class CPCases {
     add_ftprints_tocase(cftp) {
         const owner = parseInt(cftp.owner);
         const fpcid = parseInt(cftp.pcid);
-        
+
         if (owner === this.mPlayer.usr_id) {
             if (this.case[fpcid]) {
                 const n_ftp = "ftp|" + cftp.m + "|" + cftp.x + "|" + cftp.y + "|" + cftp.mfid;
                 this.case[fpcid].add_evidence(n_ftp);
-                return fpcid;  
+                return fpcid;
             }
         }
         return -1;
