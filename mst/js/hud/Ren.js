@@ -283,6 +283,7 @@ Mst.Ren = class extends Mst.Prefab {
     }
 
     option_quest(option) {
+        console.log("Option quest Ren");
         console.log(Mst.cPlayer.ren.opened);
         console.log(this.quest);
         if (Mst.cPlayer.ren.opened) {
@@ -296,9 +297,9 @@ Mst.Ren = class extends Mst.Prefab {
                     this.quest.showed = true;
 
                     let text = this.quest.get_text();
-                    if (this.quest.properties.ptype !== 'multi') this.quest.properties.ptype = "";
+                    if (this.quest.ptype !== 'multi') this.quest.ptype = "";
                     console.log("\x1b[102mQuest Pre dialogue: " + this.quest.name);
-                    if (this.quest.properties.ending_conditions.type === 'text' || this.quest.properties.ptype === 'multi') {
+                    if (this.quest.ending_conditions.type === 'text' || this.quest.ptype === 'multi') {
                         this.show_dialogue(text);
                     } else {
                         this.show_dialogue(text, ["assign"]);
@@ -307,14 +308,14 @@ Mst.Ren = class extends Mst.Prefab {
                 break;
                 case "ass":
                     this.show_dialogue("Tento úkol není dosud dokončen!", ["repeat"]);
-                    if (!this.quest.properties.target) this.ren_player.show_bubble(4); // ! exclamation mark - quest assigned
+                    if (!this.quest.target) this.ren_player.show_bubble(4); // ! exclamation mark - quest assigned
                 break;
                 case "acc":
                     this.show_dialogue("Výborně! Tady máte odměnu!", [], null, "item");
                     console.log("\x1b[102mQuest Fin dialogue: Výborně! Tady máte odměnu! " + this.quest.name);
                     this.quest.finish();
                     this.ren_player.hide_bubble();
-                    if (!this.quest.properties.nextq) {
+                    if (!this.quest.nextq) {
                         this.quest = null;
                         console.log("Ren - Test Quest");
                         this.ren_player.init_quest();
@@ -333,11 +334,11 @@ Mst.Ren = class extends Mst.Prefab {
         this.dialogue_short.hide_onclick(1);
 
         console.log(this.quest);
-        //if (typeof(this.quest.properties.target) === 'undefined') {
+        //if (typeof(this.quest.target) === 'undefined') {
           this.ren_player.show_bubble(4); // ! exclamation mark - quest assigned
         //}
 
-        var new_ren_player = Mst.mGame.get_person(this.quest.properties.target, "player");
+        var new_ren_player = Mst.mGame.get_person(this.quest.target, "player");
         if (new_ren_player) {
             new_ren_player.ren_sprite.set_quest(this.quest);
             new_ren_player.show_bubble(4); // ! exclamation mark - quest assigned
@@ -354,7 +355,7 @@ Mst.Ren = class extends Mst.Prefab {
             const text = quest.get_text();
             
             this.show_dialogue(text);
-            if (!this.quest.properties.target) {
+            if (!this.quest.target) {
                 this.ren_player.show_bubble(4); // ! exclamation mark - quest assigned
             }
         }

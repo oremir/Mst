@@ -689,6 +689,7 @@ Mst.ShowBusiness.prototype.kill_stats = function () {
     
     console.log(st_up);
     this.stat = st_up.join("_");
+    console.log(this);
     Mst.prefabs[this.prefab_name].stats.items = this.stat;
     Mst.prefabs[this.prefab_name].save.properties.items = this.stat;
     

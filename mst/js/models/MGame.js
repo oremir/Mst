@@ -40,12 +40,6 @@ class MModel extends WithInit {
     }
 }
 
-class MGQuest {
-    constructor() {
-        this.gdata_quests = Mst.quest.quests;
-    }
-}
-
 class MGInit extends MInit {
     constructor(mGame) {
         super();
@@ -78,7 +72,7 @@ class MGame extends MModel {
         this.cGame = cGame;
         this.vGame = cGame.sCaller;
         this.gdata = properties;
-        this.quests = new MGQuest(this);
+        this.quests = Mst.quest.quests;
         this._cases = null;
         this._mPlayer = null;
 

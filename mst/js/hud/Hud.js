@@ -923,22 +923,22 @@ class MHDialogue extends MHPrototypeInput {
                     break;
                 case "mer_admin":
                     text.value = "[správa]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.mer_admin);
                     //text.events.onInputDown.add(this.mer_admin, this);
                     break;
                 case "quest":
                     text.value = "[úkol]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_quest);
                     //text.events.onInputDown.add(this.option_quest, this);
                     break;
                 case "assign":
                     text.value = "[přijmout]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_assign);
                     //text.events.onInputDown.add(this.option_assign, this);
                     break;
                 case "repeat":
                     text.value = "[zopakovat]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_repeat);
                     //text.events.onInputDown.add(this.option_repeat, this);
                     break;
                 case "speak":
@@ -948,12 +948,12 @@ class MHDialogue extends MHPrototypeInput {
                     break;
                 case "rumour":
                     text.value = "[fáma]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_rumour);
                     //text.events.onInputDown.add(this.option_rumour, this);
                     break;
                 case "investigate":
                     text.value = "[vyšetřit]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_investigate);
                     //text.events.onInputDown.add(this.option_investigate, this);
                     break;
                 case "lodging":
@@ -963,12 +963,12 @@ class MHDialogue extends MHPrototypeInput {
                     break;
                 case "newsppr":
                     text.value = "[koupit]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_newsppr);
                     //text.events.onInputDown.add(this.option_newsppr, this);
                     break;
                 case "give":
                     text.value = "[dát]";
-                    text.set_pressed(this.buy_sell);
+                    text.set_pressed(this.option_give);
                     //text.events.onInputDown.add(this.option_give, this);
                     break;
             }
@@ -990,14 +990,55 @@ class MHDialogue extends MHPrototypeInput {
         if (this.obj) this.obj.buy_sell(op);
         //this.sCaller.hide();
     }
+    
+    mer_admin() {
+        if (this.obj) this.obj.mer_admin();
+        this.sCaller.hide();
+    }
+    
+    option_quest() {
+        console.log("Option quest HUD");
+        if (this.obj) this.obj.option_quest();
+        this.sCaller.hide();
+    }
+    
+    option_assign() {
+        if (this.obj) this.obj.option_assign();
+        this.sCaller.hide();
+    }
+    
+    option_repeat() {
+        if (this.obj) this.obj.option_repeat();
+        this.sCaller.hide();
+    }
 
     option_speak() {
         if (this.obj) this.obj.option_speak();
         this.sCaller.hide();
     }
     
+    option_rumour() {
+        if (this.obj) this.obj.option_rumour();
+        this.sCaller.hide();
+    }
+    
+    option_investigate() {
+        if (this.obj) this.obj.option_rumour();
+        this.sCaller.hide();
+    }
+    
     option_lodging() {
         if (this.obj) this.obj.option_lodging();
+        this.sCaller.hide();
+    }
+    
+    option_newsppr() {
+        if (this.obj) this.obj.option_newsppr();
+        this.sCaller.hide();
+    }
+    
+    option_give() {
+        if (this.obj) this.obj.option_give();
         this.sCaller.hide();
     }
 

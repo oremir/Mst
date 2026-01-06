@@ -231,7 +231,7 @@ class CGInit extends MInit {
 class CGQuests {
     constructor(mGame) {
         this.mGame = mGame;
-        this.gdata_quests = mGame.quests.gdata_quests;
+        this.gdata_quests = mGame.quests;
         this.gdata = mGame.gdata;
     }
 

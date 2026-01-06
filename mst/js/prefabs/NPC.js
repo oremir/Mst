@@ -491,17 +491,17 @@ Mst.NPC = class extends Mst.Prefab {
     init_quest() { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         const player = Mst.player;
         const cpQuests = Mst.cPlayer.quests;
-        const quests = cpQuests.new_quest;
+        const quests = cpQuests.unfin_quest;
         
         for (let key in quests) {
             const quest = quests[key];
-            const owner_id = parseInt(quest.properties.owner);
+            const owner_id = parseInt(quest.owner);
             console.log(quest);
             console.log("NPC ID: " + this.unique_id);
 
             const quest_state = quest.state;
 
-            if (quest.properties.target_type === "NPC" && owner_id === this.unique_id) { //!!!!!!!!! Identity
+            if (quest.target_type === "NPC" && owner_id === this.unique_id) { //!!!!!!!!! Identity
                 if (quest.is_prev_fin()) {
                     this.ren_sprite.set_quest(quest);
                     this.ren_sprite.quest.state = quest_state;

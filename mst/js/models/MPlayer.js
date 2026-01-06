@@ -209,6 +209,8 @@ class MPlayer extends MPerson {
             this.stats.skills[skill].level
         );
 
+        console.log(this.save);
+        if (!this.save.properties.skills[skill]) this.save.properties.skills[skill] = {};
         this.save.properties.skills[skill].exp = this.stats.skills[skill].exp;
         this.save.properties.skills[skill].level = this.stats.skills[skill].level;
 
@@ -698,7 +700,7 @@ class MPQuests {
         this.quest = [];
         this.ass_quest = {};
         this.core = statQuests;
-        this.new_quest = {};
+        this.unfin_quest = {};
         this.gdata_quests = Mst.quest.quests;
 
         if (!this.core.ass) this.core.ass = {};
@@ -710,7 +712,7 @@ class MPQuests {
             const nq = new MPQQuest(this, q);
             this.quest.push(nq);
             console.log(q,nq, this.core.ass[nq.name]);
-            if (nq.state !== "fin") this.new_quest[nq.qid] = nq;
+            if (nq.state !== "fin") this.unfin_quest[nq.qid] = nq;
             if (this.core.ass[nq.name]) this.ass_quest[nq.name] = nq.set_ass(this.core.ass[nq.name]);
         }
     }
@@ -719,11 +721,11 @@ class MPQuests {
         const new_quest = {
             name: quest.name,
             qid: quest.qid,
-            owner: quest.properties.owner,
-            ot: quest.properties.owner_type,
-            target: quest.properties.target,
-            tt: quest.properties.target_type,
-            endc: quest.properties.ending_conditions,
+            owner: quest.owner,
+            ot: quest.owner_type,
+            target: quest.target,
+            tt: quest.target_type,
+            endc: quest.ending_conditions,
             acc: {
                 is: false,
                 q: 0
@@ -759,10 +761,9 @@ class MPQuests {
         const quest_name = quest.name;
         const qid = quest.qid;
 
-        quest.new = null;
         quest.ass = null;
 
-        delete this.new_quest[qid];
+        delete this.unfin_quest[qid];
         delete this.core.ass[quest_name];
         delete this.ass_quest[quest_name];
 
@@ -840,7 +841,7 @@ class MPQQuest {
                 switch (condi[0]) {
                     case "pq":
                         const pqid = parseInt(condi[1]);
-                        return this.mQuests.quest[pqid] === "fin";
+                        return this.mQuests.quest[pqid].state === "fin";
                     case "badge":
                         break;
                 }
@@ -909,7 +910,7 @@ class MPQQuest {
         console.log("Next quest: " + ind);
         console.log("Owner: " + new_quest.owner);
 
-        const new_ren_player = this.mQuests.mGame.get_person(new_quest.owner, "player");
+        const new_ren_player = Mst.mGame.get_person(new_quest.owner, "player");
         const ren = new_ren_player.ren_sprite;
 
         ren.set_quest(new_quest);
@@ -920,7 +921,7 @@ class MPQQuest {
         if (new_quest.target) {
             new_ren_player.hide_bubble();
 
-            const nnew_ren_player = this.mQuests.mGame.get_person(new_quest.target, "player");
+            const nnew_ren_player = Mst.mGame.get_person(new_quest.target, "player");
             if (nnew_ren_player) {
                 nnew_ren_player.ren_sprite.set_quest(new_quest);
                 nnew_ren_player.show_bubble(4); // ! exclamation mark - quest assigned
@@ -1029,7 +1030,6 @@ class MPQQuest {
 
     accomplish() {
         this.state = "acc";
-        this.new.state = "acc";
         this.ass.state = "acc";
         this.ass.acc.is = true;
         this.core_ass.acc.is = true;

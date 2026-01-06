@@ -421,14 +421,16 @@ Mst.OtherPlayer = class extends Mst.Prefab {
     }
     
     init_quest() { /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        console.log("OtherPlayer init quest");
         const cpQuests = Mst.cPlayer.quests;
-        const quests = cpQuests.new_quest;
+        const quests = cpQuests.unfin_quest;
 
         const players_end = {};
         players_end[this.usr_id] = true;
 
         for (let key in quests) {
             const quest = quests[key];
+            //console.log(quest);
 
             if (quest.target_type === "player" && quest.target === this.usr_id) {  //!!!!!!!!! Identity
                 if (quest.is_prev_fin()) {
@@ -442,7 +444,7 @@ Mst.OtherPlayer = class extends Mst.Prefab {
                 }
             }
 
-            if (quest.properties.owner_type === "player" && quest.owner === this.usr_id && players_end[this.usr_id]) {  //!!!!!!!!! Identity
+            if (quest.owner_type === "player" && quest.owner === this.usr_id && players_end[this.usr_id]) {  //!!!!!!!!! Identity
                 console.log(quest);
                 let test_q = quest.is_prev_fin();
                 if (!test_q) players_end[this.usr_id] = false;

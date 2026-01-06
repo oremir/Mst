@@ -651,6 +651,7 @@ class CPQuests {
     constructor(mPlayer, vPlayer, cPlayer, quests) {
         this.mQuests = quests;
         this.quest = quests.quest;
+        this.unfin_quest = quests.unfin_quest;
         this.ass_quest = quests.ass_quest;
         this.stat_quests = quests.core;
         this.mPlayer = mPlayer;
@@ -699,7 +700,7 @@ class CPQuests {
     finish(quest) {
         this.mQuests.finish(quest);
 
-        const reward = quest.properties.reward;
+        const reward = quest.reward;
 
         for (const rews of reward) {
             const rewa = rews.split("_");
@@ -758,7 +759,7 @@ class CPQuests {
                 if(quest.state === 'pre') {
                     console.log("Next quest pre / other person: " + quest.name);
                 } else {
-                    console.log("Same quest not pre / other person: " + quest.properties.target);
+                    console.log("Same quest not pre / other person: " + quest.target);
                 }
             }
         } else {
