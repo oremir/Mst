@@ -755,13 +755,42 @@ class MPQuests {
         }
     }
 
+    give_reward(quest) {
+        const reward = quest.reward;
+
+        for (const rews of reward) {
+            const rewa = rews.split("_");
+
+            switch (rewa[0]) {
+                case 'exp': {
+                    const quantity = parseInt(rewa[1]);
+                    this.mPlayer.add_exp("standard", quantity);
+                    console.log("Exp +" + quantity);
+                break;
+                }
+                case 'exps': {
+                    const quantity = parseInt(rewa[2]);
+                    this.mPlayer.add_exp(rewa[1], quantity);
+                    console.log(rewa[1] + " +" + quantity);
+                break;
+                }
+                case 'itm': {
+                    const item_frame = parseInt(rewa[1]);
+                    const quantity = parseInt(rewa[2]);
+                    this.mPlayer.items.add(item_frame, quantity);
+                break;
+                }
+            }
+        }
+    }
+
     finish(quest) {
         console.log("\x1b[106mFinish quest: " + quest.name);
 
+        this.give_reward(quest);
+
         const quest_name = quest.name;
         const qid = quest.qid;
-
-        quest.ass = null;
 
         delete this.unfin_quest[qid];
         delete this.core.ass[quest_name];
@@ -793,12 +822,12 @@ class MPQQuest {
         this.target_type = q.properties.target_type;
         this.ending_conditions = q.properties.ending_conditions;
         this.qconditions = q.properties.qconditions;
+        this.reward = q.properties.reward;
         this.nextq = parseInt(q.properties.nextq);
         this.ptype = q.properties.ptype;
         this.quest_text = q.properties.quest_text;
         this.ptexts = q.properties.ptexts;
         this.state = this.init_state();
-        this.ass = null;
         this.core_ass = null;
     }
 
@@ -852,21 +881,14 @@ class MPQQuest {
     }
 
     set_ass(ass) {
-        const nass = JSON.parse(JSON.stringify(ass));
-        this.ass = {};
-        this.ass.name = nass.name;
-        this.ass.qid = parseInt(nass.qid);
-        this.ass.owner = nass.owner;
-        this.ass.otype = nass.ot;
-        this.ass.target = nass.target;
-        this.ass.ttype = nass.tt;
-        this.ass.endc = nass.endc;
-        this.ass.acc = nass.acc;
-        this.ass.acc.is = nass.acc.is === "true";
-        this.ass.state = this.state;
+        const new_ass = {
+            name: ass.name,
+            qid: parseInt(ass.qid)
+        };
+
         this.core_ass = ass;
 
-        return this.ass;
+        return new_ass;
     }
 
     assign() {
@@ -978,8 +1000,9 @@ class MPQQuest {
                     return false;
                 case "wait":
                     console.log("Quest WAIT");
-                    let lgo = parseInt(this.ass.acc.lgo);
-                    let slp = parseInt(this.ass.acc.slp);
+                    let lgo = parseInt(this.core_ass.acc.lgo);
+                    let slp = parseInt(this.core_ass.acc.slp);
+                    let acc_tm = parseInt(this.core_ass.acc.tm);
 
                     switch (condition.type) {
                         case "logout":
@@ -992,7 +1015,7 @@ class MPQQuest {
                         break;
                     }
 
-                    const atime = parseInt(quest.acc.tm) + (3600 * 24 * 6 * 1000);
+                    const atime = acc_tm + (3600 * 24 * 6 * 1000);
                     console.log("Lgo: " + lgo + " Slp: " + slp + " Td: " + (atime - condition.tm));
                     if ((lgo > 2) && (slp > 2) && (condition.tm > atime)) {
                         this.accomplish();
@@ -1030,24 +1053,19 @@ class MPQQuest {
 
     accomplish() {
         this.state = "acc";
-        this.ass.state = "acc";
-        this.ass.acc.is = true;
         this.core_ass.acc.is = true;
         Mst.hud.alerts.show("Úkol byl splněn!");
     }
 
     set_acc_q(qt) {
-        this.ass.acc.q = qt;
         this.core_ass.acc.q = qt;
     }
 
     set_acc_lgo(lgo) {
-        this.ass.acc.lgo = lgo;
         this.core_ass.acc.lgo = lgo;
     }
 
     set_acc_slp(slp) {
-        this.acc.slp = slp;
         this.core_ass.acc.slp = slp;
     }
 }

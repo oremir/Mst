@@ -53,7 +53,7 @@ Mst.Player = class extends Mst.Prefab {
             'attack_alt': Phaser.Keyboard.ENTER
         });
 
-        this.keys.action.onDown.add(this.cPlayer.key_action, this);
+        this.keys.action.onDown.add(this.cPlayer.key_action, this.cPlayer);
         this.keys.close.onDown.add(this.cPlayer.key_close, this);
         this.keys.change_type.onDown.add(this.cPlayer.key_change_type, this);
 

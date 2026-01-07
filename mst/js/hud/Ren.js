@@ -352,7 +352,7 @@ Mst.Ren = class extends Mst.Prefab {
         this.dialogue_short.hide_onclick(1);
 
         if (this.quest.state === "ass") {
-            const text = quest.get_text();
+            const text = this.quest.get_text();
             
             this.show_dialogue(text);
             if (!this.quest.target) {

@@ -888,8 +888,6 @@ class MHDialogue extends MHPrototypeInput {
     }
 
     hide_onclick(next) {
-        "use strict";
-
         console.log('\x1b[102mHide dialogue tiled');
 
         super.hide_onclick();
@@ -999,7 +997,7 @@ class MHDialogue extends MHPrototypeInput {
     option_quest() {
         console.log("Option quest HUD");
         if (this.obj) this.obj.option_quest();
-        this.sCaller.hide();
+        //this.sCaller.hide();
     }
     
     option_assign() {
@@ -1009,7 +1007,7 @@ class MHDialogue extends MHPrototypeInput {
     
     option_repeat() {
         if (this.obj) this.obj.option_repeat();
-        this.sCaller.hide();
+        //this.sCaller.hide();
     }
 
     option_speak() {
@@ -1019,7 +1017,7 @@ class MHDialogue extends MHPrototypeInput {
     
     option_rumour() {
         if (this.obj) this.obj.option_rumour();
-        this.sCaller.hide();
+        //this.sCaller.hide();
     }
     
     option_investigate() {

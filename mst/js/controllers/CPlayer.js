@@ -61,6 +61,7 @@ class CPlayer extends CPerson {
     }
 
     key_action() {
+        console.log(this);
         const opened_chest = this.chest.opened;
         console.log(opened_chest);
 
@@ -176,7 +177,7 @@ class CPlayer extends CPerson {
         const key = this.mPlayer.stats.rumours.indexOf(rumour);
         if (key < 0) {
             this.mPlayer.stats.rumours.push(rumour);
-            this.mPlayer.save.properties.rumours = this.stats.rumours;
+            this.mPlayer.save.properties.rumours = this.mPlayer.stats.rumours;
         }
         console.log(this.mPlayer.stats.rumours);
     }
@@ -695,37 +696,6 @@ class CPQuests {
 
         this.mPlayer.save.properties.quests = this.stat_quests;
         console.log(this.stat_quests);
-    }
-
-    finish(quest) {
-        this.mQuests.finish(quest);
-
-        const reward = quest.reward;
-
-        for (const rews of reward) {
-            const rewa = rews.split("_");
-
-            switch (rewa[0]) {
-                case 'exp': {
-                    const quantity = parseInt(rewa[1]);
-                    this.mPlayer.add_exp("standard", quantity);
-                    console.log("Exp +" + quantity);
-                break;
-                }
-                case 'exps': {
-                    const quantity = parseInt(rewa[2]);
-                    this.mPlayer.add_exp(rewa[1], quantity);
-                    console.log(rewa[1] + " +" + quantity);
-                break;
-                }
-                case 'itm': {
-                    const item_frame = parseInt(rewa[1]);
-                    const quantity = parseInt(rewa[2]);
-                    this.cPlayer.items.add(item_frame, quantity);
-                break;
-                }
-            }
-        }
     }
 
     hide_dialogue(ren_player) {

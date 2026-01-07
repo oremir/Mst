@@ -207,6 +207,11 @@ class MGame extends MModel {
         this.save.player = this.mPlayer.save;
         this.save.enplayer = JSON.stringify(this.mPlayer.save);
 
+        const save = {
+            player: this.mPlayer.save,
+            enplayer: JSON.stringify(this.mPlayer.save)
+        }
+
         const key = this.keyOfUsrID(Mst.usr_id);
 
         console.log(this.save.objects);
@@ -226,7 +231,7 @@ class MGame extends MModel {
         const save_data_post = this.save_data_post;
         const tt = this;
 
-        $.post("save.php?time="+Mst.time, this.save)
+        $.post("save.php?time="+Mst.time, save)
             .done(function(data) {
                 console.log( "save success" );
                 console.log(JSON.parse(data));
