@@ -129,6 +129,7 @@ Mst.FactoryEnemy = class extends Mst.Factory {
         this._spawner = null;
         this._type = "slime";
         this._properties = {
+            direction: 1,
             group: "enemies",
             pool: "enemies",
             texture: "slime_spritesheet",

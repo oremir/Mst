@@ -12,7 +12,8 @@ Mst.Enemy = class extends Mst.Prefab {
         this.cEnemy.init(this.body, this.x);
         this.anchor.setTo(this.mEnemy.anchor_value);
         
-        this.scale.setTo(-properties.direction, 1);
+        console.log(properties);
+        this.scale.setTo(1, 1);
         
         console.log("Enemy texture:");
         console.log(this.key);
