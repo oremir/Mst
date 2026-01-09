@@ -73,11 +73,14 @@ if ($result->num_rows > 0) {
 
     if ($mysqli->query($sql) === TRUE) {
         $radek_l2 =  $radek_l2 . $user_en1 . "|Record updated successfully\n";
+        $radek_l3 =  $user_en1 . "\n";
     } else {
         $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
+        $radek_l3 = date(DATE_ATOM) . "|" . time() . "|"  . "Error updating record: " . $mysqli->error . "\n";
     }
 } else {
-    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "| ------- 0 results - SAVE\n";
+    $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "| ------- 0 results - Error SAVE\n";
+    $radek_l3 = date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "| ------- 0 results - Error SAVE\n";
 }
 
 // -------------------------- Update Objects -----------------------
@@ -295,6 +298,12 @@ $path_log = "log.log";
 
 $fp = FOpen($path_log, "a");
 FPutS($fp,$radek_l2);
+FClose($fp);
+
+$path_log = "user.log";
+
+$fp = FOpen($path_log, "a");
+FPutS($fp,$radek_l3);
 FClose($fp);
 
 echo json_encode($apost);

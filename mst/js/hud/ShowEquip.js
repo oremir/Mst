@@ -137,7 +137,7 @@ Mst.ShowEquip.prototype.show = function () {
 Mst.ShowEquip.prototype.search = function () {
     "use strict";
     
-    const player = Mst.prefabs.player;
+    const player = Mst.player;
     const cGame = Mst.cGame;
     let b_null = true;
     
