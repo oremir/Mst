@@ -147,6 +147,7 @@ Mst.Model.WorkItems = class {
 
     put_down_item(sCaller, cframe, frame, q) {
         const cPlayer = Mst.cPlayer;
+        const pSkills = Mst.mPlayer.stats.skills;
         switch (cframe) {
             case 7: //Drevo
                 switch (frame) {
@@ -191,8 +192,8 @@ Mst.Model.WorkItems = class {
                         if (cPlayer.ren.opened === 'cmelotrysk_ren' && item) {
                             item.sub();
                             cPlayer.items.add(197, 1); // Med čmelotryska l.
-                            cPlayer.mPlayer.add_exp("standard", 50);
-                            cPlayer.mPlayer.add_exp("magcrecare", 45);
+                            pSkills.standard.add(50);
+                            pSkills.magcrecare.add(45);
                             console.log("Med");
                             Mst.hud.alerts.show("Dar: med!");
                             return [0, 0];
@@ -204,8 +205,8 @@ Mst.Model.WorkItems = class {
                         if (cPlayer.ren.opened === 'kerik_ren') {
                             cPlayer.items.add(200, 1); // svetlokvet
                             cPlayer.items.add(192, 1); //dóza
-                            cPlayer.mPlayer.add_exp("standard", 50);
-                            cPlayer.mPlayer.add_exp("magcrecare", 45);
+                            pSkills.standard.add(50);
+                            pSkills.magcrecare.add(45);
                             console.log("světlokvět");
                             Mst.hud.alerts.show("Dar: světlokvět!");
                             return [0, 0];
@@ -389,8 +390,8 @@ Mst.Model.WorkItems = class {
                         if (cPlayer.ren.opened === 'cmelotrysk_ren' && item) {
                             item.sub();
                             cPlayer.items.add(197, 1); // Med čmelotryska l.
-                            cPlayer.mPlayer.add_exp("standard", 50);
-                            cPlayer.mPlayer.add_exp("magcrecare", 45);
+                            pSkills.standard.add(50);
+                            pSkills.magcrecare.add(45);
                             console.log("Med");
                             Mst.hud.alerts.show("Dar: med!");
                             return [0, 0];
@@ -400,8 +401,8 @@ Mst.Model.WorkItems = class {
                         console.log(cPlayer.ren.opened);
                         if (cPlayer.ren.opened === 'kurolez_ren') {
                             cPlayer.items.add(136, 1);
-                            cPlayer.mPlayer.add_exp("standard", 50);
-                            cPlayer.mPlayer.add_exp("magcrecare", 45);
+                            pSkills.standard.add(50);
+                            pSkills.magcrecare.add(45);
                             console.log("Dubenka");
                             Mst.hud.alerts.show("Dar: duběnky!");
                             return [0, 0];

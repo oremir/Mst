@@ -205,9 +205,10 @@ Mst.WildAnimal.prototype.hit_animal = function (player, animal, type, ability, d
         console.log("Hit animal");
         
         if (animal.health < 1) {
-            player.mPlayer.add_exp("standard", animal_health_max);
-            player.mPlayer.add_exp(type, animal_health_max / 2);
-            player.mPlayer.add_exp("hunter", animal_health_max / 2);
+            const pSkills = player.mPlayer.stats.skills;
+            pSkills.standard.add(animal_health_max);
+            pSkills.hunter.add(animal_health_max / 2);
+            pSkills[type].add(animal_health_max / 2);
             player.mPlayer.add_sin(1);
             console.log("Player sin: " + player.stats.sin);
             

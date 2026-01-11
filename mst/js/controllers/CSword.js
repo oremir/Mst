@@ -821,6 +821,7 @@ class CSword {
     rnd_take(frame, skill) {
         const mrtake = Mst.items[frame].properties.rtake;
         const rtake = mrtake ? mrtake : [];
+        const pSkills = this.cPlayer.mPlayer.stats.skills;
 
         let test_ok = false;
 
@@ -829,10 +830,10 @@ class CSword {
             const iframe = parseInt(rtake_sp[0]);
             const level = parseInt(rtake_sp[1]);
 
-            const rnd_core = level > 0 ? Math.max(20, 45 - this.cPlayer.level(skill)) : 20;
+            const rnd_core = level > 0 ? Math.max(20, 45 - pSkills[skill]) : 20;
 
             const rnd_test = Math.floor(Math.random() * rnd_core);
-            if (rnd_test < 2 && this.cPlayer.level(skill) > level) {
+            if (rnd_test < 2 && pSkills[skill] > level) {
                 this.cPlayer.items.add(iframe, 1);
                 console.log("RND take sword: " + iframe);
                 Mst.hud.alerts.show("Nález! " + Mst.items[iframe].name + "!");
@@ -854,7 +855,7 @@ class CSword {
             const iframe = parseInt(rtake_sp[0]);
             const level = parseInt(rtake_sp[1]);
 
-            if (this.cPlayer.level(skill) > level) {
+            if (pSkills[skill] > level) {
                 this.cPlayer.items.add(iframe, 1);
                 console.log("RND take sword next: " + iframe);
                 Mst.hud.alerts.show("Nález! " + Mst.items[iframe].name + "!");

@@ -171,6 +171,7 @@ class CChest extends CPrefab {
         console.log("RND take CHEST!!! Level: " + this.level);
 
         const player = Mst.player;
+        const skills = player.mPlayer.stats.skills;
         let rtake = Mst.items[frame].properties.rtake;
 
         if (!rtake) rtake = [];
@@ -189,12 +190,12 @@ class CChest extends CPrefab {
 
             let rnd_core = 20;
             if (level > 0) {
-                rnd_core = Math.max(20, 50 - player.mPlayer.level(skill));
+                rnd_core = Math.max(20, 50 - skills[skill].level);
             }
 
             const rnd_test = Math.floor(Math.random() * rnd_core);
             console.log("RND test " + rnd_test);
-            if (rnd_test < 3 && player.mPlayer.level(skill) > level) {
+            if (rnd_test < 3 && skills[skill].level > level) {
                 player.cPlayer.items.add(iframe, 1);
                 console.log("RND take chest: " + iframe);
                 Mst.hud.alerts.show("Nález! " + Mst.items[iframe].name + "!");
@@ -215,7 +216,7 @@ class CChest extends CPrefab {
             const iframe = parseInt(rtake_sp[0]);
             const level = parseInt(rtake_sp[1]);
 
-            if (player.mPlayer.level(skill) > level) {
+            if (skills[skill].level > level) {
                 player.cPlayer.items.add(iframe, 1);
                 console.log("RND take sword next: " + iframe);
                 Mst.hud.alerts.show("Nález! " + Mst.items[iframe].name + "!");

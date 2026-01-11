@@ -1192,6 +1192,8 @@ class MHCards {
 class MHAlerts {
     constructor(mHud) {
         this.mHud = mHud;
+        this.expAlert = new MHExpAlert();
+        
         this.alerts = [];
         this.alert_sprites = [];
         this.i = -1;
@@ -1269,6 +1271,53 @@ class MHAlert extends MHPrototype {
     hide() {
         this.mAlerts.reset_i(this.i);
         super.hide();
+    }
+}
+
+class MHExpAlert {
+    constructor() {
+        this.timer = Mst.game.time.create(false);
+        this.o = {};
+    }
+
+    exp(skill, quantity) {
+        const text = skill + " exp: +" + quantity;
+        console.log(text);
+
+        if (!this.timer.running) {
+            console.log("Timer is not running");
+            Mst.hud.alerts.show(text);
+
+            this.timer.loop(Phaser.Timer.SECOND * 1.8, this.done, this);
+            this.timer.start();
+        } else {
+            console.log("Timer is running");
+            if (this.o[skill]) {
+                this.o[skill].q += quantity;
+            } else {
+                this.o[skill] = {};
+                this.o[skill].s = skill;
+                this.o[skill].q = quantity;
+            }
+        }
+    }
+
+    done() {
+        console.log("Alert timer end");
+        let iz = 0;
+
+        for (let id in this.o) {
+            const eal = this.o[id];
+            if (eal.q > 0) {
+                const skill = eal.s;
+                const text =  skill + " exp: +" + eal.q;
+                Mst.hud.alerts.show(text);
+                iz += eal.q;
+                this.o[skill].q = 0;
+            }
+        }
+
+        if (iz < 1) this.timer.stop();
     }
 }
 

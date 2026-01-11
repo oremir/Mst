@@ -815,7 +815,7 @@ Mst.FactoryChest = class extends Mst.Factory {
             get check() {
                 return this.j < this.max && this.k < (this.max*2);
             }
-        }
+        };
     }
 
     _template() {
@@ -980,6 +980,10 @@ Mst.GroupChest = class extends Mst.Group {
 
     get spawn_check() {
         return this.factory.ind.check;
+    }
+    
+    get spawn_max() {
+        return this.factory.ind.max;
     }
 
     set spawn_max(max) {

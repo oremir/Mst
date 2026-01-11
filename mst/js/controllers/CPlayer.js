@@ -17,8 +17,7 @@ class CPlayer extends CPerson {
         this.relations = new CPRelations(this.mPlayer.stats.relations);
         this.buffs = new CPBuffs(this.mPlayer.stats.buffs);
         this.followers = new CPFollowers(this.mPlayer.followers, this.mPlayer.save.properties.followers);
-        this.expAlert = new CPExpAlert();
-
+        
         const weapon = Mst.core.objects.sword;
         this.weapon = Mst.create_object(weapon);
         this.weapon.cSword.init_cPlayer(this);
@@ -82,10 +81,6 @@ class CPlayer extends CPerson {
         return this.vPlayer.unequip();
     }
 
-    level(skill) {
-        this.mPlayer.level(skill);
-    }
-
     distance(obj) {
         return Mst.game.physics.arcade.distanceBetween(obj, Mst.player);
     }
@@ -118,8 +113,9 @@ class CPlayer extends CPerson {
     work_rout(skill, ability, stress, stand_exp, skill_exp, abil_p) {
         this.mPlayer.gtime.add_minutes(4);
         this.mPlayer.add_stress(stress);
-        this.mPlayer.add_exp("standard", stand_exp);
-        this.mPlayer.add_exp(skill, skill_exp);
+        this.mPlayer.stats.skills.standard.add(stand_exp);
+        this.mPlayer.stats.skills[skill].add(skill_exp);
+        this.mPlayer.logs.add(skill, skill_exp, stress, 4);
         this.add_ability(ability, abil_p, 0);
     }
 
@@ -342,52 +338,7 @@ class CPOpenedOverlap extends CPOpened {
     }
 }
 
-class CPExpAlert {
-    constructor() {
-        this.timer = Mst.game.time.create(false);
-        this.o = {};
-    }
 
-    exp(skill, quantity) {
-        const text = skill + " exp: +" + quantity;
-        console.log(text);
-
-        if (!this.timer.running) {
-            console.log("Timer is not running");
-            Mst.hud.alerts.show(text);
-
-            this.timer.loop(Phaser.Timer.SECOND * 1.8, this.done, this);
-            this.timer.start();
-        } else {
-            console.log("Timer is running");
-            if (this.o[skill]) {
-                this.o[skill].q += quantity;
-            } else {
-                this.o[skill] = {};
-                this.o[skill].s = skill;
-                this.o[skill].q = quantity;
-            }
-        }
-    }
-
-    done() {
-        console.log("Alert timer end");
-        let iz = 0;
-
-        for (let id in this.o) {
-            const eal = this.o[id];
-            if (eal.q > 0) {
-                const skill = eal.s;
-                const text =  skill + " exp: +" + eal.q;
-                Mst.hud.alerts.show(text);
-                iz += eal.q;
-                this.o[skill].q = 0;
-            }
-        }
-
-        if (iz < 1) this.timer.stop();
-    }
-}
 
 class CPRelation extends MArrayItem {
     constructor(arr, id, value){

@@ -184,7 +184,6 @@ class MPrefabInterface {
         }
 
         this.walking_speed = Mst.parseInt(properties.walking_speed);
-        this.jumping_speed = Mst.parseInt(properties.jumping_speed);
     }
 
     init(name, position) {
@@ -206,7 +205,6 @@ class MPrefabInterface {
         this.health.reset(this.stats.health_max);
 
         this.walking_speed = Mst.parseInt(properties.walking_speed);
-        this.jumping_speed = Mst.parseInt(properties.jumping_speed);
     }
 }
 
@@ -221,7 +219,6 @@ class MPrefab extends MModel {
         this.stats = this.interface.stats;
         this.health = this.interface.health;
         this.walking_speed = this.interface.walking_speed;
-        this.jumping_speed = this.interface.jumping_speed;
 
         this.items = new MPItems(this.interface.stats.items);
 
@@ -256,7 +253,6 @@ class MPrefab extends MModel {
         this.stats = this.interface.stats;
         this.health = this.interface.health;
         this.walking_speed = this.interface.walking_speed;
-        this.jumping_speed = this.interface.jumping_speed;
 
         this.items.reset(this.stats.items);
         this.save = this.interface.save;

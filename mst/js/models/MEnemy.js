@@ -165,7 +165,7 @@ Mst.FactoryEnemy = class extends Mst.Factory {
             get check() {
                 return this._group.countLiving() < this.max;
             },
-        }
+        };
     }
 
     _template() {

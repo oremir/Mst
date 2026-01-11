@@ -209,8 +209,9 @@ class MGame extends MModel {
 
         const save = {
             player: this.mPlayer.save,
-            enplayer: JSON.stringify(this.mPlayer.save)
-        }
+            enplayer: JSON.stringify(this.mPlayer.save),
+            logs: this.save.logs
+        };
 
         const key = this.keyOfUsrID(Mst.usr_id);
 
@@ -230,6 +231,8 @@ class MGame extends MModel {
         tween.start();
         const save_data_post = this.save_data_post;
         const tt = this;
+        
+        console.log(save);
 
         $.post("save.php?time="+Mst.time, save)
             .done(function(data) {
@@ -685,7 +688,7 @@ class MArray extends Array {
     }
 
     save() {
-        console.log("Array save:", this.name, this.core)
+        console.log("Array save:", this.name, this.core);
         return this.core;
     }
 

@@ -3,7 +3,7 @@ class MPersonStats extends MStats {
         super(properties);
         properties = this.properties;
 
-        this.skills = properties.skills;
+        this.skills = new MPSkills(this, properties.skills);
         this.abilities = properties.abilities;
         this.badges = properties.badges;
         this.equip = properties.equip;
@@ -28,10 +28,7 @@ class MPersonInterface extends MPrefabInterface {
 
         if (!properties.skills) {
             properties.skills = {
-                standard: { exp: 1, level: 1 },
-                fighter: { exp: 1, level: 1 },
-                woodcutter: { exp: 1, level: 1 },
-                stonebreaker: { exp: 1, level: 1 }
+                standard: { exp: 1, level: 1 }
             };
         }
 
@@ -69,6 +66,106 @@ class MPersonInterface extends MPrefabInterface {
             this.stats = new MPersonStats(properties);
             this.health = this.stats.health;
         }
+    }
+}
+
+class MPSkill {
+    constructor(skills, name, value){
+        this.skills = skills;
+        this.name = name;
+        if (value) {
+            this._exp = parseInt(value.exp);
+            this._level = parseInt(value.level);
+        }
+    }
+    
+    get exp() {
+        if (this._exp) return this._exp;
+        return 0;
+    }
+    
+    get level() {
+        if (this._level) return this._level;
+        return 0;
+    }
+    
+    add(exp) {
+        if (!this._exp) this._exp = 0;
+        this._exp += exp;
+        this._level_add(exp);
+        
+        if (this.name === "standard") {
+            this.skills.stats.exp = this.exp;
+            this.skills.stats.level = this.level;
+        }
+        
+        Mst.hud.alerts.expAlert.exp(this.name, exp);
+    }
+    
+    _level_add(exp) {
+        if (!this._level) this._level = 0;
+        let test_exp = 0;
+
+        switch (this.name) {
+            case "fighter":
+                test_exp = Math.pow(1.5, this.level) * 400;
+                break;
+            case "woodcutter":
+                test_exp = Math.pow(1.4, this.level) * 350;
+                break;
+            case "stonebreaker":
+                test_exp = Math.pow(1.4, this.level) * 350;
+                break;
+            case "forager":
+                test_exp = Math.pow(1.4, this.level) * 340;
+                break;
+            case "magic":
+                test_exp = Math.pow(1.4, this.level) * 380;
+                break;
+            default:
+                test_exp = Math.pow(1.6, this.level) * 500;
+                break;
+        }
+
+        if (exp > test_exp) ++this._level;
+        if (this.name === "standard") this.skills.stats.level = this.level;
+    }
+    
+    save() {
+        if (this._exp) return {
+            exp: this.exp,
+            level: this.level
+        };
+        return null;
+    }
+}
+
+class MPSkills {
+    constructor(stats, core) {
+        this.stats = stats;
+        this.core = core;
+        this._skills = ["standard", "fighter", "woodcutter", "stonebreaker", "magic", "forager", "archer", "miner", "magcrecare", "seeker", "survival", "toolmaker", "farmer"];
+        
+        this._init(core);
+    }
+    
+    _model(name, value) {
+        return new MPSkill(this, name, value);
+    }
+    
+    _init(core) {
+        for (const sk of this._skills) {
+            this[sk] = core[sk] ? this._model(sk, core[sk]) : this._model(sk);
+        }
+    }
+    
+    save() {
+        const save = {};
+        for (const sk of this._skills) {
+            const ss = this[sk].save();
+            if (ss) save[sk] = ss;
+        }
+        return save;
     }
 }
 

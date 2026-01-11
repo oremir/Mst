@@ -168,8 +168,9 @@ Mst.ShowStatWithSprite.prototype.show_window = function (type, stat_type, stat_t
 
             switch (stat_type) {
                 case "skills":
-                    for (let key in Mst.player.stats.skills) {
-                        const skill = Mst.player.stats.skills[key];
+                    const skills = Mst.player.stats.skills;
+                    for (let key in skills.save()) {
+                        const skill = skills[key];
                         const text_value = key + "\t exp:" + skill.exp + "\t lvl:" + skill.level;
                         const stext = Mst.game.add.text(293, 95 + 14 * index, text_value, text_style);
                         stext.fixedToCamera = true;

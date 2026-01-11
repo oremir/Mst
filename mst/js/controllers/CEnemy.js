@@ -222,8 +222,8 @@ class CEnemy extends CPrefab {
             console.log("Hit Enemy", this.mEnemy.health);
 
             if (sub < 1) {
-                Mst.mPlayer.add_exp("standard", axp * 2);
-                Mst.mPlayer.add_exp(skill, axp);
+                Mst.mPlayer.stats.skills.standard.add(axp * 2);
+                Mst.mPlayer.stats.skills[skill].add(axp);
 
                 for (const loot of this.mEnemy.monster_loot) {
                     Mst.cPlayer.items.add(loot, 1); // loot

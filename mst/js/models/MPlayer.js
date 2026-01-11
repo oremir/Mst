@@ -43,7 +43,7 @@ class MPlayer extends MPerson {
         this.cases = new MPCases(this, this.interface.cases);
         this.quests = new MPQuests(this, this.stats.quests);
 
-
+        this.logs = new MPLogs();
         this.gtime = new MPGTime(this.interface.gtimems, this.stats, this.save);
         this.stats.init_gtime(this.gtime);
         this.moon = new MPMoon(this.interface.moon, this.stats, this.save);
@@ -85,7 +85,7 @@ class MPlayer extends MPerson {
         this.health -= quantity;
         this.stats.health = this.health;
 
-        this.add_exp("standard", 1);
+        this.stats.skills.standard.add(1);
         this.cPlayer.add_ability("constitution", 3, 0);
         this.stats.stress += 1;
 
@@ -158,79 +158,9 @@ class MPlayer extends MPerson {
         this.stats.sin += quantity;
     }
 
-    add_exp(skill, quantity) {
-        function level_add(skill, exp, level) {
-            let pom_exp;
-
-            quantity = Math.floor(quantity);
-            if (quantity < 1) {
-                quantity = 1;
-            }
-
-            switch (skill) {
-                case "fighter":
-                    pom_exp = Math.pow(1.5, level) * 400;
-                    break;
-                case "woodcutter":
-                    pom_exp = Math.pow(1.4, level) * 350;
-                    break;
-                case "stonebreaker":
-                    pom_exp = Math.pow(1.4, level) * 350;
-                    break;
-                case "forager":
-                    pom_exp = Math.pow(1.4, level) * 340;
-                    break;
-                case "magic":
-                    pom_exp = Math.pow(1.4, level) * 380;
-                    break;
-                default:
-                    pom_exp = Math.pow(1.6, level) * 500;
-                    break;
-            }
-
-            if (exp > pom_exp) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-
-        if (!this.stats.skills[skill]) {
-            this.stats.skills[skill] = { exp: 1, level: 1 };
-        }
-
-        this.stats.skills[skill].exp = parseInt(this.stats.skills[skill].exp);
-        this.stats.skills[skill].level = parseInt(this.stats.skills[skill].level);
-
-        this.stats.skills[skill].exp += quantity;
-        this.stats.skills[skill].level += level_add(
-            skill,
-            this.stats.skills[skill].exp,
-            this.stats.skills[skill].level
-        );
-
-        console.log(this.save);
-        if (!this.save.properties.skills[skill]) this.save.properties.skills[skill] = {};
-        this.save.properties.skills[skill].exp = this.stats.skills[skill].exp;
-        this.save.properties.skills[skill].level = this.stats.skills[skill].level;
-
-        if (skill === "standard") {
-            this.stats.exp = this.stats.skills[skill].exp;
-            this.stats.level = this.stats.skills[skill].level;
-        }
-
-        this.cPlayer.expAlert.exp(skill, quantity);
-    }
-
-    level(skill) {
-        let level = 0;
-        if (this.stats.skills[skill]) level = parseInt(this.stats.skills[skill].level);
-        return level;
-    }
-
     damage(ability, acoef, skill, scoef) {
         let damage = 2 + (this.stats.abilities[ability] / acoef);
-        damage += this.level("standard") + (this.level(skill) * scoef);
+        damage += this.stats.skills.standard.level + (this.stats.skills[skill].level * scoef);
         damage = Math.floor(damage);
         console.log("DM: " + damage);
 
@@ -253,6 +183,7 @@ class MPlayer extends MPerson {
         this.save.properties.stats.sin = this.stats.sin;
         this.save.properties.items = this.items.save();
         this.save.properties.equip = this.stats.equip;
+        this.save.properties.skills = this.stats.skills.save();
         this.save.properties.relations = this.cPlayer.relations.save();
         this.save.properties.expequip = this.stats.expequip;
         this.save.properties.culprit = this.cPlayer.cases.culprit;
@@ -266,7 +197,8 @@ class MPlayer extends MPerson {
 
         this.save.map.old_int = this.map;
         this.save.map.new_int = go_map_int;
-
+        
+        Mst.mGame.save.logs = this.logs.save();
         Mst.mGame.save.player = this.save;
 
         localStorage.setItem("player", JSON.stringify(this.save));
@@ -400,6 +332,45 @@ class MPInterface extends MPersonInterface {
     }
 }
 
+class MPLogs {
+    constructor() {
+        this._types = [];
+    }
+    
+    _get_model(type, exp, stress, spend) {
+        return {
+            uid: Mst.usr_id,
+            map: Mst.map_int,
+            type: type,
+            exp: exp,
+            stress: stress,
+            spend: spend,
+            time: Mst.time
+        };
+    }
+    
+    add(type, exp, stress, spend) {
+        if(!this[type]) {
+            this._types.push(type);
+            this[type] = this._get_model(type, exp, stress, spend);
+        } else {
+            this[type].exp += exp;
+            this[type].stress += stress;
+            this[type].spend += spend;
+            this[type].time = Mst.time;
+        }
+    }
+    
+    save() {
+        const save = [];
+        for (const sk of this._types) {
+            save.push(this[sk]);
+        }
+        console.log(save);
+        return save;
+    }
+}
+    
 class MPGTime {
     constructor(gtimems, stats, save) {
         this.ms = gtimems;
@@ -764,13 +735,13 @@ class MPQuests {
             switch (rewa[0]) {
                 case 'exp': {
                     const quantity = parseInt(rewa[1]);
-                    this.mPlayer.add_exp("standard", quantity);
+                    this.mPlayer.stats.skills.standard.add(quantity);
                     console.log("Exp +" + quantity);
                 break;
                 }
                 case 'exps': {
                     const quantity = parseInt(rewa[2]);
-                    this.mPlayer.add_exp(rewa[1], quantity);
+                    this.mPlayer.stats.skills[rewa[1]].add(quantity);
                     console.log(rewa[1] + " +" + quantity);
                 break;
                 }
@@ -1503,7 +1474,7 @@ class MPStream {
                 x: parseInt(xy[0]),
                 y: parseInt(xy[1]),
                 type: sa[4]
-            }
+            };
             arr.push(ns);
             if (ns.uid === Mst.usr_id) this.me = ns;
         }

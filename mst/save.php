@@ -30,13 +30,20 @@ $usr_id = $apost["player"]["usr_id"];
 $map_new_int = $apost["player"]["map"]["new_int"];
 $map_old_int = $apost["player"]["map"]["old_int"];
 $user = $apost["player"];
-//$user_en1 = $apost["enplayer"];
+
+if (isset($apost["logs"])):
+    $logs = $apost["logs"];
+else:
+    $logs = [];
+endif;
 
 if (isset($apost["enplayer"])):
     $user_en1 = $apost["enplayer"];
 else:
     $user_en1 = json_encode($user);
 endif;
+
+$uname = "";
 
 //if ($user_en1 == "")
 
@@ -62,6 +69,7 @@ $result = $mysqli->query("SELECT * FROM `users` WHERE UID = '".$usr_id."'");
 if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
+        $uname = $row["login_name"];
         $radek_l2 = date(DATE_ATOM) . "|" . time() . "|" .  $row["ID"]. "|" . $row["UID"]. "|" . $row["login_name"]. "|X" . $user["x"] . "|Y" . $user["y"] . "|" . $row["on_map"]. "|" . $map_new_int . "|SAVE|";
     }
     
@@ -72,7 +80,7 @@ if ($result->num_rows > 0) {
     $sql = "UPDATE `users` SET on_map = '".$map_new_int."', JSON = '".$user_en1."', time = '".time()."' WHERE UID = ".$usr_id;
 
     if ($mysqli->query($sql) === TRUE) {
-        $radek_l2 =  $radek_l2 . $user_en1 . "|Record updated successfully\n";
+        $radek_l2 =  $radek_l2 . "|Record updated successfully\n";
         $radek_l3 =  $user_en1 . "\n";
     } else {
         $radek_l2 =  $radek_l2 . "Error updating record: " . $mysqli->error . "\n";
@@ -292,7 +300,12 @@ else:
 
 endif;*/
 
+// --------------------------- Logs --------------------
 
+
+foreach ($logs as $log) {
+  $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|" . $uname . "|M" . $map_old_int . "|" . $log["type"] . "|E" . $log["exp"] . "|S" . $log["stress"] . "|T" . $log["spend"] . "|" . $log["time"] . "\n";
+}
 
 $path_log = "log.log";
 
