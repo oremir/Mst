@@ -304,7 +304,17 @@ endif;*/
 
 
 foreach ($logs as $log) {
-  $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|" . $uname . "|M" . $map_old_int . "|" . $log["type"] . "|E" . $log["exp"] . "|S" . $log["stress"] . "|T" . $log["spend"] . "|" . $log["time"] . "\n";
+  $radek_l2 = $radek_l2 . date(DATE_ATOM) . "|" . time() . "|" . $usr_id . "|" . $uname . "|M" . $map_old_int . "|" . $log["type"] . "|E" . $log["exp"] . "|S" . $log["stress"] . "|T" . $log["spend"] . "|" . $log["time"];
+  $sql = "INSERT INTO `logs` (UID, type, JSON, time) 
+    VALUES ('".$usr_id."', '".$log["type"]."', '".json_encode($log)."', '".$log["time"]."')";
+
+    if ($mysqli->query($sql) === TRUE) {
+        $last_id = $mysqli->insert_id;
+        $radek_l2 = $radek_l2 . "|LastID:".$last_id."|Log created successfully\n";
+    } else {
+        $status = "error";
+        $radek_l2 = $radek_l2 . "|Error: " . $sql . " | " . $mysqli->error . "\n";
+    }
 }
 
 $path_log = "log.log";
